@@ -15,7 +15,7 @@ const KIND_TONE: Record<string, string> = {
   income: "text-emerald-600",
   fee: "text-amber-600",
   expense: "text-red-600",
-  deposit: "text-blue-600",
+  deposit: "text-[var(--brand)]",
   net: "text-slate-900 font-bold",
 }
 

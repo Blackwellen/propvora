@@ -144,8 +144,8 @@ export function ComplianceRequirementsEditor() {
     <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-5 md:col-span-2">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-blue-100">
-            <Globe className="w-4 h-4 text-blue-600" />
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[var(--color-brand-100)]">
+            <Globe className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <div>
             <p className="text-sm font-semibold text-slate-900">Jurisdiction compliance requirements</p>
@@ -161,7 +161,7 @@ export function ComplianceRequirementsEditor() {
         </div>
         <button
           onClick={() => { setShowAdd((v) => !v); setEditingKey(null); setDraft(EMPTY_DRAFT) }}
-          className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+          className="flex items-center gap-1.5 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
         >
           <Plus className="w-3.5 h-3.5" /> Add requirement
         </button>
@@ -183,32 +183,32 @@ export function ComplianceRequirementsEditor() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="sm:col-span-2">
               <label className="block text-[11px] font-medium text-slate-600 mb-1">Requirement name <span className="text-red-500">*</span></label>
-              <input value={draft.label} onChange={(e) => setDraft((d) => ({ ...d, label: e.target.value }))} placeholder="e.g. Selective Licence" className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400" />
+              <input value={draft.label} onChange={(e) => setDraft((d) => ({ ...d, label: e.target.value }))} placeholder="e.g. Selective Licence" className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]" />
             </div>
             <div className="sm:col-span-2">
               <label className="block text-[11px] font-medium text-slate-600 mb-1">Description</label>
-              <input value={draft.helper} onChange={(e) => setDraft((d) => ({ ...d, helper: e.target.value }))} placeholder="Short description of the document" className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400" />
+              <input value={draft.helper} onChange={(e) => setDraft((d) => ({ ...d, helper: e.target.value }))} placeholder="Short description of the document" className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]" />
             </div>
             <div>
               <label className="block text-[11px] font-medium text-slate-600 mb-1">Type</label>
-              <select value={draft.kind} onChange={(e) => setDraft((d) => ({ ...d, kind: e.target.value as ComplianceKind }))} className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400">
+              <select value={draft.kind} onChange={(e) => setDraft((d) => ({ ...d, kind: e.target.value as ComplianceKind }))} className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]">
                 {KIND_KEYS.map((k) => <option key={k} value={k}>{KIND_LABEL[k]}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-[11px] font-medium text-slate-600 mb-1">Icon</label>
-              <select value={draft.icon} onChange={(e) => setDraft((d) => ({ ...d, icon: e.target.value as ComplianceIconKey }))} className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400">
+              <select value={draft.icon} onChange={(e) => setDraft((d) => ({ ...d, icon: e.target.value as ComplianceIconKey }))} className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]">
                 {ICON_KEYS.map((k) => <option key={k} value={k}>{k}</option>)}
               </select>
             </div>
             <div className="sm:col-span-2 flex items-center gap-2">
-              <input id="crit" type="checkbox" checked={draft.critical} onChange={(e) => setDraft((d) => ({ ...d, critical: e.target.checked }))} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+              <input id="crit" type="checkbox" checked={draft.critical} onChange={(e) => setDraft((d) => ({ ...d, critical: e.target.checked }))} className="w-4 h-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]" />
               <label htmlFor="crit" className="text-xs text-slate-600">Statutory / critical requirement</label>
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-3">
             <button onClick={() => { setShowAdd(false); setEditingKey(null); setDraft(EMPTY_DRAFT) }} className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-white">Cancel</button>
-            <button onClick={saveDraft} disabled={busy} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium disabled:opacity-60">
+            <button onClick={saveDraft} disabled={busy} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-xs font-medium disabled:opacity-60">
               {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />} {editingKey ? "Save changes" : "Add requirement"}
             </button>
           </div>
@@ -233,7 +233,7 @@ export function ComplianceRequirementsEditor() {
                   <span className="text-[10px] text-slate-400 shrink-0">Built-in</span>
                   <button
                     onClick={() => toggleBuiltIn(r.key, off)}
-                    className={`text-xs font-medium px-2.5 py-1 rounded-lg border transition-colors shrink-0 ${off ? "border-slate-200 text-slate-500 hover:bg-slate-50" : "border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100"}`}
+                    className={`text-xs font-medium px-2.5 py-1 rounded-lg border transition-colors shrink-0 ${off ? "border-slate-200 text-slate-500 hover:bg-slate-50" : "border-[var(--color-brand-100)] text-[var(--brand)] bg-[var(--brand-soft)] hover:bg-[var(--color-brand-100)]"}`}
                   >
                     {off ? "Enable" : "Disable"}
                   </button>
@@ -247,8 +247,8 @@ export function ComplianceRequirementsEditor() {
                   <p className="text-[11px] text-slate-400 truncate">{r.helper || "Custom compliance requirement"}</p>
                 </div>
                 {r.critical && <span className="text-[10px] font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 shrink-0">Critical</span>}
-                <span className="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 shrink-0">Custom</span>
-                <button onClick={() => startEdit(r.req_key)} className="p-1 text-slate-400 hover:text-blue-600 shrink-0"><Pencil className="w-3.5 h-3.5" /></button>
+                <span className="text-[10px] text-[var(--brand)] bg-[var(--brand-soft)] px-1.5 py-0.5 rounded border border-[var(--color-brand-100)] shrink-0">Custom</span>
+                <button onClick={() => startEdit(r.req_key)} className="p-1 text-slate-400 hover:text-[var(--brand)] shrink-0"><Pencil className="w-3.5 h-3.5" /></button>
                 <button onClick={() => removeCustom(r.req_key)} className="p-1 text-slate-400 hover:text-red-500 shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
             ))}

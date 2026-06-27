@@ -68,7 +68,7 @@ const STEPS: WizardStepDef[] = [
 ]
 
 const inputCls =
-  "w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+  "w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
 
 function Labelled({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (

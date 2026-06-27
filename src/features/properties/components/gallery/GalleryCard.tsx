@@ -1,7 +1,7 @@
 "use client"
 
 const CATEGORY_CONFIG: Record<string, { label: string; color: string }> = {
-  exterior:  { label: "Exterior",  color: "bg-blue-100 text-blue-800" },
+  exterior:  { label: "Exterior",  color: "bg-[var(--color-brand-100)] text-[var(--brand-strong)]" },
   interior:  { label: "Interior",  color: "bg-purple-100 text-purple-800" },
   amenity:   { label: "Amenity",   color: "bg-green-100 text-green-800" },
   floor_plan:{ label: "Floor Plan", color: "bg-amber-100 text-amber-800" },

@@ -55,7 +55,7 @@ export function TeamServiceSLAs() {
               <thead><tr className="text-left text-xs text-slate-500 border-b border-slate-100 bg-slate-50/60"><Th>Service</Th><Th>Response SLA</Th><Th>Completion</Th><Th>Min charge</Th><Th>Emergency</Th><Th>Breaches</Th></tr></thead>
               <tbody className="divide-y divide-slate-50">
                 {SERVICES.map((s) => (
-                  <tr key={s.id} onClick={() => setSelId(s.id)} className={cn("hover:bg-slate-50/60 cursor-pointer", selected?.id === s.id && "bg-blue-50/40")}>
+                  <tr key={s.id} onClick={() => setSelId(s.id)} className={cn("hover:bg-slate-50/60 cursor-pointer", selected?.id === s.id && "bg-[var(--brand-soft)]/40")}>
                     <td className="px-4 py-3"><p className="font-semibold text-slate-800">{s.name}</p><p className="text-[11px] text-slate-400">{s.trade}</p></td>
                     <td className="px-4 py-3 text-slate-600">{s.responseSlaMins < 60 ? `${s.responseSlaMins}m` : `${Math.round(s.responseSlaMins / 60)}h`}</td>
                     <td className="px-4 py-3 text-slate-600">{s.completionSlaHours}h</td>
@@ -98,7 +98,7 @@ export function TeamServiceSLAs() {
 
 function Th({ children }: { children?: React.ReactNode }) { return <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{children}</th> }
 function Mini({ label, value, tone }: { label: string; value: string; tone: "blue" | "amber" | "slate" }) {
-  const c = tone === "blue" ? "text-[#2563EB]" : tone === "amber" ? "text-amber-600" : "text-slate-900"
+  const c = tone === "blue" ? "text-[var(--brand)]" : tone === "amber" ? "text-amber-600" : "text-slate-900"
   return <SupplierCard className="p-3.5"><span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span><p className={cn("text-lg font-bold mt-1", c)}>{value}</p></SupplierCard>
 }
 function RuleRow({ icon: Icon, k, v }: { icon: typeof Clock; k: string; v: string }) {

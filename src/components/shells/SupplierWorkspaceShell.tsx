@@ -98,7 +98,7 @@ function SupplierSidebarInner({
       {/* Bottom: workspace + account cards (PM parity). */}
       <div className="shrink-0 p-3 border-t border-white/[0.08]">
         <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-white/[0.06] border border-white/[0.10] mb-2">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center shrink-0 shadow-sm text-white text-[12px] font-bold">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center shrink-0 shadow-sm text-white text-[12px] font-bold">
             {initialsOf(supplierName)}
           </div>
           <div className="flex-1 min-w-0">
@@ -206,7 +206,7 @@ export default function SupplierWorkspaceShell({
               <button
                 onClick={() => setMobileOpen(true)}
                 aria-label="Open menu"
-                className="lg:hidden inline-flex items-center justify-center min-w-[40px] min-h-[40px] rounded-lg hover:bg-slate-100 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
+                className="lg:hidden inline-flex items-center justify-center min-w-[40px] min-h-[40px] rounded-lg hover:bg-slate-100 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
               >
                 <Menu className="w-5 h-5" />
               </button>

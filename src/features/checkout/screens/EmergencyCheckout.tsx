@@ -121,7 +121,7 @@ export function EmergencyCheckout({
               const reached = i === 0
               return (
                 <li key={s.key} className="flex items-center gap-3">
-                  <span className={`flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-bold ${reached ? "bg-[#2563EB] text-white" : "bg-slate-100 text-slate-400"}`}>{reached ? <CheckCircle2 className="h-4 w-4" /> : i + 1}</span>
+                  <span className={`flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-bold ${reached ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-400"}`}>{reached ? <CheckCircle2 className="h-4 w-4" /> : i + 1}</span>
                   <span className={`text-[13px] font-medium ${reached ? "text-[#0B1B3F]" : "text-slate-400"}`}>{s.label}</span>
                 </li>
               )
@@ -187,7 +187,7 @@ export function EmergencyCheckout({
           {CONTACT_OPTS.map((o) => {
             const active = contactMethod === o.key
             return (
-              <button key={o.key} type="button" onClick={() => setContactMethod(o.key)} className={`flex flex-col items-center gap-1.5 rounded-xl border px-3 py-3 text-[12.5px] font-semibold transition-colors ${active ? "border-[#2563EB] bg-[#EFF5FF] text-[#2563EB]" : "border-[#E2EAF6] bg-white text-slate-600 hover:border-[#CBD8EE]"}`}>
+              <button key={o.key} type="button" onClick={() => setContactMethod(o.key)} className={`flex flex-col items-center gap-1.5 rounded-xl border px-3 py-3 text-[12.5px] font-semibold transition-colors ${active ? "border-[var(--brand)] bg-[#EFF5FF] text-[var(--brand)]" : "border-[#E2EAF6] bg-white text-slate-600 hover:border-[#CBD8EE]"}`}>
                 <o.icon className="h-4 w-4" /> {o.label}
               </button>
             )

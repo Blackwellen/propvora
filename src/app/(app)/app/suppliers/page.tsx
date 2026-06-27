@@ -68,12 +68,12 @@ export default function SuppliersHubPage() {
   // Total/Preferred are live-derived. The remaining KPIs have no live source in
   // this hub yet, so they show an honest "—" instead of fabricated numbers.
   const KPIS = [
-    { label: "Total Suppliers",      value: String(suppliers.length), sub: `${preferred.length} preferred`,  icon: Users,        bg: "bg-blue-50",    color: "text-blue-600"    },
+    { label: "Total Suppliers",      value: String(suppliers.length), sub: `${preferred.length} preferred`,  icon: Users,        bg: "bg-[var(--brand-soft)]",    color: "text-[var(--brand)]"    },
     { label: "Pending Requests",     value: "—",                      sub: "No requests yet",                icon: Clock,        bg: "bg-amber-50",   color: "text-amber-600"   },
     { label: "Quotes Received",      value: "—",                      sub: "No quotes yet",                  icon: FileText,     bg: "bg-emerald-50", color: "text-emerald-600" },
     { label: "SLA Compliance",       value: "—",                      sub: "Awaiting data",                  icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" },
     { label: "Outstanding Invoices", value: "—",                      sub: "No invoices yet",                icon: Receipt,      bg: "bg-violet-50",  color: "text-violet-600"  },
-    { label: "Avg Response Time",    value: "—",                      sub: "Awaiting data",                  icon: Zap,          bg: "bg-blue-50",    color: "text-blue-600"    },
+    { label: "Avg Response Time",    value: "—",                      sub: "Awaiting data",                  icon: Zap,          bg: "bg-[var(--brand-soft)]",    color: "text-[var(--brand)]"    },
   ]
 
   function exportCsv() {
@@ -108,7 +108,7 @@ export default function SuppliersHubPage() {
             <>
               <Link
                 href="/property-manager/contacts/new?type=supplier"
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-[#2563EB] text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-[var(--brand)] text-white rounded-lg text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
               >
                 <UserPlus className="w-3.5 h-3.5" />
                 Add Supplier
@@ -179,7 +179,7 @@ export default function SuppliersHubPage() {
         <div className="lg:col-span-2 space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-[14px] font-semibold text-slate-800">Your Suppliers</h2>
-            <Link href="/property-manager/suppliers/directory" className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline font-medium">
+            <Link href="/property-manager/suppliers/directory" className="flex items-center gap-1 text-[12px] text-[var(--brand)] hover:underline font-medium">
               View all <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -191,7 +191,7 @@ export default function SuppliersHubPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search suppliers…"
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] bg-white"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] bg-white"
             />
           </div>
 
@@ -215,10 +215,10 @@ export default function SuppliersHubPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="text-[13.5px] font-semibold text-slate-900 truncate">{s.name}</span>
-                        {s.preferred && <BadgeCheck className="w-4 h-4 text-[#2563EB] shrink-0" />}
+                        {s.preferred && <BadgeCheck className="w-4 h-4 text-[var(--brand)] shrink-0" />}
                       </div>
                       <div className="flex items-center gap-2 text-[11.5px] text-slate-500">
-                        <span className="px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-medium">{s.trade}</span>
+                        <span className="px-1.5 py-0.5 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] font-medium">{s.trade}</span>
                         <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
                         <span className="truncate">{s.location}</span>
                       </div>
@@ -240,7 +240,7 @@ export default function SuppliersHubPage() {
                 <p className="text-[12.5px] text-slate-500 mb-4">Add your first supplier to start tracking your network.</p>
                 <Link
                   href="/property-manager/contacts/new?type=supplier"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--brand)] text-white rounded-lg text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   Add Supplier
@@ -267,7 +267,7 @@ export default function SuppliersHubPage() {
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-[13px] font-semibold text-slate-800">Compliance Status</h3>
-              <Link href="/property-manager/suppliers/compliance" className="text-[11px] text-[#2563EB] hover:underline font-medium">View all</Link>
+              <Link href="/property-manager/suppliers/compliance" className="text-[11px] text-[var(--brand)] hover:underline font-medium">View all</Link>
             </div>
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Shield className="w-8 h-8 text-slate-200 mb-2" />
@@ -280,7 +280,7 @@ export default function SuppliersHubPage() {
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[13px] font-semibold text-slate-800">Performance</h3>
-              <Link href="/property-manager/suppliers/performance" className="text-[11px] text-[#2563EB] hover:underline font-medium">View all</Link>
+              <Link href="/property-manager/suppliers/performance" className="text-[11px] text-[var(--brand)] hover:underline font-medium">View all</Link>
             </div>
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <TrendingUp className="w-8 h-8 text-slate-200 mb-2" />

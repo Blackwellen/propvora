@@ -53,7 +53,7 @@ export function UnitStepDetails({ data, onChange }: UnitStepDetailsProps) {
           placeholder="e.g. Room 1, Studio A, Flat 2"
           value={data.unit_name}
           onChange={(e) => onChange({ unit_name: e.target.value })}
-          className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+          className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
         />
       </div>
 
@@ -69,7 +69,7 @@ export function UnitStepDetails({ data, onChange }: UnitStepDetailsProps) {
               className={cn(
                 "px-3 py-2.5 rounded-xl border text-sm font-medium transition-all text-left",
                 data.unit_type === t.key
-                  ? "border-[#2563EB] bg-blue-50 text-[#2563EB]"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
                   : "border-slate-200 text-slate-700 hover:border-slate-300",
               )}
             >
@@ -90,7 +90,7 @@ export function UnitStepDetails({ data, onChange }: UnitStepDetailsProps) {
               max={f.max}
               value={data[f.key] as number}
               onChange={(e) => onChange({ [f.key]: Number(e.target.value) })}
-              className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+              className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
             />
           </div>
         ))}
@@ -106,7 +106,7 @@ export function UnitStepDetails({ data, onChange }: UnitStepDetailsProps) {
               className={cn(
                 "px-3 py-2 rounded-lg text-sm font-medium border transition-all",
                 data.status === s.key
-                  ? "border-[#2563EB] bg-blue-50 text-[#2563EB]"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
                   : "border-slate-200 text-slate-600 hover:border-slate-300",
               )}
             >

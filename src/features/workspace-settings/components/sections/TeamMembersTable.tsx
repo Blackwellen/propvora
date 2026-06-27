@@ -26,7 +26,7 @@ const ROLES = ["all", "owner", "admin", "manager", "member", "read_only", "finan
 function roleBadgeClass(role: string): string {
   switch (role) {
     case "owner": return "bg-violet-100 text-violet-700"
-    case "admin": return "bg-blue-100 text-blue-700"
+    case "admin": return "bg-[var(--color-brand-100)] text-[var(--brand)]"
     case "manager": return "bg-emerald-100 text-emerald-700"
     case "finance": return "bg-amber-100 text-amber-700"
     case "compliance": return "bg-orange-100 text-orange-700"
@@ -66,12 +66,12 @@ export function TeamMembersTable({
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search members…"
-          className="flex-1 min-w-[160px] h-9 px-3 rounded-lg text-sm border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all bg-white"
+          className="flex-1 min-w-[160px] h-9 px-3 rounded-lg text-sm border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all bg-white"
         />
         <select
           value={roleFilter}
           onChange={(e) => onRoleFilterChange(e.target.value)}
-          className="h-9 px-3 rounded-lg text-sm border border-slate-200 text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 transition-all"
+          className="h-9 px-3 rounded-lg text-sm border border-slate-200 text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 transition-all"
         >
           {ROLES.map((r) => (
             <option key={r} value={r}>{r === "all" ? "All roles" : roleLabel(r)}</option>
@@ -100,7 +100,7 @@ export function TeamMembersTable({
                 <tr key={m.id} className="hover:bg-slate-50/50">
                   <td className="py-3 px-5">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-[11px] font-bold shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-brand-100)] flex items-center justify-center text-[var(--brand)] text-[11px] font-bold shrink-0">
                         {m.avatarInitials ?? m.fullName.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
@@ -113,7 +113,7 @@ export function TeamMembersTable({
                     <select
                       value={m.role}
                       onChange={(e) => onChangeRole(m.id, e.target.value)}
-                      className="text-[12px] border border-slate-200 rounded-lg px-2 py-1 text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-[#2563EB]/20"
+                      className="text-[12px] border border-slate-200 rounded-lg px-2 py-1 text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-[var(--brand)]/20"
                     >
                       {ROLES.filter((r) => r !== "all").map((r) => (
                         <option key={r} value={r}>{roleLabel(r)}</option>
@@ -146,7 +146,7 @@ export function TeamMembersTable({
           filtered.map((m) => (
             <div key={m.id} className="p-4 flex items-start justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-bold shrink-0">
+                <div className="w-9 h-9 rounded-full bg-[var(--color-brand-100)] flex items-center justify-center text-[var(--brand)] text-xs font-bold shrink-0">
                   {m.avatarInitials ?? m.fullName.slice(0, 2).toUpperCase()}
                 </div>
                 <div className="min-w-0">

@@ -271,7 +271,7 @@ function NewContactWizard() {
             <div className="flex flex-col gap-2.5 pt-2">
               <button
                 onClick={() => router.push(`/property-manager/contacts/${createdContact.id}`)}
-                className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 text-sm transition"
+                className="w-full rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white font-semibold py-2.5 text-sm transition"
               >
                 View Contact
               </button>
@@ -363,7 +363,7 @@ function NewContactWizard() {
                   <button
                     type="button"
                     onClick={handleNext}
-                    className="flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 text-sm font-semibold transition"
+                    className="flex items-center gap-1.5 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-5 py-2 text-sm font-semibold transition"
                   >
                     Next
                     <ChevronRight className="w-4 h-4" />
@@ -373,7 +373,7 @@ function NewContactWizard() {
                     type="button"
                     onClick={handleCreate}
                     disabled={!workspace || createContact.isPending}
-                    className="flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 text-sm font-semibold transition"
+                    className="flex items-center gap-2 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-strong)] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 text-sm font-semibold transition"
                   >
                     {createContact.isPending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />

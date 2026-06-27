@@ -195,13 +195,13 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
               <h2 className="text-base font-bold text-slate-900">Contact Type Breakdown</h2>
               <p className="text-xs text-slate-500 mt-0.5">Distribution across {contacts.length} contacts</p>
             </div>
-            <Link href="/property-manager/contacts/people" className="text-xs text-[#2563EB] hover:underline font-medium">View all</Link>
+            <Link href="/property-manager/contacts/people" className="text-xs text-[var(--brand)] hover:underline font-medium">View all</Link>
           </div>
           {contacts.length === 0 ? (
             <div className="py-12 text-center">
               <Users className="w-10 h-10 text-slate-200 mx-auto mb-2" />
               <p className="text-sm text-slate-400">No contacts yet</p>
-              <button onClick={onAddContact} className="mt-2 text-xs text-[#2563EB] hover:underline">Add your first contact</button>
+              <button onClick={onAddContact} className="mt-2 text-xs text-[var(--brand)] hover:underline">Add your first contact</button>
             </div>
           ) : (
             <DonutChart segments={pieSegments} total={contacts.length} />
@@ -235,7 +235,7 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
                     <span>{c.tags.includes("arrears") ? "Arrears flagged" : c.tags.includes("follow_up") ? "Follow-up due" : "Inactive — review"}</span>
                   </div>
                 </div>
-                <Link href={`/property-manager/contacts/${c.id}`} className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-[#2563EB] hover:text-white transition-colors">
+                <Link href={`/property-manager/contacts/${c.id}`} className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-[var(--brand)] hover:text-white transition-colors">
                   Act
                 </Link>
               </div>
@@ -252,17 +252,17 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
               <h2 className="text-base font-bold text-slate-900">Key Contacts</h2>
               <p className="text-xs text-slate-500 mt-0.5">Most recently active</p>
             </div>
-            <Link href="/property-manager/contacts/people" className="text-xs text-[#2563EB] hover:underline font-medium">View all</Link>
+            <Link href="/property-manager/contacts/people" className="text-xs text-[var(--brand)] hover:underline font-medium">View all</Link>
           </div>
           {keyContacts.length === 0 ? (
             <div className="py-8 text-center"><Users className="w-8 h-8 text-slate-200 mx-auto mb-2" /><p className="text-xs text-slate-400">No contacts yet</p></div>
           ) : (
             <div className="space-y-3">
               {keyContacts.map((c) => (
-                <Link key={c.id} href={`/property-manager/contacts/${c.id}`} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all group">
+                <Link key={c.id} href={`/property-manager/contacts/${c.id}`} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-[var(--color-brand-100)] hover:bg-[var(--brand-soft)]/30 transition-all group">
                   <Avatar name={c.full_name} size="sm" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-900 truncate group-hover:text-[#2563EB]">{c.full_name}</p>
+                    <p className="text-sm font-semibold text-slate-900 truncate group-hover:text-[var(--brand)]">{c.full_name}</p>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <TypeBadge type={c.contact_type} />
                       {c.company_name && <span className="text-[10px] text-slate-400 truncate">{c.company_name}</span>}
@@ -332,7 +332,7 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
               <h2 className="text-base font-bold text-slate-900">Recent Activity</h2>
               <p className="text-xs text-slate-500 mt-0.5">Latest contact events</p>
             </div>
-            <Link href="/property-manager/contacts/activity" className="text-xs text-[#2563EB] hover:underline font-medium">View all</Link>
+            <Link href="/property-manager/contacts/activity" className="text-xs text-[var(--brand)] hover:underline font-medium">View all</Link>
           </div>
           <div className="space-y-0">
             {recentActivity.length === 0 ? (
@@ -346,7 +346,7 @@ export function ContactsOverviewPanel({ contacts, onAddContact }: Props) {
                   <UserPlus className="w-3.5 h-3.5" style={{ color: "var(--color-success)" }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-slate-700 font-medium leading-relaxed group-hover:text-[#2563EB] transition-colors truncate">
+                  <p className="text-xs text-slate-700 font-medium leading-relaxed group-hover:text-[var(--brand)] transition-colors truncate">
                     {c.full_name} <span className="text-slate-400 font-normal">updated</span>
                   </p>
                   <p className="text-[10px] text-slate-400 mt-0.5">{relativeTime(c.updated_at)}</p>

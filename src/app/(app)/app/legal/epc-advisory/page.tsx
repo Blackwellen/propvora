@@ -127,7 +127,7 @@ function EpcAdvisoryPageInner() {
       { label: "Days", render: (r) => (r.days == null ? "—" : r.days < 0 ? `${Math.abs(r.days)}d ago` : `${r.days}d`) },
     ],
     actions: (r) => (
-      <Link href={`/property-manager/portfolio/properties/${r.p.id}`} className="text-[12px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+      <Link href={`/property-manager/portfolio/properties/${r.p.id}`} className="text-[12px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium flex items-center gap-1">
         <Building2 className="w-3.5 h-3.5" /> Open
       </Link>
     ),
@@ -233,7 +233,7 @@ function EpcAdvisoryPageInner() {
                         <td className="px-4 py-3 text-[11px] text-slate-500">{cert ? formatDate(cert.expiry_date) : "—"}</td>
                         <td className="px-4 py-3 text-[11px] text-slate-500">{days == null ? "—" : days < 0 ? `${Math.abs(days)}d ago` : `${days}d`}</td>
                         <td className="px-4 py-3">
-                          <Link href={`/property-manager/portfolio/properties/${p.id}`} className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+                          <Link href={`/property-manager/portfolio/properties/${p.id}`} className="text-[11px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium flex items-center gap-1">
                             <Building2 className="w-3 h-3" /> Open
                           </Link>
                         </td>
@@ -248,7 +248,7 @@ function EpcAdvisoryPageInner() {
               <div className="px-5 py-3 border-t border-slate-100">
                 <button
                   onClick={() => exportEpcCsv(csvRows)}
-                  className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors"
+                  className="text-[11px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium flex items-center gap-1 transition-colors"
                 >
                   <Download className="w-3 h-3" />
                   Download improvement / coverage list (CSV)
@@ -262,7 +262,7 @@ function EpcAdvisoryPageInner() {
         <div className="lg:col-span-4 space-y-4">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-5 py-3 border-b border-slate-100 flex items-center gap-2">
-              <Target className="w-4 h-4 text-blue-500" />
+              <Target className="w-4 h-4 text-[var(--brand)]" />
               <h3 className="text-[13px] font-semibold text-slate-800">EPC Readiness Score</h3>
             </div>
             <div className="p-4">
@@ -287,7 +287,7 @@ function EpcAdvisoryPageInner() {
               <p className="text-[11px] text-slate-500 mt-3 leading-relaxed">
                 Improve readiness by capturing EPC certificates and renewing before expiry in Compliance.
               </p>
-              <Link href="/property-manager/compliance" className="mt-2 inline-block text-[11px] text-blue-600 hover:text-blue-800 font-medium">
+              <Link href="/property-manager/compliance" className="mt-2 inline-block text-[11px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium">
                 Open Compliance →
               </Link>
             </div>
@@ -303,7 +303,7 @@ function EpcAdvisoryPageInner() {
                 Capture EPC improvement plans on each property record (e.g. insulation, heating upgrades) so they feed
                 your readiness over time.
               </p>
-              <Link href="/property-manager/portfolio/properties" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium">
+              <Link href="/property-manager/portfolio/properties" className="text-[11px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium">
                 Open property improvement plans →
               </Link>
             </div>
@@ -331,7 +331,7 @@ function EmptyState({ title, body, href, cta }: { title: string; body: string; h
       </div>
       <p className="text-[14px] font-semibold text-slate-700 mb-1">{title}</p>
       <p className="text-[12px] text-slate-500 mb-4">{body}</p>
-      <Link href={href} className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-4 py-2 rounded-lg transition-colors">
+      <Link href={href} className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-4 py-2 rounded-lg transition-colors">
         {cta}
       </Link>
     </div>

@@ -33,7 +33,7 @@ export function StepBasics({ data, onChange }: StepBasicsProps) {
           placeholder="e.g. Brunswick Road HMO"
           value={data.name}
           onChange={(e) => onChange({ name: e.target.value })}
-          className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+          className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
         />
       </div>
 
@@ -46,7 +46,7 @@ export function StepBasics({ data, onChange }: StepBasicsProps) {
           <select
             value={data.propertyType}
             onChange={(e) => onChange({ propertyType: e.target.value })}
-            className="w-full h-10 pl-9 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-slate-900 text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+            className="w-full h-10 pl-9 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-slate-900 text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
           >
             <option value="">Select a property type…</option>
             {PROPERTY_TYPE_GROUPS.map((grp) => (
@@ -71,7 +71,7 @@ export function StepBasics({ data, onChange }: StepBasicsProps) {
               className={cn(
                 "px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-150",
                 data.status === s.key
-                  ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
                   : "border-[#E2E8F0] text-slate-600 hover:border-slate-300"
               )}
             >

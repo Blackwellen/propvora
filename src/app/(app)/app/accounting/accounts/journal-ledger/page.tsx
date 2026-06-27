@@ -147,7 +147,7 @@ function NewEntryModal({
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+                className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
               />
             </div>
             <div className="space-y-1.5">
@@ -157,7 +157,7 @@ function NewEntryModal({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="e.g. Rent received — Unit 12"
-                className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+                className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
               />
             </div>
           </div>
@@ -182,7 +182,7 @@ function NewEntryModal({
                       <select
                         value={r.account_id}
                         onChange={(e) => update(r.id, { account_id: e.target.value })}
-                        className="w-full h-8 px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#2563EB] min-w-[160px]"
+                        className="w-full h-8 px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[var(--brand)] min-w-[160px]"
                       >
                         <option value="">Select account…</option>
                         {accounts.map((a) => (
@@ -195,7 +195,7 @@ function NewEntryModal({
                         value={r.description}
                         onChange={(e) => update(r.id, { description: e.target.value })}
                         placeholder="Optional…"
-                        className="w-full h-8 px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+                        className="w-full h-8 px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[var(--brand)]"
                       />
                     </td>
                     <td className="px-3 py-2">
@@ -217,7 +217,7 @@ function NewEntryModal({
                         value={r.amount}
                         onChange={(e) => update(r.id, { amount: e.target.value })}
                         placeholder="0.00"
-                        className="w-full h-8 px-2 rounded-lg border border-[#E2E8F0] text-xs text-right text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+                        className="w-full h-8 px-2 rounded-lg border border-[#E2E8F0] text-xs text-right text-slate-900 focus:outline-none focus:ring-1 focus:ring-[var(--brand)]"
                       />
                     </td>
                     <td className="px-2 py-2">
@@ -225,7 +225,7 @@ function NewEntryModal({
                         onClick={() => remove(r.id)}
                         disabled={rows.length <= 2}
                         aria-label="Remove line"
-                        className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
+                        className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -236,7 +236,7 @@ function NewEntryModal({
             </table>
             </div>
             <div className="px-3 py-2 border-t border-[#E2E8F0]">
-              <button onClick={() => setRows((p) => [...p, newRow()])} className="text-xs font-medium text-[#2563EB] hover:underline">
+              <button onClick={() => setRows((p) => [...p, newRow()])} className="text-xs font-medium text-[var(--brand)] hover:underline">
                 + Add line
               </button>
             </div>
@@ -406,8 +406,8 @@ export default function JournalLedgerPage() {
 
   const mobileEmpty = (
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-10 flex flex-col items-center gap-3 text-center">
-      <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-        <FileText className="w-5 h-5 text-[#2563EB]" />
+      <div className="w-12 h-12 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center">
+        <FileText className="w-5 h-5 text-[var(--brand)]" />
       </div>
       <p className="text-sm font-semibold text-slate-700">{rows.length === 0 ? "No journal entries yet" : "No entries match your filters"}</p>
       <p className="text-xs text-slate-500 max-w-sm">
@@ -471,9 +471,9 @@ export default function JournalLedgerPage() {
 
       {/* KPI Row — live */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <AccountingKpiCard label="Entries" value={String(kpis.entryCount)} subtitle={`${kpis.postedCount} posted`} icon={<FileText className="w-5 h-5" />} iconBg="bg-blue-50" iconColor="text-blue-600" />
+        <AccountingKpiCard label="Entries" value={String(kpis.entryCount)} subtitle={`${kpis.postedCount} posted`} icon={<FileText className="w-5 h-5" />} iconBg="bg-[var(--brand-soft)]" iconColor="text-[var(--brand)]" />
         <AccountingKpiCard label="Total Debits" value={fmtGBP(kpis.debit)} subtitle="Posted ledger" icon={<ArrowDownLeft className="w-5 h-5" />} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
-        <AccountingKpiCard label="Total Credits" value={fmtGBP(kpis.credit)} subtitle="Posted ledger" icon={<ArrowUpRight className="w-5 h-5" />} iconBg="bg-blue-50" iconColor="text-blue-600" />
+        <AccountingKpiCard label="Total Credits" value={fmtGBP(kpis.credit)} subtitle="Posted ledger" icon={<ArrowUpRight className="w-5 h-5" />} iconBg="bg-[var(--brand-soft)]" iconColor="text-[var(--brand)]" />
         <AccountingKpiCard label="Net Movement" value={fmtGBP(kpis.net)} subtitle="Debits − Credits" icon={<Activity className="w-5 h-5" />} iconBg="bg-violet-50" iconColor="text-violet-600" />
         <AccountingKpiCard label="Reversed" value={String(kpis.reversedCount)} subtitle="Reversal entries" icon={<AlertTriangle className="w-5 h-5" />} iconBg="bg-amber-50" iconColor="text-amber-500" />
       </div>
@@ -482,9 +482,9 @@ export default function JournalLedgerPage() {
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-4">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
-            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30" />
+            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30" />
             <span className="text-slate-500 text-sm">–</span>
-            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30" />
+            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30" />
           </div>
           <div className="relative flex-1 min-w-[180px] max-w-xs">
             <input
@@ -492,7 +492,7 @@ export default function JournalLedgerPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search entries, references, accounts…"
-              className="w-full h-9 pl-3 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              className="w-full h-9 pl-3 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             />
           </div>
           <Button variant="outline" size="sm" onClick={() => { setSearch(""); setDateFrom(""); setDateTo("") }}>
@@ -531,8 +531,8 @@ export default function JournalLedgerPage() {
                 <tr>
                   <td colSpan={9} className="px-4 py-14 text-center">
                     <div className="flex flex-col items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-[#2563EB]" />
+                      <div className="w-12 h-12 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center">
+                        <FileText className="w-5 h-5 text-[var(--brand)]" />
                       </div>
                       <p className="text-sm font-semibold text-slate-700">
                         {rows.length === 0 ? "No journal entries yet" : "No entries match your filters"}
@@ -565,7 +565,7 @@ export default function JournalLedgerPage() {
                       <td className="px-4 py-3.5">
                         <button
                           onClick={() => { navigator.clipboard?.writeText(entry.reference); showToast(`Reference ${entry.reference} copied`) }}
-                          className="text-[13px] font-semibold text-[#2563EB] hover:text-[#1d4ed8] hover:underline transition-colors font-mono"
+                          className="text-[13px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] hover:underline transition-colors font-mono"
                         >
                           {entry.reference}
                         </button>
@@ -617,7 +617,7 @@ export default function JournalLedgerPage() {
         {filtered.length > 0 && (
           <div className="px-5 py-4 border-t border-[#E2E8F0] flex items-center justify-between">
             <span className="text-xs text-slate-500">Showing {filtered.length} of {rows.length} ledger lines</span>
-            <Link href={sectionLink("/property-manager/accounting/reports")} className="text-xs font-medium text-[#2563EB] hover:underline">
+            <Link href={sectionLink("/property-manager/accounting/reports")} className="text-xs font-medium text-[var(--brand)] hover:underline">
               View Trial Balance & Reports →
             </Link>
           </div>

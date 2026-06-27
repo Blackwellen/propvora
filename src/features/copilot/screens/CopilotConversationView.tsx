@@ -74,7 +74,7 @@ function ContextCard() {
         <span>✅</span> No open heating issues
       </div>
       <p className="text-slate-500">No similar issues reported in the last 30 days.</p>
-      <button className="text-blue-600 font-semibold mt-1.5 hover:underline">
+      <button className="text-[var(--brand)] font-semibold mt-1.5 hover:underline">
         View property equipment →
       </button>
     </div>
@@ -87,7 +87,7 @@ function ChoiceCard() {
       {["Morning (9am–12pm)", "Afternoon (12pm–4pm)", "Anytime"].map((opt) => (
         <button
           key={opt}
-          className="px-3 py-1.5 rounded-xl border border-slate-200 text-[11px] font-semibold text-slate-700 hover:bg-blue-50 hover:border-blue-200 transition-all"
+          className="px-3 py-1.5 rounded-xl border border-slate-200 text-[11px] font-semibold text-slate-700 hover:bg-[var(--brand-soft)] hover:border-[var(--color-brand-100)] transition-all"
         >
           {opt}
         </button>
@@ -98,10 +98,10 @@ function ChoiceCard() {
 
 function TaskResultCard() {
   return (
-    <div className="mt-2 rounded-xl border border-blue-100 bg-blue-50 p-3">
+    <div className="mt-2 rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)] p-3">
       <div className="flex items-center justify-between mb-2">
         <p className="text-[11.5px] font-bold text-slate-800">Heating issue — No heat in flat</p>
-        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white">
+        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[var(--brand)] text-white">
           Scheduled
         </span>
       </div>
@@ -111,7 +111,7 @@ function TaskResultCard() {
         <p>When: Today, 12pm–4pm</p>
         <p>Status: Assigned</p>
       </div>
-      <button className="text-blue-600 text-[11px] font-semibold mt-2 hover:underline">
+      <button className="text-[var(--brand)] text-[11px] font-semibold mt-2 hover:underline">
         View task details →
       </button>
     </div>
@@ -124,7 +124,7 @@ function QuickReplies() {
       {["What causes this?", "How do I reset the thermostat?", "Report another issue"].map((r) => (
         <button
           key={r}
-          className="px-2.5 py-1 rounded-full border border-blue-200 text-blue-600 text-[10.5px] font-semibold hover:bg-blue-50 transition-colors"
+          className="px-2.5 py-1 rounded-full border border-[var(--color-brand-100)] text-[var(--brand)] text-[10.5px] font-semibold hover:bg-[var(--brand-soft)] transition-colors"
         >
           {r}
         </button>
@@ -190,7 +190,7 @@ export default function CopilotConversationView({
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <button className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors">
+            <button className="text-[11px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] flex items-center gap-1 transition-colors">
               View tenant profile
               <ExternalLink className="w-3 h-3" />
             </button>
@@ -226,7 +226,7 @@ export default function CopilotConversationView({
                   >
                     {msg.content}
                     {isContact && msg.read && (
-                      <span className="text-[9px] text-blue-500 ml-1.5">✓✓</span>
+                      <span className="text-[9px] text-[var(--brand)] ml-1.5">✓✓</span>
                     )}
                   </div>
                   {msg.card === "context" && <ContextCard />}
@@ -246,7 +246,7 @@ export default function CopilotConversationView({
 
         {/* Input */}
         <div className="px-4 pb-4 pt-2 shrink-0">
-          <div className="border border-slate-200 rounded-2xl bg-white shadow-sm overflow-hidden focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+          <div className="border border-slate-200 rounded-2xl bg-white shadow-sm overflow-hidden focus-within:border-[var(--color-brand-300)] focus-within:ring-2 focus-within:ring-[var(--color-brand-100)] transition-all">
             <textarea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
@@ -262,7 +262,7 @@ export default function CopilotConversationView({
             />
             <div className="flex items-center justify-between px-3 pb-2.5">
               <div className="flex items-center gap-1">
-                <button className="w-7 h-7 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center text-[13px] font-bold">
+                <button className="w-7 h-7 rounded-lg text-slate-500 hover:text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-all flex items-center justify-center text-[13px] font-bold">
                   /
                 </button>
                 <button className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all flex items-center justify-center">
@@ -310,7 +310,7 @@ export default function CopilotConversationView({
                   <p>📞 +44 7700 900123</p>
                   <p>📅 Tenant since Apr 2023</p>
                 </div>
-                <button className="text-blue-600 text-[10px] font-semibold mt-2 hover:underline">
+                <button className="text-[var(--brand)] text-[10px] font-semibold mt-2 hover:underline">
                   View full profile ↗
                 </button>
               </div>
@@ -332,7 +332,7 @@ export default function CopilotConversationView({
                   <p className="text-[12px] font-bold text-slate-800">16 Rose Gardens</p>
                   <p className="text-[10.5px] text-slate-500">London SW1A 1AA</p>
                   <p className="text-[10.5px] text-slate-500">2 bed flat · Ground floor</p>
-                  <button className="text-blue-600 text-[10px] font-semibold mt-1.5 hover:underline">
+                  <button className="text-[var(--brand)] text-[10px] font-semibold mt-1.5 hover:underline">
                     View property ↗
                   </button>
                 </div>
@@ -365,7 +365,7 @@ export default function CopilotConversationView({
                     </span>
                   </div>
                 </div>
-                <button className="text-blue-600 text-[10px] font-semibold mt-2 hover:underline">
+                <button className="text-[var(--brand)] text-[10px] font-semibold mt-2 hover:underline">
                   View account ↗
                 </button>
               </div>
@@ -400,7 +400,7 @@ export default function CopilotConversationView({
                     </div>
                   </div>
                 </div>
-                <button className="text-blue-600 text-[10px] font-semibold mt-2 hover:underline">
+                <button className="text-[var(--brand)] text-[10px] font-semibold mt-2 hover:underline">
                   View all activity ↗
                 </button>
               </div>

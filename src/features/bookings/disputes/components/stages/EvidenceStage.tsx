@@ -66,7 +66,7 @@ function EvidenceInner({ dispute, source }: { dispute: Dispute; source: 'live' |
 
       {/* actions */}
       <div className="flex flex-wrap items-center gap-2">
-        <label className="inline-flex items-center gap-1.5 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700 cursor-pointer">
+        <label className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-[var(--brand-strong)] cursor-pointer">
           <Upload className="w-4 h-4" /> Upload evidence
           <input type="file" className="hidden" multiple onChange={() => fire('File added to host evidence')} />
         </label>
@@ -86,7 +86,7 @@ function EvidenceInner({ dispute, source }: { dispute: Dispute; source: 'live' |
 
       <StubDrawer open={drawer === 'message'} title="Message party" onClose={() => setDrawer(null)}>
         <textarea rows={4} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm" placeholder="Request specific evidence…" />
-        <button onClick={() => { fire('Message sent'); setDrawer(null) }} className="mt-3 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700">Send</button>
+        <button onClick={() => { fire('Message sent'); setDrawer(null) }} className="mt-3 bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-[var(--brand-strong)]">Send</button>
       </StubDrawer>
       <FeedbackToast msg={msg} />
     </DisputeWorkflowLayout>
@@ -143,7 +143,7 @@ function EvidenceColumn({
 }
 
 const TONES: Record<string, string> = {
-  blue: 'text-blue-700 bg-blue-50',
+  blue: 'text-[var(--brand)] bg-[var(--brand-soft)]',
   amber: 'text-amber-700 bg-amber-50',
   violet: 'text-violet-700 bg-violet-50',
   emerald: 'text-emerald-700 bg-emerald-50',

@@ -21,7 +21,7 @@ interface TrustMeta {
 }
 
 const TRUST: Record<TrustKind, TrustMeta> = {
-  verified: { label: "Verified", icon: BadgeCheck, cls: "bg-[#EFF6FF] text-[#2563EB] border border-blue-100" },
+  verified: { label: "Verified", icon: BadgeCheck, cls: "bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]" },
   insured: { label: "Insured", icon: ShieldCheck, cls: "bg-emerald-50 text-emerald-700 border border-emerald-100" },
   responsive: { label: "Fast responder", icon: Zap, cls: "bg-amber-50 text-amber-700 border border-amber-100" },
   top_rated: { label: "Top rated", icon: Star, cls: "bg-violet-50 text-[#7C3AED] border border-violet-100" },

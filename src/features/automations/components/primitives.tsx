@@ -8,7 +8,7 @@ import type { LucideIcon } from "lucide-react"
 /* ───────────────────────── Buttons ───────────────────────── */
 type BtnVariant = "primary" | "violet" | "emerald" | "outline" | "danger" | "ghost"
 const BTN_CLS: Record<BtnVariant, string> = {
-  primary: "bg-blue-600 text-white shadow-sm hover:bg-blue-700",
+  primary: "bg-[var(--brand)] text-white shadow-sm hover:bg-[var(--brand-strong)]",
   violet: "border border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100",
   emerald: "bg-emerald-600 text-white shadow-sm hover:bg-emerald-700",
   outline: "border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50",

@@ -139,8 +139,8 @@ export default function StoragePage() {
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-              <Cloud className="w-5 h-5 text-[#2563EB]" />
+            <div className="w-9 h-9 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+              <Cloud className="w-5 h-5 text-[var(--brand)]" />
             </div>
             <div>
               <h3 className="text-[14px] font-bold text-slate-900">Storage Usage</h3>
@@ -156,7 +156,7 @@ export default function StoragePage() {
                 <Package className="w-3 h-3" />{addonPacks}× add-on
               </span>
             )}
-            <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-[#2563EB]">
+            <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
               {tier.charAt(0).toUpperCase() + tier.slice(1).replace("_", " ")} plan
             </span>
           </div>
@@ -174,7 +174,7 @@ export default function StoragePage() {
             <div
               className={cn(
                 "h-full rounded-full transition-all",
-                usedPct > 90 ? "bg-red-500" : usedPct > 70 ? "bg-amber-500" : "bg-[#2563EB]"
+                usedPct > 90 ? "bg-red-500" : usedPct > 70 ? "bg-amber-500" : "bg-[var(--brand)]"
               )}
               style={{ width: `${usedPct}%` }}
             />
@@ -197,8 +197,8 @@ export default function StoragePage() {
 
       {/* Storage add-on upsell */}
       {tier === "starter" || tier === "operator" ? (
-        <div className="bg-gradient-to-br from-blue-50 to-violet-50 border border-blue-200 rounded-2xl p-5 mb-6 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center shrink-0">
+        <div className="bg-gradient-to-br from-[var(--brand-soft)] to-violet-50 border border-[var(--color-brand-100)] rounded-2xl p-5 mb-6 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-white border border-[var(--color-brand-100)] flex items-center justify-center shrink-0">
             <Zap className="w-5 h-5 text-[#7C3AED]" />
           </div>
           <div className="flex-1">
@@ -225,7 +225,7 @@ export default function StoragePage() {
             id="ws-max-file-size"
             value={fileSizeLimit}
             onChange={(e) => { setFileSizeLimit(e.target.value); setIsDirty(true) }}
-            className="w-full max-w-[240px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+            className="w-full max-w-[240px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[var(--brand)] transition-all"
           >
             <option value="5">5 MB</option>
             <option value="10">10 MB</option>
@@ -248,7 +248,7 @@ export default function StoragePage() {
                   aria-pressed={checked}
                   className="flex items-center gap-3 w-full text-left py-2 hover:bg-slate-50 rounded-xl px-2 transition-colors"
                 >
-                  <div className={cn("shrink-0", checked ? "text-[#2563EB]" : "text-slate-300")}>
+                  <div className={cn("shrink-0", checked ? "text-[var(--brand)]" : "text-slate-300")}>
                     {checked ? (
                       <CheckSquare className="w-4 h-4" />
                     ) : (
@@ -275,7 +275,7 @@ export default function StoragePage() {
               id="ws-archive-policy"
               value={retentionPolicy}
               onChange={(e) => { setRetentionPolicy(e.target.value); setIsDirty(true) }}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[var(--brand)] transition-all"
             >
               <option value="never">Never</option>
               <option value="6m">6 months</option>
@@ -291,7 +291,7 @@ export default function StoragePage() {
               id="ws-doc-retention"
               value={docRetention}
               onChange={(e) => { setDocRetention(e.target.value); setIsDirty(true) }}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[var(--brand)] transition-all"
             >
               <option value="forever">Keep forever</option>
               <option value="2y">2 years</option>
@@ -310,7 +310,7 @@ export default function StoragePage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-70"
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
                 {saving ? "Saving…" : saved ? "Saved!" : "Save changes"}

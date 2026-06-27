@@ -81,7 +81,7 @@ function NotAvailable({ title, body, cta }: { title: string; body: string; cta: 
       </div>
       <h1 className="text-[19px] font-bold text-[#0B1B3F]">{title}</h1>
       <p className="mt-2 text-[13.5px] text-slate-500">{body}</p>
-      <Link href={cta.href} className="mt-5 inline-flex h-11 px-5 items-center rounded-xl bg-[#2563EB] text-white text-[14px] font-semibold hover:bg-[#1d4ed8] transition-colors">{cta.label}</Link>
+      <Link href={cta.href} className="mt-5 inline-flex h-11 px-5 items-center rounded-xl bg-[var(--brand)] text-white text-[14px] font-semibold hover:bg-[var(--brand-strong)] transition-colors">{cta.label}</Link>
     </div>
   )
 }

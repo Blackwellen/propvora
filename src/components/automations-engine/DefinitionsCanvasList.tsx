@@ -38,8 +38,8 @@ export default function DefinitionsCanvasList() {
     <div className="space-y-2">
       {defs.map((d) => (
         <Link key={d.id} href={`/property-manager/automations/canvas/${d.id}`}
-          className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:border-blue-200">
-          <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${d.enabled ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-400"}`}><LayoutTemplate className="h-4 w-4" /></span>
+          className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:border-[var(--color-brand-100)]">
+          <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${d.enabled ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "bg-slate-100 text-slate-400"}`}><LayoutTemplate className="h-4 w-4" /></span>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="truncate text-sm font-semibold text-slate-900">{d.name}</span>

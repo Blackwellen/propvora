@@ -163,7 +163,7 @@ export default function DateRangePicker({
       >
         <div className="grid grid-cols-2 divide-x divide-slate-200">
           <div
-            className={`flex gap-2.5 p-3.5 transition-colors ${selecting === 'in' && open ? 'bg-blue-50 border-b-2 border-b-blue-500' : 'hover:bg-slate-50'}`}
+            className={`flex gap-2.5 p-3.5 transition-colors ${selecting === 'in' && open ? 'bg-[var(--brand-soft)] border-b-2 border-b-[var(--brand)]' : 'hover:bg-slate-50'}`}
             onClick={e => {
               e.stopPropagation()
               setSelecting('in')
@@ -179,7 +179,7 @@ export default function DateRangePicker({
             </div>
           </div>
           <div
-            className={`flex gap-2.5 p-3.5 transition-colors ${selecting === 'out' && open ? 'bg-blue-50 border-b-2 border-b-blue-500' : 'hover:bg-slate-50'}`}
+            className={`flex gap-2.5 p-3.5 transition-colors ${selecting === 'out' && open ? 'bg-[var(--brand-soft)] border-b-2 border-b-[var(--brand)]' : 'hover:bg-slate-50'}`}
             onClick={e => {
               e.stopPropagation()
               if (checkIn) { setSelecting('out'); setOpen(true) }
@@ -210,7 +210,7 @@ export default function DateRangePicker({
       {/* Calendar dropdown */}
       {open && (
         <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-[12px] border border-slate-200 bg-white p-4 shadow-xl">
-          <div className="mb-1 text-center text-[11px] font-[600] text-blue-600">
+          <div className="mb-1 text-center text-[11px] font-[600] text-[var(--brand)]">
             {selecting === 'in' ? 'Select check-in date' : 'Select check-out date'}
           </div>
 
@@ -256,8 +256,8 @@ export default function DateRangePicker({
                   className={[
                     'relative h-9 w-full text-[13px] font-[500] transition-colors focus:outline-none',
                     disabled ? 'cursor-not-allowed text-slate-300' : 'cursor-pointer',
-                    (start || end) ? 'rounded-full bg-blue-600 text-white font-[700] z-10' :
-                    (inRange || hovEnd) ? 'bg-blue-50 text-blue-700' :
+                    (start || end) ? 'rounded-full bg-[var(--brand)] text-white font-[700] z-10' :
+                    (inRange || hovEnd) ? 'bg-[var(--brand-soft)] text-[var(--brand)]' :
                     (!disabled ? 'hover:rounded-full hover:bg-slate-100 text-slate-800' : ''),
                   ].join(' ')}
                 >

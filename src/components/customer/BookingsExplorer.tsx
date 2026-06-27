@@ -35,8 +35,8 @@ function BookingRow({ b }: { b: CustomerBooking }) {
   return (
     <div className="flex items-center gap-3.5 p-3.5 rounded-xl border border-slate-100 hover:bg-slate-50 hover:border-slate-200 transition-colors">
       <Link href={`/user/bookings/${b.id}`} className="flex items-center gap-3.5 flex-1 min-w-0">
-        <div className="w-14 shrink-0 rounded-lg bg-blue-50 py-2 text-center">
-          <p className="text-[10px] font-bold text-blue-600 leading-none">{dayMonth(b.check_in)}</p>
+        <div className="w-14 shrink-0 rounded-lg bg-[var(--brand-soft)] py-2 text-center">
+          <p className="text-[10px] font-bold text-[var(--brand)] leading-none">{dayMonth(b.check_in)}</p>
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-slate-800 truncate">
@@ -61,7 +61,7 @@ function BookingRow({ b }: { b: CustomerBooking }) {
       {isCancelled(b.status) && (
         <Link
           href={rebook}
-          className="shrink-0 inline-flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:underline"
+          className="shrink-0 inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:underline"
         >
           <RotateCcw className="w-3.5 h-3.5" /> Re-book
         </Link>
@@ -130,11 +130,11 @@ function CalendarView({ bookings }: { bookings: CustomerBooking[] }) {
           const inner = (
             <div
               className={`aspect-square rounded-lg flex flex-col items-center justify-center text-[12px] transition-colors ${
-                has ? "bg-[#EFF6FF] text-[#2563EB] font-semibold hover:bg-[#DCEAFE]" : "text-slate-500"
-              } ${isToday ? "ring-1 ring-[#2563EB]" : ""}`}
+                has ? "bg-[var(--brand-soft)] text-[var(--brand)] font-semibold hover:bg-[#DCEAFE]" : "text-slate-500"
+              } ${isToday ? "ring-1 ring-[var(--brand)]" : ""}`}
             >
               <span>{day}</span>
-              {has && <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-[#2563EB]" />}
+              {has && <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-[var(--brand)]" />}
             </div>
           )
           return has ? (
@@ -236,7 +236,7 @@ export default function BookingsExplorer({ bookings }: { bookings: CustomerBooki
             }
             action={
               !q && filter === "upcoming" ? (
-                <Link href="/stay/search" className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors">
+                <Link href="/stay/search" className="inline-flex items-center gap-1.5 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors">
                   <CalendarCheck className="w-4 h-4" /> Find a stay
                 </Link>
               ) : undefined

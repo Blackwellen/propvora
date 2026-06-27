@@ -63,7 +63,7 @@ const STATUS_CONFIG: Record<
   hold: { label: "Hold", bg: "bg-slate-100", text: "text-slate-600", dot: "bg-slate-400", icon: CircleDot },
   pending: { label: "Pending", bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500", icon: Clock },
   confirmed: { label: "Confirmed", bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500", icon: CheckCircle2 },
-  checked_in: { label: "Checked in", bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500", icon: CalendarClock },
+  checked_in: { label: "Checked in", bg: "bg-[var(--brand-soft)]", text: "text-[var(--brand)]", dot: "bg-[var(--brand)]", icon: CalendarClock },
   checked_out: { label: "Checked out", bg: "bg-teal-50", text: "text-teal-700", dot: "bg-teal-500", icon: CalendarRange },
   completed: { label: "Completed", bg: "bg-slate-50", text: "text-slate-600", dot: "bg-slate-400", icon: Flag },
   cancelled: { label: "Cancelled", bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500", icon: XCircle },
@@ -173,8 +173,8 @@ export function BookingUpgradePrompt({
   return (
     <div className="mt-2 rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-col items-center text-center py-20 px-6">
-        <div className="w-20 h-20 rounded-3xl bg-[#EFF6FF] flex items-center justify-center mb-5">
-          <Lock className="w-9 h-9 text-[#2563EB]" />
+        <div className="w-20 h-20 rounded-3xl bg-[var(--brand-soft)] flex items-center justify-center mb-5">
+          <Lock className="w-9 h-9 text-[var(--brand)]" />
         </div>
         <h3 className="text-base font-bold text-slate-800">Booking management isn&apos;t on your plan</h3>
         <p className="mt-1.5 max-w-md text-sm text-slate-500 text-pretty">
@@ -184,7 +184,7 @@ export function BookingUpgradePrompt({
         <div className="mt-6 flex items-center gap-2">
           <Link
             href="/property-manager/workspace-settings/subscription"
-            className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm"
+            className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
           >
             View plans
           </Link>
@@ -234,7 +234,7 @@ export function BookingEmptyState({
     <div className="rounded-2xl border border-slate-100 bg-white shadow-sm">
       <div className="flex flex-col items-center text-center py-14 px-6">
         <div className="w-14 h-14 rounded-2xl bg-[#F0F7FF] flex items-center justify-center mb-4">
-          <Icon className="w-7 h-7 text-[#2563EB]" />
+          <Icon className="w-7 h-7 text-[var(--brand)]" />
         </div>
         <h3 className="text-[15px] font-semibold text-slate-700">{title}</h3>
         {description && <p className="mt-1.5 max-w-sm text-sm text-slate-500 text-pretty">{description}</p>}

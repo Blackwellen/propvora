@@ -123,7 +123,7 @@ export default function ProfileTab() {
           <label className="text-sm font-medium text-slate-700">Full Name</label>
           <input
             {...form.register("full_name")}
-            className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+            className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
           />
           {form.formState.errors.full_name && (
             <p className="text-xs text-red-600">{form.formState.errors.full_name.message}</p>
@@ -143,7 +143,7 @@ export default function ProfileTab() {
           <input
             {...form.register("phone")}
             placeholder="07700 900000"
-            className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+            className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
           />
         </div>
       </div>

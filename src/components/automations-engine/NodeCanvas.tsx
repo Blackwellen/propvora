@@ -35,7 +35,7 @@ interface GEdge { source_key: string; target_key: string; branch_label: string |
 interface Graph { nodes: GNode[]; edges: GEdge[] }
 
 const CATEGORY_COLOR: Record<string, string> = {
-  trigger: "from-blue-500 to-blue-600",
+  trigger: "from-[var(--brand)] to-[var(--brand)]",
   condition: "from-amber-500 to-amber-600",
   branch: "from-amber-500 to-orange-600",
   delay: "from-slate-400 to-slate-500",
@@ -47,7 +47,7 @@ const CATEGORY_COLOR: Record<string, string> = {
   approval: "from-indigo-500 to-indigo-600",
   legal: "from-rose-600 to-red-700",
   integration: "from-cyan-500 to-cyan-600",
-  webhook: "from-cyan-600 to-blue-700",
+  webhook: "from-cyan-600 to-[var(--brand-strong)]",
   utility: "from-slate-500 to-slate-600",
   error: "from-orange-500 to-red-600",
   end: "from-slate-700 to-slate-900",
@@ -252,7 +252,7 @@ export default function NodeCanvas({
           <button onClick={() => persist(false)} disabled={busy === "save"} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60">
             <Save className="h-4 w-4" /> {busy === "save" ? "Saving…" : "Save draft"}
           </button>
-          <button onClick={() => persist(true)} disabled={busy === "publish"} className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:opacity-60">
+          <button onClick={() => persist(true)} disabled={busy === "publish"} className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-[var(--brand-strong)] disabled:opacity-60">
             <CheckCircle2 className="h-4 w-4" /> {busy === "publish" ? "Publishing…" : "Validate & publish"}
           </button>
         </div>
@@ -288,7 +288,7 @@ export default function NodeCanvas({
                 <div className="space-y-1">
                   {nodes.map((n) => (
                     <button key={n.type} onClick={() => addNode(n)} title={n.description}
-                      className="group flex w-full items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5 text-left text-xs hover:border-blue-200 hover:bg-blue-50">
+                      className="group flex w-full items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5 text-left text-xs hover:border-[var(--color-brand-100)] hover:bg-[var(--brand-soft)]">
                       <span className={`grid h-5 w-5 shrink-0 place-items-center rounded bg-gradient-to-br text-white ${CATEGORY_COLOR[n.category] ?? "from-slate-400 to-slate-500"}`}><Plus className="h-3 w-3" /></span>
                       <span className="min-w-0 flex-1 truncate font-medium text-slate-700">{n.label}</span>
                       {(n.requiresApproval || n.blockedFromAutoRun) && <ShieldAlert className="h-3 w-3 shrink-0 text-rose-500" />}
@@ -329,7 +329,7 @@ export default function NodeCanvas({
                 onMouseDown={(e) => { e.stopPropagation(); onMouseDownNode(e, n) }}
                 onClick={(e) => { e.stopPropagation(); setSelected(n.node_key) }}
                 style={{ left: n.pos_x, top: n.pos_y }}
-                className={`absolute w-40 cursor-move rounded-xl border bg-white p-2.5 shadow-[0_2px_10px_rgba(15,23,42,0.08)] transition ${selected === n.node_key ? `border-transparent ring-2 ${RISK_RING[n.risk] ?? "ring-blue-200"}` : "border-slate-200"} ${linkFrom === n.node_key ? "ring-2 ring-blue-400" : ""}`}>
+                className={`absolute w-40 cursor-move rounded-xl border bg-white p-2.5 shadow-[0_2px_10px_rgba(15,23,42,0.08)] transition ${selected === n.node_key ? `border-transparent ring-2 ${RISK_RING[n.risk] ?? "ring-[var(--color-brand-100)]"}` : "border-slate-200"} ${linkFrom === n.node_key ? "ring-2 ring-[var(--color-brand-400)]" : ""}`}>
                 <div className="flex items-center gap-1.5">
                   <span className={`grid h-5 w-5 place-items-center rounded bg-gradient-to-br text-[9px] font-bold text-white ${CATEGORY_COLOR[n.category] ?? "from-slate-400 to-slate-500"}`}>{n.category[0]?.toUpperCase()}</span>
                   <span className="min-w-0 flex-1 truncate text-[11px] font-semibold text-slate-800">{n.label}</span>
@@ -337,7 +337,7 @@ export default function NodeCanvas({
                 </div>
                 <div className="mt-1 flex items-center justify-between">
                   <span className="truncate text-[9px] font-mono text-slate-400">{n.node_type}</span>
-                  <button onClick={(e) => { e.stopPropagation(); startLink(n.node_key) }} title="Connect" className={`grid h-5 w-5 place-items-center rounded ${linkFrom === n.node_key ? "bg-blue-100 text-blue-600" : "text-slate-400 hover:bg-slate-100"}`}><Link2 className="h-3 w-3" /></button>
+                  <button onClick={(e) => { e.stopPropagation(); startLink(n.node_key) }} title="Connect" className={`grid h-5 w-5 place-items-center rounded ${linkFrom === n.node_key ? "bg-[var(--color-brand-100)] text-[var(--brand)]" : "text-slate-400 hover:bg-slate-100"}`}><Link2 className="h-3 w-3" /></button>
                 </div>
               </div>
             ))}
@@ -352,7 +352,7 @@ export default function NodeCanvas({
               </div>
             )}
 
-            {linkFrom && <div className="absolute left-2 top-2 rounded-md bg-blue-600 px-2 py-1 text-[10px] font-medium text-white">Click a target node to connect…</div>}
+            {linkFrom && <div className="absolute left-2 top-2 rounded-md bg-[var(--brand)] px-2 py-1 text-[10px] font-medium text-white">Click a target node to connect…</div>}
           </div>
 
           {/* Minimap */}
@@ -455,7 +455,7 @@ function NodeInspector({
       </div>
       <div className="flex gap-0.5 overflow-x-auto border-b border-slate-100 px-2 pt-1.5">
         {tabs.map((t) => (
-          <button key={t.id} onClick={() => onTab(t.id)} className={`flex items-center gap-1 whitespace-nowrap border-b-2 px-2 py-1.5 text-[11px] font-medium ${tab === t.id ? "border-blue-600 text-blue-700" : "border-transparent text-slate-400 hover:text-slate-700"}`}>
+          <button key={t.id} onClick={() => onTab(t.id)} className={`flex items-center gap-1 whitespace-nowrap border-b-2 px-2 py-1.5 text-[11px] font-medium ${tab === t.id ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-400 hover:text-slate-700"}`}>
             <t.icon className="h-3 w-3" /> {t.label}
           </button>
         ))}

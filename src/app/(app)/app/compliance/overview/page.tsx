@@ -181,7 +181,7 @@ export default function ComplianceOverviewPage() {
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => router.push("/property-manager/compliance/certificates/new")}
-            className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-[var(--brand-strong)] transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Add certificate
@@ -231,8 +231,8 @@ export default function ComplianceOverviewPage() {
           trend={loading ? "" : stats.trackedProperties === 0 ? "None linked yet" : `${stats.trackedProperties} properties`}
           trendPositive={stats.trackedProperties > 0}
           icon={Building2}
-          iconBg="bg-blue-100"
-          iconColor="text-blue-600"
+          iconBg="bg-[var(--color-brand-100)]"
+          iconColor="text-[var(--brand)]"
           href="/property-manager/compliance/coverage"
         />
         <ComplianceKpiCard
@@ -311,8 +311,8 @@ export default function ComplianceOverviewPage() {
         /* Honest empty state */
         <div className="px-6 pb-10">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-5">
-              <ShieldCheck className="w-8 h-8 text-blue-500" />
+            <div className="w-16 h-16 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center mb-5">
+              <ShieldCheck className="w-8 h-8 text-[var(--brand)]" />
             </div>
             <h2 className="text-lg font-semibold text-slate-900 mb-2">No compliance data yet</h2>
             <p className="text-sm text-slate-500 max-w-sm leading-relaxed mb-6">
@@ -321,7 +321,7 @@ export default function ComplianceOverviewPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => router.push("/property-manager/compliance/certificates/new")}
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                className="inline-flex items-center gap-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Add certificate
@@ -343,7 +343,7 @@ export default function ComplianceOverviewPage() {
           <div className="md:col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
               <h2 className="text-sm font-semibold text-slate-900">Expiring soon</h2>
-              <Link href="/property-manager/compliance/coverage" className="text-xs text-blue-600 hover:underline flex items-center gap-0.5">
+              <Link href="/property-manager/compliance/coverage" className="text-xs text-[var(--brand)] hover:underline flex items-center gap-0.5">
                 View coverage <ArrowUpRight className="w-3 h-3" />
               </Link>
             </div>
@@ -378,7 +378,7 @@ export default function ComplianceOverviewPage() {
           <div className="md:col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
               <h2 className="text-sm font-semibold text-slate-900">Overdue & expired</h2>
-              <Link href="/property-manager/compliance/coverage" className="text-xs text-blue-600 hover:underline flex items-center gap-0.5">
+              <Link href="/property-manager/compliance/coverage" className="text-xs text-[var(--brand)] hover:underline flex items-center gap-0.5">
                 View all <ArrowUpRight className="w-3 h-3" />
               </Link>
             </div>
@@ -453,7 +453,7 @@ export default function ComplianceOverviewPage() {
           <div className="md:col-span-7 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
               <h2 className="text-sm font-semibold text-slate-900">Coverage gaps by requirement</h2>
-              <Link href="/property-manager/compliance/coverage" className="text-xs text-blue-600 hover:underline flex items-center gap-0.5">
+              <Link href="/property-manager/compliance/coverage" className="text-xs text-[var(--brand)] hover:underline flex items-center gap-0.5">
                 View matrix <ArrowUpRight className="w-3 h-3" />
               </Link>
             </div>
@@ -531,11 +531,11 @@ export default function ComplianceOverviewPage() {
                   const action = a as { title: string; detail: string; href: string; btn: string; priority: "High" | "Medium" | "Low" }
                   return (
                     <div key={idx} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${action.priority === "High" ? "bg-red-50" : action.priority === "Medium" ? "bg-amber-50" : "bg-blue-50"}`}>
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${action.priority === "High" ? "bg-red-50" : action.priority === "Medium" ? "bg-amber-50" : "bg-[var(--brand-soft)]"}`}>
                         {action.priority === "High" ? (
                           <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
                         ) : action.btn === "Generate" ? (
-                          <FileSearch className="w-3.5 h-3.5 text-blue-500" />
+                          <FileSearch className="w-3.5 h-3.5 text-[var(--brand)]" />
                         ) : (
                           <CalendarDays className="w-3.5 h-3.5 text-amber-500" />
                         )}

@@ -35,7 +35,7 @@ export function UnitSpecificationsTab({ unit, complianceItems, complianceLoaded,
       {/* Specifications — live, inline-editable */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
         <div className="flex items-center gap-2 mb-4">
-          <Home className="w-4 h-4 text-blue-500" />
+          <Home className="w-4 h-4 text-[var(--brand)]" />
           <span className="text-[13px] font-bold text-slate-900">Specifications</span>
         </div>
         <div className="space-y-2.5">
@@ -60,10 +60,10 @@ export function UnitSpecificationsTab({ unit, complianceItems, complianceLoaded,
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-blue-500" />
+            <Shield className="w-4 h-4 text-[var(--brand)]" />
             <span className="text-[13px] font-bold text-slate-900">Certificates & Compliance</span>
           </div>
-          <Link href={`/property-manager/compliance?unit=${unit.id}`} className="text-[11px] text-blue-600 font-medium hover:underline flex items-center gap-0.5">
+          <Link href={`/property-manager/compliance?unit=${unit.id}`} className="text-[11px] text-[var(--brand)] font-medium hover:underline flex items-center gap-0.5">
             Open <ArrowUpRight className="w-3 h-3" />
           </Link>
         </div>

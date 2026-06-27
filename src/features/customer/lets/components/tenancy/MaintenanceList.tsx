@@ -28,7 +28,7 @@ export default function MaintenanceList({ requests, selectedId, onSelect }: Prop
         <h3 className="text-[14px] font-bold text-slate-900">Your maintenance requests</h3>
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-          <input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-36" />
+          <input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)] w-36" />
         </div>
       </div>
       <div className="overflow-x-auto">
@@ -52,7 +52,7 @@ export default function MaintenanceList({ requests, selectedId, onSelect }: Prop
                   onClick={() => onSelect(r.id)}
                   className={cn(
                     "text-[12.5px] cursor-pointer",
-                    active ? "bg-blue-50/40 outline outline-2 -outline-offset-2 outline-blue-500" : "hover:bg-slate-50"
+                    active ? "bg-[var(--brand-soft)]/40 outline outline-2 -outline-offset-2 outline-[var(--brand)]" : "hover:bg-slate-50"
                   )}
                 >
                   <td className="py-3 pr-2">

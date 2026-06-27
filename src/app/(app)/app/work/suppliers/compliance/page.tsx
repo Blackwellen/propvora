@@ -107,7 +107,7 @@ export default function SupplierCompliancePage() {
     const expiringDocs = docs.filter((d) => d.expiry_date && daysUntil(d.expiry_date) >= 0 && daysUntil(d.expiry_date) <= 30).length
     const noDocs = rows.filter((r) => r.total === 0).length
     return [
-      { label: "Tracked Documents", value: String(docs.length), sub: `${rows.length} suppliers`, icon: FileCheck2, bg: "bg-blue-50", color: "text-blue-600" },
+      { label: "Tracked Documents", value: String(docs.length), sub: `${rows.length} suppliers`, icon: FileCheck2, bg: "bg-[var(--brand-soft)]", color: "text-[var(--brand)]" },
       { label: "Expiring Soon", value: String(expiringDocs), sub: "Within 30 days", icon: AlertTriangle, bg: "bg-amber-50", color: "text-amber-600" },
       { label: "Expired", value: String(expiredDocs), sub: expiredDocs > 0 ? "Action needed" : "All current", icon: XCircle, bg: "bg-red-50", color: "text-red-600" },
       { label: "Missing Documents", value: String(noDocs), sub: "Suppliers with none", icon: ShieldCheck, bg: "bg-violet-50", color: "text-violet-600" },
@@ -195,7 +195,7 @@ export default function SupplierCompliancePage() {
             onClick={() => setFilter(f.key)}
             className={cn(
               "px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all",
-              filter === f.key ? "bg-white text-[#2563EB] shadow-sm" : "text-slate-500 hover:text-slate-700"
+              filter === f.key ? "bg-white text-[var(--brand)] shadow-sm" : "text-slate-500 hover:text-slate-700"
             )}
           >
             {f.label}
@@ -218,7 +218,7 @@ export default function SupplierCompliancePage() {
             </div>
             <p className="text-base font-semibold text-slate-900 mb-1">No suppliers yet</p>
             <p className="text-sm text-slate-500 mb-4">Add supplier contacts to start tracking compliance documents.</p>
-            <Link href="/property-manager/contacts/new?type=supplier" className="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold">Add Supplier</Link>
+            <Link href="/property-manager/contacts/new?type=supplier" className="px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold">Add Supplier</Link>
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center px-4">
@@ -271,7 +271,7 @@ export default function SupplierCompliancePage() {
                         {r.nextExpiry ? new Date(r.nextExpiry).toLocaleDateString("en-GB") : "—"}
                       </td>
                       <td className="px-4 py-3.5 text-right">
-                        <span className="text-[12px] font-semibold text-[#2563EB]">View →</span>
+                        <span className="text-[12px] font-semibold text-[var(--brand)]">View →</span>
                       </td>
                     </tr>
                   )

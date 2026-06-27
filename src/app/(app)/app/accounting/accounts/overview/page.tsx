@@ -47,10 +47,10 @@ const TYPE_STYLES: Record<
   }
 > = {
   Assets: {
-    borderColor: "border-blue-500",
-    headerBg: "bg-blue-50",
-    textColor: "text-blue-700",
-    badgeBg: "bg-blue-100 text-blue-700",
+    borderColor: "border-[var(--brand)]",
+    headerBg: "bg-[var(--brand-soft)]",
+    textColor: "text-[var(--brand)]",
+    badgeBg: "bg-[var(--color-brand-100)] text-[var(--brand)]",
   },
   Liabilities: {
     borderColor: "border-red-500",
@@ -508,14 +508,14 @@ export default function AccountsOverviewPage() {
           {loading ? (
             <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-12 flex items-center justify-center">
               <div className="flex items-center gap-2 text-slate-400">
-                <div className="w-4 h-4 border-2 border-slate-300 border-t-[#2563EB] rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-slate-300 border-t-[var(--brand)] rounded-full animate-spin" />
                 <span className="text-sm">Loading accounts...</span>
               </div>
             </div>
           ) : accounts.length === 0 ? (
             <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-                <Plus className="w-5 h-5 text-[#2563EB]" />
+              <div className="w-12 h-12 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center">
+                <Plus className="w-5 h-5 text-[var(--brand)]" />
               </div>
               <p className="text-sm font-semibold text-slate-700">No accounts yet</p>
               <p className="text-xs text-slate-500 max-w-xs">

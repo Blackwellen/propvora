@@ -31,7 +31,7 @@ export function WizardProgressStepper({ currentStep }: WizardProgressStepperProp
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium whitespace-nowrap transition-colors",
               currentStep === n
-                ? "bg-[#2563EB] text-white"
+                ? "bg-[var(--brand)] text-white"
                 : currentStep > n
                 ? "bg-emerald-50 text-emerald-700"
                 : "bg-slate-100 text-slate-500"

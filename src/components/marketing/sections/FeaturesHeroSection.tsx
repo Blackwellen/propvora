@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, ShieldCheck } from "lucide-react"
 import PremiumProductImage from "../PremiumProductImage"
 import { getServerLocale, t } from "@/lib/i18n"
 
@@ -21,6 +21,25 @@ export default async function FeaturesHeroSection() {
             {tr("featHeroWalkthrough")}
           </Link>
         </div>
+
+        {/* Trust strip — mirrors the landing hero for cross-page consistency */}
+        <div className="mt-10 w-full max-w-3xl">
+          <p className="text-center text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
+            {tr("trustEyebrow")}
+          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2.5">
+            {[tr("trust1"), tr("trust2"), tr("trust3"), tr("trust4")].map((item) => (
+              <span
+                key={item}
+                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/70 px-3.5 py-1.5 text-xs font-semibold text-slate-600 shadow-sm"
+              >
+                <ShieldCheck className="h-3.5 w-3.5 text-blue-600" />
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+
         <div className="relative mx-auto mt-14 max-w-[1220px] lg:mt-20">
           <PremiumProductImage label="Operations overview" src="/images/marketing/product/enriched/01-home.png" alt="Propvora property operations home dashboard using illustrative demo data" priority />
         </div>

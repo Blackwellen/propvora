@@ -20,7 +20,7 @@ import { ReviewStars } from "./ReviewStars"
 ─────────────────────────────────────────────────────────────────────────── */
 
 const CATEGORY_GRADIENT: Record<string, string> = {
-  maintenance: "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
+  maintenance: "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)",
   trades: "linear-gradient(135deg, #EA580C 0%, #F97316 100%)",
   cleaning: "linear-gradient(135deg, #0891B2 0%, #06B6D4 100%)",
   compliance: "linear-gradient(135deg, #059669 0%, #10B981 100%)",
@@ -53,7 +53,7 @@ export function ListingCardMobile({
       className={cn(
         "flex items-stretch gap-3 bg-white rounded-2xl border border-[#E8EEF8] shadow-sm p-2.5",
         "active:scale-[0.99] transition-transform hover:border-[#BFD8FB]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 motion-reduce:active:scale-100"
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 motion-reduce:active:scale-100"
       )}
     >
       {/* Thumbnail */}

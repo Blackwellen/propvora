@@ -344,7 +344,7 @@ function AdminTopNav() {
       <div className="hidden md:block w-px h-6 bg-slate-200 mx-1" />
       <Link
         href="/property-manager"
-        className="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-[#F8FBFF] border border-[#DDE8F7] text-[13px] font-medium text-[#2563EB] hover:bg-[#EBF2FF] hover:border-[#B9D2F3] transition-all"
+        className="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-[#F8FBFF] border border-[#DDE8F7] text-[13px] font-medium text-[var(--brand)] hover:bg-[#EBF2FF] hover:border-[#B9D2F3] transition-all"
       >
         <ExternalLink className="w-4 h-4" />
         <span>Back to App</span>

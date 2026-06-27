@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Check } from "lucide-react"
+import { ArrowRight, Check, ShieldCheck } from "lucide-react"
 import PremiumProductImage from "../PremiumProductImage"
 import { getServerLocale, t } from "@/lib/i18n"
 
@@ -33,6 +33,24 @@ export default async function LandingHeroSection() {
               <Check className="h-4 w-4 text-emerald-600" />{item}
             </span>
           ))}
+        </div>
+
+        {/* Trust strip — UK-built infrastructure & compliance credibility */}
+        <div className="mt-10 w-full max-w-3xl">
+          <p className="text-center text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
+            {tr("trustEyebrow")}
+          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2.5">
+            {[tr("trust1"), tr("trust2"), tr("trust3"), tr("trust4")].map((item) => (
+              <span
+                key={item}
+                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/70 px-3.5 py-1.5 text-xs font-semibold text-slate-600 shadow-sm"
+              >
+                <ShieldCheck className="h-3.5 w-3.5 text-blue-600" />
+                {item}
+              </span>
+            ))}
+          </div>
         </div>
         <div className="relative mx-auto mt-14 max-w-[1220px] lg:mt-20">
           <div className="absolute -left-5 top-[18%] z-10 hidden w-56 rounded-2xl border border-blue-100 bg-white/95 p-4 text-left shadow-[0_20px_55px_rgba(37,99,235,0.16)] backdrop-blur lg:block">

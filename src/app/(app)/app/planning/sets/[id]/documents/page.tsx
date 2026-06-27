@@ -35,7 +35,7 @@ const STATUS_CONFIG: Record<DocumentStatus, { label: string; cls: string }> = {
   unreadable: { label: "Unreadable", cls: "bg-red-100 text-red-700" },
   valid:      { label: "Valid",      cls: "bg-green-100 text-green-700" },
   approved:   { label: "Approved",   cls: "bg-emerald-100 text-emerald-700" },
-  uploaded:   { label: "Uploaded",   cls: "bg-blue-100 text-blue-700" },
+  uploaded:   { label: "Uploaded",   cls: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
 }
 
 // ── File icon ─────────────────────────────────────────────────────────────────
@@ -46,7 +46,7 @@ function FileIcon({ name }: { name: string }) {
     return <div style={{ color: "var(--color-success)" }}><ImageIcon className="w-5 h-5" /></div>
   }
   if (["doc", "docx"].includes(ext)) {
-    return <div style={{ color: "var(--brand)" }}><FileText className="w-5 h-5" /></div>
+    return <div style={{ color: "#2563EB" }}><FileText className="w-5 h-5" /></div>
   }
   if (ext === "pdf") {
     return <div style={{ color: "var(--color-danger-500, #EF4444)" }}><FileText className="w-5 h-5" /></div>
@@ -60,7 +60,7 @@ function ActionButton({ doc, onView }: { doc: PlanningDocument; onView: (d: Plan
   return (
     <button
       onClick={(e) => { e.stopPropagation(); onView(doc) }}
-      className="h-7 px-3 rounded-lg border border-blue-200 text-blue-600 text-[10px] font-semibold hover:bg-blue-50 transition-colors inline-flex items-center gap-1"
+      className="h-7 px-3 rounded-lg border border-[var(--color-brand-100)] text-[var(--brand)] text-[10px] font-semibold hover:bg-[var(--brand-soft)] transition-colors inline-flex items-center gap-1"
     >
       <Eye className="w-3 h-3" /> View
     </button>
@@ -356,7 +356,7 @@ export default function DocumentsPage() {
               {selectedDoc.file_path && (
                 <button
                   onClick={() => handleView(selectedDoc)}
-                  className="inline-flex items-center gap-1.5 h-7 px-3 rounded-lg border border-blue-200 text-blue-600 text-[10px] font-semibold hover:bg-blue-50"
+                  className="inline-flex items-center gap-1.5 h-7 px-3 rounded-lg border border-[var(--color-brand-100)] text-[var(--brand)] text-[10px] font-semibold hover:bg-[var(--brand-soft)]"
                 >
                   <Eye className="w-3 h-3" />
                   View Full Document

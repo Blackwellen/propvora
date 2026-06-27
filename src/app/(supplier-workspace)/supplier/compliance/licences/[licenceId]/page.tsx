@@ -98,7 +98,7 @@ export default function SupplierLicenceDetailPage() {
             {lic.documents.map((d) => (
               <li key={d.id} className="flex items-center gap-3 py-3">
                 <span className="w-9 h-9 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center shrink-0"><FileText className="w-4 h-4" /></span>
-                <div className="flex-1 min-w-0"><Link href={`/supplier/compliance/documents/${d.id}`} className="text-sm font-medium text-slate-800 hover:text-blue-600 truncate block">{d.name}</Link><p className="text-xs text-slate-400">Uploaded {shortDate(d.uploadedAt)}</p></div>
+                <div className="flex-1 min-w-0"><Link href={`/supplier/compliance/documents/${d.id}`} className="text-sm font-medium text-slate-800 hover:text-[var(--brand)] truncate block">{d.name}</Link><p className="text-xs text-slate-400">Uploaded {shortDate(d.uploadedAt)}</p></div>
                 <button onClick={() => setBanner("Download started.")} className="p-2 text-slate-400 hover:text-slate-600" aria-label="Download"><Download className="w-4 h-4" /></button>
               </li>
             ))}
@@ -112,7 +112,7 @@ export default function SupplierLicenceDetailPage() {
         <SupplierCard className="p-5">
           <h2 className="text-sm font-semibold text-slate-900 mb-3">Expiry reminders</h2>
           <p className="text-sm text-slate-600">We&apos;ll remind you {days != null && days > 0 ? `${Math.min(days, 30)} days before` : "before"} this licence expires so your services stay live.</p>
-          <button onClick={() => setBanner("Reminder preferences saved.")} className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600"><Plus className="w-4 h-4" /> Add a custom reminder</button>
+          <button onClick={() => setBanner("Reminder preferences saved.")} className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--brand)]"><Plus className="w-4 h-4" /> Add a custom reminder</button>
         </SupplierCard>
       ),
     },

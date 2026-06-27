@@ -209,7 +209,7 @@ export default function PlanningPage() {
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
               <h3 className="text-[14px] font-bold text-slate-900">Recent Planning Sets</h3>
-              <Link href="/property-manager/planning/sets" className="text-[12.5px] font-semibold text-[#2563EB] hover:text-blue-700 flex items-center gap-1 transition-colors">
+              <Link href="/property-manager/planning/sets" className="text-[12.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand)] flex items-center gap-1 transition-colors">
                 View all <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -263,7 +263,7 @@ export default function PlanningPage() {
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
               <h3 className="text-[14px] font-bold text-slate-900">Landlord Offers Queue</h3>
-              <Link href="/property-manager/planning/landlord-offers" className="text-[12.5px] font-semibold text-[#2563EB] hover:text-blue-700 flex items-center gap-1 transition-colors">
+              <Link href="/property-manager/planning/landlord-offers" className="text-[12.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand)] flex items-center gap-1 transition-colors">
                 View all <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -315,7 +315,7 @@ export default function PlanningPage() {
                 <p className="text-[12.5px] font-semibold text-slate-800">{item.label}</p>
                 <p className="text-[11.5px] text-slate-400 truncate">{item.value}</p>
               </div>
-              <span className="text-[11.5px] font-semibold text-[#2563EB] opacity-0 group-hover:opacity-100 transition-opacity shrink-0">{item.action} →</span>
+              <span className="text-[11.5px] font-semibold text-[var(--brand)] opacity-0 group-hover:opacity-100 transition-opacity shrink-0">{item.action} →</span>
             </Link>
           ))}
         </div>
@@ -330,7 +330,7 @@ export default function PlanningPage() {
               <p className="text-[22px] font-bold text-slate-900">{money(annualNet)}</p>
               <p className="text-[12px] text-slate-400">{money(totalNetMonthly)}/mo combined across {sets.length} set{sets.length !== 1 ? "s" : ""}</p>
             </div>
-            <Link href="/property-manager/planning/portfolio-intelligence" className="text-[12.5px] font-semibold text-[#2563EB] hover:text-blue-700 transition-colors">
+            <Link href="/property-manager/planning/portfolio-intelligence" className="text-[12.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand)] transition-colors">
               Portfolio intelligence →
             </Link>
           </div>

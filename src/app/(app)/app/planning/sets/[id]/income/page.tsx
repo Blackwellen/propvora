@@ -171,7 +171,7 @@ export default function IncomePage() {
               <p className="text-sm font-bold text-slate-900">Income streams</p>
               <p className="text-xs text-slate-400 mt-0.5">Recorded income lines for this plan.</p>
             </div>
-            <button className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[#2563EB] text-white text-xs font-semibold hover:bg-blue-700 transition-colors">
+            <button className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[var(--brand)] text-white text-xs font-semibold hover:bg-[var(--brand-strong)] transition-colors">
               <Plus className="w-3.5 h-3.5" />
               Add Income
             </button>
@@ -278,7 +278,7 @@ export default function IncomePage() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
           <p className="text-sm font-bold text-slate-900">Room-by-Room Revenue</p>
-          <a href={`/property-manager/planning/sets/${id}/rooms-units`} className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+          <a href={`/property-manager/planning/sets/${id}/rooms-units`} className="text-xs text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium flex items-center gap-1">
             View all rooms <ArrowRight className="w-3 h-3" />
           </a>
         </div>

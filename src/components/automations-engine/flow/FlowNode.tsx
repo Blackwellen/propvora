@@ -54,7 +54,7 @@ function FlowNodeInner({ data, selected }: NodeProps) {
         "group relative border bg-white shadow-sm transition",
         visual.bg, visual.border,
         shape.wrap,
-        selected ? "ring-2 ring-blue-500 shadow-md" : "",
+        selected ? "ring-2 ring-[var(--brand)] shadow-md" : "",
         runRing,
         d.hasConfigError ? "ring-2 ring-red-400" : "",
       ].join(" ")}
@@ -108,7 +108,7 @@ function FlowNodeInner({ data, selected }: NodeProps) {
         <Handle
           type="source"
           position={Position.Right}
-          className="!h-3 !w-3 !border-2 !border-white !bg-blue-500"
+          className="!h-3 !w-3 !border-2 !border-white !bg-[var(--brand)]"
         />
       )}
     </div>

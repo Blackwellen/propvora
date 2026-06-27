@@ -58,7 +58,7 @@ export function AddCardModal({ onClose, onSaved }: { onClose: () => void; onSave
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/50" onClick={onClose}>
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-          <div className="flex items-center gap-2"><span className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><CreditCard className="w-4 h-4" /></span><h2 className="text-[15px] font-semibold text-slate-900">Add a card</h2></div>
+          <div className="flex items-center gap-2"><span className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center"><CreditCard className="w-4 h-4" /></span><h2 className="text-[15px] font-semibold text-slate-900">Add a card</h2></div>
           <button onClick={onClose} aria-label="Close" className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-4 h-4" /></button>
         </div>
         <div className="p-5">
@@ -71,7 +71,7 @@ export function AddCardModal({ onClose, onSaved }: { onClose: () => void; onSave
               <p className="mt-3 text-[11px] text-slate-400">Your card is stored securely by Stripe and can be used for future bookings. It is never stored by Propvora.</p>
               <div className="mt-4 flex justify-end gap-2">
                 <button onClick={onClose} className="border border-slate-200 rounded-xl px-4 py-2 text-[12.5px] font-semibold text-slate-700">Cancel</button>
-                <button onClick={submit} disabled={submitting} className="bg-[#2563EB] text-white rounded-xl px-4 py-2 text-[12.5px] font-semibold inline-flex items-center gap-1.5 disabled:opacity-60">{submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Save card</button>
+                <button onClick={submit} disabled={submitting} className="bg-[var(--brand)] text-white rounded-xl px-4 py-2 text-[12.5px] font-semibold inline-flex items-center gap-1.5 disabled:opacity-60">{submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Save card</button>
               </div>
             </>
           )}

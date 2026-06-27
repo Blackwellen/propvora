@@ -57,7 +57,7 @@ export default function MaintenanceDetailPanel({ req }: Props) {
           ))}
           <button
             onClick={() => toast("Add photo (upload-only) — coming soon", "info")}
-            className="w-full h-12 rounded-md border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 hover:border-blue-300"
+            className="w-full h-12 rounded-md border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 hover:border-[var(--color-brand-300)]"
           >
             <Upload className="w-4 h-4" />
           </button>
@@ -66,9 +66,9 @@ export default function MaintenanceDetailPanel({ req }: Props) {
 
       <div className="mt-3 pt-3 border-t border-slate-100">
         <p className="text-[12px] font-semibold text-slate-700 mb-1.5">Contractor appointment</p>
-        <div className="bg-blue-50 rounded-lg p-2.5 flex items-center justify-between">
+        <div className="bg-[var(--brand-soft)] rounded-lg p-2.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-blue-500" />
+            <Calendar className="w-4 h-4 text-[var(--brand)]" />
             <div>
               <p className="text-[11.5px] font-semibold text-slate-700">26 May 2025, 10:00–12:00</p>
               <p className="text-[10.5px] text-slate-400">PlumbPro Ltd</p>
@@ -76,7 +76,7 @@ export default function MaintenanceDetailPanel({ req }: Props) {
           </div>
           <button
             onClick={() => toast("Appointment approved", "success")}
-            className="text-[11px] font-semibold bg-white border border-blue-200 rounded-lg px-2 py-1 text-blue-700"
+            className="text-[11px] font-semibold bg-white border border-[var(--color-brand-100)] rounded-lg px-2 py-1 text-[var(--brand)]"
           >
             Approve
           </button>
@@ -97,7 +97,7 @@ export default function MaintenanceDetailPanel({ req }: Props) {
       <div className="mt-3 space-y-2">
         <button
           onClick={() => toast("Messaging property manager…", "info")}
-          className="w-full inline-flex items-center justify-center gap-1.5 bg-[#2563EB] text-white rounded-xl py-2.5 text-[13px] font-semibold"
+          className="w-full inline-flex items-center justify-center gap-1.5 bg-[var(--brand)] text-white rounded-xl py-2.5 text-[13px] font-semibold"
         >
           <MessageSquare className="w-4 h-4" /> Message property manager
         </button>
@@ -109,8 +109,8 @@ export default function MaintenanceDetailPanel({ req }: Props) {
         </button>
       </div>
 
-      <div className="mt-3 bg-blue-50/70 border border-blue-100 rounded-xl p-3 flex items-start gap-2">
-        <ShieldCheck className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+      <div className="mt-3 bg-[var(--brand-soft)]/70 border border-[var(--color-brand-100)] rounded-xl p-3 flex items-start gap-2">
+        <ShieldCheck className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
         <p className="text-[11px] text-slate-600">
           Emergencies (gas, flooding, no heating in winter) are prioritised within 24 hours. Call the emergency line for
           urgent issues.

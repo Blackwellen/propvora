@@ -44,7 +44,7 @@ export function ActivityTab({ events, loaded }: { events: ActivityRow[]; loaded:
           <div className="space-y-1">
             {items.map((item) => (
               <div key={item.id} className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-white bg-blue-500">
+                <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-white bg-[var(--brand)]">
                   {typeIcon(item.entity_type ?? item.action)}
                 </div>
                 <div className="flex-1 min-w-0">

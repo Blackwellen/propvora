@@ -101,7 +101,7 @@ export function CustomerPropertyCard({
           </div>
           <Link
             href={href}
-            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 text-[13.5px] font-bold text-white transition-colors hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-[var(--brand)] px-4 text-[13.5px] font-bold text-white transition-colors hover:bg-[var(--brand-strong)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)]"
           >
             View details
             <span aria-hidden>{"->"}</span>

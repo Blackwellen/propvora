@@ -48,7 +48,7 @@ export function TenantPortalLeaseCard({
   return (
     <PortalCard className="overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr]">
-        <div className="relative h-44 lg:h-auto bg-gradient-to-br from-[#1E3A8A] to-[#2563EB]">
+        <div className="relative h-44 lg:h-auto bg-gradient-to-br from-[#1E3A8A] to-[var(--brand)]">
           {propertyImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img

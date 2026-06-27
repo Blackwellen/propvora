@@ -94,7 +94,7 @@ export default function SupplierDocsPage() {
           <p className="text-sm text-slate-500 mt-0.5">Track supplier insurance, accreditations and compliance documents.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => router.push("/property-manager/contacts")} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+          <button onClick={() => router.push("/property-manager/contacts")} className="flex items-center gap-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Send className="w-4 h-4" />
             Manage suppliers
           </button>
@@ -128,7 +128,7 @@ export default function SupplierDocsPage() {
 
         {/* KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
-          <ComplianceKpiCard label="Suppliers" value={isLoading ? "—" : kpis.suppliers} subtitle="With documents" icon={Users} iconBg="bg-blue-100" iconColor="text-blue-600" />
+          <ComplianceKpiCard label="Suppliers" value={isLoading ? "—" : kpis.suppliers} subtitle="With documents" icon={Users} iconBg="bg-[var(--color-brand-100)]" iconColor="text-[var(--brand)]" />
           <ComplianceKpiCard label="Valid Documents" value={isLoading ? "—" : kpis.valid} subtitle="In date" icon={ShieldCheck} iconBg="bg-emerald-100" iconColor="text-emerald-600" />
           <ComplianceKpiCard label="Expiring Soon" value={isLoading ? "—" : kpis.expiring} subtitle="Within 60 days" icon={Clock} iconBg="bg-amber-100" iconColor="text-amber-600" />
           <ComplianceKpiCard label="Expired" value={isLoading ? "—" : kpis.blocked} subtitle="Action required" icon={Lock} iconBg="bg-red-100" iconColor="text-red-600" />
@@ -143,10 +143,10 @@ export default function SupplierDocsPage() {
               placeholder="Search supplier documents..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-64"
+              className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)] w-64"
             />
           </div>
-          <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
+          <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]">
             {STATUS_FILTERS.map((s) => (
               <option key={s} value={s}>{s ? humaniseType(s) : "All statuses"}</option>
             ))}
@@ -168,7 +168,7 @@ export default function SupplierDocsPage() {
                 <p className="text-sm font-medium text-slate-700">{docs.length === 0 ? "No supplier documents yet" : "No documents match your filters"}</p>
                 <p className="text-xs text-slate-400 mt-1 mb-4">{docs.length === 0 ? "Supplier insurance and accreditation documents will appear here." : "Try adjusting your search or filters."}</p>
                 {docs.length === 0 && (
-                  <button onClick={() => router.push("/property-manager/contacts")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
+                  <button onClick={() => router.push("/property-manager/contacts")} className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-[var(--brand-strong)]">
                     <Users className="w-3.5 h-3.5" /> Manage suppliers
                   </button>
                 )}

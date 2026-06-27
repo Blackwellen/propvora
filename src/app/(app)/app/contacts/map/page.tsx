@@ -22,7 +22,7 @@ const ContactMapInner = dynamic(() => import("@/components/contacts/ContactMapIn
   ),
 })
 
-const AVATAR_BG = ["bg-blue-500","bg-emerald-500","bg-violet-500","bg-amber-500","bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500"]
+const AVATAR_BG = ["bg-[var(--brand)]","bg-emerald-500","bg-violet-500","bg-amber-500","bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500"]
 function avatarBg(name: string): string { let h=0; for(let i=0;i<name.length;i++) h=name.charCodeAt(i)+((h<<5)-h); return AVATAR_BG[Math.abs(h)%AVATAR_BG.length] }
 function initials(name: string): string { const p=name.trim().split(/\s+/); return p.length===1?p[0].slice(0,2).toUpperCase():(p[0][0]+p[p.length-1][0]).toUpperCase() }
 
@@ -31,7 +31,7 @@ type TypeFilter = "all" | "tenant" | "landlord" | "supplier" | "professional" | 
 function typeBadge(type: string): string {
   const map: Record<string, string> = {
     tenant:       "bg-violet-100 text-violet-700",
-    landlord:     "bg-blue-100 text-blue-700",
+    landlord:     "bg-[var(--color-brand-100)] text-[var(--brand)]",
     supplier:     "bg-amber-100 text-amber-700",
     applicant:    "bg-sky-100 text-sky-700",
     agent:        "bg-teal-100 text-teal-700",
@@ -135,7 +135,7 @@ export default function ContactMapPage() {
                   className={cn(
                     "px-2.5 py-1 rounded-full text-[11px] font-medium transition-all border",
                     typeFilter === f.key
-                      ? "bg-[#2563EB] text-white border-[#2563EB]"
+                      ? "bg-[var(--brand)] text-white border-[var(--brand)]"
                       : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
                   )}
                 >
@@ -166,7 +166,7 @@ export default function ContactMapPage() {
                   onClick={() => setSelected(c.id === selected ? null : c.id)}
                   className={cn(
                     "w-full text-left px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors flex items-center gap-3",
-                    selected === c.id ? "bg-blue-50 border-l-2 border-l-[#2563EB]" : ""
+                    selected === c.id ? "bg-[var(--brand-soft)] border-l-2 border-l-[var(--brand)]" : ""
                   )}
                 >
                   <div className={cn("w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0", avatarBg(c.name))}>

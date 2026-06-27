@@ -102,7 +102,7 @@ function RequestCard({ r, onSelect, selected }: { r: RequestRow; onSelect: (r: R
     <button
       type="button"
       onClick={() => onSelect(r)}
-      className={`text-left bg-white border rounded-[18px] shadow-sm p-4 transition-all hover:shadow-md ${selected ? "border-blue-400 ring-2 ring-blue-100" : "border-slate-200 hover:border-slate-300"}`}
+      className={`text-left bg-white border rounded-[18px] shadow-sm p-4 transition-all hover:shadow-md ${selected ? "border-[var(--color-brand-400)] ring-2 ring-[var(--color-brand-100)]" : "border-slate-200 hover:border-slate-300"}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
@@ -144,7 +144,7 @@ function ListView({ rows, onSelect, selectedId }: { rows: RequestRow[]; onSelect
             {rows.map((r) => {
               const due = dueIn(r.responseDueAt)
               return (
-                <tr key={r.id} onClick={() => onSelect(r)} className={`border-b border-slate-50 cursor-pointer hover:bg-slate-50 ${selectedId === r.id ? "bg-blue-50/50" : ""}`}>
+                <tr key={r.id} onClick={() => onSelect(r)} className={`border-b border-slate-50 cursor-pointer hover:bg-slate-50 ${selectedId === r.id ? "bg-[var(--brand-soft)]/50" : ""}`}>
                   <td className="px-4 py-3"><span className="font-semibold text-slate-800">{r.property}</span><span className="block text-[11px] text-slate-400">{r.address}</span></td>
                   <td className="px-4 py-3 text-slate-600">{r.service}</td>
                   <td className="px-4 py-3"><Pill accent={URGENCY[r.urgency]}>{r.urgency}</Pill></td>
@@ -180,7 +180,7 @@ function KanbanView({ rows, onSelect, selectedId }: { rows: RequestRow[]; onSele
             </div>
             <div className="space-y-2">
               {items.map((r) => (
-                <button key={r.id} onClick={() => onSelect(r)} className={`w-full text-left bg-white border rounded-xl p-2.5 hover:shadow-sm ${selectedId === r.id ? "border-blue-400" : "border-slate-200"}`}>
+                <button key={r.id} onClick={() => onSelect(r)} className={`w-full text-left bg-white border rounded-xl p-2.5 hover:shadow-sm ${selectedId === r.id ? "border-[var(--color-brand-400)]" : "border-slate-200"}`}>
                   <p className="text-[12px] font-semibold text-slate-800 truncate">{r.property}</p>
                   <p className="text-[11px] text-slate-400 truncate">{r.service}</p>
                   <p className="mt-1 text-[12px] font-bold text-slate-900">{formatPence(r.estValuePence, r.currency)}</p>
@@ -207,8 +207,8 @@ function MapView({ rows, onSelect, selectedId }: { rows: RequestRow[]; onSelect:
       <ul className="divide-y divide-slate-100">
         {rows.map((r) => (
           <li key={r.id}>
-            <button onClick={() => onSelect(r)} className={`w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50 ${selectedId === r.id ? "bg-blue-50/50" : ""}`}>
-              <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-[11px] font-bold flex items-center justify-center shrink-0">{r.distanceMiles}</span>
+            <button onClick={() => onSelect(r)} className={`w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50 ${selectedId === r.id ? "bg-[var(--brand-soft)]/50" : ""}`}>
+              <span className="w-6 h-6 rounded-full bg-[var(--color-brand-100)] text-[var(--brand)] text-[11px] font-bold flex items-center justify-center shrink-0">{r.distanceMiles}</span>
               <span className="flex-1 min-w-0"><span className="block text-sm font-semibold text-slate-800 truncate">{r.property}</span><span className="block text-[11px] text-slate-400 truncate">{r.service}</span></span>
               <span className="text-sm font-bold text-slate-900 shrink-0">{formatPence(r.estValuePence, r.currency)}</span>
             </button>
@@ -245,7 +245,7 @@ function DetailPanel({ r, onClose, toast }: { r: RequestRow; onClose: () => void
           <div className="flex flex-wrap gap-1.5">{r.requiredDocuments.map((d) => <Pill key={d} accent="slate">{d}</Pill>)}</div>
         </div>
         <div className="flex flex-col gap-2 pt-1">
-          <button onClick={() => toast("Quote composer opening soon", "info")} className="inline-flex items-center justify-center gap-1.5 bg-[#2563EB] text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-[#1d4ed8]">
+          <button onClick={() => toast("Quote composer opening soon", "info")} className="inline-flex items-center justify-center gap-1.5 bg-[var(--brand)] text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-[var(--brand-strong)]">
             <Send className="w-4 h-4" /> Send quote
           </button>
           <button onClick={() => toast("Question sent to requester (demo)", "success")} className="inline-flex items-center justify-center gap-1.5 bg-white border border-slate-200 text-slate-700 rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-slate-50">

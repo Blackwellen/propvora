@@ -49,7 +49,7 @@ export function AddressModal({ onClose, onSaved }: { onClose: () => void; onSave
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><MapPin className="w-4 h-4" /></span>
+            <span className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center"><MapPin className="w-4 h-4" /></span>
             <h2 className="text-[15px] font-semibold text-slate-900">Add address</h2>
           </div>
           <button onClick={onClose} aria-label="Close" className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-4 h-4" /></button>
@@ -73,7 +73,7 @@ export function AddressModal({ onClose, onSaved }: { onClose: () => void; onSave
           {error && <p className="text-[12.5px] text-rose-600">{error}</p>}
           <div className="flex justify-end gap-2 pt-1">
             <button onClick={onClose} className="border border-slate-200 rounded-xl px-4 py-2 text-[12.5px] font-semibold text-slate-700">Cancel</button>
-            <button onClick={submit} disabled={busy} className="bg-[#2563EB] text-white rounded-xl px-4 py-2 text-[12.5px] font-semibold inline-flex items-center gap-1.5 disabled:opacity-60">
+            <button onClick={submit} disabled={busy} className="bg-[var(--brand)] text-white rounded-xl px-4 py-2 text-[12.5px] font-semibold inline-flex items-center gap-1.5 disabled:opacity-60">
               {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Save address
             </button>
           </div>

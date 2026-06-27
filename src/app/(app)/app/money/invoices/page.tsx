@@ -73,7 +73,7 @@ interface DonutSegment {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatCurrency(amount: number): string {
-  return `£${amount.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)
 }
 
 const _gbp0 = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 })
@@ -84,7 +84,7 @@ function fmtCurrency0(amount: number): string {
 function statusConfig(status: InvoiceStatus): { label: string; className: string } {
   switch (status) {
     case "draft":    return { label: "Draft",    className: "bg-slate-100 text-slate-600" }
-    case "sent":     return { label: "Sent",     className: "bg-blue-100 text-blue-700" }
+    case "sent":     return { label: "Sent",     className: "bg-[var(--color-brand-100)] text-[var(--brand)]" }
     case "due_soon": return { label: "Due Soon", className: "bg-amber-100 text-amber-700" }
     case "overdue":  return { label: "Overdue",  className: "bg-red-100 text-red-700" }
     case "paid":     return { label: "Paid",     className: "bg-emerald-100 text-emerald-700" }
@@ -94,7 +94,7 @@ function statusConfig(status: InvoiceStatus): { label: string; className: string
 function typeBadgeClass(type: InvoiceType): string {
   switch (type) {
     case "Rent":           return "bg-emerald-100 text-emerald-700"
-    case "Service Charge": return "bg-blue-100 text-blue-700"
+    case "Service Charge": return "bg-[var(--color-brand-100)] text-[var(--brand)]"
     case "Deposit":        return "bg-violet-100 text-violet-700"
     case "Maintenance":    return "bg-amber-100 text-amber-700"
     case "Other":          return "bg-slate-100 text-slate-600"
@@ -215,7 +215,7 @@ export default function InvoicesPage() {
       recipientName: r.contact_name ?? (r.contact_id ? `Contact ${r.contact_id.slice(0, 6)}` : "—"),
       recipientEmail: "—",
       recipientInitials: r.contact_name ? r.contact_name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase() : "?",
-      recipientAvatarBg: "bg-blue-500",
+      recipientAvatarBg: "bg-[var(--brand)]",
       propertyAddress: r.property_address ?? (r.property_id ? `Property ${r.property_id.slice(0, 6)}` : "—"),
       propertyCity: "—",
       type: (r.invoice_type === "rent" ? "Rent" : r.invoice_type === "service_charge" ? "Service Charge" : r.invoice_type === "deposit" ? "Deposit" : "Other") as InvoiceType,
@@ -349,7 +349,7 @@ export default function InvoicesPage() {
           actions={
             <>
               <Link href="/property-manager/money/invoices/new">
-                <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm">
+                <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[var(--brand)] rounded-xl hover:bg-[var(--brand-strong)] transition-colors shadow-sm">
                   <Plus className="w-4 h-4" />
                   New Invoice
                 </button>
@@ -385,8 +385,8 @@ export default function InvoicesPage() {
             label="Total Outstanding"
             value={fmtCurrency0(summary?.totalOutstanding ?? 0)}
             icon={<FileText className="w-5 h-5" />}
-            iconBg="bg-blue-50"
-            iconColor="text-blue-600"
+            iconBg="bg-[var(--brand-soft)]"
+            iconColor="text-[var(--brand)]"
           />
           <MoneyKpiCard
             label="Due This Week"
@@ -468,7 +468,7 @@ export default function InvoicesPage() {
                 placeholder="Search invoices by #, recipient or property..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-slate-400"
+                className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--brand)] placeholder:text-slate-400"
               />
             </div>
 
@@ -501,7 +501,7 @@ export default function InvoicesPage() {
                             filtered.length > 0
                           }
                           onChange={toggleAll}
-                          className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                          className="w-4 h-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]"
                         />
                       </th>
                       <th className="px-3 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
@@ -522,7 +522,7 @@ export default function InvoicesPage() {
                       <th className="px-3 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
                         <span className="flex items-center gap-1">
                           Issue Date
-                          <span className="text-blue-500">↑</span>
+                          <span className="text-[var(--brand)]">↑</span>
                         </span>
                       </th>
                       <th className="px-3 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
@@ -578,11 +578,11 @@ export default function InvoicesPage() {
                               type="checkbox"
                               checked={selectedIds.has(inv.id)}
                               onChange={() => toggleSelect(inv.id)}
-                              className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                              className="w-4 h-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]"
                             />
                           </td>
                           <td className="px-3 py-3.5">
-                            <Link href={`/property-manager/money/invoices/${inv.id}`} className="text-blue-600 font-semibold hover:underline text-[13px]">
+                            <Link href={`/property-manager/money/invoices/${inv.id}`} className="text-[var(--brand)] font-semibold hover:underline text-[13px]">
                               {inv.invoiceNumber}
                             </Link>
                             <div className="text-[11px] text-slate-500 mt-0.5">
@@ -710,7 +710,7 @@ export default function InvoicesPage() {
                 <h3 className="text-[13px] font-semibold text-slate-900">
                   Collections Summary
                 </h3>
-                <button className="text-[12px] text-blue-600 font-medium hover:underline">
+                <button className="text-[12px] text-[var(--brand)] font-medium hover:underline">
                   MTD &gt;
                 </button>
               </div>
@@ -731,7 +731,7 @@ export default function InvoicesPage() {
                   </div>
                 ))}
               </div>
-              <Link href="/property-manager/accounting" className="mt-4 inline-block text-[12px] text-blue-600 font-medium hover:underline">
+              <Link href="/property-manager/accounting" className="mt-4 inline-block text-[12px] text-[var(--brand)] font-medium hover:underline">
                 View in Accounting &gt;
               </Link>
             </div>

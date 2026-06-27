@@ -30,7 +30,7 @@ const STATUS_FILTERS: StatusFilter[] = ["All", "scheduled", "confirmed", "due_to
 
 function statusChip(status: CalendarItem["status"]): string {
   const map: Record<CalendarItem["status"], string> = {
-    scheduled: "bg-blue-100 text-blue-700",
+    scheduled: "bg-[var(--color-brand-100)] text-[var(--brand)]",
     confirmed: "bg-emerald-100 text-emerald-700",
     due_today: "bg-amber-100 text-amber-700",
     overdue: "bg-red-100 text-red-700",
@@ -56,7 +56,7 @@ function FilterChip({ label, active, onClick }: { label: string; active: boolean
       onClick={onClick}
       className={cn(
         "px-3 py-1.5 rounded-full text-xs font-medium transition-all border capitalize",
-        active ? "bg-[#2563EB] text-white border-[#2563EB]" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+        active ? "bg-[var(--brand)] text-white border-[var(--brand)]" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
       )}
     >
       {label === "due_today" ? "Due Today" : label}
@@ -135,7 +135,7 @@ export default function EventsPage() {
             <p className="text-sm text-slate-500 mt-0.5">Every dated record across your portfolio — click any row to open its source</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <Link href={sectionLink("/property-manager/calendar/events/new")} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm">
+            <Link href={sectionLink("/property-manager/calendar/events/new")} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors shadow-sm">
               <Plus className="w-4 h-4" />
               New Event
             </Link>
@@ -145,7 +145,7 @@ export default function EventsPage() {
         {/* KPI strip */}
         <div className="flex gap-4 flex-wrap">
           <KpiCard label="Total" value={isLoading ? "…" : items.length} />
-          <KpiCard label="This Week" value={isLoading ? "…" : buckets.thisWeek.length} valueClass="text-blue-600" />
+          <KpiCard label="This Week" value={isLoading ? "…" : buckets.thisWeek.length} valueClass="text-[var(--brand)]" />
           <KpiCard label="Overdue" value={isLoading ? "…" : buckets.overdue.length} valueClass="text-red-600" />
           <KpiCard label="Completed" value={isLoading ? "…" : completed} valueClass="text-green-600" />
         </div>
@@ -170,7 +170,7 @@ export default function EventsPage() {
                 placeholder="Search…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-lg bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 w-48"
+                className="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-lg bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--color-brand-400)] w-48"
               />
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function EventsPage() {
               <div className="px-4 py-16 text-center">
                 <CalendarDays className="w-10 h-10 text-slate-200 mx-auto mb-3" />
                 <p className="text-sm font-medium text-slate-500">No events match your filters</p>
-                <Link href={sectionLink("/property-manager/calendar/events/new")} className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white">
+                <Link href={sectionLink("/property-manager/calendar/events/new")} className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white">
                   <Plus className="w-4 h-4" />New Event
                 </Link>
               </div>
@@ -216,7 +216,7 @@ export default function EventsPage() {
               <tbody className="divide-y divide-slate-100">
                 {isLoading && (
                   <tr><td colSpan={6} className="px-4 py-12 text-center text-sm text-slate-400">
-                    <div className="flex items-center justify-center gap-2"><div className="animate-spin w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full" />Loading…</div>
+                    <div className="flex items-center justify-center gap-2"><div className="animate-spin w-4 h-4 border-2 border-[var(--color-brand-400)] border-t-transparent rounded-full" />Loading…</div>
                   </td></tr>
                 )}
                 {!isLoading && filtered.map((ev) => {
@@ -246,7 +246,7 @@ export default function EventsPage() {
                     <CalendarDays className="w-10 h-10 text-slate-200 mx-auto mb-3" />
                     <p className="text-sm font-medium text-slate-500">No events match your filters</p>
                     <p className="text-xs text-slate-400 mt-1 mb-4">{items.length === 0 ? "Create an event or add dates to tasks, jobs, tenancies and compliance items." : "Try clearing a filter."}</p>
-                    <Link href={sectionLink("/property-manager/calendar/events/new")} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors">
+                    <Link href={sectionLink("/property-manager/calendar/events/new")} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors">
                       <Plus className="w-4 h-4" />New Event
                     </Link>
                   </td></tr>

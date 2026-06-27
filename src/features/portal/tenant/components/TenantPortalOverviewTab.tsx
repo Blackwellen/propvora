@@ -56,7 +56,7 @@ function AttnRow({
 }) {
   const soft =
     tone === "blue"
-      ? "bg-[#EFF6FF] text-[#2563EB]"
+      ? "bg-[var(--brand-soft)] text-[var(--brand)]"
       : tone === "amber"
         ? "bg-amber-50 text-amber-600"
         : "bg-slate-100 text-slate-500"
@@ -90,7 +90,7 @@ function QuickAction({
 }) {
   const soft =
     tone === "blue"
-      ? "bg-[#EFF6FF] text-[#2563EB]"
+      ? "bg-[var(--brand-soft)] text-[var(--brand)]"
       : tone === "emerald"
         ? "bg-emerald-50 text-emerald-600"
         : tone === "amber"
@@ -265,7 +265,7 @@ export function TenantPortalOverviewTab({
           <PortalSectionCard title="Your contacts" icon={Phone}>
             <div className="space-y-2.5">
               <div className="flex items-center gap-2.5">
-                <span className="w-9 h-9 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-xs font-bold">
+                <span className="w-9 h-9 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">
                   {workspaceName
                     .split(" ")
                     .map((w) => w[0])

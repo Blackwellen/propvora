@@ -15,7 +15,7 @@ const RISK_MAP: Record<string, BadgeConfig> = {
   high:      { label: "High",      className: "bg-orange-100 text-orange-700" },
   critical:  { label: "Critical",  className: "bg-red-100 text-red-700" },
   excellent: { label: "Excellent", className: "bg-emerald-100 text-emerald-700" },
-  good:      { label: "Good",      className: "bg-blue-100 text-blue-700" },
+  good:      { label: "Good",      className: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   poor:      { label: "Poor",      className: "bg-red-100 text-red-700" },
   fair:      { label: "Fair",      className: "bg-amber-100 text-amber-700" },
 }

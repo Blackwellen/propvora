@@ -35,7 +35,7 @@ export default function TrialCopilotGate({ onSwitchToInbox }: TrialCopilotGatePr
 
       {/* Headline */}
       <div className="flex flex-col gap-2">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-100 to-blue-50 flex items-center justify-center mx-auto">
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-100 to-[var(--brand-soft)] flex items-center justify-center mx-auto">
           <Sparkles className="w-5 h-5 text-violet-600" />
         </div>
         <h2 className="text-[17px] font-bold text-slate-900 leading-snug mt-1">
@@ -69,7 +69,7 @@ export default function TrialCopilotGate({ onSwitchToInbox }: TrialCopilotGatePr
       <div className="w-full max-w-[280px] flex flex-col gap-2">
         <Link
           href="/property-manager/workspace-settings/subscription"
-          className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white text-[13.5px] font-semibold text-center hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm"
+          className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[var(--brand)] to-[#7C3AED] text-white text-[13.5px] font-semibold text-center hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm"
         >
           <Image src="/favicon.ico" alt="" width={16} height={16} className="rounded-sm opacity-90" unoptimized />
           Subscribe to Propvora

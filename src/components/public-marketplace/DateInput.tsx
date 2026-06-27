@@ -113,7 +113,7 @@ export function DateInput({
         onClick={() => setOpen((v) => !v)}
         className={cn(
           "flex items-center gap-2 w-full text-left",
-          !bare && "h-10 rounded-xl border border-slate-200 bg-white px-3 shadow-sm focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+          !bare && "h-10 rounded-xl border border-slate-200 bg-white px-3 shadow-sm focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
         )}
         aria-label={label ?? placeholder}
         aria-haspopup="dialog"
@@ -202,7 +202,7 @@ export function DateInput({
                   className={cn(
                     "flex h-8 w-full items-center justify-center rounded-lg text-[12.5px] font-medium transition-colors",
                     isSelected
-                      ? "bg-[#2563EB] text-white"
+                      ? "bg-[var(--brand)] text-white"
                       : isPast
                       ? "text-slate-300 cursor-not-allowed"
                       : "text-slate-700 hover:bg-slate-100 cursor-pointer"

@@ -94,7 +94,7 @@ export function AdminWizard({
                   >
                     <span className={cn(
                       "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5",
-                      isActive ? "bg-[#2563EB] text-white ring-4 ring-[#2563EB]/20" : "",
+                      isActive ? "bg-[var(--brand)] text-white ring-4 ring-[var(--brand)]/20" : "",
                       isComplete ? "bg-[#10B981] text-white" : "",
                       !isActive && !isComplete ? "bg-white/10 text-[#8EA9D8]" : "",
                     )}>
@@ -133,7 +133,7 @@ export function AdminWizard({
 
             {/* Mobile progress */}
             <div className="sm:hidden h-1 bg-slate-100">
-              <div className="h-full bg-[#2563EB] transition-all" style={{ width: `${Math.max(progressPct, 8)}%` }} />
+              <div className="h-full bg-[var(--brand)] transition-all" style={{ width: `${Math.max(progressPct, 8)}%` }} />
             </div>
 
             {/* Step content */}
@@ -170,7 +170,7 @@ export function AdminWizard({
                   disabled={!canAdvance || submitting}
                   className={cn(
                     "flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13px] font-semibold transition-all",
-                    !canAdvance || submitting ? "bg-slate-200 text-slate-400 cursor-not-allowed" : "bg-[#2563EB] text-white hover:bg-[#1d4fd7] shadow-sm",
+                    !canAdvance || submitting ? "bg-slate-200 text-slate-400 cursor-not-allowed" : "bg-[var(--brand)] text-white hover:bg-[#1d4fd7] shadow-sm",
                   )}
                 >
                   {submitting && <span className="w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin" />}
@@ -183,7 +183,7 @@ export function AdminWizard({
                   disabled={!canAdvance}
                   className={cn(
                     "flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13px] font-semibold transition-all",
-                    canAdvance ? "bg-[#2563EB] text-white hover:bg-[#1d4fd7] shadow-sm" : "bg-slate-200 text-slate-400 cursor-not-allowed",
+                    canAdvance ? "bg-[var(--brand)] text-white hover:bg-[#1d4fd7] shadow-sm" : "bg-slate-200 text-slate-400 cursor-not-allowed",
                   )}
                 >
                   Continue <ChevronRight className="w-4 h-4" />
@@ -225,7 +225,7 @@ export function NativeSelect({
       onChange={(e) => onChange(e.target.value)}
       className={cn(
         "w-full h-9 px-3 rounded-lg border border-[#E2E8F0] bg-white text-sm text-slate-900",
-        "focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]",
+        "focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]",
         className,
       )}
     >

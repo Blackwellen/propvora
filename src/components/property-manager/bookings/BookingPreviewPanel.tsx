@@ -95,7 +95,7 @@ export default function BookingPreviewPanel({ booking, onClose }: BookingPreview
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-slate-900">{booking.property_name}</p>
               <p className="text-xs text-slate-400">{booking.property_location}</p>
-              <Link href="/property-manager/portfolio" className="text-xs text-blue-600 hover:underline">
+              <Link href="/property-manager/portfolio" className="text-xs text-[var(--brand)] hover:underline">
                 View property
               </Link>
             </div>
@@ -173,7 +173,7 @@ export default function BookingPreviewPanel({ booking, onClose }: BookingPreview
           </button>
           <Link
             href={`/property-manager/bookings/${booking.id}`}
-            className="flex-1 bg-blue-600 text-white rounded-xl px-3 py-2 text-sm font-medium text-center hover:bg-blue-700 transition-colors flex items-center justify-center gap-1"
+            className="flex-1 bg-[var(--brand)] text-white rounded-xl px-3 py-2 text-sm font-medium text-center hover:bg-[var(--brand-strong)] transition-colors flex items-center justify-center gap-1"
           >
             Edit booking
             <ExternalLink className="w-3 h-3" />

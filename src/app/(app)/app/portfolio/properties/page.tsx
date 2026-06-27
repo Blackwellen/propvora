@@ -28,14 +28,6 @@ import { getPropertyTypeOption } from "@/lib/constants/propertyTypes"
 
 const PAGE_SIZE = 12
 
-const HEALTH_OPTIONS: { key: string; label: string }[] = [
-  { key: "all", label: "All health" },
-  { key: "healthy", label: "Healthy" },
-  { key: "watch",   label: "Watch" },
-  { key: "at_risk", label: "At Risk" },
-  { key: "critical","label": "Critical" },
-]
-
 export default function PropertiesListPage() {
   const router = useRouter()
   const { workspace, isLoading: wsLoading } = useWorkspace()
@@ -44,7 +36,6 @@ export default function PropertiesListPage() {
   const [filterStatus, setFilterStatus] = useState("all")
   const [filterProfile, setFilterProfile] = useState("all")
   const [filterType, setFilterType] = useState("all")
-  const [filterHealth, setFilterHealth] = useState("all")
   const [sortBy, setSortBy] = useState("name")
   const [page, setPage] = useState(1)
   const [showFilters, setShowFilters] = useState(false)
@@ -110,23 +101,19 @@ export default function PropertiesListPage() {
     if (filterStatus !== "all") r = r.filter((p) => p.status === filterStatus)
     if (filterProfile !== "all") r = r.filter((p) => p.operationProfile === filterProfile)
     if (filterType !== "all") r = r.filter((p) => p.category === filterType)
-    if (filterHealth !== "all") r = r.filter((p) => p.healthScore === filterHealth)
     r.sort((a, b) => {
       if (sortBy === "rent") return b.monthlyRent - a.monthlyRent
       if (sortBy === "updated") return b.id.localeCompare(a.id)
       return a.name.localeCompare(b.name)
     })
     return r
-  }, [allProperties, search, filterStatus, filterProfile, filterType, filterHealth, sortBy])
+  }, [allProperties, search, filterStatus, filterProfile, filterType, sortBy])
 
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
-  const activeFilters = [filterStatus !== "all", filterProfile !== "all", filterType !== "all", filterHealth !== "all"].filter(Boolean).length
+  const activeFilters = [filterStatus !== "all", filterProfile !== "all", filterType !== "all"].filter(Boolean).length
 
-  function clearFilters() { setSearch(""); setFilterStatus("all"); setFilterProfile("all"); setFilterType("all"); setFilterHealth("all"); setPage(1) }
-
-  /* Health filter only meaningful when the data carries health scores (mock/demo). */
-  const hasHealthScores = allProperties.some(p => p.healthScore)
+  function clearFilters() { setSearch(""); setFilterStatus("all"); setFilterProfile("all"); setFilterType("all"); setPage(1) }
 
   function handleExport() {
     exportCsv(
@@ -180,7 +167,7 @@ export default function PropertiesListPage() {
   const STATUS_CHIP: Record<string, { label: string; cls: string }> = {
     Active: { label: "Occupied", cls: "bg-emerald-50 text-emerald-700" },
     Vacant: { label: "Vacant", cls: "bg-amber-50 text-amber-700" },
-    "Under Works": { label: "In Progress", cls: "bg-blue-50 text-blue-700" },
+    "Under Works": { label: "In Progress", cls: "bg-[var(--brand-soft)] text-[var(--brand)]" },
     Archived: { label: "Archived", cls: "bg-slate-100 text-slate-600" },
   }
   const propertyCardMapping: MobileCardMapping<PropertyCardData> = {
@@ -188,7 +175,7 @@ export default function PropertiesListPage() {
     title: (p) => p.name,
     subtitle: (p) => [p.address, p.postcode].filter(Boolean).join(", ") || "—",
     leading: (p) => (
-      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center shrink-0">
+      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center shrink-0">
         <Building2 className="w-5 h-5 text-white/80" />
       </div>
     ),
@@ -237,8 +224,8 @@ export default function PropertiesListPage() {
         activeFilterCount={activeFilters}
         actions={
           <div className="flex items-center gap-0.5 p-1 rounded-xl bg-slate-100">
-            <button onClick={() => setView("cards")} aria-label="Card view" aria-pressed={view === "cards"} className={cn("w-9 h-9 rounded-lg flex items-center justify-center transition-all", view === "cards" ? "bg-white shadow-sm text-[#2563EB]" : "text-slate-400")}><LayoutGrid className="w-4 h-4" /></button>
-            <button onClick={() => setView("table")} aria-label="List view" aria-pressed={view === "table"} className={cn("w-9 h-9 rounded-lg flex items-center justify-center transition-all", view === "table" ? "bg-white shadow-sm text-[#2563EB]" : "text-slate-400")}><List className="w-4 h-4" /></button>
+            <button onClick={() => setView("cards")} aria-label="Card view" aria-pressed={view === "cards"} className={cn("w-9 h-9 rounded-lg flex items-center justify-center transition-all", view === "cards" ? "bg-white shadow-sm text-[var(--brand)]" : "text-slate-400")}><LayoutGrid className="w-4 h-4" /></button>
+            <button onClick={() => setView("table")} aria-label="List view" aria-pressed={view === "table"} className={cn("w-9 h-9 rounded-lg flex items-center justify-center transition-all", view === "table" ? "bg-white shadow-sm text-[var(--brand)]" : "text-slate-400")}><List className="w-4 h-4" /></button>
           </div>
         }
       />
@@ -289,7 +276,7 @@ export default function PropertiesListPage() {
             placeholder="Search properties..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-            className="w-full h-9 pl-9 pr-4 rounded-xl text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all shadow-sm"
+            className="w-full h-9 pl-9 pr-4 rounded-xl text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all shadow-sm"
           />
         </div>
 
@@ -297,7 +284,7 @@ export default function PropertiesListPage() {
         <button
           onClick={() => setShowFilters(v => !v)}
           className={cn("relative flex items-center gap-1.5 h-9 px-3 rounded-xl border text-sm font-medium transition-all shadow-sm",
-            showFilters ? "bg-[#2563EB] border-[#2563EB] text-white" : "bg-white border-slate-200 text-slate-600 hover:border-slate-300")}
+            showFilters ? "bg-[var(--brand)] border-[var(--brand)] text-white" : "bg-white border-slate-200 text-slate-600 hover:border-slate-300")}
         >
           <SlidersHorizontal className="w-3.5 h-3.5" />Filters
           {activeFilters > 0 && (
@@ -309,7 +296,7 @@ export default function PropertiesListPage() {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="h-9 px-3 rounded-xl text-sm bg-white border border-slate-200 text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 shadow-sm cursor-pointer"
+          className="h-9 px-3 rounded-xl text-sm bg-white border border-slate-200 text-slate-600 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 shadow-sm cursor-pointer"
         >
           <option value="name">Sort: Name</option>
           <option value="rent">Sort: Rent ↓</option>
@@ -318,8 +305,8 @@ export default function PropertiesListPage() {
 
         {/* View switcher */}
         <div className="flex items-center gap-0.5 p-1 rounded-xl bg-slate-100 ml-auto">
-          <button onClick={() => setView("cards")} className={cn("p-1.5 rounded-lg transition-all", view === "cards" ? "bg-white shadow-sm text-[#2563EB]" : "text-slate-400 hover:text-slate-600")}><LayoutGrid className="w-4 h-4" /></button>
-          <button onClick={() => setView("table")} className={cn("p-1.5 rounded-lg transition-all", view === "table" ? "bg-white shadow-sm text-[#2563EB]" : "text-slate-400 hover:text-slate-600")}><List className="w-4 h-4" /></button>
+          <button onClick={() => setView("cards")} className={cn("p-1.5 rounded-lg transition-all", view === "cards" ? "bg-white shadow-sm text-[var(--brand)]" : "text-slate-400 hover:text-slate-600")}><LayoutGrid className="w-4 h-4" /></button>
+          <button onClick={() => setView("table")} className={cn("p-1.5 rounded-lg transition-all", view === "table" ? "bg-white shadow-sm text-[var(--brand)]" : "text-slate-400 hover:text-slate-600")}><List className="w-4 h-4" /></button>
         </div>
       </div>
 
@@ -331,7 +318,7 @@ export default function PropertiesListPage() {
             <select
               value={filterStatus}
               onChange={(e) => { setFilterStatus(e.target.value); setPage(1) }}
-              className="w-full h-9 px-3 rounded-xl text-sm bg-slate-50 border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 cursor-pointer"
+              className="w-full h-9 px-3 rounded-xl text-sm bg-slate-50 border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 cursor-pointer"
             >
               <option value="all">All statuses</option>
               <option value="Active">Active</option>
@@ -345,7 +332,7 @@ export default function PropertiesListPage() {
             <select
               value={filterProfile}
               onChange={(e) => { setFilterProfile(e.target.value); setPage(1) }}
-              className="w-full h-9 px-3 rounded-xl text-sm bg-slate-50 border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 cursor-pointer"
+              className="w-full h-9 px-3 rounded-xl text-sm bg-slate-50 border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 cursor-pointer"
             >
               <option value="all">All profiles</option>
               {ALL_OPERATION_PROFILES.filter(p => p !== "Unassigned").map((p) => <option key={p} value={p}>{p}</option>)}
@@ -357,28 +344,11 @@ export default function PropertiesListPage() {
               <select
                 value={filterType}
                 onChange={(e) => { setFilterType(e.target.value); setPage(1) }}
-                className="w-full h-9 px-3 rounded-xl text-sm bg-slate-50 border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 cursor-pointer"
+                className="w-full h-9 px-3 rounded-xl text-sm bg-slate-50 border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 cursor-pointer"
               >
                 <option value="all">All types</option>
                 {typeOptions.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
-            </div>
-          )}
-          {hasHealthScores && (
-            <div>
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">Health Score</label>
-              <div className="flex flex-wrap gap-1.5">
-                {HEALTH_OPTIONS.map(({ key, label }) => (
-                  <button
-                    key={key}
-                    onClick={() => { setFilterHealth(key); setPage(1) }}
-                    className={cn("px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all",
-                      filterHealth === key ? "bg-[#2563EB] border-[#2563EB] text-white" : "bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300")}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
             </div>
           )}
           {activeFilters > 0 && (
@@ -434,7 +404,7 @@ export default function PropertiesListPage() {
           <div className="flex items-center gap-1.5">
             <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}><ChevronLeft className="w-4 h-4" /></Button>
             {Array.from({ length: totalPages }).map((_, i) => (
-              <button key={i} onClick={() => setPage(i + 1)} className={cn("w-8 h-8 rounded-lg text-sm font-semibold transition-colors", page === i + 1 ? "bg-[#2563EB] text-white" : "text-slate-500 hover:bg-slate-100")}>{i + 1}</button>
+              <button key={i} onClick={() => setPage(i + 1)} className={cn("w-8 h-8 rounded-lg text-sm font-semibold transition-colors", page === i + 1 ? "bg-[var(--brand)] text-white" : "text-slate-500 hover:bg-slate-100")}>{i + 1}</button>
             ))}
             <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}><ChevronRight className="w-4 h-4" /></Button>
           </div>

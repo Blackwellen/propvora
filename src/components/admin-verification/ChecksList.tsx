@@ -14,7 +14,7 @@ function resultIcon(result: string | null, status: string | null) {
   if (r === "fail" || r === "failed" || r === "rejected")
     return <XCircle className="w-4 h-4 text-[#EF4444]" />
   if (r === "pending" || r === "processing" || r === "in_progress")
-    return <Clock className="w-4 h-4 text-[#2563EB]" />
+    return <Clock className="w-4 h-4 text-[var(--brand)]" />
   return <HelpCircle className="w-4 h-4 text-slate-400" />
 }
 

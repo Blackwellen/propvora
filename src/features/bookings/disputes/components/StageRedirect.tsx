@@ -39,7 +39,7 @@ export default function StageRedirect({ disputeId }: { disputeId: string }) {
         <EmptyState
           title="Dispute not found"
           message="This dispute may have been closed or archived."
-          action={<Link href="/property-manager/bookings/disputes" className="text-sm text-blue-600 hover:text-blue-700">Back to disputes</Link>}
+          action={<Link href="/property-manager/bookings/disputes" className="text-sm text-[var(--brand)] hover:text-[var(--brand)]">Back to disputes</Link>}
         />
       </div>
     )

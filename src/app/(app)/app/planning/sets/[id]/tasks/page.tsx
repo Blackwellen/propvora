@@ -54,7 +54,7 @@ const PRIORITY_CONFIG: Record<TaskPriority, { label: string; cls: string }> = {
 
 const STATUS_CONFIG: Record<TaskStatus, { label: string; cls: string }> = {
   not_started: { label: "Not Started", cls: "bg-slate-100 text-slate-600" },
-  in_progress: { label: "In Progress", cls: "bg-blue-100 text-blue-700" },
+  in_progress: { label: "In Progress", cls: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   completed:   { label: "Completed",   cls: "bg-emerald-100 text-emerald-700" },
   overdue:     { label: "Overdue",     cls: "bg-red-100 text-red-700" },
 }
@@ -66,7 +66,7 @@ function Avatar({ name }: { name: string }) {
   const initials = parts.length >= 2
     ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
     : name.slice(0, 2).toUpperCase()
-  const colors = ["bg-violet-500", "bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-red-400"]
+  const colors = ["bg-violet-500", "bg-[var(--brand)]", "bg-emerald-500", "bg-amber-500", "bg-red-400"]
   const color = colors[name.charCodeAt(0) % colors.length]
   return (
     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0 ${color}`}>

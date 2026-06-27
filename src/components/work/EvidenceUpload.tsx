@@ -177,14 +177,14 @@ export function EvidenceUpload({
         onClick={() => inputRef.current?.click()}
         className={cn(
           "flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-8 text-center cursor-pointer transition-colors",
-          dragOver ? "border-[#2563EB] bg-blue-50/50" : "border-slate-200 bg-slate-50/50 hover:border-slate-300"
+          dragOver ? "border-[var(--brand)] bg-[var(--brand-soft)]/50" : "border-slate-200 bg-slate-50/50 hover:border-slate-300"
         )}
       >
         {uploading ? (
-          <Loader2 className="w-6 h-6 text-[#2563EB] animate-spin" />
+          <Loader2 className="w-6 h-6 text-[var(--brand)] animate-spin" />
         ) : (
           <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center">
-            <UploadCloud className="w-5 h-5 text-[#2563EB]" />
+            <UploadCloud className="w-5 h-5 text-[var(--brand)]" />
           </div>
         )}
         <p className="text-sm font-semibold text-slate-700">
@@ -199,7 +199,7 @@ export function EvidenceUpload({
         {/* Progress bar */}
         {uploading && progress != null && (
           <div className="w-full max-w-[220px] h-1.5 rounded-full bg-slate-200 overflow-hidden mt-1">
-            <div className="h-full bg-[#2563EB] transition-all" style={{ width: `${progress}%` }} />
+            <div className="h-full bg-[var(--brand)] transition-all" style={{ width: `${progress}%` }} />
           </div>
         )}
 
@@ -219,7 +219,7 @@ export function EvidenceUpload({
         onClick={() => cameraRef.current?.click()}
         className="sm:hidden flex items-center justify-center gap-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[13px] font-semibold text-slate-700 hover:bg-slate-50"
       >
-        <Camera className="w-4 h-4 text-[#2563EB]" />
+        <Camera className="w-4 h-4 text-[var(--brand)]" />
         Take a photo
       </button>
       <input
@@ -254,7 +254,7 @@ export function EvidenceUpload({
                 href={d.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-[#2563EB] hover:bg-slate-50"
+                className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-[var(--brand)] hover:bg-slate-50"
                 aria-label="Open"
               >
                 <ExternalLink className="w-4 h-4" />

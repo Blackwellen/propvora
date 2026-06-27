@@ -38,7 +38,7 @@ export function KpiCard({
 
 // ── Status badge ────────────────────────────────────────────────────────────
 const TONE: Record<string, string> = {
-  blue: "bg-blue-50 text-blue-700",
+  blue: "bg-[var(--brand-soft)] text-[var(--brand)]",
   emerald: "bg-emerald-50 text-emerald-700",
   amber: "bg-amber-50 text-amber-700",
   red: "bg-red-50 text-red-700",
@@ -93,7 +93,7 @@ export function ConfirmModal({
 }) {
   const [reason, setReason] = React.useState("")
   const btn = {
-    blue: "bg-[#2563EB] hover:bg-[#1d4ed8]",
+    blue: "bg-[var(--brand)] hover:bg-[var(--brand-strong)]",
     red: "bg-red-600 hover:bg-red-700",
     emerald: "bg-emerald-600 hover:bg-emerald-700",
     amber: "bg-amber-600 hover:bg-amber-700",
@@ -122,7 +122,7 @@ export function ConfirmModal({
                 onChange={e => setReason(e.target.value)}
                 rows={2}
                 placeholder="Add a reason for the audit log…"
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)] resize-none"
               />
             </div>
           )}
@@ -161,7 +161,7 @@ export function Select({ value, onChange, placeholder, options, humaniseOpt }: {
 }) {
   return (
     <select value={value} onChange={e => onChange(e.target.value)}
-      className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+      className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] bg-white">
       <option value="">{placeholder}</option>
       {options.map(o => <option key={o} value={o}>{humaniseOpt ? humanise(o) : o}</option>)}
     </select>

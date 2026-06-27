@@ -146,7 +146,7 @@ export function ListingsManagerClient({
               action={
                 <Link
                   href="/property-manager/marketplace/my-listings?new=1"
-                  className="inline-flex items-center gap-2 h-9 px-4 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm"
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   New listing
@@ -324,8 +324,8 @@ function RatePlanModal({
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
-          <span className="w-9 h-9 rounded-xl bg-[#EFF6FF] flex items-center justify-center">
-            <Pencil className="w-4 h-4 text-[#2563EB]" />
+          <span className="w-9 h-9 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+            <Pencil className="w-4 h-4 text-[var(--brand)]" />
           </span>
           <div className="min-w-0">
             <h3 className="text-base font-semibold text-slate-900">Edit rate plan</h3>
@@ -341,7 +341,7 @@ function RatePlanModal({
               value={form.nightly}
               onChange={(e) => change("nightly", e.target.value)}
               placeholder="120"
-              className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+              className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -353,7 +353,7 @@ function RatePlanModal({
                 value={form.minNights}
                 onChange={(e) => change("minNights", e.target.value)}
                 placeholder="1"
-                className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+                className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
               />
             </div>
             <div className="space-y-1">
@@ -364,7 +364,7 @@ function RatePlanModal({
                 value={form.maxNights}
                 onChange={(e) => change("maxNights", e.target.value)}
                 placeholder="No limit"
-                className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+                className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
               />
             </div>
           </div>
@@ -376,7 +376,7 @@ function RatePlanModal({
               value={form.weekendUplift}
               onChange={(e) => change("weekendUplift", e.target.value)}
               placeholder="0"
-              className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+              className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
             />
             <p className="text-[11px] text-slate-400">Applied to Friday and Saturday nights.</p>
           </div>
@@ -387,7 +387,7 @@ function RatePlanModal({
             <button
               onClick={submit}
               disabled={pending}
-              className="flex-1 h-10 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors disabled:opacity-60"
+              className="flex-1 h-10 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60"
             >
               {pending ? "Saving…" : "Save rate plan"}
             </button>

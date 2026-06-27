@@ -33,7 +33,7 @@ export default function ServicePackageSelector({ offer }: { offer: PublicService
             key={pkg.name}
             onClick={() => setSelectedPackage(i)}
             className={`relative min-h-[306px] rounded-[10px] border p-4 text-left transition-colors ${
-              selectedPackage === i ? 'border-blue-600 bg-blue-50/40 shadow-[0_12px_32px_rgba(37,99,235,0.12)]' : 'border-slate-200 bg-white hover:border-slate-300'
+              selectedPackage === i ? 'border-[var(--brand)] bg-[var(--brand-soft)]/40 shadow-[0_12px_32px_rgba(37,99,235,0.12)]' : 'border-slate-200 bg-white hover:border-slate-300'
             }`}
           >
             {i === 1 && (
@@ -43,11 +43,11 @@ export default function ServicePackageSelector({ offer }: { offer: PublicService
             )}
             <div className="text-[16px] font-[800] text-slate-950">{pkg.name}</div>
             <div className="mt-2 min-h-[34px] text-[12px] font-[600] leading-4 text-slate-500">{pkg.description}</div>
-            {i === 1 && <div className="mt-1 text-[12px] font-[800] text-blue-600">Most popular</div>}
+            {i === 1 && <div className="mt-1 text-[12px] font-[800] text-[var(--brand)]">Most popular</div>}
             <div className="mt-5 text-[26px] font-[800] leading-none text-slate-950">&pound;{(pkg.price / 100).toFixed(0)}</div>
             <div className="mt-2 text-[12px] font-[600] text-slate-500">Up to {i + 1} bed / {i + 1} bath</div>
             <div className={`mt-5 flex h-10 items-center justify-center rounded-[8px] border text-[13px] font-[800] ${
-              selectedPackage === i ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-200 bg-white text-blue-600'
+              selectedPackage === i ? 'border-[var(--brand)] bg-[var(--brand)] text-white' : 'border-slate-200 bg-white text-[var(--brand)]'
             }`}>
               Select
             </div>
@@ -73,7 +73,7 @@ export default function ServicePackageSelector({ offer }: { offer: PublicService
                   type="checkbox"
                   checked={selectedAddons.includes(addon.name)}
                   onChange={() => toggleAddon(addon.name)}
-                  className="h-4 w-4 rounded border-slate-300 accent-blue-600"
+                  className="h-4 w-4 rounded border-slate-300 accent-[var(--brand)]"
                 />
                 <span className="flex-1 text-[13px] font-[500] text-slate-600">{addon.name}</span>
                 <span className="text-[13px] font-[800] text-slate-900">+&pound;{(addon.price / 100).toFixed(0)}</span>
@@ -95,18 +95,18 @@ export default function ServicePackageSelector({ offer }: { offer: PublicService
             <Lock className="h-3.5 w-3.5" />
             Secure checkout
           </div>
-          <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-[8px] bg-blue-600 py-3 text-[14px] font-[800] text-white hover:bg-blue-700">
+          <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-[8px] bg-[var(--brand)] py-3 text-[14px] font-[800] text-white hover:bg-[var(--brand-strong)]">
             Book now
             <span aria-hidden>-&gt;</span>
           </button>
-          <button className="mt-3 w-full rounded-[8px] border border-blue-600 py-3 text-[14px] font-[800] text-blue-600 hover:bg-blue-50">
+          <button className="mt-3 w-full rounded-[8px] border border-[var(--brand)] py-3 text-[14px] font-[800] text-[var(--brand)] hover:bg-[var(--brand-soft)]">
             Request custom quote
           </button>
         </div>
       </div>
 
       <p className="mt-6 flex items-center justify-center gap-2 text-[12px] font-[600] text-slate-500">
-        <Lock className="h-4 w-4 text-blue-600" />
+        <Lock className="h-4 w-4 text-[var(--brand)]" />
         Secure payments powered by Propvora
       </p>
     </div>

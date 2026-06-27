@@ -218,7 +218,7 @@ export default async function SupplierDetailPage({
             </Link>
             <Link
               href={`/property-manager/marketplace/suppliers-hub/${slug}/book`}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white font-bold text-sm rounded-xl transition-colors"
             >
               Book Now
             </Link>
@@ -228,7 +228,7 @@ export default async function SupplierDetailPage({
 
       {/* ── Breadcrumb ───────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 text-sm text-slate-500 mt-6 mb-6">
-        <Link href="/property-manager/marketplace/suppliers-hub" className="hover:text-blue-600 transition-colors">
+        <Link href="/property-manager/marketplace/suppliers-hub" className="hover:text-[var(--brand)] transition-colors">
           Suppliers
         </Link>
         <span>›</span>
@@ -253,9 +253,9 @@ export default async function SupplierDetailPage({
               { icon: MapPin,    value: `${provider.coverageRadius}mi`,           label: "Coverage" },
               { icon: Shield,    value: provider.insuranceAmount,                 label: "Insured" },
             ].map(({ icon: Icon, value, label }) => (
-              <div key={label} className="flex flex-col items-center text-center p-3 bg-blue-50 rounded-xl border border-blue-100">
-                <Icon className="h-4 w-4 text-blue-600 mb-1" />
-                <p className="text-sm font-bold text-blue-700 leading-tight">{value}</p>
+              <div key={label} className="flex flex-col items-center text-center p-3 bg-[var(--brand-soft)] rounded-xl border border-[var(--color-brand-100)]">
+                <Icon className="h-4 w-4 text-[var(--brand)] mb-1" />
+                <p className="text-sm font-bold text-[var(--brand)] leading-tight">{value}</p>
                 <p className="text-xs text-slate-500 mt-0.5">{label}</p>
               </div>
             ))}
@@ -278,7 +278,7 @@ export default async function SupplierDetailPage({
                 {provider.services.map((svc) => (
                   <span
                     key={svc}
-                    className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-700 cursor-pointer transition-colors"
+                    className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full text-sm font-medium hover:bg-[var(--brand-soft)] hover:text-[var(--brand)] cursor-pointer transition-colors"
                   >
                     {svc}
                   </span>
@@ -375,9 +375,9 @@ export default async function SupplierDetailPage({
                 </div>
               )}
               {provider.niceic && (
-                <div className="flex flex-col items-center p-3 bg-blue-50 rounded-xl text-center border border-blue-200">
-                  <CheckCircle className="h-6 w-6 text-blue-600 mb-1.5" />
-                  <span className="text-xs font-semibold text-blue-800">NICEIC</span>
+                <div className="flex flex-col items-center p-3 bg-[var(--brand-soft)] rounded-xl text-center border border-[var(--color-brand-100)]">
+                  <CheckCircle className="h-6 w-6 text-[var(--brand)] mb-1.5" />
+                  <span className="text-xs font-semibold text-[var(--brand-strong)]">NICEIC</span>
                   <span className="text-xs text-slate-500">Approved</span>
                 </div>
               )}
@@ -414,7 +414,7 @@ export default async function SupplierDetailPage({
                   key={city}
                   className="flex items-center gap-1.5 text-sm text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full"
                 >
-                  <MapPin className="h-3.5 w-3.5 text-blue-500" />
+                  <MapPin className="h-3.5 w-3.5 text-[var(--brand)]" />
                   {city}
                 </span>
               ))}
@@ -477,7 +477,7 @@ export default async function SupplierDetailPage({
                   <Link
                     key={p.id}
                     href={`/property-manager/marketplace/suppliers-hub/${p.slug}`}
-                    className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-blue-200 hover:bg-blue-50 transition-colors group"
+                    className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-[var(--color-brand-100)] hover:bg-[var(--brand-soft)] transition-colors group"
                   >
                     <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white border border-slate-200 shrink-0">
                       <Image
@@ -489,7 +489,7 @@ export default async function SupplierDetailPage({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-slate-900 text-sm truncate group-hover:text-blue-700">{p.companyName}</p>
+                      <p className="font-semibold text-slate-900 text-sm truncate group-hover:text-[var(--brand)]">{p.companyName}</p>
                       <p className="text-xs text-slate-500 truncate">{p.trade} · {p.location}</p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
@@ -522,7 +522,7 @@ export default async function SupplierDetailPage({
             {/* Meta */}
             <div className="space-y-2 mb-5 text-sm">
               <div className="flex items-center gap-2 text-slate-600">
-                <Clock className="h-4 w-4 text-blue-500 shrink-0" />
+                <Clock className="h-4 w-4 text-[var(--brand)] shrink-0" />
                 <span>Responds in <strong className="text-slate-900">{provider.responseTime}</strong></span>
               </div>
               <div className="flex items-center gap-2 text-slate-600">
@@ -538,7 +538,7 @@ export default async function SupplierDetailPage({
             {/* Primary CTA */}
             <Link
               href={`/property-manager/marketplace/suppliers-hub/${slug}/book`}
-              className="block w-full py-3.5 text-center bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors mb-3"
+              className="block w-full py-3.5 text-center bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white font-bold rounded-xl transition-colors mb-3"
             >
               Book this supplier →
             </Link>
@@ -592,7 +592,7 @@ export default async function SupplierDetailPage({
                 </div>
               )}
               <div className="flex items-center gap-2 text-sm text-slate-700">
-                <CheckCircle className="h-4 w-4 text-blue-500 shrink-0" />
+                <CheckCircle className="h-4 w-4 text-[var(--brand)] shrink-0" />
                 Propvora escrow payment protection
               </div>
             </div>

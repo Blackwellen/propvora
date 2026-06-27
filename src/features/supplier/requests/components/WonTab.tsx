@@ -168,7 +168,7 @@ export function WonTab({ env, rows }: { env: RequestsEnvelope<PipelineRequest[]>
                 <div className="rounded-xl border border-slate-200 p-3">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-slate-900">{selected.customerName}</span>
-                    {selected.requesterVerified && <BadgeCheck className="w-4 h-4 text-blue-500" />}
+                    {selected.requesterVerified && <BadgeCheck className="w-4 h-4 text-[var(--brand)]" />}
                     {selected.customerReturning && <SupplierStatusBadge tone="violet">Returning</SupplierStatusBadge>}
                   </div>
                   <p className="text-xs text-slate-400 mt-1 flex items-center gap-1"><Building2 className="w-3 h-3" />{selected.property.address}</p>

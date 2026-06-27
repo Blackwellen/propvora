@@ -79,7 +79,7 @@ export function ListingLivePreview() {
             {draft.highlights.slice(0, 4).map((h) => (
               <span
                 key={h.id}
-                className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700"
+                className="rounded-full bg-[var(--brand-soft)] px-2 py-0.5 text-[10px] font-medium text-[var(--brand)]"
               >
                 {h.label}
               </span>

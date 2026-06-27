@@ -59,7 +59,7 @@ export default function AutomationsBuilderTemplatePanel({
                 <button
                   key={tpl.id}
                   onClick={() => onLoad(tpl)}
-                  className="flex flex-col rounded-xl border border-slate-200 bg-white p-3 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:border-blue-300 hover:bg-blue-50/30 transition"
+                  className="flex flex-col rounded-xl border border-slate-200 bg-white p-3 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:border-[var(--color-brand-300)] hover:bg-[var(--brand-soft)]/30 transition"
                 >
                   <span className="text-xs font-semibold text-slate-800">{tpl.name}</span>
                   <span className="mt-0.5 text-[11px] text-slate-500 leading-tight">

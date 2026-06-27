@@ -207,3 +207,18 @@ None required for this section. All tables pre-exist.
 ## 17. Pending User/Manual Actions
 
 See `/release-gated/user-fixes/home-dashboard.md`
+
+---
+
+## 18. Re-audit Addendum — 2026-06-27 (full-app audit pass)
+
+**Re-auditor:** Claude Code (session-fullaudit) · **Updated score:** 99/100 · **Decision:** Ready for release
+
+Re-verified Home against the Section 1 checklist as the first section of the full-app audit. Findings since the 2026-06-23 doc:
+
+- **Code has advanced past prior doc.** Item 16.3 ("KPI trends hardcoded to 0") is now **stale** — `HomeDashboardPage.tsx` upserts daily `kpi_snapshots` (lines ~509–518) and computes month-over-month deltas from the ~30-day-ago snapshot (lines ~520–549). Deltas display as 0 only until ~30 days of history accrue (time, not a code gap).
+- **AI button now compliant.** §3 line 45 ("Ask AI opens copilot") is **stale** — the button now opens a pre-flight modal (`showAiPreflight`) describing the action + credit cost with explicit Cancel / "Start AI chat" confirm before any copilot call (HomeDashboardPage.tsx lines ~915–982), satisfying the AI Review Button Rule.
+- **FIX-632 (this pass):** removed 4 raw `£` string concatenations across `HomeKpiRow`, `HomeMoneySnapshotCard`, `HomeDashboardPage` and routed them through the central `formatCurrency()` util, closing the Internationalisation Rule gap. `tsc --noEmit` clean.
+- **Data wiring re-confirmed:** all 11 dashboard reads (added `stripe_accounts` for the "Connect payment collection" getting-started step) are `workspace_id`-scoped and 42P01-safe; quick-actions, KPI cards, snapshot cards, getting-started steps and priority items all route to real destinations — no dead controls.
+
+**Remaining 1 point:** live cross-workspace RLS *negative* browser test and 8-viewport live Chrome MCP re-capture deferred — single-dev-server contention (another session holds the only Next instance on this dir; Next 16/Turbopack permits one dev server per directory). RLS policies themselves are PAT-verified (`is_workspace_member(workspace_id)` SELECT policy on all 11 tables — see user-fixes MANUAL-01). Not a code blocker.

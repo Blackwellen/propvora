@@ -363,7 +363,7 @@ export default function CertificateDetailPage() {
     return (
       <div className="space-y-5">
         {isSeed && (
-          <div className="px-4 py-2.5 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-700">
+          <div className="px-4 py-2.5 bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-xl text-xs text-[var(--brand)]">
             Showing example data — connect the compliance database to enable inline editing.
           </div>
         )}
@@ -418,13 +418,13 @@ export default function CertificateDetailPage() {
           <div className="p-4 space-y-2.5">
             <Link
               href="/property-manager/compliance/certificates/new"
-              className="w-full flex items-center gap-3 px-4 py-3 bg-[#EFF6FF] rounded-xl border border-[#BFDBFE] hover:bg-[#DBEAFE] transition-all text-left"
+              className="w-full flex items-center gap-3 px-4 py-3 bg-[var(--brand-soft)] rounded-xl border border-[#BFDBFE] hover:bg-[#DBEAFE] transition-all text-left"
             >
-              <div className="w-8 h-8 rounded-lg bg-[#2563EB] flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-[var(--brand)] flex items-center justify-center shrink-0">
                 <RefreshCw className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-[#2563EB]">Schedule Renewal</p>
+                <p className="text-sm font-semibold text-[var(--brand)]">Schedule Renewal</p>
                 <p className="text-xs text-slate-500">Create the next certificate record</p>
               </div>
             </Link>
@@ -481,8 +481,8 @@ export default function CertificateDetailPage() {
           </div>
           <div className="divide-y divide-slate-100">
             <div className="flex items-center gap-4 px-5 py-3.5">
-              <div className="w-8 h-8 rounded-lg bg-[#EFF6FF] flex items-center justify-center">
-                <Building2 className="w-4 h-4 text-[#2563EB]" />
+              <div className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center">
+                <Building2 className="w-4 h-4 text-[var(--brand)]" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-slate-800">{row.property_name ?? "Unlinked property"}</p>
@@ -605,7 +605,7 @@ export default function CertificateDetailPage() {
           <div className="relative pl-5">
             {auditRows.map((ev: any) => (
               <div key={ev.id} className="relative mb-6">
-                <div className="absolute left-[-20px] top-1 w-3 h-3 rounded-full bg-[#2563EB] border-2 border-white shadow" />
+                <div className="absolute left-[-20px] top-1 w-3 h-3 rounded-full bg-[var(--brand)] border-2 border-white shadow" />
                 <div className="bg-white rounded-xl border border-slate-200 p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -859,7 +859,7 @@ export default function CertificateDetailPage() {
           { label: "Issue Date", value: fmtDate(row.issue_date), colour: "text-slate-800", bg: "bg-white", icon: <Calendar className="w-4 h-4 text-slate-400" /> },
           { label: "Expiry Date", value: fmtDate(row.expiry_date), colour: "text-amber-700", bg: "bg-amber-50", icon: <Calendar className="w-4 h-4 text-amber-500" /> },
           { label: "Risk Level", value: row.risk_level ?? "—", colour: "text-amber-700", bg: "bg-amber-50", icon: <AlertTriangle className="w-4 h-4 text-amber-500" /> },
-          { label: "Days Remaining", value: days != null ? `${days} days` : "—", colour: "text-[#2563EB]", bg: "bg-[#EFF6FF]", icon: <Clock className="w-4 h-4 text-[#2563EB]" /> },
+          { label: "Days Remaining", value: days != null ? `${days} days` : "—", colour: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]", icon: <Clock className="w-4 h-4 text-[var(--brand)]" /> },
           { label: "Reference", value: row.reference_number ?? "—", colour: "text-emerald-700", bg: "bg-emerald-50", icon: <Paperclip className="w-4 h-4 text-emerald-500" /> },
         ].map((k) => (
           <div key={k.label} className={cn("rounded-xl border border-slate-200 p-3.5 flex items-start gap-3", k.bg)}>
@@ -880,7 +880,7 @@ export default function CertificateDetailPage() {
             <select
               value={certTab}
               onChange={(e) => setCertTab(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
               aria-label="Navigate section"
             >
               {DETAIL_TABS.map((t) => (

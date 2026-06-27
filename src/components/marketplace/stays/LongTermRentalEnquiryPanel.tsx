@@ -75,13 +75,13 @@ export default function LongTermRentalEnquiryPanel({
         <input
           type="date"
           min={rental.availableFrom}
-          className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
         />
       </div>
 
       {/* Action buttons */}
       <div className="space-y-2.5">
-        <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors">
+        <button className="w-full py-3 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-sm font-semibold rounded-xl transition-colors">
           Request viewing
         </button>
         <button className="w-full py-3 border border-slate-200 hover:border-slate-300 text-slate-700 text-sm font-semibold rounded-xl transition-colors">

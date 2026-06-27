@@ -10,11 +10,11 @@ import { useCreateContact } from "@/hooks/useContacts"
 import { useProperties } from "@/hooks/useProperties"
 import { useUnits } from "@/hooks/useUnits"
 import {
-  ChevronLeft, ChevronRight, Check, Building2, User, Calendar,
+  Check, Building2, User, Calendar,
   PoundSterling, FileText, Eye,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { WizardShell, type WizardStepDef } from "@/components/wizard/WizardShell"
 import { depositRules, isOverCap } from "@/lib/money/deposits"
 import { tenantFeesRule, holdingDepositCap } from "@/lib/legal/tenant-fees"
 import { rentIncreaseRule } from "@/lib/legal/rent-control"
@@ -117,13 +117,15 @@ const TENANCY_TYPES = [
 ]
 
 const STEPS = [
-  { number: 1, label: "Property",  icon: Building2    },
-  { number: 2, label: "Tenant",    icon: User         },
-  { number: 3, label: "Dates",     icon: Calendar     },
-  { number: 4, label: "Financials",icon: PoundSterling },
-  { number: 5, label: "Documents", icon: FileText     },
-  { number: 6, label: "Review",    icon: Eye          },
+  { number: 1, label: "Property",  icon: Building2,     description: "Property & unit" },
+  { number: 2, label: "Tenant",    icon: User,          description: "Tenant details" },
+  { number: 3, label: "Dates",     icon: Calendar,      description: "Type & dates" },
+  { number: 4, label: "Financials",icon: PoundSterling, description: "Rent & deposit" },
+  { number: 5, label: "Documents", icon: FileText,      description: "Added after creation" },
+  { number: 6, label: "Review",    icon: Eye,           description: "Confirm & create" },
 ]
+
+const WIZARD_STEPS: WizardStepDef[] = STEPS.map((s) => ({ label: s.label, description: s.description }))
 
 const defaultData: TenancyWizardData = {
   property_id: "",
@@ -160,7 +162,7 @@ function StepProperty({ data, onChange, properties, units }: {
         <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-1">
           {properties.length === 0 ? (
             <div className="py-6 text-center text-slate-500 text-sm border-2 border-dashed border-slate-200 rounded-2xl">
-              No properties — <Link href="/property-manager/portfolio/properties/new" className="text-[#2563EB] underline">add one first</Link>
+              No properties — <Link href="/property-manager/portfolio/properties/new" className="text-[var(--brand)] underline">add one first</Link>
             </div>
           ) : (
             properties.map((p) => (
@@ -169,15 +171,15 @@ function StepProperty({ data, onChange, properties, units }: {
                 onClick={() => onChange({ property_id: p.id, unit_id: "" })}
                 className={cn(
                   "flex items-center gap-3 p-3 rounded-xl border text-left transition-all",
-                  data.property_id === p.id ? "border-[#2563EB] bg-blue-50" : "border-slate-200 hover:border-slate-300"
+                  data.property_id === p.id ? "border-[var(--brand)] bg-[var(--brand-soft)]" : "border-slate-200 hover:border-slate-300"
                 )}
               >
-                <Building2 className={cn("w-4 h-4 shrink-0", data.property_id === p.id ? "text-[#2563EB]" : "text-slate-400")} />
+                <Building2 className={cn("w-4 h-4 shrink-0", data.property_id === p.id ? "text-[var(--brand)]" : "text-slate-400")} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-900 truncate">{p.name}</p>
                   {p.address_line1 && <p className="text-xs text-slate-500 truncate">{p.address_line1}</p>}
                 </div>
-                {data.property_id === p.id && <Check className="w-4 h-4 text-[#2563EB] shrink-0" />}
+                {data.property_id === p.id && <Check className="w-4 h-4 text-[var(--brand)] shrink-0" />}
               </button>
             ))
           )}
@@ -192,7 +194,7 @@ function StepProperty({ data, onChange, properties, units }: {
               onClick={() => onChange({ unit_id: "" })}
               className={cn(
                 "px-3 py-2 rounded-lg border text-sm font-medium transition-all text-left",
-                !data.unit_id ? "border-[#2563EB] bg-blue-50 text-[#2563EB]" : "border-slate-200 text-slate-600 hover:border-slate-300"
+                !data.unit_id ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 text-slate-600 hover:border-slate-300"
               )}
             >
               Whole property (no specific unit)
@@ -203,7 +205,7 @@ function StepProperty({ data, onChange, properties, units }: {
                 onClick={() => onChange({ unit_id: u.id })}
                 className={cn(
                   "px-3 py-2 rounded-lg border text-sm font-medium transition-all text-left",
-                  data.unit_id === u.id ? "border-[#2563EB] bg-blue-50 text-[#2563EB]" : "border-slate-200 text-slate-600 hover:border-slate-300"
+                  data.unit_id === u.id ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 text-slate-600 hover:border-slate-300"
                 )}
               >
                 {u.unit_name}
@@ -238,8 +240,8 @@ function StepTenant({ data, onChange, emailValid }: { data: TenancyWizardData; o
               value={(data as unknown as Record<string, string>)[f.key]}
               onChange={(e) => onChange({ [f.key]: e.target.value })}
               className={cn(
-                "w-full h-10 px-3 rounded-lg border text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all",
-                showEmailError ? "border-red-300 focus:border-red-400" : "border-slate-200 focus:border-[#2563EB]"
+                "w-full h-10 px-3 rounded-lg border text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 transition-all",
+                showEmailError ? "border-red-300 focus:border-red-400" : "border-slate-200 focus:border-[var(--brand)]"
               )}
             />
             {showEmailError && (
@@ -264,7 +266,7 @@ function StepDates({ data, onChange }: { data: TenancyWizardData; onChange: (d: 
               onClick={() => onChange({ tenancy_type: t.key })}
               className={cn(
                 "px-3 py-2.5 rounded-xl border text-sm font-medium transition-all text-left",
-                data.tenancy_type === t.key ? "border-[#2563EB] bg-blue-50 text-[#2563EB]" : "border-slate-200 text-slate-700 hover:border-slate-300"
+                data.tenancy_type === t.key ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 text-slate-700 hover:border-slate-300"
               )}
             >
               {data.tenancy_type === t.key && <Check className="w-3 h-3 inline mr-1" />}
@@ -281,7 +283,7 @@ function StepDates({ data, onChange }: { data: TenancyWizardData; onChange: (d: 
             type="date"
             value={data.start_date}
             onChange={(e) => onChange({ start_date: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
           />
         </div>
         <div>
@@ -291,7 +293,7 @@ function StepDates({ data, onChange }: { data: TenancyWizardData; onChange: (d: 
             value={data.end_date}
             min={data.start_date}
             onChange={(e) => onChange({ end_date: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
           />
           <p className="text-xs text-slate-500 mt-1">Leave blank for periodic</p>
         </div>
@@ -321,7 +323,7 @@ function StepFinancials({ data, onChange, country, region, currency }: {
               placeholder="550"
               value={data.rent_amount || ""}
               onChange={(e) => onChange({ rent_amount: Number(e.target.value) })}
-              className="w-full h-10 pl-7 pr-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+              className="w-full h-10 pl-7 pr-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
             />
           </div>
         </div>
@@ -330,7 +332,7 @@ function StepFinancials({ data, onChange, country, region, currency }: {
           <select
             value={data.rent_frequency}
             onChange={(e) => onChange({ rent_frequency: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all bg-white"
+            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all bg-white"
           >
             {RENT_FREQUENCIES.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
           </select>
@@ -347,7 +349,7 @@ function StepFinancials({ data, onChange, country, region, currency }: {
               min={0}
               value={data.deposit_amount || ""}
               onChange={(e) => onChange({ deposit_amount: Number(e.target.value) })}
-              className="w-full h-10 pl-7 pr-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+              className="w-full h-10 pl-7 pr-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
             />
           </div>
         </div>
@@ -356,7 +358,7 @@ function StepFinancials({ data, onChange, country, region, currency }: {
           <select
             value={data.deposit_held_by}
             onChange={(e) => onChange({ deposit_held_by: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all bg-white"
+            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all bg-white"
           >
             {DEPOSIT_HOLDERS.map((h) => <option key={h.key} value={h.key}>{h.label}</option>)}
           </select>
@@ -371,7 +373,7 @@ function StepFinancials({ data, onChange, country, region, currency }: {
             placeholder="e.g. DPS-12345678"
             value={data.deposit_scheme}
             onChange={(e) => onChange({ deposit_scheme: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
           />
         </div>
       )}
@@ -395,7 +397,7 @@ function StepFinancials({ data, onChange, country, region, currency }: {
           placeholder="Any additional notes…"
           value={data.notes}
           onChange={(e) => onChange({ notes: e.target.value })}
-          className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all resize-none"
+          className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all resize-none"
         />
       </div>
     </div>
@@ -408,8 +410,8 @@ function StepDocuments() {
       <p className="text-sm text-slate-500">Documents are added once the tenancy exists, so each file links to the right record.</p>
       <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-            <FileText className="w-4 h-4 text-[#2563EB]" />
+          <div className="w-9 h-9 rounded-xl bg-[var(--color-brand-100)] flex items-center justify-center shrink-0">
+            <FileText className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <div>
             <p className="text-sm font-semibold text-slate-900">Upload after creation</p>
@@ -548,79 +550,27 @@ export default function NewTenancyPage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto">
-      {/* Mobile top bar */}
-      <MobileTopBar
-        title="Create Tenancy"
-        subtitle={`Step ${step} of ${STEPS.length} — ${STEPS[step - 1].label}`}
-        showBack
-        backHref="/property-manager/portfolio/tenancies"
-      />
-
-      <div className="hidden md:block mb-6">
-        <Link href="/property-manager/portfolio/tenancies" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
-          <ChevronLeft className="w-4 h-4" />Back to Tenancies
-        </Link>
-        <h1 className="text-2xl font-bold text-slate-900">Create Tenancy</h1>
-        <p className="text-sm text-slate-500 mt-1">Step {step} of {STEPS.length} — {STEPS[step - 1].label}</p>
-      </div>
-
-      {/* Stepper */}
-      <div className="flex items-center gap-1 mb-8 overflow-x-auto pb-1">
-        {STEPS.map((s, idx) => (
-          <React.Fragment key={s.number}>
-            <button
-              onClick={() => step > s.number && setStep(s.number)}
-              className={cn("flex flex-col items-center gap-1 min-w-[44px]", s.number < step && "cursor-pointer")}
-            >
-              <div className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
-                s.number === step ? "bg-[#2563EB] text-white shadow-md shadow-blue-200"
-                : s.number < step ? "bg-[#10B981] text-white"
-                : "bg-slate-100 text-slate-400"
-              )}>
-                {s.number < step ? <Check className="w-3.5 h-3.5" /> : s.number}
-              </div>
-              <span className={cn("text-[10px] whitespace-nowrap", s.number === step ? "text-[#2563EB] font-semibold" : s.number < step ? "text-[#10B981]" : "text-slate-400")}>
-                {s.label}
-              </span>
-            </button>
-            {idx < STEPS.length - 1 && (
-              <div className={cn("flex-1 h-0.5 min-w-[6px] rounded-full transition-all", s.number < step ? "bg-[#10B981]" : "bg-slate-100")} />
-            )}
-          </React.Fragment>
-        ))}
-      </div>
-
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-5">
-        <h2 className="text-base font-semibold text-slate-900 mb-1">{STEPS[step - 1].label}</h2>
-        <div className="border-b border-slate-100 mb-5" />
-        {step === 1 && <StepProperty data={data} onChange={handleChange} properties={properties} units={units} />}
-        {step === 2 && <StepTenant data={data} onChange={handleChange} emailValid={emailValid} />}
-        {step === 3 && <StepDates data={data} onChange={handleChange} />}
-        {step === 4 && <StepFinancials data={data} onChange={handleChange} country={propCountry} region={propRegion} currency={propCurrency} />}
-        {step === 5 && <StepDocuments />}
-        {step === 6 && <StepReview data={data} propertyName={selectedProperty?.name ?? ""} unitName={selectedUnit?.unit_name ?? ""} />}
-      </div>
-
-      {saveError && (
-        <div className="mb-3 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">{saveError}</div>
-      )}
-
-      <div className="flex items-center justify-between">
-        <Button variant="outline" size="md" onClick={() => setStep((s) => Math.max(1, s - 1))} disabled={step === 1}>
-          <ChevronLeft className="w-4 h-4" />Back
-        </Button>
-        {step < STEPS.length ? (
-          <Button variant="primary" size="md" onClick={() => setStep((s) => s + 1)} disabled={!canAdvance()}>
-            Continue<ChevronRight className="w-4 h-4" />
-          </Button>
-        ) : (
-          <Button variant="success" size="md" loading={saving} onClick={handleSubmit} disabled={!workspace}>
-            <Check className="w-4 h-4" />Create tenancy
-          </Button>
-        )}
-      </div>
-    </div>
+    <WizardShell
+      title="Create Tenancy"
+      backHref="/property-manager/portfolio/tenancies"
+      backLabel="Back to Tenancies"
+      steps={WIZARD_STEPS}
+      current={step}
+      onStepSelect={(n) => setStep(n)}
+      onBack={() => setStep((s) => Math.max(1, s - 1))}
+      onNext={() => { if (canAdvance()) setStep((s) => Math.min(STEPS.length, s + 1)) }}
+      onSubmit={handleSubmit}
+      canAdvance={canAdvance()}
+      submitting={saving}
+      submitLabel="Create tenancy"
+      error={saveError}
+    >
+      {step === 1 && <StepProperty data={data} onChange={handleChange} properties={properties} units={units} />}
+      {step === 2 && <StepTenant data={data} onChange={handleChange} emailValid={emailValid} />}
+      {step === 3 && <StepDates data={data} onChange={handleChange} />}
+      {step === 4 && <StepFinancials data={data} onChange={handleChange} country={propCountry} region={propRegion} currency={propCurrency} />}
+      {step === 5 && <StepDocuments />}
+      {step === 6 && <StepReview data={data} propertyName={selectedProperty?.name ?? ""} unitName={selectedUnit?.unit_name ?? ""} />}
+    </WizardShell>
   )
 }

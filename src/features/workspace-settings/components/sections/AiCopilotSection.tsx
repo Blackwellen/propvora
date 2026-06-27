@@ -50,7 +50,7 @@ function ToggleRow({
         className={cn(
           "w-10 h-6 rounded-full transition-colors shrink-0 relative",
           disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
-          enabled ? "bg-[#2563EB]" : "bg-slate-200"
+          enabled ? "bg-[var(--brand)]" : "bg-slate-200"
         )}
       >
         <span className={cn(

@@ -121,7 +121,7 @@ export function ServiceCheckout({
       {/* Supplier summary */}
       <SectionCard title="Supplier & service" action={<GhostButton onClick={() => toast.show("Change date/time opens the scheduler", "ok")}><CalendarClock className="h-3.5 w-3.5" /> Change date/time</GhostButton>}>
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#EFF5FF] text-[#2563EB]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#EFF5FF] text-[var(--brand)]">
             <ShieldCheck className="h-6 w-6" />
           </div>
           <div className="min-w-0 flex-1">
@@ -181,7 +181,7 @@ export function ServiceCheckout({
         <ol className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           {["Pay", "Held in escrow", "Work completed", "Released to provider"].map((s, i) => (
             <li key={s} className="flex items-center gap-2 text-[12.5px] font-medium text-slate-600">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EFF5FF] text-[11px] font-bold text-[#2563EB]">{i + 1}</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EFF5FF] text-[11px] font-bold text-[var(--brand)]">{i + 1}</span>
               {s}
             </li>
           ))}

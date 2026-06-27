@@ -5,7 +5,7 @@ import {
   Truck, AlertCircle, Plus, Download, ChevronDown, CheckCircle, CreditCard,
   Eye, X,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatCurrency } from "@/lib/utils"
 import { MoneyTabNav } from "@/components/money/MoneyTabNav"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
 import MobilePageHeader from "@/components/mobile/MobilePageHeader"
@@ -33,7 +33,7 @@ type SupplierPayment = {
 
 const STATUS_MAP: Record<PaymentStatus, { label: string; cls: string }> = {
   awaiting_review:       { label: "Awaiting Review",      cls: "bg-amber-50 text-amber-700 border-amber-200" },
-  approved:              { label: "Approved",              cls: "bg-blue-50 text-blue-700 border-blue-200" },
+  approved:              { label: "Approved",              cls: "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]" },
   scheduled_for_payment: { label: "Scheduled",            cls: "bg-violet-50 text-violet-700 border-violet-200" },
   paid:                  { label: "Paid",                  cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
   overdue:               { label: "Overdue",               cls: "bg-red-50 text-red-700 border-red-200" },
@@ -156,14 +156,14 @@ export default function SupplierPaymentsPage() {
     subtitle: (p) => `${p.bill} · ${p.property}`,
     badge: (p) => <StatusChip status={p.status} />,
     fields: [
-      { label: "Amount", render: (p) => `£${p.amount.toLocaleString("en-GB")}` },
+      { label: "Amount", render: (p) => formatCurrency(p.amount) },
       { label: "Due Date", render: (p) => p.due_date },
       { label: "Method", render: (p) => p.method.replace(/_/g, " ") },
     ],
     actions: (p) => (
       <div className="flex items-center gap-1.5">
         {p.status === "awaiting_review" && (
-          <button onClick={() => approve(p.id)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors">
+          <button onClick={() => approve(p.id)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-[var(--color-brand-100)] text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors">
             <CheckCircle className="w-3 h-3" />Approve
           </button>
         )}
@@ -195,7 +195,7 @@ export default function SupplierPaymentsPage() {
               <button
                 disabled
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white opacity-50 cursor-not-allowed"
-                style={{ backgroundColor: "var(--brand)" }}
+                style={{ backgroundColor: "#2563EB" }}
               >
                 <Plus className="w-4 h-4" />Pay Supplier
               </button>
@@ -231,9 +231,9 @@ export default function SupplierPaymentsPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-        <KpiCard label="Pending Approval"  value={`£${pendingApprovalAmt.toLocaleString("en-GB")}`} sub={`${pendingApprovalCount} bills`} colour="text-amber-600" />
-        <KpiCard label="Approved to Pay"   value={`£${approvedAmt.toLocaleString("en-GB")}`}        sub={`${approvedCount} bills`}       colour="text-[#2563EB]" />
-        <KpiCard label="Paid This Month"   value={`£${paidThisMonth.toLocaleString("en-GB")}`}                                            colour="text-emerald-600" />
+        <KpiCard label="Pending Approval"  value={formatCurrency(pendingApprovalAmt)} sub={`${pendingApprovalCount} bills`} colour="text-amber-600" />
+        <KpiCard label="Approved to Pay"   value={formatCurrency(approvedAmt)}        sub={`${approvedCount} bills`}       colour="text-[var(--brand)]" />
+        <KpiCard label="Paid This Month"   value={formatCurrency(paidThisMonth)}                                            colour="text-emerald-600" />
         <KpiCard label="Stripe Payouts"    value="£0"                                                sub="Not configured"                  colour="text-violet-600" />
       </div>
 
@@ -245,7 +245,7 @@ export default function SupplierPaymentsPage() {
             placeholder="Search supplier…"
             value={supplierFilter}
             onChange={e => setSupplierFilter(e.target.value)}
-            className="h-9 pl-3 pr-8 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 w-48"
+            className="h-9 pl-3 pr-8 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 w-48"
           />
           {supplierFilter && (
             <button onClick={() => setSupplierFilter("")} className="absolute right-2 top-1/2 -translate-y-1/2">
@@ -272,7 +272,7 @@ export default function SupplierPaymentsPage() {
             <select
               value={f.value}
               onChange={e => f.onChange(e.target.value)}
-              className="h-9 pl-3 pr-8 rounded-xl border border-slate-200 text-sm bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+              className="h-9 pl-3 pr-8 rounded-xl border border-slate-200 text-sm bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             >
               {f.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
@@ -317,7 +317,7 @@ export default function SupplierPaymentsPage() {
                         <span className="text-xs font-semibold text-slate-800 whitespace-nowrap">{p.supplier}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-xs text-blue-600 font-medium whitespace-nowrap">{p.bill}</td>
+                    <td className="px-4 py-3 text-xs text-[var(--brand)] font-medium whitespace-nowrap">{p.bill}</td>
                     <td className="px-4 py-3 text-xs text-slate-600 whitespace-nowrap">{p.property}</td>
                     <td className="px-4 py-3 text-sm font-bold text-slate-800 whitespace-nowrap">£{p.amount.toLocaleString("en-GB")}</td>
                     <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{p.due_date}</td>
@@ -333,7 +333,7 @@ export default function SupplierPaymentsPage() {
                         {p.status === "awaiting_review" && (
                           <button
                             onClick={() => approve(p.id)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors whitespace-nowrap"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border border-[var(--color-brand-100)] text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors whitespace-nowrap"
                           >
                             <CheckCircle className="w-3 h-3" />Approve
                           </button>
@@ -354,7 +354,7 @@ export default function SupplierPaymentsPage() {
                             </button>
                           </>
                         )}
-                        <button aria-label="View payment details" className="p-1 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                        <button aria-label="View payment details" className="p-1 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
                           <Eye className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -397,7 +397,7 @@ export default function SupplierPaymentsPage() {
                     </div>
                     <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-[#2563EB]"
+                        className="h-full rounded-full bg-[var(--brand)]"
                         style={{ width: `${Math.round((s.spend / maxSpend) * 100)}%` }}
                       />
                     </div>
@@ -410,11 +410,11 @@ export default function SupplierPaymentsPage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3">
             <h2 className="text-sm font-semibold text-slate-800">Payment Summary</h2>
             {[
-              { label: "Total Bills Value",  value: `£${payments.reduce((s, p) => s + p.amount, 0).toLocaleString("en-GB")}`, colour: "text-slate-900" },
-              { label: "Awaiting Approval",  value: `£${pendingApprovalAmt.toLocaleString("en-GB")}`,                          colour: "text-amber-600" },
-              { label: "Approved to Pay",    value: `£${approvedAmt.toLocaleString("en-GB")}`,                                 colour: "text-blue-600" },
-              { label: "Paid",               value: `£${paidThisMonth.toLocaleString("en-GB")}`,                               colour: "text-emerald-600" },
-              { label: "Overdue",            value: `£${payments.filter(p => p.status === "overdue").reduce((s, p) => s + p.amount, 0).toLocaleString("en-GB")}`, colour: "text-red-600" },
+              { label: "Total Bills Value",  value: formatCurrency(payments.reduce((s, p) => s + p.amount, 0)), colour: "text-slate-900" },
+              { label: "Awaiting Approval",  value: formatCurrency(pendingApprovalAmt),                       colour: "text-amber-600" },
+              { label: "Approved to Pay",    value: formatCurrency(approvedAmt),                              colour: "text-[var(--brand)]" },
+              { label: "Paid",               value: formatCurrency(paidThisMonth),                            colour: "text-emerald-600" },
+              { label: "Overdue",            value: formatCurrency(payments.filter(p => p.status === "overdue").reduce((s, p) => s + p.amount, 0)), colour: "text-red-600" },
             ].map(r => (
               <div key={r.label} className="flex items-center justify-between text-sm">
                 <span className="text-slate-500">{r.label}</span>

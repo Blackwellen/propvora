@@ -76,7 +76,7 @@ export default function MoneyEscrowPage() {
 
         {/* KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-          <KpiCard icon={ShieldCheck} iconBg="bg-blue-50" iconColor="text-blue-600" value={formatPence(kpis.totalInEscrowPence)} label="Total in escrow" />
+          <KpiCard icon={ShieldCheck} iconBg="bg-[var(--brand-soft)]" iconColor="text-[var(--brand)]" value={formatPence(kpis.totalInEscrowPence)} label="Total in escrow" />
           <KpiCard icon={Clock} iconBg="bg-amber-50" iconColor="text-amber-600" value={kpis.releaseDueSoon} label="Release due soon" sub="Next 3 days" subColor="text-amber-600" />
           <KpiCard icon={ShieldAlert} iconBg="bg-red-50" iconColor="text-red-600" value={formatPence(kpis.disputedEscrowPence)} label="Disputed escrow" />
           <KpiCard icon={Timer} iconBg="bg-violet-50" iconColor="text-violet-600" value={`${kpis.avgHoldDays}d`} label="Average hold time" />
@@ -121,7 +121,7 @@ export default function MoneyEscrowPage() {
             <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search escrow, reference, party, property…"
-                className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
             </div>
             <Select value={typeFilter} onChange={setTypeFilter} placeholder="All linked types" options={["service_order", "booking"]} humaniseOpt />
             <Select value={stageFilter} onChange={setStageFilter} placeholder="All stages" options={["funded", "held", "evidence_pending", "review_pending", "ready_to_release", "disputed"]} humaniseOpt />
@@ -157,7 +157,7 @@ export default function MoneyEscrowPage() {
                     : filtered.map(e => {
                       const dleft = e.releaseDate ? Math.max(Math.ceil((new Date(e.releaseDate).getTime() - Date.now()) / 86_400_000), 0) : null
                       return (
-                        <tr key={e.id} onClick={() => setSelectedId(e.id)} className={cn("border-b border-slate-50 cursor-pointer hover:bg-slate-50", selectedId === e.id && "bg-blue-50/40")}>
+                        <tr key={e.id} onClick={() => setSelectedId(e.id)} className={cn("border-b border-slate-50 cursor-pointer hover:bg-slate-50", selectedId === e.id && "bg-[var(--brand-soft)]/40")}>
                           <td className="px-4 py-3 font-semibold text-slate-800">{e.escrowId}</td>
                           <td className="px-4 py-3"><StatusBadge tone={e.linkedType === "booking" ? "violet" : "blue"}>{humanise(e.linkedType)}</StatusBadge></td>
                           <td className="px-4 py-3 text-slate-600">{e.reference}</td>
@@ -170,7 +170,7 @@ export default function MoneyEscrowPage() {
                           <td className="px-4 py-3 text-xs text-slate-500">{e.releaseRule}</td>
                           <td className="px-4 py-3"><StatusBadge tone={toneForRisk(e.risk)}>{humanise(e.risk)}</StatusBadge></td>
                           <td className="px-4 py-3 text-right">
-                            <Link href={`/property-manager/money/escrow/${e.escrowId}`} onClick={ev => ev.stopPropagation()} className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] inline-flex items-center gap-1">Open <ExternalLink className="w-3 h-3" /></Link>
+                            <Link href={`/property-manager/money/escrow/${e.escrowId}`} onClick={ev => ev.stopPropagation()} className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] inline-flex items-center gap-1">Open <ExternalLink className="w-3 h-3" /></Link>
                           </td>
                         </tr>
                       )
@@ -243,7 +243,7 @@ function EscrowPanel({ row, onAction }: { row: ManagedEscrowRow; onAction: (k: s
         <p className="text-[11px] uppercase tracking-wide text-slate-400 font-semibold mb-1">Countdown</p>
         <p className="text-3xl font-bold text-slate-900">{dleft != null ? `${dleft}d` : "—"}</p>
         <p className="text-xs text-slate-500">{row.releaseDate ? new Date(row.releaseDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "No date"}</p>
-        <div className="mt-3"><div className="flex items-center justify-between text-xs mb-1"><span className="text-slate-500">Stage progress</span><span className="font-semibold text-slate-700">{row.milestoneProgress}%</span></div><div className="h-2 bg-slate-200 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${row.milestoneProgress}%` }} /></div></div>
+        <div className="mt-3"><div className="flex items-center justify-between text-xs mb-1"><span className="text-slate-500">Stage progress</span><span className="font-semibold text-slate-700">{row.milestoneProgress}%</span></div><div className="h-2 bg-slate-200 rounded-full overflow-hidden"><div className="h-full bg-[var(--brand)] rounded-full" style={{ width: `${row.milestoneProgress}%` }} /></div></div>
       </div>
       <div className="p-5 border-b border-slate-100 space-y-1.5 text-sm">
         <div className="flex items-center justify-between"><span className="text-slate-500">Held</span><span className="font-semibold text-slate-800">{formatPence(row.amountHeldPence)}</span></div>
@@ -265,7 +265,7 @@ function EscrowPanel({ row, onAction }: { row: ManagedEscrowRow; onAction: (k: s
           <ActBtn icon={Ban} label="Hold" onClick={() => onAction("hold")} />
           <ActBtn icon={FileQuestion} label="Evidence" onClick={() => onAction("evidence")} />
           <ActBtn icon={Flag} label="Dispute" onClick={() => onAction("dispute")} tone="red" />
-          <Link href={`/property-manager/money/escrow/${row.escrowId}`} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100"><ExternalLink className="w-3.5 h-3.5" /> Open</Link>
+          <Link href={`/property-manager/money/escrow/${row.escrowId}`} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand)] text-xs font-semibold hover:bg-[var(--color-brand-100)]"><ExternalLink className="w-3.5 h-3.5" /> Open</Link>
         </div>
       </div>
     </div>

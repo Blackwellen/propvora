@@ -27,7 +27,7 @@ export default function BookingsTableView({ rows, selectedId, onSelect, checked,
               onClick={() => onSelect(b.id)}
               className={cn(
                 "p-3.5 cursor-pointer",
-                active ? "bg-blue-50/40 outline outline-2 -outline-offset-2 outline-blue-500" : "hover:bg-slate-50"
+                active ? "bg-[var(--brand-soft)]/40 outline outline-2 -outline-offset-2 outline-[var(--brand)]" : "hover:bg-slate-50"
               )}
             >
               <div className="flex items-center gap-3 mb-2.5">
@@ -36,13 +36,13 @@ export default function BookingsTableView({ rows, selectedId, onSelect, checked,
                   checked={!!checked[b.id]}
                   onChange={() => setChecked((c) => ({ ...c, [b.id]: !c[b.id] }))}
                   onClick={(e) => e.stopPropagation()}
-                  className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 shrink-0"
+                  className="rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)] shrink-0"
                 />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={b.image} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-blue-600 text-[12px]">{b.ref}</span>
+                    <span className="font-semibold text-[var(--brand)] text-[12px]">{b.ref}</span>
                     <StatusPill tone={b.type === "Stay" ? "blue" : "amber"}>{b.type}</StatusPill>
                   </div>
                   <p className="font-semibold text-slate-800 text-[12.5px] truncate">{b.property}</p>
@@ -98,13 +98,13 @@ export default function BookingsTableView({ rows, selectedId, onSelect, checked,
                   onClick={() => onSelect(b.id)}
                   className={cn(
                     "cursor-pointer text-[12.5px] transition-colors",
-                    active ? "bg-blue-50/40 outline outline-2 -outline-offset-2 outline-blue-500" : "hover:bg-slate-50"
+                    active ? "bg-[var(--brand-soft)]/40 outline outline-2 -outline-offset-2 outline-[var(--brand)]" : "hover:bg-slate-50"
                   )}
                 >
                   <td className="py-2.5 pl-4 pr-2" onClick={(e) => e.stopPropagation()}>
-                    <input type="checkbox" checked={!!checked[b.id]} onChange={() => setChecked((c) => ({ ...c, [b.id]: !c[b.id] }))} className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                    <input type="checkbox" checked={!!checked[b.id]} onChange={() => setChecked((c) => ({ ...c, [b.id]: !c[b.id] }))} className="rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]" />
                   </td>
-                  <td className="py-2.5 px-2"><span className="font-semibold text-blue-600">{b.ref}</span></td>
+                  <td className="py-2.5 px-2"><span className="font-semibold text-[var(--brand)]">{b.ref}</span></td>
                   <td className="py-2.5 px-2">
                     <div className="flex items-center gap-2 min-w-[170px]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}

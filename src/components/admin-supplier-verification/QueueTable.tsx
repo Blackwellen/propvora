@@ -76,7 +76,7 @@ export default function QueueTable({ rows }: { rows: SupplierQueueRow[] }) {
                 <td className="px-4 py-3 text-right">
                   <Link
                     href={`/admin/supplier-verification/${r.id}`}
-                    className="inline-flex items-center gap-1 text-[12px] font-medium text-[#2563EB] hover:underline"
+                    className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--brand)] hover:underline"
                   >
                     Review <ChevronRight className="w-3.5 h-3.5" />
                   </Link>

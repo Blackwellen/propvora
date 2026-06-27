@@ -13,7 +13,7 @@ interface HealthConfig {
 
 const HEALTH_MAP: Record<string, HealthConfig> = {
   strong:   { dot: "bg-emerald-500", label: "Strong",   text: "text-emerald-700" },
-  good:     { dot: "bg-blue-500",    label: "Good",     text: "text-blue-700" },
+  good:     { dot: "bg-[var(--brand)]",    label: "Good",     text: "text-[var(--brand)]" },
   neutral:  { dot: "bg-slate-400",   label: "Neutral",  text: "text-slate-600" },
   at_risk:  { dot: "bg-amber-400",   label: "At Risk",  text: "text-amber-700" },
   critical: { dot: "bg-red-500",     label: "Critical", text: "text-red-700" },

@@ -219,7 +219,7 @@ export function ListingDetailShell({
                   className={cn(
                     "flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12.5px] font-medium whitespace-nowrap transition-colors shrink-0 lg:w-full text-left",
                     isActive
-                      ? "bg-[#2563EB] text-white"
+                      ? "bg-[var(--brand)] text-white"
                       : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                   )}
                 >

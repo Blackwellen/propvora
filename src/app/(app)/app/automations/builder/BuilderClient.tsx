@@ -108,7 +108,7 @@ export default function BuilderClient({ workspaceId, aiEnabled }: Props) {
       <ReviewFirstBanner ai />
 
       {!aiEnabled && (
-        <div className="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+        <div className="flex items-start gap-2 rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)] px-4 py-3 text-sm text-[var(--brand-strong)]">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
           The plain-English assistant needs the AI add-on on your plan. You can still build the automation manually below.
         </div>
@@ -125,7 +125,7 @@ export default function BuilderClient({ workspaceId, aiEnabled }: Props) {
                 {aiEnabled
                   ? "Draft an automation above, or "
                   : ""}
-                <button onClick={startManual} className="font-medium text-blue-600 hover:underline">
+                <button onClick={startManual} className="font-medium text-[var(--brand)] hover:underline">
                   {aiEnabled ? "build one manually" : "Start building manually"}
                 </button>
                 {aiEnabled ? "." : "."}
@@ -172,7 +172,7 @@ export default function BuilderClient({ workspaceId, aiEnabled }: Props) {
             <button
               onClick={onSave}
               disabled={!hasDraft || saving}
-              className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-blue-700 disabled:opacity-50"
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-[var(--brand-strong)] disabled:opacity-50"
             >
               <Check className="h-4 w-4" /> {saving ? "Saving…" : definition.id ? "Update automation" : "Save automation"}
             </button>

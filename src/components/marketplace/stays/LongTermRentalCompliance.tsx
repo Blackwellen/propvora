@@ -97,12 +97,12 @@ export default function LongTermRentalCompliance({ rental }: LongTermRentalCompl
       </div>
 
       {/* Right to Rent */}
-      <div className="mt-4 bg-blue-50 rounded-xl p-4 border border-blue-100">
+      <div className="mt-4 bg-[var(--brand-soft)] rounded-xl p-4 border border-[var(--color-brand-100)]">
         <div className="flex items-start gap-2">
-          <Shield className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+          <Shield className="h-4 w-4 text-[var(--brand)] shrink-0 mt-0.5" />
           <div>
-            <p className="text-xs font-semibold text-blue-700 mb-0.5">Right to Rent</p>
-            <p className="text-xs text-blue-600 leading-relaxed">
+            <p className="text-xs font-semibold text-[var(--brand)] mb-0.5">Right to Rent</p>
+            <p className="text-xs text-[var(--brand)] leading-relaxed">
               All tenants must pass a Right to Rent check as required by UK law. The landlord will request relevant identity documents before tenancy commencement.
             </p>
           </div>

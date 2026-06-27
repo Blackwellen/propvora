@@ -56,7 +56,7 @@ export function SupplierFilterPanel({
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="w-full pl-9 pr-4 py-1.5 border border-slate-200 rounded-lg text-[13px] text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+          className="w-full pl-9 pr-4 py-1.5 border border-slate-200 rounded-lg text-[13px] text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 bg-white"
         />
       </div>
 
@@ -65,7 +65,7 @@ export function SupplierFilterPanel({
         <select
           value={tradeFilter}
           onChange={(e) => onTradeChange(e.target.value)}
-          className="appearance-none border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 cursor-pointer"
+          className="appearance-none border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 cursor-pointer"
         >
           {trades.map((t) => (
             <option key={t}>{t}</option>
@@ -79,7 +79,7 @@ export function SupplierFilterPanel({
         <select
           value={sortBy}
           onChange={(e) => onSortChange(e.target.value as "name" | "rating" | "trade")}
-          className="appearance-none border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 cursor-pointer"
+          className="appearance-none border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 cursor-pointer"
         >
           <option value="name">Sort: Name</option>
           <option value="rating">Sort: Rating</option>
@@ -95,11 +95,11 @@ export function SupplierFilterPanel({
           className={cn(
             "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[12px] font-semibold transition-colors",
             preferredOnly
-              ? "border-[#2563EB] bg-blue-50 text-[#2563EB]"
+              ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
               : "border-slate-200 text-slate-600 hover:bg-slate-50"
           )}
         >
-          <Star className={cn("w-3.5 h-3.5", preferredOnly && "fill-[#2563EB]")} />
+          <Star className={cn("w-3.5 h-3.5", preferredOnly && "fill-[var(--brand)]")} />
           Preferred only
         </button>
       )}
@@ -108,7 +108,7 @@ export function SupplierFilterPanel({
       {onClearFilters && (
         <button
           onClick={onClearFilters}
-          className="text-[12px] font-medium text-[#2563EB] hover:underline px-2"
+          className="text-[12px] font-medium text-[var(--brand)] hover:underline px-2"
         >
           Clear Filters
         </button>

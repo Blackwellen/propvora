@@ -99,8 +99,8 @@ export default function CookieConsent() {
           <div className="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/10">
             <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
               <div className="flex flex-1 items-start gap-3">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-blue-200 bg-blue-50">
-                  <Cookie className="h-5 w-5 text-blue-600" aria-hidden="true" />
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)]">
+                  <Cookie className="h-5 w-5 text-[var(--brand)]" aria-hidden="true" />
                 </div>
                 <div className="text-sm leading-relaxed text-slate-600">
                   <p>
@@ -109,14 +109,14 @@ export default function CookieConsent() {
                     product. See our{" "}
                     <Link
                       href="/legal/cookies"
-                      className="font-medium text-blue-600 hover:text-blue-700"
+                      className="font-medium text-[var(--brand)] hover:text-[var(--brand)]"
                     >
                       Cookie Policy
                     </Link>{" "}
                     and{" "}
                     <Link
                       href="/legal/privacy"
-                      className="font-medium text-blue-600 hover:text-blue-700"
+                      className="font-medium text-[var(--brand)] hover:text-[var(--brand)]"
                     >
                       Privacy Policy
                     </Link>
@@ -142,7 +142,7 @@ export default function CookieConsent() {
                 <button
                   type="button"
                   onClick={handleAcceptAll}
-                  className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+                  className="rounded-xl bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-strong)]"
                 >
                   Accept all
                 </button>
@@ -169,8 +169,8 @@ export default function CookieConsent() {
           >
             <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-5 sm:p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 bg-blue-50">
-                  <Cookie className="h-5 w-5 text-blue-600" aria-hidden="true" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)]">
+                  <Cookie className="h-5 w-5 text-[var(--brand)]" aria-hidden="true" />
                 </div>
                 <h2
                   id="cookie-prefs-title"
@@ -226,7 +226,7 @@ export default function CookieConsent() {
               <button
                 type="button"
                 onClick={handleSavePreferences}
-                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+                className="rounded-xl bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-strong)]"
               >
                 Save preferences
               </button>
@@ -267,7 +267,7 @@ function ToggleRow({
         disabled={locked}
         onClick={() => onChange?.(!checked)}
         className={`relative mt-0.5 inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
-          checked ? "bg-blue-600" : "bg-slate-300"
+          checked ? "bg-[var(--brand)]" : "bg-slate-300"
         } ${locked ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
       >
         <span

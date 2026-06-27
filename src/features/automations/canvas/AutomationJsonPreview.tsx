@@ -98,7 +98,7 @@ export function AutomationJsonPreview({ nodes, edges, meta, onImport }: Props) {
           </button>
           <button
             onClick={importJson}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-blue-700 transition"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-[var(--brand-strong)] transition"
           >
             {synced ? <Check className="h-3.5 w-3.5" /> : <RefreshCw className="h-3.5 w-3.5" />}
             {synced ? "Applied" : "Apply to canvas"}
@@ -116,7 +116,7 @@ export function AutomationJsonPreview({ nodes, edges, meta, onImport }: Props) {
         value={json}
         onChange={(e) => { setJson(e.target.value); setParseError(null) }}
         spellCheck={false}
-        className="flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-900 p-5 font-mono text-[12px] leading-relaxed text-emerald-300 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+        className="flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-900 p-5 font-mono text-[12px] leading-relaxed text-emerald-300 focus:border-[var(--color-brand-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)]"
       />
     </div>
   )

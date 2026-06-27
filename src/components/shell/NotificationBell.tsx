@@ -248,7 +248,7 @@ export default function NotificationBell() {
         aria-haspopup="true"
         aria-expanded={open}
         aria-controls={dropdownId}
-        className="relative w-[44px] h-[44px] rounded-2xl bg-white border border-[#E2EAF6] flex items-center justify-center hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+        className="relative w-[44px] h-[44px] rounded-2xl bg-white border border-[#E2EAF6] flex items-center justify-center hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
       >
         <Bell className="w-5 h-5 text-[#071B4D]" />
         {unreadCount > 0 && (
@@ -284,7 +284,7 @@ export default function NotificationBell() {
             ) : unreadCount > 0 ? (
               <button
                 onClick={markAllRead}
-                className="flex items-center gap-1 text-[11px] font-medium text-[#2563EB] hover:underline"
+                className="flex items-center gap-1 text-[11px] font-medium text-[var(--brand)] hover:underline"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
                 Mark all read
@@ -316,11 +316,11 @@ export default function NotificationBell() {
                   onClick={() => handleClick(n)}
                   className={cn(
                     "w-full text-left flex items-start gap-3 px-4 py-3 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors",
-                    !n.read_at && "bg-blue-50/40",
+                    !n.read_at && "bg-[var(--brand-soft)]/40",
                     rowHref(n) ? "cursor-pointer" : "cursor-default"
                   )}
                 >
-                  <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center text-base shrink-0 mt-0.5">
+                  <div className="w-8 h-8 rounded-xl bg-[var(--color-brand-100)] flex items-center justify-center text-base shrink-0 mt-0.5">
                     {iconForKind(n.type)}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -335,7 +335,7 @@ export default function NotificationBell() {
                     </p>
                   </div>
                   {!n.read_at && (
-                    <span className="w-2 h-2 rounded-full bg-[#2563EB] shrink-0 mt-1.5" />
+                    <span className="w-2 h-2 rounded-full bg-[var(--brand)] shrink-0 mt-1.5" />
                   )}
                 </button>
               ))
@@ -346,7 +346,7 @@ export default function NotificationBell() {
           <div className="flex items-center justify-between px-4 py-2.5 border-t border-slate-100 bg-slate-50/50">
             <a
               href="/property-manager/notifications"
-              className="text-[11.5px] text-blue-600 hover:underline font-medium"
+              className="text-[11.5px] text-[var(--brand)] hover:underline font-medium"
             >
               View all notifications →
             </a>

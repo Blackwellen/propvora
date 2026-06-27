@@ -21,7 +21,7 @@ function Toggle({ on, onToggle, label }: { on: boolean; onToggle: () => void; la
       onClick={onToggle}
       aria-pressed={on}
       aria-label={label}
-      className={`w-10 h-5 rounded-full transition-colors relative shrink-0 ${on ? "bg-[#2563EB]" : "bg-slate-200"}`}
+      className={`w-10 h-5 rounded-full transition-colors relative shrink-0 ${on ? "bg-[var(--brand)]" : "bg-slate-200"}`}
     >
       <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${on ? "translate-x-5" : "translate-x-0.5"}`} />
     </button>
@@ -86,7 +86,7 @@ export function AffiliateSettings({ basePath }: { basePath: string }) {
   if (!affiliate?.enrolled) {
     return (
       <div className="text-center py-16">
-        <p className="text-sm text-slate-500">You haven&apos;t enrolled yet. <Link href={basePath} className="text-[#2563EB] hover:underline">Join the programme</Link>.</p>
+        <p className="text-sm text-slate-500">You haven&apos;t enrolled yet. <Link href={basePath} className="text-[var(--brand)] hover:underline">Join the programme</Link>.</p>
       </div>
     )
   }
@@ -155,9 +155,9 @@ export function AffiliateSettings({ basePath }: { basePath: string }) {
         <CardContent className="space-y-3">
           <p className="text-sm text-slate-600">
             Review the{" "}
-            <Link href="/affiliate-programme/terms" className="text-[#2563EB] hover:underline">Affiliate Terms</Link>.
+            <Link href="/affiliate-programme/terms" className="text-[var(--brand)] hover:underline">Affiliate Terms</Link>.
             You can leave the programme at any time — contact{" "}
-            <a href={`mailto:${COMPANY.emails.support}`} className="text-[#2563EB] hover:underline">{COMPANY.emails.support}</a>.
+            <a href={`mailto:${COMPANY.emails.support}`} className="text-[var(--brand)] hover:underline">{COMPANY.emails.support}</a>.
           </p>
           <div className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-100 p-3 text-xs text-amber-700">
             <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />

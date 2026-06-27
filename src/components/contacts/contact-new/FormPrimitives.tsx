@@ -43,7 +43,7 @@ export function InputField({
           placeholder={placeholder}
           className={[
             "w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition",
-            "focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+            "focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]",
             prefix ? "pl-7" : "",
             error ? "border-red-400" : "border-slate-200",
           ].join(" ")}
@@ -78,7 +78,7 @@ export function TextareaField({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         rows={rows}
-        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)] resize-none"
       />
     </div>
   )
@@ -105,7 +105,7 @@ export function SelectField({
         id={fieldId}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
       >
         {placeholder && <option value="">{placeholder}</option>}
         {options.map((o) => (
@@ -132,12 +132,12 @@ export function ToggleSwitch({
       <button
         type="button"
         onClick={() => onChange(!checked)}
-        className="mt-0.5 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+        className="mt-0.5 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 rounded"
         aria-pressed={checked}
         aria-label={label}
       >
         {checked ? (
-          <div style={{ color: "var(--brand)" }}><ToggleRight className="w-8 h-8" /></div>
+          <div style={{ color: "#2563EB" }}><ToggleRight className="w-8 h-8" /></div>
         ) : (
           <div style={{ color: "var(--text-disabled)" }}><ToggleLeft className="w-8 h-8" /></div>
         )}
@@ -174,10 +174,10 @@ export function ChipGrid({
             aria-pressed={active}
             className={[
               "px-3 py-1.5 rounded-full text-xs font-medium border transition",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1",
               active
-                ? "bg-blue-600 border-blue-600 text-white"
-                : "bg-white border-slate-200 text-slate-600 hover:border-blue-300",
+                ? "bg-[var(--brand)] border-[var(--brand)] text-white"
+                : "bg-white border-slate-200 text-slate-600 hover:border-[var(--color-brand-300)]",
             ].join(" ")}
           >
             {opt}
@@ -216,10 +216,10 @@ export function GroupedChipGrid({
                   aria-pressed={active}
                   className={[
                     "px-3 py-1.5 rounded-full text-xs font-medium border transition",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1",
                     active
-                      ? "bg-blue-600 border-blue-600 text-white"
-                      : "bg-white border-slate-200 text-slate-600 hover:border-blue-300",
+                      ? "bg-[var(--brand)] border-[var(--brand)] text-white"
+                      : "bg-white border-slate-200 text-slate-600 hover:border-[var(--color-brand-300)]",
                   ].join(" ")}
                 >
                   {opt}

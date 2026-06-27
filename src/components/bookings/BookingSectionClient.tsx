@@ -98,8 +98,8 @@ export function BookingSectionClient({
         <div className="rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden">
           <div className="px-5 py-5 md:px-6 md:py-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
             <div className="flex items-start gap-4">
-              <span className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0">
-                <Icon className="w-6 h-6 text-blue-600" />
+              <span className="w-12 h-12 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                <Icon className="w-6 h-6 text-[var(--brand)]" />
               </span>
               <div>
                 <h2 className="text-lg font-bold text-slate-900">{copy.title}</h2>
@@ -107,7 +107,7 @@ export function BookingSectionClient({
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <button className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+              <button className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors">
                 <Plus className="w-4 h-4" />
                 {copy.primary}
               </button>

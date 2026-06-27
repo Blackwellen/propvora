@@ -80,7 +80,7 @@ function levelFromDays(days: number): { level: EscalationLevel; label: string } 
 
 function levelBadgeClass(level: EscalationLevel): string {
   switch (level) {
-    case "level1": return "bg-blue-50 text-blue-700 border-blue-200"
+    case "level1": return "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]"
     case "level2": return "bg-amber-50 text-amber-700 border-amber-200"
     case "level3": return "bg-red-50 text-red-700 border-red-200"
     case "level4": return "bg-red-100 text-red-800 border-red-300"
@@ -97,7 +97,7 @@ function Toggle({ on, onToggle, label }: { on: boolean; onToggle: () => void; la
       aria-checked={on}
       aria-label={label}
       className={cn(
-        "relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
+        "relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1",
         on ? "bg-emerald-500" : "bg-slate-300"
       )}
     >
@@ -130,7 +130,7 @@ function ChaseCaseRow({
         <td className="px-5 py-4">
           <button
             onClick={() => setExpanded((v) => !v)}
-            className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-900 hover:text-blue-600 transition-colors"
+            className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-900 hover:text-[var(--brand)] transition-colors"
           >
             {expanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
             {c.tenant}
@@ -253,7 +253,7 @@ function NewRentChaseCaseModal({
             <h2 id="new-chase-title" className="text-lg font-semibold text-slate-900">New Rent Chase Case</h2>
             <p className="text-xs text-slate-500 mt-0.5">Open an arrears case to begin the escalation workflow.</p>
           </div>
-          <button onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+          <button onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
             <X className="w-4 h-4 text-slate-500" />
           </button>
         </div>
@@ -262,7 +262,7 @@ function NewRentChaseCaseModal({
           <div className="flex flex-col gap-1">
             <label htmlFor="rc-tenant" className="text-xs font-medium text-slate-600">Tenant <span className="text-red-500">*</span></label>
             <select id="rc-tenant" value={tenantId} onChange={(e) => setTenantId(e.target.value)}
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
               <option value="">Select tenant…</option>
               {tenants.map((t) => (
                 <option key={t.id} value={t.id}>{t.full_name || t.company_name || "Unnamed contact"}</option>
@@ -276,7 +276,7 @@ function NewRentChaseCaseModal({
           <div className="flex flex-col gap-1">
             <label htmlFor="rc-property" className="text-xs font-medium text-slate-600">Property</label>
             <select id="rc-property" value={propertyId} onChange={(e) => setPropertyId(e.target.value)}
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
               <option value="">Select property…</option>
               {properties.map((p) => (
                 <option key={p.id} value={p.id}>{p.name || p.address_line1 || "Unnamed property"}</option>
@@ -289,12 +289,12 @@ function NewRentChaseCaseModal({
               <label htmlFor="rc-amount" className="text-xs font-medium text-slate-600">Amount outstanding (£) <span className="text-red-500">*</span></label>
               <input id="rc-amount" type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]" />
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="rc-due" className="text-xs font-medium text-slate-600">Rent due date</label>
               <input id="rc-due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]" />
             </div>
           </div>
 
@@ -302,7 +302,7 @@ function NewRentChaseCaseModal({
             <label htmlFor="rc-notes" className="text-xs font-medium text-slate-600">Notes</label>
             <textarea id="rc-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2}
               placeholder="Context for this arrears case…"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 resize-none" />
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] resize-none" />
           </div>
         </div>
 
@@ -312,7 +312,7 @@ function NewRentChaseCaseModal({
           <button onClick={onClose} disabled={saving} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50">
             Cancel
           </button>
-          <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-70">
+          <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm font-medium text-white bg-[var(--brand)] hover:bg-[var(--brand-strong)] rounded-lg transition-colors disabled:opacity-70">
             {saving ? "Opening…" : "Open Case"}
           </button>
         </div>
@@ -455,7 +455,7 @@ export default function RentChasePage() {
                 <Settings className="w-3.5 h-3.5" />
                 Manage Arrears
               </Link>
-              <button onClick={() => setShowNewCase(true)} className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+              <button onClick={() => setShowNewCase(true)} className="flex items-center gap-1.5 bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
                 <Plus className="w-3.5 h-3.5" />
                 New Case
               </button>
@@ -465,10 +465,10 @@ export default function RentChasePage() {
         </div>
 
         {/* Chase status banner — live */}
-        <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-blue-50 border border-blue-200">
+        <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)]">
           <div className="flex items-center gap-3">
-            <Siren className="w-5 h-5 text-blue-600 shrink-0" />
-            <p className="text-sm text-blue-800">
+            <Siren className="w-5 h-5 text-[var(--brand)] shrink-0" />
+            <p className="text-sm text-[var(--brand-strong)]">
               <span className="font-semibold">Rent Chase</span> is tracking{" "}
               <span className="font-semibold">{chaseCases.length} tenanc{chaseCases.length === 1 ? "y" : "ies"}</span>{" "}
               with outstanding rent. Configure escalation rules on the right.
@@ -604,7 +604,7 @@ export default function RentChasePage() {
                         value={opt.value}
                         checked={chaseMode === opt.value}
                         onChange={() => setChaseMode(opt.value)}
-                        className="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500"
+                        className="w-4 h-4 text-[var(--brand)] border-slate-300 focus:ring-[var(--brand)]"
                       />
                       <span className="text-sm text-slate-700">{opt.label}</span>
                     </label>
@@ -678,7 +678,7 @@ export default function RentChasePage() {
 
               <button
                 onClick={() => showToast("Chase settings saved")}
-                className="w-full bg-blue-600 text-white hover:bg-blue-700 text-xs font-semibold py-2 rounded-lg transition-colors"
+                className="w-full bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-semibold py-2 rounded-lg transition-colors"
               >
                 Save Settings
               </button>

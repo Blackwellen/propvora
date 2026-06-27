@@ -184,7 +184,7 @@ export default function SupplierJobSignOffPage() {
           <SupplierCard className="p-5">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold text-slate-900">Evidence summary</h2>
-              <Link href={`/supplier/jobs/${id}/evidence`} className="text-xs font-semibold text-blue-600">Manage evidence</Link>
+              <Link href={`/supplier/jobs/${id}/evidence`} className="text-xs font-semibold text-[var(--brand)]">Manage evidence</Link>
             </div>
             {evidenceState.loading ? (
               <SupplierLoadingState rows={1} />
@@ -206,7 +206,7 @@ export default function SupplierJobSignOffPage() {
         {/* Customer sign-off card */}
         <div className="space-y-4">
           <SupplierCard className="p-5">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3"><PenLine className="w-5 h-5" /></div>
+            <div className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center mb-3"><PenLine className="w-5 h-5" /></div>
             <h2 className="text-base font-semibold text-slate-900">Customer sign-off</h2>
             <p className="text-sm text-slate-500 mt-1">Mark the work complete and ask the customer to confirm. Completion helps release escrow faster.</p>
             <div className="mt-3">

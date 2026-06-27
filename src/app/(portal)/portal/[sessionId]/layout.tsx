@@ -7,6 +7,8 @@ import {
 import { getSessionForRoute } from "@/lib/portal/session"
 import { PORTAL_KIND_LABEL } from "@/components/shells/portal/portal-nav"
 import PortalShell from "@/components/shells/PortalShell"
+import { resolveBrand, brandCssVars } from "@/lib/branding/theme"
+import { resolveWhiteLabel } from "@/lib/branding/white-label-core"
 
 /** Extended profiles only render when the extended-profiles flag is enabled. */
 const EXTENDED_PORTAL_TYPES = ["applicant", "accountant", "solicitor", "generic"] as const
@@ -45,11 +47,26 @@ export default async function PortalSessionLayout({
     redirect("/portal/expired")
   }
 
-  // Resolve a friendly display name for the signed-in external contact.
+  // Resolve a friendly display name for the signed-in external contact, plus the
+  // owning workspace's branding + white-label config (drives portal colour, brand
+  // name, and whether the "Powered by Propvora" footer shows).
   let displayName = PORTAL_KIND_LABEL[session.portalType] ?? "Portal"
-  if (session.contactId) {
-    try {
-      const admin = createAdminClient()
+  let brandColor: string | null = null
+  let brandColours: Record<string, string> | null = null
+  let whiteLabelSettings: Record<string, unknown> | null = null
+  try {
+    const admin = createAdminClient()
+    const { data: ws } = await admin
+      .from("workspaces")
+      .select("brand_color, brand_colours, white_label_settings")
+      .eq("id", session.workspaceId)
+      .maybeSingle()
+    if (ws) {
+      brandColor = (ws.brand_color as string | null) ?? null
+      brandColours = (ws.brand_colours as Record<string, string> | null) ?? null
+      whiteLabelSettings = (ws.white_label_settings as Record<string, unknown> | null) ?? null
+    }
+    if (session.contactId) {
       const { data } = await admin
         .from("contacts")
         .select("display_name, company")
@@ -62,17 +79,22 @@ export default async function PortalSessionLayout({
           (data.display_name as string) ||
           displayName
       }
-    } catch {
-      /* tolerate — keep generic name */
     }
+  } catch {
+    /* tolerate — keep generic name + Propvora defaults */
   }
+
+  const wl = resolveWhiteLabel(whiteLabelSettings, session.workspaceName)
+  const brandVars = brandCssVars(resolveBrand(brandColor, brandColours))
 
   return (
     <PortalShell
       sessionId={session.id}
       kind={session.portalType}
-      workspaceName={session.workspaceName}
+      workspaceName={wl.brandName}
       displayName={displayName}
+      brandVars={brandVars}
+      hidePoweredBy={wl.hidePoweredBy}
     >
       {children}
     </PortalShell>

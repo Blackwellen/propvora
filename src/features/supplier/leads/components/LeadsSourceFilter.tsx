@@ -22,7 +22,7 @@ export function LeadsSourceFilter({ value, onChange }: LeadsSourceFilterProps) {
           onClick={() => onChange(opt.key)}
           className={`px-3 h-7 rounded-lg text-[12px] font-semibold transition-colors ${
             value === opt.key
-              ? "bg-[#2563EB] text-white"
+              ? "bg-[var(--brand)] text-white"
               : "bg-slate-100 text-slate-500 hover:bg-slate-200"
           }`}
         >

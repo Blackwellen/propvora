@@ -60,7 +60,7 @@ export default function AutomationsDataTable<T extends { id: string }>({
                     type="checkbox"
                     checked={allChecked}
                     onChange={(e) => onToggleAll?.(e.target.checked)}
-                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]"
                     aria-label="Select all rows"
                   />
                 </th>
@@ -92,8 +92,8 @@ export default function AutomationsDataTable<T extends { id: string }>({
                     aria-current={active ? "true" : undefined}
                     className={[
                       "transition",
-                      onRowClick ? "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500" : "",
-                      active ? "bg-blue-50/60" : "hover:bg-slate-50",
+                      onRowClick ? "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--brand)]" : "",
+                      active ? "bg-[var(--brand-soft)]/60" : "hover:bg-slate-50",
                     ].join(" ")}
                   >
                     {selectable && (
@@ -102,7 +102,7 @@ export default function AutomationsDataTable<T extends { id: string }>({
                           type="checkbox"
                           checked={selectedIds.includes(row.id)}
                           onChange={() => onToggleRow?.(row.id)}
-                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                          className="h-4 w-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]"
                           aria-label="Select row"
                         />
                       </td>

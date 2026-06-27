@@ -64,7 +64,7 @@ function LegalOverviewPageInner() {
       title: "Possession",
       href: "/property-manager/legal/possession",
       icon: Gavel,
-      iconCls: "bg-blue-100 text-blue-600",
+      iconCls: "bg-[var(--color-brand-100)] text-[var(--brand)]",
       metric: activeCases,
       metricLabel: "active cases",
       sub: `${cases.length} total · ${cases.filter((c) => c.notice_served_date).length} notices served`,
@@ -140,7 +140,7 @@ function LegalOverviewPageInner() {
           <JurisdictionLensSwitcher sectionKey="legal" defaultToGrouped />
           <Link
             href="/property-manager/legal/possession/new/select-tenancy"
-            className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
+            className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             New Possession Case
@@ -179,7 +179,7 @@ function LegalOverviewPageInner() {
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-[13px] font-semibold text-slate-800">Upcoming Licence Expiries</h2>
-              <Link href="/property-manager/legal/hmo-licences" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium">View all →</Link>
+              <Link href="/property-manager/legal/hmo-licences" className="text-[11px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium">View all →</Link>
             </div>
             {expiringSoon.length === 0 ? (
               <div className="py-12 text-center text-[12px] text-slate-400">No HMO licences expiring within 90 days.</div>

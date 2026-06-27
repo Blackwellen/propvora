@@ -23,7 +23,7 @@ export default function AffiliatePortalUserMenu({ email }: { email: string | nul
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2 rounded-full border border-slate-200 py-1 pl-1 pr-2.5 text-[13px] font-medium text-slate-700 hover:bg-slate-50"
       >
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600"><User className="h-4 w-4" /></span>
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]"><User className="h-4 w-4" /></span>
         <span className="hidden max-w-[140px] truncate sm:inline">{email ?? "Account"}</span>
         <ChevronDown className="h-4 w-4 text-slate-400" />
       </button>

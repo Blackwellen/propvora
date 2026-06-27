@@ -43,7 +43,7 @@ export default async function GenericPortalHome({ params }: { params: Promise<{ 
               <ul className="divide-y divide-[#EEF3FB] -my-1.5">
                 {docs.slice(0, 6).map((d) => (
                   <li key={d.id} className="flex items-center gap-3 py-2.5">
-                    <span className="w-8 h-8 rounded-lg bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center shrink-0"><FileText className="w-4 h-4" /></span>
+                    <span className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center shrink-0"><FileText className="w-4 h-4" /></span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-[#071B4D] truncate">{d.name ?? "Document"}</p>
                       <p className="text-xs text-slate-400">{formatDate(d.created_at)}</p>
@@ -62,7 +62,7 @@ export default async function GenericPortalHome({ params }: { params: Promise<{ 
             <div className="grid grid-cols-1 gap-2">
               {[["Documents", `${base}/documents`, FolderOpen], ["Messages", `${base}/messages`, MessageSquare]].map(([l, h, I]) => {
                 const Icon = I as typeof FolderOpen
-                return <Link key={l as string} href={h as string} className="flex items-center gap-2 rounded-xl border border-[#EEF3FB] hover:bg-[#F8FBFF] px-3 py-2.5 text-sm font-semibold text-[#071B4D]"><Icon className="w-4 h-4 text-[#2563EB]" />{l as string}<ChevronRight className="w-4 h-4 text-slate-300 ml-auto" /></Link>
+                return <Link key={l as string} href={h as string} className="flex items-center gap-2 rounded-xl border border-[#EEF3FB] hover:bg-[#F8FBFF] px-3 py-2.5 text-sm font-semibold text-[#071B4D]"><Icon className="w-4 h-4 text-[var(--brand)]" />{l as string}<ChevronRight className="w-4 h-4 text-slate-300 ml-auto" /></Link>
               })}
             </div>
           </PortalSectionCard>

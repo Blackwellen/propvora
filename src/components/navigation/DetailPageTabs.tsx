@@ -74,9 +74,9 @@ export default function DetailPageTabs({
               tabIndex={active ? 0 : -1}
               onClick={() => onChange(tab.id)}
               className={cn(
-                "flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold whitespace-nowrap transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 motion-reduce:transition-none",
+                "flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold whitespace-nowrap transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 motion-reduce:transition-none",
                 active
-                  ? "bg-white text-[#2563EB] shadow-sm"
+                  ? "bg-white text-[var(--brand)] shadow-sm"
                   : "text-slate-500 hover:text-slate-800"
               )}
             >
@@ -86,7 +86,7 @@ export default function DetailPageTabs({
                 <span
                   className={cn(
                     "ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold tabular-nums",
-                    active ? "bg-[#2563EB] text-white" : "bg-slate-200 text-slate-600"
+                    active ? "bg-[var(--brand)] text-white" : "bg-slate-200 text-slate-600"
                   )}
                 >
                   {tab.badge}

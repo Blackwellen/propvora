@@ -105,13 +105,13 @@ const STATUS_TABS: StatusFilter[] = ["All", "Draft", "Sent", "Partially Signed",
 
 const statusStyle: Record<AgreementStatus, string> = {
   "Draft":            "bg-slate-50 text-slate-700 border-slate-200",
-  "Sent":             "bg-blue-50 text-blue-700 border-blue-200",
+  "Sent":             "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",
   "Partially Signed": "bg-amber-50 text-amber-700 border-amber-200",
   "Fully Signed":     "bg-green-50 text-green-700 border-green-200",
   "Expired":          "bg-red-50 text-red-700 border-red-200",
 }
 
-const avatarBg = ["bg-blue-100 text-blue-700", "bg-green-100 text-green-700", "bg-purple-100 text-purple-700", "bg-amber-100 text-amber-700"]
+const avatarBg = ["bg-[var(--color-brand-100)] text-[var(--brand)]", "bg-green-100 text-green-700", "bg-purple-100 text-purple-700", "bg-amber-100 text-amber-700"]
 
 function getInitials(name: string) {
   return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
@@ -168,7 +168,7 @@ export default function AgreementsPage() {
           <h1 className="text-lg font-semibold text-slate-900">Tenancy Agreements</h1>
           <p className="text-[13px] text-slate-500 mt-0.5">{agreements.length} agreements · {agreements.filter((a) => a.status === "Partially Signed" || a.status === "Sent").length} awaiting signature</p>
         </div>
-        <button className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+        <button className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
           <Plus className="w-3.5 h-3.5" />
           Create Agreement
         </button>
@@ -184,7 +184,7 @@ export default function AgreementsPage() {
               className={cn(
                 "px-4 py-3 text-[13px] font-medium border-b-2 -mb-px transition-all duration-150 whitespace-nowrap",
                 activeTab === tab
-                  ? "border-[#2563EB] text-[#2563EB]"
+                  ? "border-[var(--brand)] text-[var(--brand)]"
                   : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300",
               )}
             >

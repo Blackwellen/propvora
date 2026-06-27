@@ -15,7 +15,7 @@ import { useWorkspace } from "@/hooks/useWorkspace"
 
 // ─── Avatar helpers ─────────────────────────────────────────────────────────
 const AVATAR_BG = [
-  "bg-blue-500","bg-emerald-500","bg-violet-500","bg-amber-500",
+  "bg-[var(--brand)]","bg-emerald-500","bg-violet-500","bg-amber-500",
   "bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500",
 ]
 function avatarBg(name: string): string {
@@ -71,7 +71,7 @@ interface EventConfig {
 }
 
 const EVENT_CONFIG: Record<EventType, EventConfig> = {
-  message:  { icon: MessageSquare, iconBg: "bg-blue-100",    iconColor: "text-blue-600",    chipCls: "bg-blue-100 text-blue-700" },
+  message:  { icon: MessageSquare, iconBg: "bg-[var(--color-brand-100)]",    iconColor: "text-[var(--brand)]",    chipCls: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   payment:  { icon: CheckCircle2,  iconBg: "bg-emerald-100", iconColor: "text-emerald-600", chipCls: "bg-emerald-100 text-emerald-700" },
   document: { icon: FileText,      iconBg: "bg-purple-100",  iconColor: "text-purple-600",  chipCls: "bg-purple-100 text-purple-700" },
   task:     { icon: Clock,         iconBg: "bg-amber-100",   iconColor: "text-amber-600",   chipCls: "bg-amber-100 text-amber-700" },
@@ -158,7 +158,7 @@ function EventRow({ event, isLast }: { event: TimelineEvent; isLast: boolean }) 
               </div>
               <Link
                 href={`/property-manager/contacts/${event.contactId}`}
-                className="text-sm font-semibold text-slate-900 hover:text-blue-600 transition-colors"
+                className="text-sm font-semibold text-slate-900 hover:text-[var(--brand)] transition-colors"
               >
                 {event.contactName}
               </Link>
@@ -259,7 +259,7 @@ function BarChart({ events }: { events: TimelineEvent[] }) {
       {bars.map((bar) => (
         <div key={bar.label} className="flex-1 flex flex-col items-center gap-1">
           <div
-            className="w-full bg-blue-500 rounded-t-sm"
+            className="w-full bg-[var(--brand)] rounded-t-sm"
             style={{ height: `${(bar.value / max) * 100}%` }}
           />
           <span className="text-[9px] text-slate-400">{bar.label}</span>
@@ -326,7 +326,7 @@ function RightRail({ events }: { events: TimelineEvent[] }) {
                 {initials(c.name)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-slate-800 group-hover:text-blue-600 transition-colors truncate">{c.name}</p>
+                <p className="text-xs font-semibold text-slate-800 group-hover:text-[var(--brand)] transition-colors truncate">{c.name}</p>
                 <p className="text-[10px] text-slate-400">{c.count} events</p>
               </div>
             </Link>
@@ -489,10 +489,10 @@ export default function TimelinePage() {
             placeholder="Search events..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-52 transition-all"
+            className="pl-8 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] w-52 transition-all"
           />
           {search && (
-            <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded">
+            <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 rounded">
               <X className="w-3.5 h-3.5" />
             </button>
           )}
@@ -506,7 +506,7 @@ export default function TimelinePage() {
               onClick={() => setEventFilter(chip.key)}
               className={cn(
                 "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
-                eventFilter === chip.key ? "bg-blue-600 text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                eventFilter === chip.key ? "bg-[var(--brand)] text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               )}
             >
               {chip.label}
@@ -523,7 +523,7 @@ export default function TimelinePage() {
             aria-haspopup="menu"
             aria-expanded={contactDropOpen}
             aria-label="Filter by contact"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors min-w-[140px] justify-between shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors min-w-[140px] justify-between shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
           >
             <span className="truncate">{selectedContactName}</span>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -539,7 +539,7 @@ export default function TimelinePage() {
                 <button
                   role="menuitem"
                   onClick={() => { setContactFilter("all"); setContactDropOpen(false) }}
-                  className={cn("w-full text-left px-3 py-2 text-xs transition-colors", contactFilter === "all" ? "text-blue-600 font-semibold bg-blue-50" : "text-slate-700 hover:bg-slate-50")}
+                  className={cn("w-full text-left px-3 py-2 text-xs transition-colors", contactFilter === "all" ? "text-[var(--brand)] font-semibold bg-[var(--brand-soft)]" : "text-slate-700 hover:bg-slate-50")}
                 >
                   All Contacts
                 </button>
@@ -548,7 +548,7 @@ export default function TimelinePage() {
                     key={c.id}
                     role="menuitem"
                     onClick={() => { setContactFilter(c.id); setContactDropOpen(false) }}
-                    className={cn("w-full text-left px-3 py-2 text-xs transition-colors", contactFilter === c.id ? "text-blue-600 font-semibold bg-blue-50" : "text-slate-700 hover:bg-slate-50")}
+                    className={cn("w-full text-left px-3 py-2 text-xs transition-colors", contactFilter === c.id ? "text-[var(--brand)] font-semibold bg-[var(--brand-soft)]" : "text-slate-700 hover:bg-slate-50")}
                   >
                     {c.name}
                   </button>
@@ -563,7 +563,7 @@ export default function TimelinePage() {
                 <button
                   role="menuitem"
                   onClick={() => { setContactFilter("all"); setContactDropOpen(false) }}
-                  className={cn("flex items-center justify-between w-full text-left px-3 min-h-[48px] text-[15px] rounded-xl transition-colors", contactFilter === "all" ? "text-blue-600 font-semibold bg-blue-50" : "text-slate-700 hover:bg-slate-50")}
+                  className={cn("flex items-center justify-between w-full text-left px-3 min-h-[48px] text-[15px] rounded-xl transition-colors", contactFilter === "all" ? "text-[var(--brand)] font-semibold bg-[var(--brand-soft)]" : "text-slate-700 hover:bg-slate-50")}
                 >
                   All Contacts
                 </button>
@@ -572,7 +572,7 @@ export default function TimelinePage() {
                     key={c.id}
                     role="menuitem"
                     onClick={() => { setContactFilter(c.id); setContactDropOpen(false) }}
-                    className={cn("flex items-center justify-between w-full text-left px-3 min-h-[48px] text-[15px] rounded-xl transition-colors", contactFilter === c.id ? "text-blue-600 font-semibold bg-blue-50" : "text-slate-700 hover:bg-slate-50")}
+                    className={cn("flex items-center justify-between w-full text-left px-3 min-h-[48px] text-[15px] rounded-xl transition-colors", contactFilter === c.id ? "text-[var(--brand)] font-semibold bg-[var(--brand-soft)]" : "text-slate-700 hover:bg-slate-50")}
                   >
                     {c.name}
                   </button>
@@ -590,7 +590,7 @@ export default function TimelinePage() {
           {loadingEvents ? (
             <div className="py-20 text-center rounded-2xl border border-dashed border-slate-200 bg-white">
               <div className="flex items-center justify-center gap-2 text-slate-400">
-                <div className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-blue-500 animate-spin" />
+                <div className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-[var(--brand)] animate-spin" />
                 <span className="text-sm">Loading timeline…</span>
               </div>
             </div>
@@ -603,7 +603,7 @@ export default function TimelinePage() {
               {allEvents.length > 0 && (
                 <button
                   onClick={() => { setSearch(""); setEventFilter("all"); setContactFilter("all") }}
-                  className="mt-2 text-xs text-blue-600 hover:underline"
+                  className="mt-2 text-xs text-[var(--brand)] hover:underline"
                 >
                   Clear filters
                 </button>

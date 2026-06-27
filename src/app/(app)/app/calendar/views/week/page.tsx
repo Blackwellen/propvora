@@ -148,9 +148,9 @@ export default function CalendarWeekPage() {
         <CalendarViewsSwitcher />
         <div className="ml-auto flex items-center gap-2">
           <button onClick={prevWeek} className="text-[12px] px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors">‹ Prev</button>
-          <button onClick={thisWeek} className="text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium">This week</button>
+          <button onClick={thisWeek} className="text-[12px] px-3 py-1.5 rounded-md bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors font-medium">This week</button>
           <button onClick={nextWeek} className="text-[12px] px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors">Next ›</button>
-          <Link href={sectionLink("/property-manager/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-medium">
+          <Link href={sectionLink("/property-manager/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] font-medium">
             <Plus className="w-3.5 h-3.5" />
             New Event
           </Link>
@@ -173,15 +173,15 @@ export default function CalendarWeekPage() {
                 const isToday = isSameDay(day, today)
                 return (
                   <div key={i} className="flex-1 py-2.5 flex flex-col items-center gap-0.5 border-l border-slate-200">
-                    <span className={cn("text-[10px] font-semibold uppercase tracking-widest", isToday ? "text-blue-600" : "text-slate-400")}>{DAY_LABELS[i]}</span>
-                    <span className={cn("text-[13px] font-bold w-7 h-7 flex items-center justify-center rounded-full", isToday ? "bg-blue-600 text-white" : "text-slate-700")}>{day.getDate()}</span>
+                    <span className={cn("text-[10px] font-semibold uppercase tracking-widest", isToday ? "text-[var(--brand)]" : "text-slate-400")}>{DAY_LABELS[i]}</span>
+                    <span className={cn("text-[13px] font-bold w-7 h-7 flex items-center justify-center rounded-full", isToday ? "bg-[var(--brand)] text-white" : "text-slate-700")}>{day.getDate()}</span>
                   </div>
                 )
               })}
             </div>
 
             {/* All-day strip */}
-            <div className="flex border-b border-slate-100 bg-blue-50/20 min-h-[40px]">
+            <div className="flex border-b border-slate-100 bg-[var(--brand-soft)]/20 min-h-[40px]">
               <div className="w-14 shrink-0 flex items-center justify-center border-r border-slate-100">
                 <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider text-center leading-tight">All<br />day</span>
               </div>
@@ -209,7 +209,7 @@ export default function CalendarWeekPage() {
               {days.map((day, dayIdx) => {
                 const isToday = isSameDay(day, today)
                 return (
-                  <div key={dayIdx} className={cn("flex-1 relative border-l border-slate-100", isToday && "bg-blue-50/25")} style={{ height: `${gridH}px` }}>
+                  <div key={dayIdx} className={cn("flex-1 relative border-l border-slate-100", isToday && "bg-[var(--brand-soft)]/25")} style={{ height: `${gridH}px` }}>
                     {hours.map((h) => (
                       <div key={h} className="absolute left-0 right-0 border-t border-slate-100" style={{ top: `${(h - GRID_START) * PX_PER_HR}px` }} />
                     ))}
@@ -228,7 +228,7 @@ export default function CalendarWeekPage() {
             <div className="grid grid-cols-3 gap-3">
               {[
                 { label: 'Items', value: weekItems.length, cls: 'text-slate-800' },
-                { label: 'All-day', value: allDayTotal, cls: 'text-blue-600' },
+                { label: 'All-day', value: allDayTotal, cls: 'text-[var(--brand)]' },
                 { label: 'Overdue', value: overdue.length, cls: 'text-red-600' },
               ].map((s) => (
                 <div key={s.label} className="text-center">
@@ -262,7 +262,7 @@ export default function CalendarWeekPage() {
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
             <h3 className="text-[12px] font-semibold text-slate-500 uppercase tracking-wide mb-3">Quick Links</h3>
             <div className="flex flex-col gap-2">
-              <Link href={sectionLink("/property-manager/calendar/events/new")} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-blue-600 text-white text-[12px] font-semibold hover:bg-blue-700 transition-colors">
+              <Link href={sectionLink("/property-manager/calendar/events/new")} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-[var(--brand)] text-white text-[12px] font-semibold hover:bg-[var(--brand-strong)] transition-colors">
                 <Plus className="w-3.5 h-3.5" />New Event
               </Link>
               <Link href={sectionLink("/property-manager/calendar/reminders/new")} className="flex items-center gap-2 w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-[12px] font-medium hover:bg-slate-50 transition-colors">
@@ -276,7 +276,7 @@ export default function CalendarWeekPage() {
 
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Clock className="w-4 h-4 text-blue-500" />
+              <Clock className="w-4 h-4 text-[var(--brand)]" />
               <h3 className="text-[12px] font-semibold text-slate-700">Today</h3>
             </div>
             {todayItems.length === 0 ? (
@@ -287,7 +287,7 @@ export default function CalendarWeekPage() {
                   <Link key={it.key} href={it.href} className="flex items-start gap-2 group">
                     <div className={cn("w-2 h-2 rounded-full mt-1.5 shrink-0", SOURCE_META[it.source].dot)} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-semibold text-slate-700 leading-tight truncate group-hover:text-blue-700">{it.title}</p>
+                      <p className="text-[11px] font-semibold text-slate-700 leading-tight truncate group-hover:text-[var(--brand)]">{it.title}</p>
                       <p className="text-[10px] text-slate-400">{it.allDay ? "All day" : fmtTime(it.start)}</p>
                     </div>
                     <ChevronRight className="w-3 h-3 text-slate-300 mt-1 shrink-0" />

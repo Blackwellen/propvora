@@ -122,7 +122,7 @@ function BusinessVerificationInner() {
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2">Business verification</p>
         <div className="flex items-center gap-2">
-          <span className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center"><ShieldCheck className="w-4 h-4" /></span>
+          <span className="w-9 h-9 rounded-xl bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center"><ShieldCheck className="w-4 h-4" /></span>
           <div><p className="text-sm font-semibold text-slate-900">{legalName || "Your business"}</p><p className="text-xs text-slate-400">{companyNumber || "Reg. number"}</p></div>
         </div>
       </div>
@@ -177,7 +177,7 @@ function BusinessVerificationInner() {
           <Field label="Proof type"><select className={inputClass} value={proofType} onChange={(e) => setProofType(e.target.value)}>{PROOF_TYPES.map((t) => <option key={t}>{t}</option>)}</select></Field>
           <input ref={fileRef} type="file" hidden accept="image/*,application/pdf" onChange={(e) => onFile(e.target.files?.[0])} />
           {!fileName ? (
-            <button onClick={() => fileRef.current?.click()} className="w-full rounded-2xl border-2 border-dashed border-slate-300 hover:border-[#2563EB] hover:bg-blue-50/30 transition-colors py-12 flex flex-col items-center gap-2">
+            <button onClick={() => fileRef.current?.click()} className="w-full rounded-2xl border-2 border-dashed border-slate-300 hover:border-[#2563EB] hover:bg-[var(--brand-soft)]/30 transition-colors py-12 flex flex-col items-center gap-2">
               <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center"><Upload className="w-6 h-6" /></div>
               <p className="text-sm font-semibold text-slate-700">Drag &amp; drop or click to upload</p>
               <p className="text-xs text-slate-400">PDF, JPG or PNG · upload-only, no links</p>
@@ -205,7 +205,7 @@ function BusinessVerificationInner() {
             <Row k="Proof type" v={proofType} />
             <Row k="Document" v={fileName ?? "Not uploaded"} />
           </div>
-          <div className="rounded-xl bg-blue-50/60 border border-blue-100 px-4 py-3 text-xs text-blue-700">Our team typically reviews business verification within 1–2 working days. You&apos;ll be notified of the outcome.</div>
+          <div className="rounded-xl bg-[var(--brand-soft)]/60 border border-[var(--color-brand-100)] px-4 py-3 text-xs text-[var(--brand-strong)]">Our team typically reviews business verification within 1–2 working days. You&apos;ll be notified of the outcome.</div>
           {error && <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-xs text-red-700">{error}</div>}
         </div>
       )}
@@ -213,7 +213,7 @@ function BusinessVerificationInner() {
   )
 }
 
-const inputClass = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+const inputClass = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
 
 function Field({ label, children, required }: { label: string; children: React.ReactNode; required?: boolean }) {
   return <label className="block"><span className="text-sm font-medium text-slate-700">{label}{required && <span className="text-red-500 ml-0.5">*</span>}</span><div className="mt-1.5">{children}</div></label>

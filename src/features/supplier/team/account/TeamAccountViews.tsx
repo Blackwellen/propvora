@@ -18,7 +18,7 @@ import { shortDate } from "@/components/supplier-workspace/format"
 import { useSupplierPlan } from "@/components/supplier-workspace/useSupplierPlan"
 
 function Mini({ label, value, tone = "slate" }: { label: string; value: string; tone?: "blue" | "emerald" | "amber" | "slate" }) {
-  const c = tone === "blue" ? "text-[#2563EB]" : tone === "emerald" ? "text-emerald-600" : tone === "amber" ? "text-amber-600" : "text-slate-900"
+  const c = tone === "blue" ? "text-[var(--brand)]" : tone === "emerald" ? "text-emerald-600" : tone === "amber" ? "text-amber-600" : "text-slate-900"
   return <SupplierCard className="p-3.5"><span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span><p className={cn("text-lg font-bold mt-1", c)}>{value}</p></SupplierCard>
 }
 
@@ -50,7 +50,7 @@ export function TeamRolesBilling() {
       </div>
 
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex gap-1.5">{([["team", "Team"], ["roles", "Roles"], ["billing", "Billing"]] as const).map(([k, l]) => <button key={k} onClick={() => setView(k)} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium", view === k ? "bg-[#2563EB] text-white" : "bg-white border border-slate-200 text-slate-600")}>{l}</button>)}</div>
+        <div className="flex gap-1.5">{([["team", "Team"], ["roles", "Roles"], ["billing", "Billing"]] as const).map(([k, l]) => <button key={k} onClick={() => setView(k)} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium", view === k ? "bg-[var(--brand)] text-white" : "bg-white border border-slate-200 text-slate-600")}>{l}</button>)}</div>
         {view === "team" && <SupplierButton onClick={() => setToast("Invite sent.")}><UserPlus className="w-4 h-4" /> Invite member</SupplierButton>}
         {view === "billing" && <SupplierButton variant="outline" onClick={() => setToast("Opening billing portal…")}><CreditCard className="w-4 h-4" /> Manage billing</SupplierButton>}
       </div>
@@ -132,7 +132,7 @@ export function EnterpriseSettings() {
             <div><h2 className="text-sm font-semibold text-slate-900 flex items-center gap-1.5"><Eye className="w-4 h-4 text-slate-400" /> Marketplace visibility</h2><p className="text-xs text-slate-400 mt-0.5">{visible ? "Your listing is live to customers" : "Hidden from the marketplace"}</p></div>
             <button onClick={() => { setVisible((v) => !v); setToast(visible ? "Listing hidden." : "Listing live.") }} role="switch" aria-checked={visible} className={cn("relative w-12 h-7 rounded-full transition-colors shrink-0", visible ? "bg-emerald-500" : "bg-slate-300")}><span className={cn("absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-transform", visible && "translate-x-5")} /></button>
           </div>
-          <a href="/marketplace/suppliers/morgan-heating-plumbing" target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-blue-600">Preview public listing <ChevronRight className="w-3.5 h-3.5" /></a>
+          <a href="/marketplace/suppliers/morgan-heating-plumbing" target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)]">Preview public listing <ChevronRight className="w-3.5 h-3.5" /></a>
         </SupplierCard>
 
         {/* Security overview */}

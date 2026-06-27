@@ -16,7 +16,7 @@ interface ContactsKpiCardProps {
 
 // Delegates to the canonical StatCard for one consistent KPI style app-wide.
 export default function ContactsKpiCard({
-  label, value, trend, trendUp, icon, accentColor = "bg-blue-50", alert, className = "",
+  label, value, trend, trendUp, icon, accentColor = "bg-[var(--brand-soft)]", alert, className = "",
 }: ContactsKpiCardProps) {
   return (
     <StatCard

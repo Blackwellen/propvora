@@ -144,7 +144,7 @@ export default function TenantRentPage() {
         <>
           {/* Rent at a glance */}
           {primary?.rent_amount != null && (
-            <Card className="rounded-2xl border-blue-100 bg-[#EFF6FF]">
+            <Card className="rounded-2xl border-[var(--color-brand-100)] bg-[var(--brand-soft)]">
               <CardContent className="py-4 flex items-center justify-between gap-3 flex-wrap">
                 <div>
                   <p className="text-xs font-medium text-[#1e40af]/80">Your rent</p>
@@ -180,10 +180,10 @@ export default function TenantRentPage() {
               <p className="text-xs font-medium text-slate-700 mt-0.5">Outstanding</p>
             </Card>
             <Card className="p-4 rounded-2xl border-slate-200">
-              <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] flex items-center justify-center mb-3">
-                <CalendarClock className="w-4 h-4 text-[#2563EB]" />
+              <div className="w-9 h-9 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center mb-3">
+                <CalendarClock className="w-4 h-4 text-[var(--brand)]" />
               </div>
-              <p className="text-sm font-bold text-[#2563EB]">{nextDue ? formatDate(nextDue.date) : "—"}</p>
+              <p className="text-sm font-bold text-[var(--brand)]">{nextDue ? formatDate(nextDue.date) : "—"}</p>
               <p className="text-xs font-medium text-slate-700 mt-0.5">Next Due Date</p>
             </Card>
           </div>
@@ -197,7 +197,7 @@ export default function TenantRentPage() {
                 className={cn(
                   "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
                   statusFilter === s
-                    ? "bg-[#2563EB] text-white"
+                    ? "bg-[var(--brand)] text-white"
                     : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
                 )}
               >
@@ -262,8 +262,8 @@ export default function TenantRentPage() {
           </Card>
           </ResponsiveTable>
 
-          <div className="rounded-2xl bg-[#EFF6FF] border border-blue-100 p-3 flex items-start gap-2">
-            <PoundSterling className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0" />
+          <div className="rounded-2xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)] p-3 flex items-start gap-2">
+            <PoundSterling className="w-4 h-4 text-[var(--brand)] mt-0.5 shrink-0" />
             <p className="text-xs text-[#1e40af]">
               This shows rent due and paid against your own tenancy only. Other tenants&apos; data and your
               managing agent&apos;s internal accounting are never shown here.

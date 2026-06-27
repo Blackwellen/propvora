@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getUserPreferences, saveUserPreferences } from "@/lib/actions/settings"
+import { createClient } from "@/lib/supabase/client"
 
 type PrefsState = {
   workReminders: boolean
@@ -38,10 +39,14 @@ function ToggleRow({
         <p className="text-[11.5px] text-slate-400">{desc}</p>
       </div>
       <button
+        type="button"
+        role="switch"
+        aria-checked={enabled}
+        aria-label={label}
         onClick={onToggle}
         className={cn(
-          "w-10 h-6 rounded-full transition-colors relative shrink-0",
-          enabled ? "bg-[#2563EB]" : "bg-slate-200"
+          "w-10 h-6 rounded-full transition-colors relative shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2",
+          enabled ? "bg-[var(--brand)]" : "bg-slate-200"
         )}
       >
         <span
@@ -76,6 +81,11 @@ export default function NotificationsPage() {
   const [quietEnd, setQuietEnd] = useState("08:00")
   const [unavailable, setUnavailable] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [email, setEmail] = useState("")
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => setEmail(data.user?.email ?? ""))
+  }, [])
 
   useEffect(() => {
     getUserPreferences().then(({ prefs: p, unavailable }) => {
@@ -133,7 +143,7 @@ export default function NotificationsPage() {
         />
         <ToggleRow
           label="Email notifications"
-          desc="Send alerts to jamahlthomas1996@gmail.com"
+          desc={email ? `Send alerts to ${email}` : "Send alerts to your account email"}
           enabled={prefs.channelEmail}
           onToggle={() => toggle("channelEmail")}
         />
@@ -213,7 +223,7 @@ export default function NotificationsPage() {
               className={cn(
                 "p-3.5 rounded-xl border-2 text-[12px] font-semibold capitalize transition-all",
                 prefs.digest === opt
-                  ? "border-[#2563EB] bg-blue-50 text-[#2563EB]"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
                   : "border-slate-200 text-slate-600 hover:border-slate-300"
               )}
             >
@@ -237,7 +247,7 @@ export default function NotificationsPage() {
               type="time"
               value={quietStart}
               onChange={e => { setQuietStart(e.target.value); setIsDirty(true) }}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
             />
           </div>
           <div>
@@ -247,7 +257,7 @@ export default function NotificationsPage() {
               type="time"
               value={quietEnd}
               onChange={e => { setQuietEnd(e.target.value); setIsDirty(true) }}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
             />
           </div>
         </div>
@@ -270,7 +280,7 @@ export default function NotificationsPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-60 flex items-center gap-2"
+              className="px-5 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60 flex items-center gap-2"
             >
               {saving && (
                 <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />

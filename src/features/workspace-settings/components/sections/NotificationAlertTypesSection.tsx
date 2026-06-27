@@ -22,14 +22,14 @@ export interface AlertToggles {
 }
 
 const ALERT_ROWS: { key: keyof AlertToggles; label: string; desc: string; icon: LucideIcon; tint: string }[] = [
-  { key: "workReminders",       label: "Work reminders",               desc: "Due dates and task reminders for maintenance and inspections",    icon: Wrench,        tint: "bg-blue-50 text-blue-600"      },
+  { key: "workReminders",       label: "Work reminders",               desc: "Due dates and task reminders for maintenance and inspections",    icon: Wrench,        tint: "bg-[var(--brand-soft)] text-[var(--brand)]"      },
   { key: "supplierReplies",     label: "Supplier reply notifications", desc: "When a supplier responds to a message or quote request",          icon: MessageSquare, tint: "bg-violet-50 text-violet-600"  },
   { key: "invoiceDue",          label: "Invoice due alerts",           desc: "Alerts when tenant or supplier invoices are approaching due date", icon: Receipt,       tint: "bg-amber-50 text-amber-600"    },
   { key: "arrears",             label: "Arrears alerts",               desc: "When rent payments are overdue or a tenant falls into arrears",    icon: AlertTriangle, tint: "bg-red-50 text-red-600"        },
   { key: "complianceExpiry",    label: "Compliance expiry alerts",     desc: "Gas safety, EPC, EICR and other certificates nearing expiry",     icon: ShieldCheck,   tint: "bg-emerald-50 text-emerald-600" },
   { key: "planningOfferExpiry", label: "Planning offer expiry",        desc: "When planning or legal offer deadlines are approaching",          icon: CalendarClock, tint: "bg-orange-50 text-orange-600"  },
   { key: "aiApproval",          label: "AI approval notifications",    desc: "When AI actions are queued and awaiting your review",             icon: Sparkles,      tint: "bg-violet-50 text-violet-600"  },
-  { key: "teamInvite",          label: "Team invite notifications",    desc: "When someone accepts or declines a workspace invite",             icon: UserPlus,      tint: "bg-blue-50 text-blue-600"      },
+  { key: "teamInvite",          label: "Team invite notifications",    desc: "When someone accepts or declines a workspace invite",             icon: UserPlus,      tint: "bg-[var(--brand-soft)] text-[var(--brand)]"      },
   { key: "securityAlerts",      label: "Security alerts",              desc: "Suspicious login attempts, MFA changes, and access events",       icon: ShieldAlert,   tint: "bg-red-50 text-red-600"        },
   { key: "billingAlerts",       label: "Billing alerts",               desc: "Payment failures, subscription changes and invoice notices",      icon: CreditCard,    tint: "bg-emerald-50 text-emerald-600" },
 ]
@@ -53,7 +53,7 @@ function ToggleRow({ label, desc, enabled, onToggle, icon: Icon, tint }: {
         aria-label={label}
         className={cn(
           "w-10 h-6 rounded-full transition-colors shrink-0 relative",
-          enabled ? "bg-[#2563EB]" : "bg-slate-200"
+          enabled ? "bg-[var(--brand)]" : "bg-slate-200"
         )}
       >
         <span className={cn(
@@ -85,7 +85,7 @@ export function NotificationAlertTypesSection({
         <div className="flex gap-2">
           <button
             onClick={onAllOn}
-            className="text-[11.5px] font-semibold text-[#2563EB] hover:text-[#1d4ed8] transition-colors"
+            className="text-[11.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
           >
             All on
           </button>

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils"
 import type { BookingMode } from "@/lib/booking/booking-listings"
 
 const inputCls =
-  "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+  "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
 
 interface Property {
   id: string
@@ -58,7 +58,7 @@ export function WizardPropertyStep({
               className={cn(
                 "flex-1 h-10 rounded-xl text-sm font-medium capitalize transition-colors",
                 bookingMode === m
-                  ? "bg-[#2563EB] text-white"
+                  ? "bg-[var(--brand)] text-white"
                   : "bg-white text-slate-600 border border-slate-200"
               )}
             >

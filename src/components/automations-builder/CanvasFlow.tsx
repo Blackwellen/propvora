@@ -18,7 +18,7 @@ export type CanvasSelection =
   | { kind: "action" }
 
 const NODE_META = {
-  trigger: { icon: Zap, label: "Trigger", cls: "from-blue-500 to-blue-600", ring: "ring-blue-200", chip: "bg-blue-50 text-blue-700" },
+  trigger: { icon: Zap, label: "Trigger", cls: "from-[var(--brand)] to-[var(--brand)]", ring: "ring-[var(--color-brand-100)]", chip: "bg-[var(--brand-soft)] text-[var(--brand)]" },
   condition: { icon: Filter, label: "Condition", cls: "from-amber-500 to-amber-600", ring: "ring-amber-200", chip: "bg-amber-50 text-amber-700" },
   action: { icon: Sparkles, label: "Action", cls: "from-violet-500 to-violet-600", ring: "ring-violet-200", chip: "bg-violet-50 text-violet-700" },
 } as const
@@ -145,7 +145,7 @@ export function DesktopCanvas({
             <button
               type="button"
               onClick={onAddCondition}
-              className="flex h-[104px] w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-slate-300 text-slate-400 transition hover:border-blue-300 hover:text-blue-500"
+              className="flex h-[104px] w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-slate-300 text-slate-400 transition hover:border-[var(--color-brand-300)] hover:text-[var(--brand)]"
               aria-label="Add condition"
             >
               <Plus className="h-4 w-4" />
@@ -272,7 +272,7 @@ export function MobileStepList({
           <button
             type="button"
             onClick={onAddCondition}
-            className="flex w-full items-center justify-center gap-1.5 rounded-2xl border border-dashed border-slate-300 bg-white/60 py-3 text-xs font-medium text-slate-500 hover:border-blue-300 hover:text-blue-600"
+            className="flex w-full items-center justify-center gap-1.5 rounded-2xl border border-dashed border-slate-300 bg-white/60 py-3 text-xs font-medium text-slate-500 hover:border-[var(--color-brand-300)] hover:text-[var(--brand)]"
           >
             <Plus className="h-4 w-4" /> Add condition
           </button>

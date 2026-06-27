@@ -91,7 +91,7 @@ interface AddIncomeModalForm {
 
 const STATUS_CONFIG: Record<IncomeStatus, { label: string; className: string }> = {
   received: { label: "Received", className: "bg-emerald-100 text-emerald-700" },
-  expected: { label: "Expected", className: "bg-blue-100 text-blue-700" },
+  expected: { label: "Expected", className: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   overdue: { label: "Overdue", className: "bg-red-100 text-red-700" },
   planned: { label: "Planned", className: "bg-amber-100 text-amber-700" },
   reconciled: { label: "Reconciled", className: "bg-violet-100 text-violet-700" },
@@ -210,7 +210,7 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
           <button
             onClick={onClose}
             aria-label="Close"
-            className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
           >
             <X className="w-4 h-4 text-slate-500" />
           </button>
@@ -220,7 +220,7 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
             <div className="flex flex-col gap-1">
               <label htmlFor="inc-income-type" className="text-xs font-medium text-slate-600">Income Type</label>
               <select id="inc-income-type" name="income_type" value={form.income_type} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
                 <option value="">Select type…</option>
                 {INCOME_TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
@@ -228,7 +228,7 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
             <div className="flex flex-col gap-1">
               <label htmlFor="inc-property" className="text-xs font-medium text-slate-600">Property</label>
               <select id="inc-property" name="property" value={form.property} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
                 <option value="">Select property…</option>
                 {properties.map((p) => (
                   <option key={p.id} value={p.id}>{p.name || p.address_line1 || "Unnamed property"}</option>
@@ -241,12 +241,12 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
               <label htmlFor="inc-amount" className="text-xs font-medium text-slate-600">Amount (£)</label>
               <input id="inc-amount" name="amount" type="number" value={form.amount} onChange={handleChange}
                 placeholder="0.00"
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]" />
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="inc-status" className="text-xs font-medium text-slate-600">Status</label>
               <select id="inc-status" name="status" value={form.status} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
                 <option value="">Select status…</option>
                 {STATUS_OPTIONS.map((s) => <option key={s} value={s} className="capitalize">{s}</option>)}
               </select>
@@ -256,18 +256,18 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
             <label htmlFor="inc-description" className="text-xs font-medium text-slate-600">Description</label>
             <input id="inc-description" name="description" type="text" value={form.description} onChange={handleChange}
               placeholder="e.g. Monthly Rent – Jun 2026"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
               <label htmlFor="inc-expected-date" className="text-xs font-medium text-slate-600">Expected Date</label>
               <input id="inc-expected-date" name="expected_date" type="date" value={form.expected_date} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]" />
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="inc-received-date" className="text-xs font-medium text-slate-600">Received Date</label>
               <input id="inc-received-date" name="received_date" type="date" value={form.received_date} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]" />
             </div>
           </div>
         </div>
@@ -278,7 +278,7 @@ function AddIncomeModal({ onClose, workspaceId }: { onClose: () => void; workspa
             Cancel
           </button>
           <button onClick={handleSave} disabled={saving}
-            className="px-4 py-2 text-sm font-medium text-white bg-[#2563EB] hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-70">
+            className="px-4 py-2 text-sm font-medium text-white bg-[var(--brand)] hover:bg-[var(--brand-strong)] rounded-lg transition-colors disabled:opacity-70">
             {saving ? "Saving…" : "Save Income"}
           </button>
         </div>
@@ -460,7 +460,7 @@ export default function MoneyIncomePage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#2563EB] rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[var(--brand)] rounded-lg hover:bg-[var(--brand-strong)] transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               Add Income
@@ -512,8 +512,8 @@ export default function MoneyIncomePage() {
             label="Expected"
             value={fmtGBP(summary?.expected ?? 0)}
             icon={<Clock className="w-5 h-5" />}
-            iconBg="bg-blue-50"
-            iconColor="text-blue-600"
+            iconBg="bg-[var(--brand-soft)]"
+            iconColor="text-[var(--brand)]"
           />
           <MoneyKpiCard
             label="Overdue"
@@ -555,7 +555,7 @@ export default function MoneyIncomePage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search income..."
-                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
                   />
                 </div>
 
@@ -565,7 +565,7 @@ export default function MoneyIncomePage() {
                     onClick={() => setViewMode("table")}
                     aria-label="Table view"
                     aria-pressed={viewMode === "table"}
-                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
                       viewMode === "table" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                   >
                     <Table2 className="w-4 h-4" />
@@ -574,7 +574,7 @@ export default function MoneyIncomePage() {
                     onClick={() => setViewMode("cards")}
                     aria-label="Card view"
                     aria-pressed={viewMode === "cards"}
-                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
                       viewMode === "cards" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                   >
                     <LayoutGrid className="w-4 h-4" />
@@ -583,7 +583,7 @@ export default function MoneyIncomePage() {
                     onClick={() => setViewMode("calendar")}
                     aria-label="Calendar view"
                     aria-pressed={viewMode === "calendar"}
-                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
                       viewMode === "calendar" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                   >
                     <CalendarDays className="w-4 h-4" />
@@ -595,7 +595,7 @@ export default function MoneyIncomePage() {
                   aria-label="Filter by income type"
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
-                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
                 >
                   <option value="all">Type: All</option>
                   {INCOME_TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -604,7 +604,7 @@ export default function MoneyIncomePage() {
                   aria-label="Filter by status"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 capitalize"
+                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] capitalize"
                 >
                   <option value="all">Status: All</option>
                   {STATUS_OPTIONS.map((s) => <option key={s} value={s} className="capitalize">{s}</option>)}
@@ -613,7 +613,7 @@ export default function MoneyIncomePage() {
                   aria-label="Filter by property"
                   value={propertyFilter}
                   onChange={(e) => setPropertyFilter(e.target.value)}
-                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 max-w-[180px]"
+                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] max-w-[180px]"
                 >
                   <option value="all">Property: All</option>
                   {[...new Set(properties.map((p) => p.name || p.address_line1 || "Unnamed property"))].map((n) => (
@@ -650,7 +650,7 @@ export default function MoneyIncomePage() {
                             type="checkbox"
                             checked={allSelected}
                             onChange={toggleAll}
-                            className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                            className="rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]"
                           />
                         </th>
                         <th className="text-left p-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
@@ -709,7 +709,7 @@ export default function MoneyIncomePage() {
                             key={row.id}
                             className={cn(
                               "hover:bg-slate-50 transition-colors",
-                              selectedRows.has(row.id) && "bg-blue-50"
+                              selectedRows.has(row.id) && "bg-[var(--brand-soft)]"
                             )}
                           >
                             <td className="p-4">
@@ -717,7 +717,7 @@ export default function MoneyIncomePage() {
                                 type="checkbox"
                                 checked={selectedRows.has(row.id)}
                                 onChange={() => toggleRow(row.id)}
-                                className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                className="rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]"
                               />
                             </td>
                             <td className="p-4 text-xs text-slate-500 whitespace-nowrap">{row.date}</td>
@@ -728,8 +728,8 @@ export default function MoneyIncomePage() {
                             </td>
                             <td className="p-4">
                               <div className="flex items-center gap-2">
-                                <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                                  <span className="text-[10px] font-bold text-blue-700">
+                                <div className="w-7 h-7 rounded-full bg-[var(--color-brand-100)] flex items-center justify-center shrink-0">
+                                  <span className="text-[10px] font-bold text-[var(--brand)]">
                                     {row.contactInitials}
                                   </span>
                                 </div>
@@ -816,8 +816,8 @@ export default function MoneyIncomePage() {
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-                            <span className="text-[9px] font-bold text-blue-700">{row.contactInitials}</span>
+                          <div className="w-6 h-6 rounded-full bg-[var(--color-brand-100)] flex items-center justify-center">
+                            <span className="text-[9px] font-bold text-[var(--brand)]">{row.contactInitials}</span>
                           </div>
                           <span className="text-xs text-slate-600">{row.contactName}</span>
                         </div>
@@ -869,7 +869,7 @@ export default function MoneyIncomePage() {
               <div className="flex flex-col gap-2">
                 {[
                   { label: "Received", value: summary?.totalReceived ?? 0, color: "text-emerald-600", dot: "bg-emerald-500" },
-                  { label: "Expected", value: summary?.expected ?? 0, color: "text-blue-600", dot: "bg-blue-500" },
+                  { label: "Expected", value: summary?.expected ?? 0, color: "text-[var(--brand)]", dot: "bg-[var(--brand)]" },
                   { label: "Overdue", value: summary?.overdue ?? 0, color: "text-red-500", dot: "bg-red-500" },
                   { label: "Planned", value: summary?.planned ?? 0, color: "text-amber-600", dot: "bg-amber-500" },
                 ].map((row) => (

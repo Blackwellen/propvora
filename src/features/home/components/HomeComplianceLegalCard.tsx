@@ -87,7 +87,7 @@ export function HomeComplianceLegalCard({ items, legalEnabled = true }: HomeComp
         <div className="flex items-center gap-2">
           <Link
             href="/property-manager/compliance"
-            className="text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors"
+            className="text-[11px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
           >
             Compliance
           </Link>
@@ -96,7 +96,7 @@ export function HomeComplianceLegalCard({ items, legalEnabled = true }: HomeComp
               <span className="text-slate-200">·</span>
               <Link
                 href="/property-manager/legal"
-                className="text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                className="text-[11px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
               >
                 Legal
               </Link>
@@ -122,7 +122,7 @@ export function HomeComplianceLegalCard({ items, legalEnabled = true }: HomeComp
             >
               <StatusIcon status={item.status} />
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-medium text-slate-800 truncate group-hover:text-blue-600 transition-colors">
+                <p className="text-[12px] font-medium text-slate-800 truncate group-hover:text-[var(--brand)] transition-colors">
                   {item.title}
                 </p>
                 <p className="text-[11px] text-slate-400 mt-0.5">
@@ -146,11 +146,11 @@ export function HomeComplianceLegalCard({ items, legalEnabled = true }: HomeComp
       </div>
 
       <div className="pt-2 border-t border-slate-100 flex items-center gap-3">
-        <Link href="/property-manager/compliance" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/compliance" className="text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
           View compliance →
         </Link>
         {legalEnabled && (
-          <Link href="/property-manager/legal" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+          <Link href="/property-manager/legal" className="text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
             View legal →
           </Link>
         )}

@@ -89,7 +89,7 @@ export function SupplierPortalJobsTab({ jobs, base }: SupplierPortalJobsTabProps
               className={cn(
                 "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
                 statusFilter === s.key
-                  ? "bg-[#2563EB] text-white"
+                  ? "bg-[var(--brand)] text-white"
                   : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
               )}
             >

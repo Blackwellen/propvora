@@ -183,8 +183,8 @@ export default function ForecastsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 rounded-xl bg-blue-50 flex items-center justify-center">
-                  <div style={{ color: "var(--brand)" }}><TrendingUp className="w-3.5 h-3.5" /></div>
+                <div className="w-7 h-7 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+                  <div style={{ color: "#2563EB" }}><TrendingUp className="w-3.5 h-3.5" /></div>
                 </div>
                 <h3 className="text-sm font-semibold text-slate-900">12-Month Net Cashflow</h3>
               </div>

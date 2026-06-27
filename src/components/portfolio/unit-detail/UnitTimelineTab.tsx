@@ -28,7 +28,7 @@ export function UnitTimelineTab({ events, loaded }: { events: ActivityRow[]; loa
             {events.map((item) => (
               <div key={item.id} className="flex gap-4 pb-6 last:pb-0 relative">
                 <div className="flex-shrink-0 w-10 flex items-start pt-0.5 justify-center relative z-10">
-                  <div className="w-4 h-4 rounded-full border-2 border-white shadow-sm bg-blue-500" />
+                  <div className="w-4 h-4 rounded-full border-2 border-white shadow-sm bg-[var(--brand)]" />
                 </div>
                 <div className="flex-1 min-w-0 pt-0">
                   <div className="flex items-center gap-2 flex-wrap mb-0.5">

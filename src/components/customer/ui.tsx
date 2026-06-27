@@ -83,7 +83,7 @@ export function CustomerKpiCard({ kpi }: { kpi: CustomerKpi }) {
           <Icon className={cn("w-5 h-5", kpi.iconColor)} />
         </div>
         {kpi.href && (
-          <ChevronRight className="w-4 h-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-[#2563EB]" />
+          <ChevronRight className="w-4 h-4 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-[var(--brand)]" />
         )}
       </div>
       <div className="mt-3.5">
@@ -129,8 +129,8 @@ export function CustomerEmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center text-center px-6 py-14">
-      <div className="w-14 h-14 rounded-2xl bg-[#EFF6FF] flex items-center justify-center mb-4">
-        <Icon className="w-7 h-7 text-[#2563EB]" />
+      <div className="w-14 h-14 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center mb-4">
+        <Icon className="w-7 h-7 text-[var(--brand)]" />
       </div>
       <h3 className="text-base font-semibold text-slate-900">{title}</h3>
       <p className="mt-1.5 text-sm text-slate-500 max-w-sm text-pretty">{description}</p>
@@ -155,7 +155,7 @@ export function CustomerViewLink({ href, label }: { href: string; label: string 
   return (
     <Link
       href={href}
-      className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
+      className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] flex items-center gap-0.5"
     >
       {label} <ChevronRight className="w-3 h-3" />
     </Link>
@@ -165,7 +165,7 @@ export function CustomerViewLink({ href, label }: { href: string; label: string 
 /* ── Status badge ───────────────────────────────────────────────────────── */
 
 const TONE_CLASSES: Record<StatusTone, string> = {
-  blue: "bg-blue-50 text-blue-700",
+  blue: "bg-[var(--brand-soft)] text-[var(--brand)]",
   amber: "bg-amber-50 text-amber-700",
   emerald: "bg-emerald-50 text-emerald-700",
   red: "bg-red-50 text-red-700",
@@ -196,10 +196,10 @@ export function CustomerStatusBadge({
 }
 
 export const customerInputClass =
-  "w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+  "w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
 
 export const customerTextareaClass =
-  "w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] resize-y min-h-[88px]"
+  "w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] resize-y min-h-[88px]"
 
 /* ── Section header inside a card ───────────────────────────────────────── */
 

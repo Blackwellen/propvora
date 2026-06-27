@@ -122,7 +122,7 @@ export default function CalendarMonthPage() {
           actions={
             <Link
               href={sectionLink("/property-manager/calendar/events/new")}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
               New Event
@@ -148,14 +148,14 @@ export default function CalendarMonthPage() {
 
         <div className="hidden md:flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-1">
-            <button onClick={prevMonth} aria-label="Previous month" className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
+            <button onClick={prevMonth} aria-label="Previous month" className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40">
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button onClick={goToday} className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-[13px] font-semibold hover:bg-slate-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
+            <button onClick={goToday} className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-[13px] font-semibold hover:bg-slate-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40">
               <CalendarDays className="w-3.5 h-3.5" />
               Today
             </button>
-            <button onClick={nextMonth} aria-label="Next month" className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
+            <button onClick={nextMonth} aria-label="Next month" className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -226,14 +226,14 @@ export default function CalendarMonthPage() {
                       "border-b border-r border-slate-100 p-1.5 min-h-[116px] relative",
                       isNull && "bg-slate-50/40",
                       isWeekend && !isNull && "bg-slate-50/40",
-                      !isNull && !isWeekend && "bg-white hover:bg-blue-50/20 transition-colors duration-100",
+                      !isNull && !isWeekend && "bg-white hover:bg-[var(--brand-soft)]/20 transition-colors duration-100",
                       (idx + 1) % 7 === 0 && "border-r-0"
                     )}
                   >
                     {!isNull && (
                       <>
                         <div className="flex items-center justify-end mb-1">
-                          <span className={cn("w-6 h-6 flex items-center justify-center rounded-full text-[12px] font-semibold", isToday ? "bg-blue-600 text-white" : isWeekend ? "text-slate-400" : "text-slate-600")}>
+                          <span className={cn("w-6 h-6 flex items-center justify-center rounded-full text-[12px] font-semibold", isToday ? "bg-[var(--brand)] text-white" : isWeekend ? "text-slate-400" : "text-slate-600")}>
                             {date!.getDate()}
                           </span>
                         </div>
@@ -249,7 +249,7 @@ export default function CalendarMonthPage() {
                             </Link>
                           ))}
                           {dayItems.length > 3 && (
-                            <Link href={sectionLink("/property-manager/calendar/views/agenda")} className="text-[10px] text-blue-600 hover:text-blue-800 font-medium text-left px-1 mt-0.5">
+                            <Link href={sectionLink("/property-manager/calendar/views/agenda")} className="text-[10px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium text-left px-1 mt-0.5">
                               + {dayItems.length - 3} more
                             </Link>
                           )}
@@ -278,7 +278,7 @@ export default function CalendarMonthPage() {
               <div className="divide-y divide-slate-50">
                 {ALL_SOURCES.map((s) => (
                   <label key={s} className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-slate-50/60 transition-colors">
-                    <input type="checkbox" checked={visible[s]} onChange={() => toggle(s)} className="w-3.5 h-3.5 rounded accent-blue-600 cursor-pointer" />
+                    <input type="checkbox" checked={visible[s]} onChange={() => toggle(s)} className="w-3.5 h-3.5 rounded accent-[var(--brand)] cursor-pointer" />
                     <span className={cn("w-2.5 h-2.5 rounded-full shrink-0", SOURCE_META[s].dot)} />
                     <span className="text-[13px] text-slate-700">{SOURCE_META[s].label}</span>
                   </label>
@@ -298,7 +298,7 @@ export default function CalendarMonthPage() {
                   {monthSummary.map((row) => (
                     <div key={row.source} className="flex items-center justify-between px-4 py-2.5">
                       <span className="text-[13px] text-slate-600">{SOURCE_META[row.source].label}</span>
-                      <span className="text-[13px] font-bold text-blue-600">{row.count}</span>
+                      <span className="text-[13px] font-bold text-[var(--brand)]">{row.count}</span>
                     </div>
                   ))}
                 </div>

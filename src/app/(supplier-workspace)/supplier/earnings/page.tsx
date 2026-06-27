@@ -45,7 +45,7 @@ export default function SupplierEarningsPage() {
   const kpis: SupplierKpi[] = [
     { icon: TrendingUp, iconBg: "bg-emerald-50", iconColor: "text-emerald-600", value: money(s?.total_earned ?? 0, currency), label: "Total earned", sub: indicative ? "Indicative" : "Lifetime", subColor: "text-slate-500" },
     { icon: Clock, iconBg: "bg-amber-50", iconColor: "text-amber-600", value: money(s?.pending_payout ?? 0, currency), label: "Pending payout", sub: "Awaiting release", subColor: "text-amber-600" },
-    { icon: ShieldCheck, iconBg: "bg-blue-50", iconColor: "text-blue-600", value: money(s?.in_escrow ?? 0, currency), label: "Held / escrow", sub: "Until job approved", subColor: "text-slate-500" },
+    { icon: ShieldCheck, iconBg: "bg-[var(--brand-soft)]", iconColor: "text-[var(--brand)]", value: money(s?.in_escrow ?? 0, currency), label: "Held / escrow", sub: "Until job approved", subColor: "text-slate-500" },
     { icon: Wallet, iconBg: "bg-violet-50", iconColor: "text-violet-600", value: money(s?.paid_out ?? 0, currency), label: "Paid out", sub: s?.jobs_paid ? `${s.jobs_paid} job${s.jobs_paid === 1 ? "" : "s"}` : "—", subColor: "text-slate-500" },
   ]
 
@@ -71,7 +71,7 @@ export default function SupplierEarningsPage() {
       />
 
       {indicative && (
-        <div className="flex items-start gap-2.5 rounded-xl border border-blue-100 bg-[#EFF6FF] px-3.5 py-3">
+        <div className="flex items-start gap-2.5 rounded-xl border border-[var(--color-brand-100)] bg-[#EFF6FF] px-3.5 py-3">
           <Info className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0" />
           <p className="text-[13px] text-[#1d4ed8]">
             Figures shown are <span className="font-semibold">indicative</span>. Live balances and payouts appear once payments are connected to your workspace.

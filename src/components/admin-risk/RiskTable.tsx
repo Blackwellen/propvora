@@ -72,7 +72,7 @@ export default function RiskTable({ rows }: { rows: WorkspaceRiskRow[] }) {
                 className={[
                   "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors",
                   active
-                    ? "bg-[#2563EB] text-white shadow-[0_2px_8px_rgba(37,99,235,0.28)]"
+                    ? "bg-[var(--brand)] text-white shadow-[0_2px_8px_rgba(37,99,235,0.28)]"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200",
                 ].join(" ")}
               >
@@ -107,7 +107,7 @@ export default function RiskTable({ rows }: { rows: WorkspaceRiskRow[] }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search workspace, country, id…"
-            className="w-full rounded-xl border border-[#E2E8F0] bg-white pl-9 pr-3 py-2 text-[13px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+            className="w-full rounded-xl border border-[#E2E8F0] bg-white pl-9 pr-3 py-2 text-[13px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
           />
         </div>
       </div>
@@ -195,7 +195,7 @@ export default function RiskTable({ rows }: { rows: WorkspaceRiskRow[] }) {
                     <td className="px-3 py-2.5 text-right">
                       <Link
                         href={`/admin/risk/${r.workspaceId}`}
-                        className="inline-flex items-center gap-1 text-[12px] font-medium text-[#2563EB] opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--brand)] opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         Review <ChevronRight className="w-3.5 h-3.5" />
                       </Link>

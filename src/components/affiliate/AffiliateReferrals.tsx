@@ -40,7 +40,7 @@ function planBadge(plan: string | null) {
   if (!plan) return null
   const colours: Record<string, string> = {
     starter: "bg-slate-100 text-slate-600",
-    growth: "bg-blue-50 text-blue-700",
+    growth: "bg-[var(--brand-soft)] text-[var(--brand)]",
     pro: "bg-violet-50 text-violet-700",
     enterprise: "bg-amber-50 text-amber-700",
   }
@@ -83,7 +83,7 @@ export function AffiliateReferrals({ basePath }: { basePath: string }) {
   if (!affiliate?.enrolled) {
     return (
       <div className="text-center py-16">
-        <p className="text-sm text-slate-500">You haven&apos;t enrolled yet. <Link href={basePath} className="text-[#2563EB] hover:underline">Join the programme</Link>.</p>
+        <p className="text-sm text-slate-500">You haven&apos;t enrolled yet. <Link href={basePath} className="text-[var(--brand)] hover:underline">Join the programme</Link>.</p>
       </div>
     )
   }
@@ -128,7 +128,7 @@ export function AffiliateReferrals({ basePath }: { basePath: string }) {
           { label: "Total", value: rows.length, colour: "text-slate-700" },
           { label: "Active / Converted", value: active, colour: "text-[#059669]" },
           { label: "Pending", value: rows.filter((r) => r.status === "pending" || r.status === "signed_up").length, colour: "text-[#d97706]" },
-          { label: "Total Commission", value: formatPence(totalCommission), colour: "text-[#2563EB]" },
+          { label: "Total Commission", value: formatPence(totalCommission), colour: "text-[var(--brand)]" },
         ].map((kpi) => (
           <div key={kpi.label} className="p-3 rounded-xl bg-slate-50 border border-slate-200">
             <p className={cn("text-base font-bold", kpi.colour)}>{kpi.value}</p>
@@ -151,7 +151,7 @@ export function AffiliateReferrals({ basePath }: { basePath: string }) {
               className={cn(
                 "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
                 statusFilter === s
-                  ? "bg-[#2563EB] text-white"
+                  ? "bg-[var(--brand)] text-white"
                   : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
               )}
             >
@@ -165,14 +165,14 @@ export function AffiliateReferrals({ basePath }: { basePath: string }) {
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="h-9 rounded-lg border border-[#E2E8F0] bg-white px-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+            className="h-9 rounded-lg border border-[#E2E8F0] bg-white px-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
           />
           <span className="text-xs text-slate-400">to</span>
           <input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="h-9 rounded-lg border border-[#E2E8F0] bg-white px-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+            className="h-9 rounded-lg border border-[#E2E8F0] bg-white px-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
           />
           {(dateFrom || dateTo) && (
             <button onClick={() => { setDateFrom(""); setDateTo("") }} className="text-xs text-slate-400 hover:text-slate-600">Clear</button>

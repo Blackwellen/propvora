@@ -35,7 +35,7 @@ interface GuestDetailsFormProps {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const inputCls =
-  "w-full h-11 rounded-lg border border-[#D6E0F0] px-3.5 text-[14px] text-[#0B1B3F] placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40 focus:border-[#1D4ED8] transition-shadow"
+  "w-full h-11 rounded-lg border border-[#D6E0F0] px-3.5 text-[14px] text-[#0B1B3F] placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/40 focus:border-[var(--brand-strong)] transition-shadow"
 
 /**
  * Step 2 of checkout: guest contact details, optional arrival info, and the
@@ -125,7 +125,7 @@ export default function GuestDetailsForm({
       <button
         type="button"
         onClick={onBack}
-        className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#1D4ED8] hover:underline"
+        className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--brand-strong)] hover:underline"
       >
         <ArrowLeft className="w-4 h-4" /> Back to dates
       </button>
@@ -243,7 +243,7 @@ export default function GuestDetailsForm({
                 checked={checked}
                 onChange={(e) => set(key, e.target.checked as never)}
                 className={cn(
-                  "mt-0.5 w-4 h-4 rounded border-slate-300 text-[#1D4ED8] focus:ring-[#2563EB]/40 shrink-0",
+                  "mt-0.5 w-4 h-4 rounded border-slate-300 text-[var(--brand-strong)] focus:ring-[var(--brand)]/40 shrink-0",
                   showErr && "ring-1 ring-red-300"
                 )}
               />
@@ -265,7 +265,7 @@ export default function GuestDetailsForm({
       <button
         type="submit"
         disabled={!canSubmit}
-        className="w-full h-12 rounded-xl bg-[#1D4ED8] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+        className="w-full h-12 rounded-xl bg-[var(--brand-strong)] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
       >
         {submitting ? (
           <>

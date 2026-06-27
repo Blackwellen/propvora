@@ -59,7 +59,7 @@ export default async function TenantTenancyPage({ params }: { params: Promise<{ 
       {/* Hero */}
       <PortalCard className="overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr]">
-          <div className="relative h-40 lg:h-auto bg-gradient-to-br from-[#1E3A8A] to-[#2563EB]">
+          <div className="relative h-40 lg:h-auto bg-gradient-to-br from-[#1E3A8A] to-[var(--brand)]">
             {prop?.cover_image_url
               // eslint-disable-next-line @next/next/no-img-element
               ? <img src={prop.cover_image_url as string} alt={label} className="absolute inset-0 w-full h-full object-cover" />
@@ -108,7 +108,7 @@ export default async function TenantTenancyPage({ params }: { params: Promise<{ 
 
         <PortalSectionCard title="Occupants / named tenants" icon={Users}>
           <div className="flex items-center gap-2.5">
-            <span className="w-9 h-9 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-xs font-bold">{tenantInitials}</span>
+            <span className="w-9 h-9 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">{tenantInitials}</span>
             <div><p className="text-sm font-semibold text-[#071B4D]">{tenantName}</p><p className="text-[11px] text-slate-400">Lead tenant</p></div>
           </div>
           <PortalButtonLink href={`${base}/messages`} className="mt-3" variant="ghost" icon={Users}>Add additional occupant</PortalButtonLink>
@@ -121,7 +121,7 @@ export default async function TenantTenancyPage({ params }: { params: Promise<{ 
 
         <PortalSectionCard title="Key contacts" icon={Phone}>
           <div className="flex items-center gap-2.5">
-            <span className="w-9 h-9 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-xs font-bold">{session.workspaceName.split(" ").map((w) => w[0]).slice(0, 2).join("")}</span>
+            <span className="w-9 h-9 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">{session.workspaceName.split(" ").map((w) => w[0]).slice(0, 2).join("")}</span>
             <div className="flex-1 min-w-0"><p className="text-sm font-semibold text-[#071B4D] truncate">{session.workspaceName}</p><p className="text-[11px] text-slate-400">Property manager</p></div>
             <PortalButtonLink href={`${base}/messages`} variant="ghost" icon={MessageSquare}>Message</PortalButtonLink>
           </div>
@@ -171,6 +171,6 @@ function Row({ k, v }: { k: string; v: React.ReactNode }) {
   return <div className="flex items-center justify-between gap-3"><dt className="text-slate-500">{k}</dt><dd className="font-semibold text-[#071B4D] text-right">{v}</dd></div>
 }
 function Event({ label, at }: { label: string; at: string | null | undefined }) {
-  return <li className="flex gap-3"><span className="w-2 h-2 rounded-full bg-[#2563EB] mt-1.5 shrink-0" /><div><p className="text-sm text-slate-700">{label}</p><p className="text-[11px] text-slate-400">{formatDate(at)}</p></div></li>
+  return <li className="flex gap-3"><span className="w-2 h-2 rounded-full bg-[var(--brand)] mt-1.5 shrink-0" /><div><p className="text-sm text-slate-700">{label}</p><p className="text-[11px] text-slate-400">{formatDate(at)}</p></div></li>
 }
 function ordinal(n: number) { const s = ["th", "st", "nd", "rd"], v = n % 100; return s[(v - 20) % 10] || s[v] || s[0] }

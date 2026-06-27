@@ -145,7 +145,7 @@ export function ComplianceTab({ items, loaded, propertyId }: { items: Compliance
       <Card className="overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
           <p className="text-[14px] font-bold text-slate-900 min-w-0 truncate">Compliance Register</p>
-          <Link href={`/property-manager/compliance?property=${propertyId}`} className="shrink-0 whitespace-nowrap flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors">
+          <Link href={`/property-manager/compliance?property=${propertyId}`} className="shrink-0 whitespace-nowrap flex items-center gap-1.5 text-[13px] font-semibold bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-3 py-1.5 rounded-lg transition-colors">
             <Plus size={13} className="shrink-0" /> Add Item
           </Link>
         </div>
@@ -154,7 +154,7 @@ export function ComplianceTab({ items, loaded, propertyId }: { items: Compliance
             <Shield size={32} className="text-slate-200 mb-3" />
             <p className="text-[13px] font-semibold text-slate-500">{loaded ? "No compliance items yet" : "Loading…"}</p>
             <p className="text-[12px] text-slate-500 mt-1">Track certificates and inspections in the Compliance section.</p>
-            <Link href={`/property-manager/compliance?property=${propertyId}`} className="mt-3 text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
+            <Link href={`/property-manager/compliance?property=${propertyId}`} className="mt-3 text-[12px] text-[var(--brand)] font-medium hover:underline flex items-center gap-1">
               Open Compliance <ArrowUpRight size={12} />
             </Link>
           </div>
@@ -197,7 +197,7 @@ export function ComplianceTab({ items, loaded, propertyId }: { items: Compliance
           </div>
         )}
         <div className="px-5 py-3 border-t border-slate-100">
-          <Link href={`/property-manager/compliance?property=${propertyId}`} className="text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
+          <Link href={`/property-manager/compliance?property=${propertyId}`} className="text-[12px] text-[var(--brand)] font-medium hover:underline flex items-center gap-1">
             View all compliance items <ArrowUpRight size={12} />
           </Link>
         </div>

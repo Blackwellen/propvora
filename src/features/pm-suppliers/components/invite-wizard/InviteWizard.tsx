@@ -64,7 +64,7 @@ export function InviteWizard({ onSubmit, onCancel }: InviteWizardProps) {
         </p>
         <Link
           href="/property-manager/suppliers/directory"
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--brand)] text-white rounded-lg text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
         >
           Back to Directory
         </Link>
@@ -85,7 +85,7 @@ export function InviteWizard({ onSubmit, onCancel }: InviteWizardProps) {
                   i < currentIdx
                     ? "bg-emerald-500 text-white"
                     : i === currentIdx
-                    ? "bg-[#2563EB] text-white"
+                    ? "bg-[var(--brand)] text-white"
                     : "bg-slate-100 text-slate-400"
                 )}
               >
@@ -117,7 +117,7 @@ export function InviteWizard({ onSubmit, onCancel }: InviteWizardProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Acme Plumbing Ltd"
-              className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]"
+              className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]"
             />
           </div>
           <div>
@@ -127,7 +127,7 @@ export function InviteWizard({ onSubmit, onCancel }: InviteWizardProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="supplier@example.com"
-              className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]"
+              className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]"
             />
           </div>
         </div>
@@ -140,7 +140,7 @@ export function InviteWizard({ onSubmit, onCancel }: InviteWizardProps) {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={5}
-            className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] resize-none"
+            className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] resize-none"
           />
         </div>
       )}
@@ -173,7 +173,7 @@ export function InviteWizard({ onSubmit, onCancel }: InviteWizardProps) {
         <button
           onClick={advance}
           disabled={!canAdvance}
-          className="px-5 py-2.5 bg-[#2563EB] text-white rounded-xl text-[13px] font-semibold hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="px-5 py-2.5 bg-[var(--brand)] text-white rounded-xl text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {step === "confirm" ? "Send Invitation" : "Next"}
         </button>

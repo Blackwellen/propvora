@@ -90,7 +90,7 @@ function buildGuests(rows: RawBooking[]): Guest[] {
 }
 
 const TYPE_TONE: Record<Guest["type"], string> = {
-  "Short stay": "bg-blue-50 text-blue-700 border-blue-200",
+  "Short stay": "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",
   "Long-term": "bg-emerald-50 text-emerald-700 border-emerald-200",
   Mixed: "bg-violet-50 text-violet-700 border-violet-200",
 }
@@ -168,7 +168,7 @@ export default function GuestsPage() {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-5">
           <div>
             <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <BedDouble className="w-5 h-5 text-blue-600" />
+              <BedDouble className="w-5 h-5 text-[var(--brand)]" />
               Guests
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
@@ -227,7 +227,7 @@ export default function GuestsPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by guest, email or property…"
-                className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-9 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-9 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
               />
               {query && (
                 <button
@@ -311,7 +311,7 @@ export default function GuestsPage() {
                           <td className="px-4 py-3 text-right">
                             <Link
                               href="/property-manager/bookings"
-                              className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
+                              className="inline-flex items-center gap-1 text-xs font-medium text-[var(--brand)] hover:text-[var(--brand)]"
                             >
                               Bookings <ArrowUpRight className="w-3.5 h-3.5" />
                             </Link>
@@ -332,7 +332,7 @@ export default function GuestsPage() {
                   {!query && (
                     <Link
                       href="/property-manager/bookings"
-                      className="mt-3 inline-flex items-center gap-1 text-xs text-blue-600 hover:underline font-medium"
+                      className="mt-3 inline-flex items-center gap-1 text-xs text-[var(--brand)] hover:underline font-medium"
                     >
                       Go to Bookings <ArrowUpRight className="w-3.5 h-3.5" />
                     </Link>

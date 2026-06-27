@@ -52,6 +52,7 @@ export async function POST(request: Request) {
     const subject = typeof b.subject === "string" ? b.subject.trim() : ""
     if (!workspaceId) return NextResponse.json({ error: "workspaceId is required" }, { status: 400 })
     if (!subject) return NextResponse.json({ error: "subject is required" }, { status: 400 })
+    if (subject.length > 200) return NextResponse.json({ error: "Subject is too long (max 200 characters)." }, { status: 400 })
     if (!(await isSupplierWorkspaceMember(supabase, workspaceId, user.id))) {
       return NextResponse.json({ error: "Not a member of this workspace" }, { status: 403 })
     }
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
     if (!thread) return NextResponse.json({ error: "Messaging is not ready yet." }, { status: 503 })
 
     const firstBody = typeof b.body === "string" ? b.body.trim() : ""
+    if (firstBody.length > 10_000) return NextResponse.json({ error: "Message is too long (max 10,000 characters)." }, { status: 400 })
     if (firstBody) {
       await postMessage(supabase, workspaceId, thread.id, {
         body: firstBody,

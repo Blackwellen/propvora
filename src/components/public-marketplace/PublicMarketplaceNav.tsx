@@ -57,7 +57,7 @@ export default function PublicMarketplaceNav() {
                   className={cn(
                     'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
                     isActive
-                      ? 'text-blue-600 border-b-2 border-blue-600 rounded-none pb-0.5'
+                      ? 'text-[var(--brand)] border-b-2 border-[var(--brand)] rounded-none pb-0.5'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
                   )}
                 >
@@ -71,16 +71,16 @@ export default function PublicMarketplaceNav() {
           <div className="hidden md:flex items-center gap-3 shrink-0 ml-auto">
             <Link
               href="/register"
-              className="px-5 py-2 text-sm font-semibold text-blue-600 rounded-lg border border-blue-600 hover:bg-blue-50 transition-colors"
+              className="px-5 py-2 text-sm font-semibold text-[var(--brand)] rounded-lg border border-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors"
             >
               List a property
             </Link>
-            <Link href="/login" className="text-sm font-medium text-slate-900 hover:text-blue-600">
+            <Link href="/login" className="text-sm font-medium text-slate-900 hover:text-[var(--brand)]">
               Sign in
             </Link>
             <Link
               href="/register"
-              className="px-5 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              className="px-5 py-2 text-sm font-semibold bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-lg transition-colors"
             >
               Get started
             </Link>
@@ -108,7 +108,7 @@ export default function PublicMarketplaceNav() {
                   onClick={() => setMobileOpen(false)}
                   className={cn(
                     'block px-4 py-2.5 text-sm font-medium rounded-lg',
-                    isActive ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:bg-slate-50',
+                    isActive ? 'text-[var(--brand)] bg-[var(--brand-soft)]' : 'text-slate-600 hover:bg-slate-50',
                   )}
                 >
                   {link.label}
@@ -119,7 +119,7 @@ export default function PublicMarketplaceNav() {
               <Link href="/login" className="block text-center py-2.5 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg">
                 Sign in
               </Link>
-              <Link href="/register" className="block text-center py-2.5 text-sm font-semibold bg-blue-600 text-white rounded-lg">
+              <Link href="/register" className="block text-center py-2.5 text-sm font-semibold bg-[var(--brand)] text-white rounded-lg">
                 Get started
               </Link>
             </div>

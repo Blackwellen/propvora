@@ -7,8 +7,8 @@ interface PersonAvatarProps {
 }
 
 const GRADIENT_MAP: Record<string, [string, string]> = {
-  A: ["#3B82F6", "#1D4ED8"],
-  B: ["#3B82F6", "#1D4ED8"],
+  A: ["#3B82F6", "#1d4ed8"],
+  B: ["#3B82F6", "#1d4ed8"],
   C: ["#7C3AED", "#5B21B6"],
   D: ["#7C3AED", "#5B21B6"],
   E: ["#059669", "#047857"],
@@ -37,7 +37,7 @@ const GRADIENT_MAP: Record<string, [string, string]> = {
 
 function getGradient(name: string): [string, string] {
   const first = (name.charAt(0) ?? "A").toUpperCase()
-  return GRADIENT_MAP[first] ?? ["#3B82F6", "#1D4ED8"]
+  return GRADIENT_MAP[first] ?? ["#3B82F6", "#1d4ed8"]
 }
 
 function getInitials(name: string): string {

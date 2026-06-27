@@ -23,11 +23,11 @@ export default function JurisdictionBanner() {
   // Determine badge styling: non-GB jurisdictions without a GB-reviewed pack get amber
   const isResearchOnly = !profile || countryCode !== "GB"
 
-  const borderColor = isResearchOnly ? "border-amber-200" : "border-blue-100"
-  const bgColor = isResearchOnly ? "bg-amber-50" : "bg-blue-50"
-  const iconColor = isResearchOnly ? "text-amber-500" : "text-blue-500"
-  const titleColor = isResearchOnly ? "text-amber-800" : "text-blue-800"
-  const bodyColor = isResearchOnly ? "text-amber-700" : "text-blue-600"
+  const borderColor = isResearchOnly ? "border-amber-200" : "border-[var(--color-brand-100)]"
+  const bgColor = isResearchOnly ? "bg-amber-50" : "bg-[var(--brand-soft)]"
+  const iconColor = isResearchOnly ? "text-amber-500" : "text-[var(--brand)]"
+  const titleColor = isResearchOnly ? "text-amber-800" : "text-[var(--brand-strong)]"
+  const bodyColor = isResearchOnly ? "text-amber-700" : "text-[var(--brand)]"
 
   return (
     <div

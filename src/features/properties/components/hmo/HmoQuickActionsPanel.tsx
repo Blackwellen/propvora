@@ -9,13 +9,13 @@ export function HmoQuickActionsPanel({ propertyId }: HmoQuickActionsPanelProps) 
   return (
     <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
-        <Sparkles className="w-4 h-4 text-blue-600" />
+        <Sparkles className="w-4 h-4 text-[var(--brand)]" />
         <h3 className="text-sm font-semibold text-slate-900">Quick Actions</h3>
       </div>
       <div className="px-4 py-4 flex flex-col gap-2">
         <Link
           href={`/property-manager/portfolio/properties/${propertyId}/hmo/rooms`}
-          className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-2 rounded-lg transition-colors text-center"
+          className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-2 rounded-lg transition-colors text-center"
         >
           Onboard New Tenant
         </Link>

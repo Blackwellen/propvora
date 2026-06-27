@@ -112,7 +112,7 @@ export function QuoteRequestCheckout({
       {/* Supplier summary */}
       <SectionCard title="Supplier">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#EFF5FF] text-[#2563EB]"><ShieldCheck className="h-6 w-6" /></div>
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#EFF5FF] text-[var(--brand)]"><ShieldCheck className="h-6 w-6" /></div>
           <div className="min-w-0 flex-1">
             <p className="text-[15px] font-semibold text-[#0B1B3F]">{rfq.supplier_name}</p>
             {sup?.rating ? <p className="mt-0.5 inline-flex items-center gap-1 text-[12px] text-slate-600"><Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> {sup.rating} · {sup.reviews_count} reviews</p> : null}
@@ -185,7 +185,7 @@ export function QuoteRequestCheckout({
         <ol className="flex flex-col gap-2">
           {NEXT_STEPS.map((s, i) => (
             <li key={s} className="flex items-center gap-2.5 text-[13px] text-slate-600">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EFF5FF] text-[11px] font-bold text-[#2563EB]">{i + 1}</span> {s}
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EFF5FF] text-[11px] font-bold text-[var(--brand)]">{i + 1}</span> {s}
             </li>
           ))}
         </ol>

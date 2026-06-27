@@ -249,7 +249,7 @@ export default function DocumentDetailPage() {
         {row.linked_certificate_id && (
           <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
             <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Linked Certificate</h3>
-            <Link href={`/property-manager/compliance/certificates/${row.linked_certificate_id}`} className="text-xs text-[#2563EB] hover:underline flex items-center gap-1">
+            <Link href={`/property-manager/compliance/certificates/${row.linked_certificate_id}`} className="text-xs text-[var(--brand)] hover:underline flex items-center gap-1">
               Open Certificate <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
@@ -273,7 +273,7 @@ export default function DocumentDetailPage() {
     return (
       <div className="space-y-4">
         {isSeed && (
-          <div className="px-4 py-2.5 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-700">
+          <div className="px-4 py-2.5 bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-xl text-xs text-[var(--brand)]">
             Showing example data — connect the compliance database to enable inline editing.
           </div>
         )}
@@ -317,7 +317,7 @@ export default function DocumentDetailPage() {
           </div>
         </div>
         <div className="flex gap-3">
-          <button onClick={downloadDoc} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+          <button onClick={downloadDoc} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--brand)] text-white text-sm font-medium hover:bg-[var(--brand-strong)] transition-colors">
             <Download className="w-4 h-4" />Download
           </button>
         </div>
@@ -327,7 +327,7 @@ export default function DocumentDetailPage() {
 
   function LinksTab() {
     const items = [
-      row.property_id && { title: "Property", subtitle: row.property_name, icon: Home, color: "text-blue-600", bg: "bg-blue-50", href: `/property-manager/portfolio/properties/${row.property_id}`, link: "Open Property" },
+      row.property_id && { title: "Property", subtitle: row.property_name, icon: Home, color: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]", href: `/property-manager/portfolio/properties/${row.property_id}`, link: "Open Property" },
       row.linked_certificate_id && { title: "Certificate Record", subtitle: "Linked certificate", icon: Shield, color: "text-emerald-600", bg: "bg-emerald-50", href: `/property-manager/compliance/certificates/${row.linked_certificate_id}`, link: "Open Certificate" },
       row.linked_inspection_id && { title: "Inspection", subtitle: "Linked inspection", icon: ClipboardList, color: "text-violet-600", bg: "bg-violet-50", href: `/property-manager/compliance/inspections/${row.linked_inspection_id}`, link: "Open Inspection" },
     ].filter(Boolean) as any[]
@@ -347,7 +347,7 @@ export default function DocumentDetailPage() {
               <div className="flex-1">
                 <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">{item.title}</p>
                 <p className="text-sm font-semibold text-slate-800">{item.subtitle}</p>
-                <Link href={item.href} className="mt-2 text-xs text-[#2563EB] hover:underline flex items-center gap-1">
+                <Link href={item.href} className="mt-2 text-xs text-[var(--brand)] hover:underline flex items-center gap-1">
                   {item.link} <ChevronRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -374,7 +374,7 @@ export default function DocumentDetailPage() {
             </div>
           </div>
         </div>
-        <Link href="/property-manager/work/tasks/new" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+        <Link href="/property-manager/work/tasks/new" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[var(--brand)] text-white text-sm font-medium hover:bg-[var(--brand-strong)] transition-colors">
           <Calendar className="w-4 h-4" />Schedule Renewal Task
         </Link>
       </div>
@@ -417,7 +417,7 @@ export default function DocumentDetailPage() {
         {auditEntries.map((entry, i) => (
           <div key={i} className="flex gap-4">
             <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-blue-500">
+              <div className="w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-[var(--brand)]">
                 <FileText className="w-3.5 h-3.5" />
               </div>
               {i < auditEntries.length - 1 && <div className="w-px flex-1 bg-slate-200 my-1" />}
@@ -501,7 +501,7 @@ export default function DocumentDetailPage() {
           </div>
           <h2 className="text-lg font-semibold text-slate-900 mb-1">Document not found</h2>
           <p className="text-sm text-slate-500 mb-5">This document may have been archived or removed.</p>
-          <Link href="/property-manager/compliance/documents" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+          <Link href="/property-manager/compliance/documents" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--brand)] text-white text-sm font-medium hover:bg-[var(--brand-strong)] transition-colors">
             Back to Documents
           </Link>
         </div>
@@ -539,7 +539,7 @@ export default function DocumentDetailPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 mt-5 pt-4 border-t border-slate-100">
-              <button onClick={() => setActiveTab("preview")} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2563EB] text-white text-xs font-medium hover:bg-blue-700 transition-colors">
+              <button onClick={() => setActiveTab("preview")} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--brand)] text-white text-xs font-medium hover:bg-[var(--brand-strong)] transition-colors">
                 <Eye className="w-3.5 h-3.5" />Preview
               </button>
               <button onClick={downloadDoc} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">
@@ -582,7 +582,7 @@ export default function DocumentDetailPage() {
               <select
                 value={activeTab}
                 onChange={(e) => setActiveTab(e.target.value as typeof activeTab)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
                 aria-label="Navigate section"
               >
                 {TABS.map((tab) => (
@@ -597,7 +597,7 @@ export default function DocumentDetailPage() {
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
                   className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap ${
-                    activeTab === tab.key ? "border-[#2563EB] text-[#2563EB]" : "border-transparent text-slate-500 hover:text-slate-700"
+                    activeTab === tab.key ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-500 hover:text-slate-700"
                   }`}
                 >
                   {tab.label}

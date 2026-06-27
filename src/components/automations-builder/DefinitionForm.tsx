@@ -80,7 +80,7 @@ export default function DefinitionForm({ definition, onChange }: Props) {
       {/* Trigger */}
       <section className="space-y-3">
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-          <span className="grid h-6 w-6 place-items-center rounded-md bg-blue-50 text-blue-600"><Zap className="h-3.5 w-3.5" /></span>
+          <span className="grid h-6 w-6 place-items-center rounded-md bg-[var(--brand-soft)] text-[var(--brand)]"><Zap className="h-3.5 w-3.5" /></span>
           When this happens
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
@@ -91,7 +91,7 @@ export default function DefinitionForm({ definition, onChange }: Props) {
               onClick={() => selectTrigger(t.type)}
               className={`rounded-xl border p-3 text-left transition ${
                 definition.trigger_type === t.type
-                  ? "border-blue-300 bg-blue-50/60 ring-2 ring-blue-100"
+                  ? "border-[var(--color-brand-300)] bg-[var(--brand-soft)]/60 ring-2 ring-[var(--color-brand-100)]"
                   : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
               }`}
             >
@@ -152,7 +152,7 @@ export default function DefinitionForm({ definition, onChange }: Props) {
                 <select
                   value={c.key}
                   onChange={(e) => updateCondition(i, { key: e.target.value })}
-                  className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-400/30"
+                  className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700 outline-none focus:border-[var(--color-brand-400)] focus:bg-white focus:ring-2 focus:ring-[var(--color-brand-400)]/30"
                 >
                   {tDef?.configFields.map((f) => (
                     <option key={f.key} value={f.key}>{f.label}</option>
@@ -161,7 +161,7 @@ export default function DefinitionForm({ definition, onChange }: Props) {
                 <select
                   value={c.op}
                   onChange={(e) => updateCondition(i, { op: e.target.value as DefinitionCondition["op"] })}
-                  className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-400/30"
+                  className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700 outline-none focus:border-[var(--color-brand-400)] focus:bg-white focus:ring-2 focus:ring-[var(--color-brand-400)]/30"
                 >
                   <option value="lte">is at most (≤)</option>
                   <option value="gte">is at least (≥)</option>
@@ -171,7 +171,7 @@ export default function DefinitionForm({ definition, onChange }: Props) {
                   value={c.value}
                   onChange={(e) => updateCondition(i, { value: e.target.value })}
                   placeholder="value"
-                  className="w-24 rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700 outline-none focus:border-blue-400 focus:bg-white"
+                  className="w-24 rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700 outline-none focus:border-[var(--color-brand-400)] focus:bg-white"
                 />
                 <button
                   type="button"

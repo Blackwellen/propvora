@@ -29,12 +29,12 @@ export default function PolicyBanner({ slugs, message, className }: PolicyBanner
 
   return (
     <div
-      className={`rounded-xl border border-blue-200 bg-blue-50 p-3 sm:p-4 ${className ?? ""}`}
+      className={`rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)] p-3 sm:p-4 ${className ?? ""}`}
     >
       {/* Mobile: compact */}
       <div className="flex items-start gap-2 sm:hidden">
-        <ScrollText className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
-        <p className="text-xs leading-relaxed text-blue-900">
+        <ScrollText className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--brand)]" />
+        <p className="text-xs leading-relaxed text-[var(--brand-strong)]">
           {message ?? "By continuing you accept the marketplace policies."}{" "}
           {policies.map((p, i) => (
             <span key={p.slug}>
@@ -51,9 +51,9 @@ export default function PolicyBanner({ slugs, message, className }: PolicyBanner
       {/* sm+ : expanded with chips */}
       <div className="hidden sm:block">
         <div className="flex items-start gap-3">
-          <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
+          <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--brand)]" />
           <div className="min-w-0">
-            <p className="text-sm leading-relaxed text-blue-900">
+            <p className="text-sm leading-relaxed text-[var(--brand-strong)]">
               {message ??
                 "These policies govern this transaction. Propvora facilitates the marketplace; the contract for the stay or service is with the operator or supplier."}
             </p>
@@ -62,15 +62,15 @@ export default function PolicyBanner({ slugs, message, className }: PolicyBanner
                 <Link
                   key={p.slug}
                   href={p.href}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white px-2.5 py-1 text-xs font-medium text-blue-700 hover:border-blue-300 hover:text-blue-800"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-brand-100)] bg-white px-2.5 py-1 text-xs font-medium text-[var(--brand)] hover:border-[var(--color-brand-300)] hover:text-[var(--brand-strong)]"
                 >
                   {p.title}
-                  <span className="text-blue-400">v{p.currentVersion}</span>
+                  <span className="text-[var(--color-brand-400)]">v{p.currentVersion}</span>
                 </Link>
               ))}
             </div>
             {!reviewed && (
-              <p className="mt-2 text-xs text-blue-700">
+              <p className="mt-2 text-xs text-[var(--brand)]">
                 General terms — your local law may vary.
               </p>
             )}

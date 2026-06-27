@@ -95,12 +95,12 @@ export default function SubscriptionPage() {
       )}
 
       {/* Current plan card */}
-      <div className="bg-gradient-to-br from-[#2563EB] to-[#1d4ed8] rounded-2xl p-6 text-white mb-6">
+      <div className="bg-gradient-to-br from-[var(--brand)] to-[var(--brand-strong)] rounded-2xl p-6 text-white mb-6">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[11px] font-semibold text-blue-200 uppercase tracking-wide">Current Plan</p>
+            <p className="text-[11px] font-semibold text-[var(--color-brand-100)] uppercase tracking-wide">Current Plan</p>
             <h2 className="text-[22px] font-black mt-1">{currentPlan?.name ?? "Starter"} Plan</h2>
-            <p className="text-[12px] text-blue-200 mt-0.5">{currentPlan?.tagline}</p>
+            <p className="text-[12px] text-[var(--color-brand-100)] mt-0.5">{currentPlan?.tagline}</p>
           </div>
           <span className="bg-white/20 text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl">{statusLabel}</span>
         </div>
@@ -112,7 +112,7 @@ export default function SubscriptionPage() {
             { label: "Advanced reports", value: currentPlan?.features.advancedReports ? "Included" : "—" },
           ].map((item) => (
             <div key={item.label}>
-              <p className="text-[10px] text-blue-200 uppercase tracking-wide">{item.label}</p>
+              <p className="text-[10px] text-[var(--color-brand-100)] uppercase tracking-wide">{item.label}</p>
               <p className="text-[14px] font-bold mt-0.5">{item.value}</p>
             </div>
           ))}
@@ -135,7 +135,7 @@ export default function SubscriptionPage() {
                 onClick={() => setBilling(cycle)}
                 className={cn(
                   "px-4 py-2 rounded-lg text-[12.5px] font-semibold transition-all",
-                  billing === cycle ? "bg-white text-[#2563EB] shadow-sm" : "text-slate-500 hover:text-slate-700",
+                  billing === cycle ? "bg-white text-[var(--brand)] shadow-sm" : "text-slate-500 hover:text-slate-700",
                 )}
               >
                 {cycle === "monthly" ? "Monthly" : "Annual · 2 months free"}
@@ -170,11 +170,11 @@ export default function SubscriptionPage() {
               key={plan.tier}
               className={cn(
                 "bg-white rounded-2xl border p-5 flex flex-col relative",
-                isCurrent ? "border-[#2563EB] shadow-[0_0_0_2px_#2563EB20]" : "border-slate-200",
+                isCurrent ? "border-[var(--brand)] shadow-[0_0_0_2px_#2563EB20]" : "border-slate-200",
               )}
             >
               {plan.popular && !isCurrent && (
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold px-3 py-0.5 rounded-full text-white bg-[#2563EB]">
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold px-3 py-0.5 rounded-full text-white bg-[var(--brand)]">
                   Popular
                 </span>
               )}
@@ -232,7 +232,7 @@ export default function SubscriptionPage() {
           <button
             onClick={handlePortal}
             disabled={portalLoading}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#2563EB] text-[#2563EB] text-[13px] font-semibold hover:bg-blue-50 transition-colors disabled:opacity-60"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[var(--brand)] text-[var(--brand)] text-[13px] font-semibold hover:bg-[var(--brand-soft)] transition-colors disabled:opacity-60"
           >
             {portalLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />}
             Open billing portal

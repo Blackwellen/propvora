@@ -193,7 +193,7 @@ export default function ContactsPage() {
                 <button onClick={() => importInputRef.current?.click()} disabled={importing} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50">
                   <Upload className="w-4 h-4" /> {importing ? "Importingâ€¦" : "Import"}
                 </button>
-<button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-[#1d4ed8] transition-colors shadow-sm">
+<button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors shadow-sm">
                   <UserPlus className="w-4 h-4" /> Add Contact
                 </button>
               </>

@@ -76,7 +76,7 @@ export default async function CustomerStayDetailPage({ params }: { params: Promi
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-slate-900">Hosted by {stay.hostName}</span>
-                {stay.hostProBadge && <span className="text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded font-semibold">Pro</span>}
+                {stay.hostProBadge && <span className="text-xs bg-[var(--brand)] text-white px-1.5 py-0.5 rounded font-semibold">Pro</span>}
               </div>
               <div className="text-sm text-slate-500">{stay.hostProperties} properties · ★{stay.hostRating} ({stay.hostReviews.toLocaleString()} reviews)</div>
             </div>
@@ -121,7 +121,7 @@ export default async function CustomerStayDetailPage({ params }: { params: Promi
                 )
               })}
             </div>
-            <button className="mt-4 text-sm font-semibold text-blue-600 hover:text-blue-700">
+            <button className="mt-4 text-sm font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]">
               Show all amenities →
             </button>
           </div>

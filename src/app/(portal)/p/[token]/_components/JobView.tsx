@@ -13,7 +13,7 @@ function date(iso: string | null): string {
 
 const STATUS_CLS: Record<string, string> = {
   completed: "bg-emerald-100 text-emerald-700",
-  in_progress: "bg-blue-100 text-blue-700",
+  in_progress: "bg-[var(--color-brand-100)] text-[var(--brand)]",
   scheduled: "bg-sky-100 text-sky-700",
   on_hold: "bg-amber-100 text-amber-700",
   cancelled: "bg-red-100 text-red-700",

@@ -145,7 +145,7 @@ function JobDetailInner() {
             <div className="p-4 space-y-3">
               {/* Quick actions */}
               <div className="grid grid-cols-2 gap-2">
-                <Link href="/supplier/messages" className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-50 text-blue-700 py-2.5 text-sm font-semibold hover:bg-blue-100">
+                <Link href="/supplier/messages" className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[var(--brand-soft)] text-[var(--brand-strong)] py-2.5 text-sm font-semibold hover:bg-[var(--color-brand-100)]">
                   <MessagesSquare className="w-4 h-4" /> Message PM
                 </Link>
                 <Link href="/supplier/inbox" className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 text-slate-700 py-2.5 text-sm font-semibold hover:bg-slate-200">

@@ -18,7 +18,7 @@ export default function LetDetail({ p }: { p: LetProperty }) {
 
   return (
     <div className="space-y-5">
-      <Link href="/customer/lets/search" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue-600 hover:text-blue-700">
+      <Link href="/customer/lets/search" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">
         <ArrowLeft className="w-4 h-4" /> Back to search
       </Link>
 

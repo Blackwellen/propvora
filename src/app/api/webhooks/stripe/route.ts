@@ -242,6 +242,37 @@ export async function POST(request: NextRequest) {
           const q = supabase.from("workspaces").update({ plan_status: "active" })
           await (wsId ? q.eq("id", wsId) : q.eq("stripe_customer_id", customerId!))
         }
+
+        // One-off add-on (e.g. AI credit pack): grant entitlement ONLY now that
+        // payment is confirmed and only if actually paid. Idempotent via the
+        // stripe_webhook_events dedupe (this event id is recorded once).
+        if (
+          session.mode === "payment" &&
+          session.metadata?.kind === "one_off_addon" &&
+          (session.payment_status === "paid" || session.payment_status === "no_payment_required")
+        ) {
+          const oneOffWs = wsId ?? (await workspaceIdForCustomer(customerId))
+          const addonKey = (session.metadata?.addon_key as string | undefined) ?? ""
+          const qty = Number(session.metadata?.quantity ?? "1") || 1
+          if (oneOffWs && addonKey) {
+            const { grantCreditPack } = await import("@/lib/ai/credits")
+            const granted = await grantCreditPack(supabase, oneOffWs, addonKey, qty)
+            await recordOneOffAddonHistory(supabase, oneOffWs, session, addonKey, qty)
+            await recordAudit(supabase, {
+              workspaceId: oneOffWs,
+              action: AUDIT_ACTIONS.BILLING_SUBSCRIPTION_UPDATED,
+              resourceType: "addon_purchase",
+              resourceId: addonKey,
+              metadata: {
+                event: "one_off_addon_paid",
+                quantity: qty,
+                granted,
+                amountTotal: session.amount_total ?? null,
+                eventId: event.id,
+              },
+            })
+          }
+        }
         break
       }
 
@@ -504,6 +535,55 @@ async function syncWorkspaceSubscription(
     }
   } catch {
     /* table missing / RLS — non-fatal */
+  }
+}
+
+/**
+ * Record a billing-history row + event for a paid one-off add-on (credit pack).
+ * Idempotent on (workspace_id, reference) where reference is the checkout session
+ * id, so a webhook replay never double-records. Money is integer pence.
+ */
+async function recordOneOffAddonHistory(
+  supabase: AdminLike,
+  workspaceId: string,
+  session: import("stripe").Stripe.Checkout.Session,
+  addonKey: string,
+  quantity: number,
+): Promise<void> {
+  try {
+    const reference = session.id
+    const { data: seen } = await supabase
+      .from("workspace_billing_history")
+      .select("id")
+      .eq("workspace_id", workspaceId)
+      .eq("reference", reference)
+      .limit(1)
+      .maybeSingle()
+    if (seen) return
+
+    const amountPence = session.amount_total ?? 0
+    const currency = (session.currency ?? "gbp").toUpperCase()
+    await supabase.from("workspace_billing_history").insert({
+      workspace_id: workspaceId,
+      doc_type: "receipt",
+      reference,
+      description: `Add-on purchase — ${addonKey}${quantity > 1 ? ` ×${quantity}` : ""}`,
+      amount_pence: amountPence,
+      tax_pence: 0,
+      currency,
+      status: "paid",
+      period_label: null,
+      issued_at: new Date().toISOString(),
+    })
+    await supabase.from("workspace_subscription_events").insert({
+      workspace_id: workspaceId,
+      event_type: "addon_change",
+      summary: `One-off add-on purchased — ${addonKey}${quantity > 1 ? ` ×${quantity}` : ""}.`,
+      actor: "System",
+      metadata_json: { kind: "one_off_addon", addonKey, quantity, amountPence },
+    })
+  } catch {
+    /* table missing — non-fatal; credits already granted */
   }
 }
 

@@ -101,7 +101,7 @@ export default function SupplierComplianceUploadPage() {
           <SupplierCard className="p-5">
             <h2 className="text-sm font-semibold text-slate-900 mb-3">Upload file</h2>
             {!fileName ? (
-              <button onClick={() => fileRef.current?.click()} className="w-full rounded-2xl border-2 border-dashed border-slate-300 hover:border-[#2563EB] hover:bg-blue-50/30 transition-colors py-12 flex flex-col items-center gap-2">
+              <button onClick={() => fileRef.current?.click()} className="w-full rounded-2xl border-2 border-dashed border-slate-300 hover:border-[#2563EB] hover:bg-[var(--brand-soft)]/30 transition-colors py-12 flex flex-col items-center gap-2">
                 <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center"><Upload className="w-6 h-6" /></div>
                 <p className="text-sm font-semibold text-slate-700">Drag &amp; drop or click to upload</p>
                 <p className="text-xs text-slate-400">PDF, JPG or PNG · upload-only, no links</p>

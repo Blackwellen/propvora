@@ -65,7 +65,7 @@ function AcquisitionTaxEstimator() {
           <select
             value={country}
             onChange={(e) => setCountry(e.target.value)}
-            className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
           >
             {TAX_COUNTRIES.map((c) => (
               <option key={c.code} value={c.code}>{c.label}</option>
@@ -78,7 +78,7 @@ function AcquisitionTaxEstimator() {
             <select
               value={region}
               onChange={(e) => setRegion(e.target.value)}
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             >
               <option value="EW">England & N. Ireland</option>
               <option value="SCT">Scotland</option>
@@ -94,17 +94,17 @@ function AcquisitionTaxEstimator() {
             min={0}
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
           />
         </label>
         <div className="flex flex-col gap-1.5 justify-end">
           <label className="flex items-center gap-2 text-xs text-slate-600">
-            <input type="checkbox" checked={additional} onChange={(e) => setAdditional(e.target.checked)} className="accent-blue-600" />
+            <input type="checkbox" checked={additional} onChange={(e) => setAdditional(e.target.checked)} className="accent-[var(--brand)]" />
             Additional / second property
           </label>
           {country === 'GB' && region === 'EW' && (
             <label className="flex items-center gap-2 text-xs text-slate-600">
-              <input type="checkbox" checked={nonResident} onChange={(e) => setNonResident(e.target.checked)} className="accent-blue-600" />
+              <input type="checkbox" checked={nonResident} onChange={(e) => setNonResident(e.target.checked)} className="accent-[var(--brand)]" />
               Non-resident purchaser
             </label>
           )}
@@ -173,7 +173,7 @@ export default function CostDriversTab({ profile }: Props) {
   const { costDrivers } = profile
 
   const costTypeBadge: Record<string, string> = {
-    fixed: 'bg-blue-100 text-blue-700',
+    fixed: 'bg-[var(--color-brand-100)] text-[var(--brand)]',
     variable: 'bg-purple-100 text-purple-700',
     percentage: 'bg-teal-100 text-teal-700',
   }

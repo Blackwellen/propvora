@@ -277,7 +277,7 @@ function PublicSearchInner({
             placeholder={
               intent.key === "stays" ? "Search stays by city, area or postcode…" : intent.key === "emergency" ? "Search emergency call-outs…" : "Search the marketplace…"
             }
-            className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[13.5px] text-slate-700 shadow-sm transition-all focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+            className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[13.5px] text-slate-700 shadow-sm transition-all focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
           />
         </div>
 
@@ -285,7 +285,7 @@ function PublicSearchInner({
           onClick={() => setShowFilters((v) => !v)}
           className={cn(
             "inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl border px-3.5 text-[13px] font-semibold shadow-sm transition-all",
-            showFilters || activeCount > 0 ? "border-blue-200 bg-[#EFF6FF] text-[#2563EB]" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+            showFilters || activeCount > 0 ? "border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
           )}
         >
           <SlidersHorizontal className="h-4 w-4" />
@@ -314,7 +314,7 @@ function PublicSearchInner({
                     }}
                     className={cn(
                       "flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[13px]",
-                      filters.sort === s.key ? "bg-blue-50 font-semibold text-[#2563EB]" : "text-slate-600 hover:bg-slate-50"
+                      filters.sort === s.key ? "bg-[var(--brand-soft)] font-semibold text-[var(--brand)]" : "text-slate-600 hover:bg-slate-50"
                     )}
                   >
                     {s.label}
@@ -421,7 +421,7 @@ function PublicSearchInner({
       <div className="mt-5">
         {view === "split" && (
           <label className="mb-3 hidden cursor-pointer items-center gap-2 text-[12.5px] font-medium text-slate-600 lg:flex">
-            <input type="checkbox" checked={searchOnMove} onChange={(e) => setSearchOnMove(e.target.checked)} className="accent-[#2563EB]" />
+            <input type="checkbox" checked={searchOnMove} onChange={(e) => setSearchOnMove(e.target.checked)} className="accent-[var(--brand)]" />
             Search as I move the map
           </label>
         )}
@@ -492,7 +492,7 @@ function PublicSearchInner({
               </button>
             </div>
             <FilterPanel intent={intent.key} filters={filters} onChange={patch} onClear={clear} activeCount={activeCount} embedded />
-            <button onClick={() => setShowFilters(false)} className="mt-5 h-12 w-full rounded-xl bg-[#2563EB] text-[14px] font-semibold text-white">
+            <button onClick={() => setShowFilters(false)} className="mt-5 h-12 w-full rounded-xl bg-[var(--brand)] text-[14px] font-semibold text-white">
               Show {visible.length} {visible.length === 1 ? "result" : "results"}
             </button>
           </div>
@@ -509,7 +509,7 @@ function QuickChip({ active, onClick, icon, children }: { active: boolean; onCli
       onClick={onClick}
       className={cn(
         "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition-colors",
-        active ? "border-[#2563EB] bg-blue-50 text-[#2563EB]" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+        active ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
       )}
     >
       {icon}
@@ -548,7 +548,7 @@ function FilterPanel({
           <select
             value={filters.countryCode}
             onChange={(e) => onChange({ countryCode: e.target.value })}
-            className="h-9 rounded-xl border border-slate-200 bg-white px-3 text-[12.5px] font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+            className="h-9 rounded-xl border border-slate-200 bg-white px-3 text-[12.5px] font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
           >
             <option value="">All countries</option>
             {COUNTRY_OPTIONS.map((c) => (
@@ -565,7 +565,7 @@ function FilterPanel({
             value={filters.location}
             onChange={(e) => onChange({ location: e.target.value })}
             placeholder={isStay ? "City or postcode" : "City, region or postcode"}
-            className="h-9 w-[220px] rounded-xl border border-slate-200 bg-white px-3 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+            className="h-9 w-[220px] rounded-xl border border-slate-200 bg-white px-3 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
           />
         </label>
 
@@ -579,7 +579,7 @@ function FilterPanel({
                 defaultValue={filters.minPence === null ? "" : String(filters.minPence / 100)}
                 onChange={(e) => onChange({ minPence: majorToPence(e.target.value) })}
                 placeholder="Min"
-                className="h-9 w-[90px] rounded-xl border border-slate-200 bg-white pl-6 pr-2 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                className="h-9 w-[90px] rounded-xl border border-slate-200 bg-white pl-6 pr-2 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
               />
             </div>
             <span className="text-slate-300">–</span>
@@ -590,7 +590,7 @@ function FilterPanel({
                 defaultValue={filters.maxPence === null ? "" : String(filters.maxPence / 100)}
                 onChange={(e) => onChange({ maxPence: majorToPence(e.target.value) })}
                 placeholder="Max"
-                className="h-9 w-[90px] rounded-xl border border-slate-200 bg-white pl-6 pr-2 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                className="h-9 w-[90px] rounded-xl border border-slate-200 bg-white pl-6 pr-2 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
               />
             </div>
           </div>
@@ -607,7 +607,7 @@ function FilterPanel({
                 onClick={() => onChange({ minRating: r })}
                 className={cn(
                   "inline-flex h-9 items-center gap-1 rounded-xl border px-2.5 text-[12.5px] font-medium",
-                  filters.minRating === r ? "border-[#2563EB] bg-blue-50 text-[#2563EB]" : "border-slate-200 bg-white text-slate-600"
+                  filters.minRating === r ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 bg-white text-slate-600"
                 )}
               >
                 {r > 0 && <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />}

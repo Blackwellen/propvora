@@ -21,7 +21,7 @@ export default function AppHelpPage() {
         <button
           onClick={resetAll}
           aria-label="Restart all guided tours"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-[#2563EB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] rounded"
         >
           <RotateCcw className="w-3.5 h-3.5" /> Restart tours
         </button>
@@ -41,7 +41,7 @@ export default function AppHelpPage() {
                 key={t.key}
                 onClick={() => openTutorial(t.key)}
                 aria-label={`${done ? "Replay" : "Start"} walkthrough: ${t.title}`}
-                className="flex items-start gap-3 rounded-2xl bg-white border border-slate-200 p-4 text-left hover:border-blue-200 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="flex items-start gap-3 rounded-2xl bg-white border border-slate-200 p-4 text-left hover:border-[var(--color-brand-100)] hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
               >
                 <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
                   {done ? <Check className="w-4 h-4 text-emerald-500" /> : <PlayCircle className="w-4 h-4 text-violet-600" />}
@@ -60,7 +60,7 @@ export default function AppHelpPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Link
           href="/help"
-          className="flex items-center justify-between rounded-2xl bg-[#0D1B2A] text-white p-5 hover:opacity-95 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+          className="flex items-center justify-between rounded-2xl bg-[#0D1B2A] text-white p-5 hover:opacity-95 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-400)]"
         >
           <div className="flex items-center gap-3">
             <BookOpen className="w-5 h-5 text-violet-300" />
@@ -73,10 +73,10 @@ export default function AppHelpPage() {
         </Link>
         <a
           href="mailto:support@propvora.com"
-          className="flex items-center gap-3 rounded-2xl bg-white border border-slate-200 p-5 hover:border-blue-200 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="flex items-center gap-3 rounded-2xl bg-white border border-slate-200 p-5 hover:border-[var(--color-brand-100)] hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
         >
-          <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-            <Mail className="w-4 h-4 text-blue-600" />
+          <div className="w-9 h-9 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+            <Mail className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-slate-900">Contact Support</p>
@@ -89,9 +89,9 @@ export default function AppHelpPage() {
       <div className="flex items-center gap-2 text-xs text-slate-400">
         <LifeBuoy className="w-3.5 h-3.5" />
         <span>View our{" "}
-          <Link href="/legal" className="text-blue-600 hover:underline">policies &amp; legal documents</Link>
+          <Link href="/legal" className="text-[var(--brand)] hover:underline">policies &amp; legal documents</Link>
           {" "}or{" "}
-          <Link href="/contact" className="text-blue-600 hover:underline">contact us</Link>.
+          <Link href="/contact" className="text-[var(--brand)] hover:underline">contact us</Link>.
         </span>
       </div>
     </div>

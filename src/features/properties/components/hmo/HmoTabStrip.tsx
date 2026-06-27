@@ -28,7 +28,7 @@ export function HmoTabStrip({ propertyId }: HmoTabStripProps) {
             href={tab.href}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
               isActive
-                ? "border-blue-600 text-blue-600"
+                ? "border-[var(--brand)] text-[var(--brand)]"
                 : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
           >

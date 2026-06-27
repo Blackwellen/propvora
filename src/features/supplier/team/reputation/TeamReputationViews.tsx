@@ -18,7 +18,7 @@ import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
 import { useSupplierApiUrl } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 
 function Mini({ label, value, tone = "slate" }: { label: string; value: string; tone?: "blue" | "emerald" | "red" | "amber" | "slate" }) {
-  const c = tone === "blue" ? "text-[#2563EB]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : tone === "amber" ? "text-amber-600" : "text-slate-900"
+  const c = tone === "blue" ? "text-[var(--brand)]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : tone === "amber" ? "text-amber-600" : "text-slate-900"
   return (
     <SupplierCard className="p-3.5">
       <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span>
@@ -90,7 +90,7 @@ export function TeamReviews() {
           <SupplierCard className="p-0 overflow-hidden min-w-0">
             <ul className="divide-y divide-slate-50">
               {reviews.map((r) => (
-                <li key={r.id} onClick={() => setSelId(r.id)} className={cn("p-4 hover:bg-slate-50/60 cursor-pointer", sel?.id === r.id && "bg-blue-50/40")}>
+                <li key={r.id} onClick={() => setSelId(r.id)} className={cn("p-4 hover:bg-slate-50/60 cursor-pointer", sel?.id === r.id && "bg-[var(--brand-soft)]/40")}>
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <span className="text-[13px] font-semibold text-slate-800">{r.customer_name ?? "Customer"}</span>
@@ -112,14 +112,14 @@ export function TeamReviews() {
               <div className="flex items-center justify-between"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Reply</p><Stars n={sel.rating ?? 0} /></div>
               <p className="text-sm font-semibold text-slate-900 mt-1">{sel.customer_name ?? "Customer"}</p>
               <p className="text-sm text-slate-600 mt-1">{sel.body ?? ""}</p>
-              <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={4} placeholder="Write a public reply…" className="mt-3 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#2563EB] resize-none" />
+              <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={4} placeholder="Write a public reply…" className="mt-3 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[var(--brand)] resize-none" />
               <div className="mt-2 space-y-1.5">
                 <SupplierButton className="w-full justify-center" onClick={() => { setReply(""); setToast("Reply posted.") }} disabled={!reply.trim()}><Send className="w-4 h-4" /> Post reply</SupplierButton>
                 <div className="flex gap-1.5">
                   <SupplierButton variant="outline" className="flex-1 justify-center" onClick={() => setReply("Thank you so much for the kind words — it was a pleasure!")}><ThumbsUp className="w-3.5 h-3.5" /> Template</SupplierButton>
                   <SupplierButton variant="ghost" className="flex-1 justify-center" onClick={() => setToast("Review flagged for moderation.")}><Flag className="w-3.5 h-3.5" /> Flag</SupplierButton>
                 </div>
-                <Link href="/supplier/jobs" className="text-[11px] font-semibold text-blue-600 inline-flex items-center gap-0.5">Open linked job <ChevronRight className="w-3 h-3" /></Link>
+                <Link href="/supplier/jobs" className="text-[11px] font-semibold text-[var(--brand)] inline-flex items-center gap-0.5">Open linked job <ChevronRight className="w-3 h-3" /></Link>
               </div>
             </SupplierCard>
           )}
@@ -193,7 +193,7 @@ export function TeamDisputes() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {disputes.map((d) => (
-                  <tr key={d.id} onClick={() => setSelId(d.id)} className={cn("hover:bg-slate-50/60 cursor-pointer", sel?.id === d.id && "bg-blue-50/40")}>
+                  <tr key={d.id} onClick={() => setSelId(d.id)} className={cn("hover:bg-slate-50/60 cursor-pointer", sel?.id === d.id && "bg-[var(--brand-soft)]/40")}>
                     <td className="px-4 py-3"><p className="font-semibold text-slate-800">{d.customer_name ?? "Customer"}</p><p className="text-[11px] text-slate-400">{d.ref ?? d.id.slice(0, 8)}</p></td>
                     <td className="px-4 py-3 text-slate-600">{d.category ?? "—"}</td>
                     <td className="px-4 py-3 text-slate-600">{d.assigned_to ?? "—"}</td>
@@ -216,10 +216,10 @@ export function TeamDisputes() {
                   const active = stageIdx >= i
                   return (
                     <div key={s} className="flex items-center gap-1 flex-1">
-                      <span className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold", active ? "bg-[#2563EB] text-white" : "bg-slate-100 text-slate-400")}>
+                      <span className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold", active ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-400")}>
                         {active ? "✓" : i + 1}
                       </span>
-                      {i < STAGES.length - 1 && <span className={cn("flex-1 h-0.5", active ? "bg-[#2563EB]" : "bg-slate-200")} />}
+                      {i < STAGES.length - 1 && <span className={cn("flex-1 h-0.5", active ? "bg-[var(--brand)]" : "bg-slate-200")} />}
                     </div>
                   )
                 })}

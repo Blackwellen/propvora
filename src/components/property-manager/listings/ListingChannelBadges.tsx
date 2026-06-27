@@ -19,7 +19,7 @@ function ChannelBadge({ name }: { name: ListingChannel['name'] }) {
   }
   if (name === 'booking_com') {
     return (
-      <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+      <div className="w-6 h-6 rounded-full bg-[var(--brand)] flex items-center justify-center text-white text-[10px] font-bold shrink-0">
         B
       </div>
     )

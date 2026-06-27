@@ -23,12 +23,12 @@ export default function WizardStepper({ steps, currentStep, onStepClick }: Props
                 onClick={() => onStepClick(i)}
                 className={cn(
                   "w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold z-10",
-                  done ? "bg-emerald-500 text-white" : current ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400"
+                  done ? "bg-emerald-500 text-white" : current ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-400"
                 )}
               >
                 {done ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
               </button>
-              <p className={cn("text-[11px] font-semibold mt-2", current ? "text-blue-600" : done ? "text-slate-700" : "text-slate-400")}>
+              <p className={cn("text-[11px] font-semibold mt-2", current ? "text-[var(--brand)]" : done ? "text-slate-700" : "text-slate-400")}>
                 {s}
               </p>
             </li>

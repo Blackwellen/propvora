@@ -12,6 +12,7 @@ import {
   Building2,
   X,
   FileText,
+  ArrowLeft,
 } from "lucide-react"
 import { use } from "react"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
@@ -57,7 +58,7 @@ function HmoTabStrip({ propertyId }: { propertyId: string }) {
             href={tab.href}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
               isActive
-                ? "border-blue-600 text-blue-600"
+                ? "border-[var(--brand)] text-[var(--brand)]"
                 : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -80,7 +81,7 @@ const STATUS_CONFIG: Record<
 > = {
   split_invoiced: {
     label: "Invoiced",
-    classes: "bg-blue-50 text-blue-700 border border-blue-200",
+    classes: "bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]",
     action: "View splits",
   },
   unpaid: {
@@ -130,7 +131,7 @@ function AddBillModal({ onClose }: { onClose: () => void }) {
               <select
                 value={form.utilityType}
                 onChange={(e) => setForm({ ...form, utilityType: e.target.value })}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
               >
                 <option value="">Select utility</option>
                 <option value="electricity">Electricity</option>
@@ -146,7 +147,7 @@ function AddBillModal({ onClose }: { onClose: () => void }) {
                 type="text"
                 value={form.provider}
                 onChange={(e) => setForm({ ...form, provider: e.target.value })}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                 placeholder="e.g. Octopus Energy"
               />
             </div>
@@ -156,7 +157,7 @@ function AddBillModal({ onClose }: { onClose: () => void }) {
                 type="month"
                 value={form.period}
                 onChange={(e) => setForm({ ...form, period: e.target.value })}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
               />
             </div>
             <div>
@@ -165,7 +166,7 @@ function AddBillModal({ onClose }: { onClose: () => void }) {
                 type="number"
                 value={form.totalAmount}
                 onChange={(e) => setForm({ ...form, totalAmount: e.target.value })}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                 placeholder="284.00"
               />
             </div>
@@ -177,7 +178,7 @@ function AddBillModal({ onClose }: { onClose: () => void }) {
                 type="text"
                 value={form.meterStart}
                 onChange={(e) => setForm({ ...form, meterStart: e.target.value })}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                 placeholder="12450"
               />
             </div>
@@ -189,13 +190,13 @@ function AddBillModal({ onClose }: { onClose: () => void }) {
                 type="text"
                 value={form.meterEnd}
                 onChange={(e) => setForm({ ...form, meterEnd: e.target.value })}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                 placeholder="12734"
               />
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-medium text-slate-700 mb-1">Receipt Upload</label>
-              <div className="border border-dashed border-slate-300 rounded-lg px-4 py-3 text-center hover:border-blue-400 transition-colors cursor-pointer">
+              <div className="border border-dashed border-slate-300 rounded-lg px-4 py-3 text-center hover:border-[var(--color-brand-400)] transition-colors cursor-pointer">
                 <FileText className="w-5 h-5 text-slate-400 mx-auto mb-1" />
                 <p className="text-xs text-slate-500">Click to upload receipt</p>
                 <input type="file" className="hidden" accept=".pdf,.jpg,.png" />
@@ -214,7 +215,7 @@ function AddBillModal({ onClose }: { onClose: () => void }) {
                     key={opt.value}
                     className={`flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-colors ${
                       form.splitMethod === opt.value
-                        ? "border-blue-600 bg-blue-50"
+                        ? "border-[var(--brand)] bg-[var(--brand-soft)]"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
                   >
@@ -224,7 +225,7 @@ function AddBillModal({ onClose }: { onClose: () => void }) {
                       value={opt.value}
                       checked={form.splitMethod === opt.value}
                       onChange={(e) => setForm({ ...form, splitMethod: e.target.value })}
-                      className="text-blue-600"
+                      className="text-[var(--brand)]"
                     />
                     <span className="text-xs font-medium text-slate-700">{opt.label}</span>
                   </label>
@@ -276,7 +277,7 @@ function AddBillModal({ onClose }: { onClose: () => void }) {
           >
             Cancel
           </button>
-          <button className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+          <button className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
             Save & Generate Invoices
           </button>
         </div>
@@ -326,6 +327,13 @@ export default function HmoUtilitiesPage({
       {/* Page Header — hidden on phones */}
       <div className="hidden md:flex bg-white border-b border-slate-200 px-6 py-4 items-center justify-between">
         <div>
+          <Link
+            href={`/property-manager/portfolio/properties/${id}/hmo`}
+            className="inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-500 hover:text-slate-800 transition-colors mb-1.5"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to HMO dashboard
+          </Link>
           <h1 className="text-base font-bold text-slate-900">Utility Management</h1>
           <p className="text-xs text-slate-500 mt-0.5">22 Victoria Road, Manchester</p>
         </div>
@@ -335,7 +343,7 @@ export default function HmoUtilitiesPage({
           </button>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Add Utility Bill
@@ -353,7 +361,7 @@ export default function HmoUtilitiesPage({
           {[
             { label: "Electricity", value: "£284", sub: "this month", Icon: Zap, bg: "bg-yellow-50", color: "text-yellow-600" },
             { label: "Gas", value: "£187", sub: "this month", Icon: Flame, bg: "bg-orange-50", color: "text-orange-600" },
-            { label: "Water", value: "£68", sub: "this month", Icon: Droplets, bg: "bg-blue-50", color: "text-blue-600" },
+            { label: "Water", value: "£68", sub: "this month", Icon: Droplets, bg: "bg-[var(--brand-soft)]", color: "text-[var(--brand)]" },
             { label: "Broadband", value: "£45", sub: "per month", Icon: Wifi, bg: "bg-slate-50", color: "text-slate-600" },
             { label: "Council Tax", value: "£180", sub: "per month", Icon: Building2, bg: "bg-purple-50", color: "text-purple-600" },
           ].map(({ label, value, sub, Icon, bg, color }) => (
@@ -460,7 +468,7 @@ export default function HmoUtilitiesPage({
                         {row.status === "na" ? "—" : `£${row.amount.toFixed(2)}`}
                       </span>
                       {row.status === "invoiced" ? (
-                        <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full text-[10px] font-medium">
+                        <span className="bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)] px-2 py-0.5 rounded-full text-[10px] font-medium">
                           Invoiced
                         </span>
                       ) : (

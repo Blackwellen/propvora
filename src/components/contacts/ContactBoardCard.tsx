@@ -48,7 +48,7 @@ export default function ContactBoardCard({ contact, isDragging = false }: Contac
     <div
       className={[
         "relative bg-white rounded-xl border border-slate-100 shadow-sm p-3.5 transition-all duration-150 select-none",
-        isDragging ? "ring-2 ring-blue-400 shadow-lg rotate-1" : "hover:shadow-md",
+        isDragging ? "ring-2 ring-[var(--color-brand-400)] shadow-lg rotate-1" : "hover:shadow-md",
       ].join(" ")}
     >
       {/* Status dot top-right */}

@@ -19,10 +19,10 @@ export function LegalSection({
   return (
     <div className="mb-10">
       <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-baseline gap-2">
-        <span className="text-blue-600 text-base font-bold">{num}.</span>
+        <span className="text-[var(--brand)] text-base font-bold">{num}.</span>
         {title}
       </h2>
-      <div className="space-y-4 text-slate-700 leading-relaxed text-sm [&_a]:text-blue-600 [&_a:hover]:text-blue-700 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_strong]:font-semibold [&_strong]:text-slate-900">
+      <div className="space-y-4 text-slate-700 leading-relaxed text-sm [&_a]:text-[var(--brand)] [&_a:hover]:text-[var(--brand)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_strong]:font-semibold [&_strong]:text-slate-900">
         {children}
       </div>
     </div>
@@ -38,7 +38,7 @@ export function LegalCallout({
 }) {
   const styles = {
     warning: "bg-amber-50 border-amber-300 text-amber-900",
-    info: "bg-blue-50 border-blue-300 text-blue-900",
+    info: "bg-[var(--brand-soft)] border-[var(--color-brand-300)] text-[var(--brand-strong)]",
   }
   return (
     <div

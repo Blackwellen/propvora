@@ -151,7 +151,7 @@ export function SupplierProfileTab({ contact }: { contact: ContactDetail }) {
         {serviceCategories.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {serviceCategories.map(cat => (
-              <span key={cat} className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">{cat}</span>
+              <span key={cat} className="inline-flex items-center px-3 py-1 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] text-xs font-medium">{cat}</span>
             ))}
           </div>
         ) : (
@@ -230,8 +230,8 @@ export function LandlordPropertiesTab({ contact }: { contact: ContactDetail }) {
         {props.map((prop, i) => (
           <SectionCard key={i} className="p-4 hover:shadow-sm transition-all">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                <Building2 className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                <Building2 className="w-5 h-5 text-[var(--brand)]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-slate-900 truncate">{prop}</p>
@@ -241,7 +241,7 @@ export function LandlordPropertiesTab({ contact }: { contact: ContactDetail }) {
               </div>
             </div>
             <div className="flex items-center justify-end mt-3 pt-3 border-t border-slate-100">
-              <Link href="/property-manager/portfolio/properties" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+              <Link href="/property-manager/portfolio/properties" className="text-xs text-[var(--brand)] hover:underline flex items-center gap-1">
                 View in Portfolio <ExternalLink className="w-3 h-3" />
               </Link>
             </div>
@@ -282,7 +282,7 @@ export function PlanningSetTab({ contact }: { contact: ContactDetail }) {
                   <td className="px-4 py-3"><StatusChip status={s.status} /></td>
                   <td className="px-4 py-3 text-slate-500 text-xs">{s.created}</td>
                   <td className="px-4 py-3 text-right">
-                    <Link href="/property-manager/planning" className="text-xs text-blue-600 hover:underline">Open</Link>
+                    <Link href="/property-manager/planning" className="text-xs text-[var(--brand)] hover:underline">Open</Link>
                   </td>
                 </tr>
               ))}
@@ -319,7 +319,7 @@ export function LandlordOffersTab({ contact }: { contact: ContactDetail }) {
                 <p className="text-xs text-slate-500 mt-0.5">£{o.amount.toLocaleString("en-GB")}/mo</p>
               </div>
               <StatusChip status={o.status} />
-              <Link href="/property-manager/planning/landlord-offers" className="text-xs text-blue-600 hover:underline">View</Link>
+              <Link href="/property-manager/planning/landlord-offers" className="text-xs text-[var(--brand)] hover:underline">View</Link>
             </SectionCard>
           ))}
         </div>
@@ -349,11 +349,11 @@ export function EnquiryTab({ contact }: { contact: ContactDetail }) {
           <FieldRow label="Status" value={<StatusChip status={eq.status} />} />
         </div>
       </SectionCard>
-      <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 flex items-center gap-3">
-        <div style={{ color: "var(--brand)" }}><Zap className="w-5 h-5 shrink-0" /></div>
+      <div className="rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)] p-4 flex items-center gap-3">
+        <div style={{ color: "#2563EB" }}><Zap className="w-5 h-5 shrink-0" /></div>
         <div className="flex-1">
-          <p className="text-sm font-semibold text-blue-900">Ready to convert?</p>
-          <p className="text-sm text-blue-700">Convert this applicant to a tenant and create a tenancy record</p>
+          <p className="text-sm font-semibold text-[var(--brand-strong)]">Ready to convert?</p>
+          <p className="text-sm text-[var(--brand)]">Convert this applicant to a tenant and create a tenancy record</p>
         </div>
         <Button variant="primary" size="sm" className="shrink-0" onClick={() => router.push(`/property-manager/portfolio/tenancies/new?contact=${contact.id}`)}>Convert to Tenant</Button>
       </div>
@@ -422,7 +422,7 @@ export function NotesTab({ contact }: { contact: ContactDetail }) {
             onChange={e => setNote(e.target.value)}
             rows={3}
             placeholder="Add an internal note about this contact…"
-            className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+            className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
           />
           <div className="flex justify-end mt-2">
             <Button variant="primary" size="sm" loading={saving} disabled={!note.trim()} onClick={appendNote}>
@@ -522,16 +522,16 @@ export function TasksTab({ contactId, workspaceId }: { contactId: string; worksp
         </div>
       </div>
       {showForm && (
-        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 space-y-3">
+        <div className="rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)] p-4 space-y-3">
           <div>
             <label htmlFor="contact-task-title" className="block text-xs font-medium text-slate-700 mb-1">Task title *</label>
             <input id="contact-task-title" type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Send rental statement"
-              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" autoFocus />
+              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]" autoFocus />
           </div>
           <div>
             <label htmlFor="contact-task-due" className="block text-xs font-medium text-slate-700 mb-1">Due date</label>
             <input id="contact-task-due" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]" />
           </div>
           {error && <p className="text-xs text-red-600">{error}</p>}
           <div className="flex gap-2">
@@ -588,12 +588,12 @@ export function MessagesTab({ contactId, workspaceId }: { contactId: string; wor
 
       {isLoading ? (
         <div className="flex items-center justify-center py-10">
-          <div className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-blue-500 animate-spin" />
+          <div className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-[var(--brand)] animate-spin" />
         </div>
       ) : messages.length === 0 ? (
         <div className="text-center py-12">
-          <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-3">
-            <MessageCircle className="w-5 h-5 text-blue-500" />
+          <div className="w-12 h-12 rounded-full bg-[var(--brand-soft)] flex items-center justify-center mx-auto mb-3">
+            <MessageCircle className="w-5 h-5 text-[var(--brand)]" />
           </div>
           <p className="text-sm text-slate-500 mb-3">No messages with this contact yet.</p>
           <Link href="/property-manager/messages">
@@ -609,7 +609,7 @@ export function MessagesTab({ contactId, workspaceId }: { contactId: string; wor
                 <div className="flex items-center justify-between mb-1">
                   <span className={cn(
                     "inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold",
-                    isUser ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-600"
+                    isUser ? "bg-[var(--color-brand-100)] text-[var(--brand)]" : "bg-slate-100 text-slate-600"
                   )}>
                     {isUser ? "You" : "Contact"}
                   </span>
@@ -621,7 +621,7 @@ export function MessagesTab({ contactId, workspaceId }: { contactId: string; wor
               </div>
             )
           })}
-          <Link href="/property-manager/messages" className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline pt-1">
+          <Link href="/property-manager/messages" className="inline-flex items-center gap-1 text-xs text-[var(--brand)] hover:underline pt-1">
             View full conversation in Messages <ExternalLink className="w-3 h-3" />
           </Link>
         </div>

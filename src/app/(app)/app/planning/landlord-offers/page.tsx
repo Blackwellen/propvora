@@ -183,7 +183,7 @@ export default function LandlordOffersPage() {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           aria-label="Filter by status"
-          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
         >
           <option value="all">All statuses</option>
           {STAGES.map((s) => (

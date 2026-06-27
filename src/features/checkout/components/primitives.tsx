@@ -68,7 +68,7 @@ export function Field({
 }
 
 const inputBase =
-  "w-full rounded-xl border border-[#D8E1F0] bg-white px-3.5 py-2.5 text-[14px] text-[#0B1B3F] placeholder:text-slate-400 shadow-sm transition-colors focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/15"
+  "w-full rounded-xl border border-[#D8E1F0] bg-white px-3.5 py-2.5 text-[14px] text-[#0B1B3F] placeholder:text-slate-400 shadow-sm transition-colors focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/15"
 
 export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${inputBase} ${props.className ?? ""}`} />
@@ -132,7 +132,7 @@ export function Toggle({
     >
       <span
         className={`relative h-5 w-9 rounded-full transition-colors ${
-          checked ? "bg-[#2563EB]" : "bg-slate-300"
+          checked ? "bg-[var(--brand)]" : "bg-slate-300"
         }`}
       >
         <span
@@ -165,13 +165,13 @@ export function CheckRow({
       type="button"
       onClick={() => onChange(!checked)}
       className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors ${
-        checked ? "border-[#2563EB] bg-[#EFF5FF]" : "border-[#E2EAF6] bg-white hover:border-[#CBD8EE]"
+        checked ? "border-[var(--brand)] bg-[#EFF5FF]" : "border-[#E2EAF6] bg-white hover:border-[#CBD8EE]"
       }`}
     >
       <span className="flex items-center gap-2.5">
         <span
           className={`flex h-5 w-5 items-center justify-center rounded-md border ${
-            checked ? "border-[#2563EB] bg-[#2563EB] text-white" : "border-slate-300 bg-white"
+            checked ? "border-[var(--brand)] bg-[var(--brand)] text-white" : "border-slate-300 bg-white"
           }`}
         >
           {checked ? <Check className="h-3.5 w-3.5" /> : null}
@@ -216,7 +216,7 @@ export function TrustBar() {
 export function SecurityNote() {
   return (
     <div className="flex items-start gap-2.5 rounded-xl border border-[#E2EAF6] bg-[#F7FAFF] px-3.5 py-3">
-      <Lock className="mt-0.5 h-4 w-4 shrink-0 text-[#2563EB]" aria-hidden="true" />
+      <Lock className="mt-0.5 h-4 w-4 shrink-0 text-[var(--brand)]" aria-hidden="true" />
       <p className="text-[12px] leading-relaxed text-slate-600">
         Your payment is protected with <strong className="font-semibold text-slate-700">256-bit SSL</strong>{" "}
         encryption. Card details are tokenised and never stored on Propvora servers.
@@ -270,12 +270,12 @@ export function PaymentMethodPicker({
             type="button"
             onClick={() => onSelect(m.id)}
             className={`flex items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors ${
-              active ? "border-[#2563EB] bg-[#EFF5FF] ring-1 ring-[#2563EB]/20" : "border-[#E2EAF6] bg-white hover:border-[#CBD8EE]"
+              active ? "border-[var(--brand)] bg-[#EFF5FF] ring-1 ring-[var(--brand)]/20" : "border-[#E2EAF6] bg-white hover:border-[#CBD8EE]"
             }`}
           >
             <span
               className={`flex h-8 w-8 items-center justify-center rounded-lg ${
-                active ? "bg-[#2563EB] text-white" : "bg-slate-100 text-slate-500"
+                active ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-500"
               }`}
             >
               <meta.icon className="h-4 w-4" />
@@ -337,7 +337,7 @@ export function ConfirmModal({
             onClick={onConfirm}
             disabled={loading}
             className={`h-11 rounded-xl px-4 text-[14px] font-semibold text-white shadow-sm transition-colors disabled:opacity-60 ${
-              tone === "danger" ? "bg-[#DC2626] hover:bg-[#B91C1C]" : "bg-[#2563EB] hover:bg-[#1D4ED8]"
+              tone === "danger" ? "bg-[#DC2626] hover:bg-[#B91C1C]" : "bg-[var(--brand)] hover:bg-[var(--brand-strong)]"
             }`}
           >
             {loading ? "Processing…" : confirmLabel}
@@ -368,7 +368,7 @@ export function PrimaryButton({
       onClick={onClick}
       disabled={disabled}
       className={`flex h-12 w-full items-center justify-center gap-2 rounded-xl px-5 text-[15px] font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-        tone === "danger" ? "bg-[#DC2626] hover:bg-[#B91C1C]" : "bg-[#2563EB] hover:bg-[#1D4ED8]"
+        tone === "danger" ? "bg-[#DC2626] hover:bg-[#B91C1C]" : "bg-[var(--brand)] hover:bg-[var(--brand-strong)]"
       }`}
     >
       {children}
@@ -387,7 +387,7 @@ export function GhostButton({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12.5px] font-semibold text-[#2563EB] transition-colors hover:bg-[#EFF5FF]"
+      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12.5px] font-semibold text-[var(--brand)] transition-colors hover:bg-[#EFF5FF]"
     >
       {children}
     </button>

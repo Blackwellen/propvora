@@ -24,7 +24,7 @@ export default function QuickActionsRail() {
           return (
             <li key={q.id}>
               <Link href={q.href} className="flex items-center gap-3 py-2.5 group">
-                <span className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600 shrink-0">
+                <span className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-[var(--brand-soft)] group-hover:text-[var(--brand)] shrink-0">
                   <Icon className="w-[18px] h-[18px]" />
                 </span>
                 <div className="flex-1 min-w-0">

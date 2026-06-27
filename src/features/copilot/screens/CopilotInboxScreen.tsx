@@ -124,7 +124,7 @@ export default function CopilotInboxScreen({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search conversations…"
-            className="w-full pl-8 pr-3 py-1.5 text-[12px] border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-blue-300 focus:bg-white transition-all placeholder-slate-400"
+            className="w-full pl-8 pr-3 py-1.5 text-[12px] border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-[var(--color-brand-300)] focus:bg-white transition-all placeholder-slate-400"
           />
         </div>
         <button className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shrink-0">
@@ -159,12 +159,12 @@ export default function CopilotInboxScreen({
               onClick={() => setActiveStatus(pill.label)}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${
                 activeStatus === pill.label
-                  ? "bg-blue-600 text-white"
+                  ? "bg-[var(--brand)] text-white"
                   : "text-slate-500 hover:bg-slate-100"
               }`}
             >
               {pill.label}
-              <span className={`${activeStatus === pill.label ? "text-blue-200" : "text-slate-400"}`}>
+              <span className={`${activeStatus === pill.label ? "text-[var(--color-brand-100)]" : "text-slate-400"}`}>
                 {isLoading ? "…" : pill.count}
               </span>
             </button>

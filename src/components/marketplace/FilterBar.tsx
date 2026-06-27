@@ -50,7 +50,7 @@ function penceToMajor(p: number | null): string {
 }
 
 const SELECT_CLS =
-  "h-9 rounded-xl border border-slate-200 bg-white px-3 text-[12.5px] font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+  "h-9 rounded-xl border border-slate-200 bg-white px-3 text-[12.5px] font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
 
 export function FilterBar({ filters, onChange, onClear, resultCount, className }: FilterBarProps) {
   const mounted = useHasMounted()
@@ -105,7 +105,7 @@ export function FilterBar({ filters, onChange, onClear, resultCount, className }
               value={filters.query}
               onChange={(e) => onChange({ query: e.target.value })}
               placeholder="Search the marketplace"
-              className="w-full h-11 rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[14px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]"
+              className="w-full h-11 rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[14px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]"
             />
           </div>
           <button
@@ -115,7 +115,7 @@ export function FilterBar({ filters, onChange, onClear, resultCount, className }
           >
             <SlidersHorizontal className="w-4.5 h-4.5" />
             {activeCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold flex items-center justify-center">
                 {activeCount}
               </span>
             )}
@@ -129,7 +129,7 @@ export function FilterBar({ filters, onChange, onClear, resultCount, className }
             value={minMajor}
             onChange={(e) => { setMinMajor(e.target.value); onChange({ minPence: majorToPence(e.target.value) }) }}
             placeholder="Min £"
-            className="flex-1 h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+            className="flex-1 h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
           />
           <span className="text-slate-400 text-sm">—</span>
           <input
@@ -137,7 +137,7 @@ export function FilterBar({ filters, onChange, onClear, resultCount, className }
             value={maxMajor}
             onChange={(e) => { setMaxMajor(e.target.value); onChange({ maxPence: majorToPence(e.target.value) }) }}
             placeholder="Max £"
-            className="flex-1 h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+            className="flex-1 h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
           />
         </div>
 
@@ -164,7 +164,7 @@ export function FilterBar({ filters, onChange, onClear, resultCount, className }
             value={filters.query}
             onChange={(e) => onChange({ query: e.target.value })}
             placeholder="Search listings, services and suppliers…"
-            className="w-full h-9 rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+            className="w-full h-9 rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
           />
         </div>
 
@@ -203,7 +203,7 @@ export function FilterBar({ filters, onChange, onClear, resultCount, className }
               value={minMajor}
               onChange={(e) => { setMinMajor(e.target.value); onChange({ minPence: majorToPence(e.target.value) }) }}
               placeholder="Min"
-              className="w-[88px] h-9 rounded-xl border border-slate-200 bg-white pl-6 pr-2 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              className="w-[88px] h-9 rounded-xl border border-slate-200 bg-white pl-6 pr-2 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
             />
           </div>
           <span className="text-slate-300 text-sm">–</span>
@@ -214,7 +214,7 @@ export function FilterBar({ filters, onChange, onClear, resultCount, className }
               value={maxMajor}
               onChange={(e) => { setMaxMajor(e.target.value); onChange({ maxPence: majorToPence(e.target.value) }) }}
               placeholder="Max"
-              className="w-[88px] h-9 rounded-xl border border-slate-200 bg-white pl-6 pr-2 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              className="w-[88px] h-9 rounded-xl border border-slate-200 bg-white pl-6 pr-2 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
             />
           </div>
         </div>
@@ -225,7 +225,7 @@ export function FilterBar({ filters, onChange, onClear, resultCount, className }
           className={cn(
             "inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border text-[12.5px] font-semibold shadow-sm transition-all",
             showAdvanced || filters.location
-              ? "bg-[#EFF6FF] border-blue-200 text-[#2563EB]"
+              ? "bg-[var(--brand-soft)] border-[var(--color-brand-100)] text-[var(--brand)]"
               : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
           )}
         >
@@ -259,7 +259,7 @@ export function FilterBar({ filters, onChange, onClear, resultCount, className }
               value={filters.location}
               onChange={(e) => onChange({ location: e.target.value })}
               placeholder="City, region or postcode"
-              className="w-[260px] h-9 rounded-xl border border-slate-200 bg-white px-3 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              className="w-[260px] h-9 rounded-xl border border-slate-200 bg-white px-3 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
             />
           </div>
         </div>

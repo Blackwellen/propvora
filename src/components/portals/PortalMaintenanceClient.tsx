@@ -79,10 +79,10 @@ export default function PortalMaintenanceClient({ rows, base }: { rows: MaintRow
         <div className="space-y-3 min-w-0">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex gap-1 bg-white border border-[#E2EAF6] rounded-xl p-1">
-              <button onClick={() => setTab("active")} className={cn("h-8 px-3 rounded-lg text-xs font-semibold", tab === "active" ? "bg-[#2563EB] text-white" : "text-slate-500 hover:bg-slate-50")}>Active requests</button>
-              <button onClick={() => setTab("completed")} className={cn("h-8 px-3 rounded-lg text-xs font-semibold", tab === "completed" ? "bg-[#2563EB] text-white" : "text-slate-500 hover:bg-slate-50")}>Completed</button>
+              <button onClick={() => setTab("active")} className={cn("h-8 px-3 rounded-lg text-xs font-semibold", tab === "active" ? "bg-[var(--brand)] text-white" : "text-slate-500 hover:bg-slate-50")}>Active requests</button>
+              <button onClick={() => setTab("completed")} className={cn("h-8 px-3 rounded-lg text-xs font-semibold", tab === "completed" ? "bg-[var(--brand)] text-white" : "text-slate-500 hover:bg-slate-50")}>Completed</button>
             </div>
-            <div className="relative w-full sm:w-56"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search requests…" className="w-full h-9 pl-9 pr-3 rounded-xl border border-[#E2EAF6] text-sm outline-none focus:border-[#2563EB]" /></div>
+            <div className="relative w-full sm:w-56"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search requests…" className="w-full h-9 pl-9 pr-3 rounded-xl border border-[#E2EAF6] text-sm outline-none focus:border-[var(--brand)]" /></div>
           </div>
 
           <PortalCard className="overflow-hidden">
@@ -105,7 +105,7 @@ export default function PortalMaintenanceClient({ rows, base }: { rows: MaintRow
                           <td className="px-4 py-3 text-slate-500">{fmtDate(r.created_at)}</td>
                           <td className="px-4 py-3"><StatusChip tone={st.tone} dot>{st.label}</StatusChip></td>
                           <td className="px-4 py-3 text-slate-500 text-xs">{st.next}</td>
-                          <td className="px-4 py-3 text-right"><Link href={`${base}/maintenance/${r.id}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]">View <ChevronRight className="w-3.5 h-3.5" /></Link></td>
+                          <td className="px-4 py-3 text-right"><Link href={`${base}/maintenance/${r.id}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]">View <ChevronRight className="w-3.5 h-3.5" /></Link></td>
                         </tr>
                       )
                     })}

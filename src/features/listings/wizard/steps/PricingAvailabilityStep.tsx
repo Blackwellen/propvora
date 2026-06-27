@@ -208,7 +208,7 @@ export function PricingAvailabilityStep() {
             <select
               value={cur}
               onChange={(e) => update({ currency: e.target.value })}
-              className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-900 outline-none focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-100"
+              className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-900 outline-none focus-visible:border-[var(--color-brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-100)]"
             >
               {CURRENCIES.map((c) => (
                 <option key={c}>{c}</option>
@@ -302,7 +302,7 @@ export function PricingAvailabilityStep() {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <FieldLabel>VAT rate (%)</FieldLabel>
-            <input type="number" value={draft.vatPct} onChange={(e) => update({ vatPct: Number(e.target.value) })} className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-100" />
+            <input type="number" value={draft.vatPct} onChange={(e) => update({ vatPct: Number(e.target.value) })} className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus-visible:border-[var(--color-brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-100)]" />
           </div>
           <div>
             <FieldLabel>Cancellation fee</FieldLabel>
@@ -344,15 +344,15 @@ export function PricingAvailabilityStep() {
         <div className="grid grid-cols-3 gap-3">
           <div>
             <FieldLabel>Weekly (%)</FieldLabel>
-            <input type="number" value={draft.weeklyDiscountPct} onChange={(e) => update({ weeklyDiscountPct: Number(e.target.value) })} className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus-visible:border-blue-400" />
+            <input type="number" value={draft.weeklyDiscountPct} onChange={(e) => update({ weeklyDiscountPct: Number(e.target.value) })} className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus-visible:border-[var(--color-brand-400)]" />
           </div>
           <div>
             <FieldLabel>Monthly (%)</FieldLabel>
-            <input type="number" value={draft.monthlyDiscountPct} onChange={(e) => update({ monthlyDiscountPct: Number(e.target.value) })} className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus-visible:border-blue-400" />
+            <input type="number" value={draft.monthlyDiscountPct} onChange={(e) => update({ monthlyDiscountPct: Number(e.target.value) })} className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus-visible:border-[var(--color-brand-400)]" />
           </div>
           <div>
             <FieldLabel>Early-bird (%)</FieldLabel>
-            <input type="number" value={draft.earlyBirdDiscountPct} onChange={(e) => update({ earlyBirdDiscountPct: Number(e.target.value) })} className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus-visible:border-blue-400" />
+            <input type="number" value={draft.earlyBirdDiscountPct} onChange={(e) => update({ earlyBirdDiscountPct: Number(e.target.value) })} className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus-visible:border-[var(--color-brand-400)]" />
           </div>
         </div>
       </Card>
@@ -434,7 +434,7 @@ export function PricingAvailabilityStep() {
             </ToggleChip>
           ))}
         </div>
-        <button type="button" className="mt-3 text-[12px] font-semibold text-blue-600 hover:underline">
+        <button type="button" className="mt-3 text-[12px] font-semibold text-[var(--brand)] hover:underline">
           Manage channel mapping →
         </button>
       </Card>

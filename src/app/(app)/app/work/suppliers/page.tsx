@@ -135,12 +135,12 @@ export default function SuppliersPage() {
   // Supplier/preferred counts are live. The rest have no live source yet — show
   // an honest "—" rather than fabricated numbers.
   const KPIS = [
-    { label: "Suppliers", value: String(suppliers.length), sub: `${preferred.length} preferred`, icon: Users, bg: "bg-blue-50", color: "text-blue-600" },
+    { label: "Suppliers", value: String(suppliers.length), sub: `${preferred.length} preferred`, icon: Users, bg: "bg-[var(--brand-soft)]", color: "text-[var(--brand)]" },
     { label: "Pending Requests", value: "—", sub: "No requests yet", icon: Clock, bg: "bg-amber-50", color: "text-amber-600" },
     { label: "Quotes Received", value: "—", sub: "No quotes yet", icon: FileText, bg: "bg-emerald-50", color: "text-emerald-600" },
     { label: "Supplier SLA", value: "—", sub: "Awaiting data", icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" },
     { label: "Outstanding Invoices", value: "—", sub: "No invoices yet", icon: Receipt, bg: "bg-violet-50", color: "text-violet-600" },
-    { label: "Avg Response Time", value: "—", sub: "Awaiting data", icon: Zap, bg: "bg-blue-50", color: "text-blue-600" },
+    { label: "Avg Response Time", value: "—", sub: "Awaiting data", icon: Zap, bg: "bg-[var(--brand-soft)]", color: "text-[var(--brand)]" },
   ]
 
   const mobileFilterGroups: FilterGroup[] = [
@@ -197,7 +197,7 @@ export default function SuppliersPage() {
           <>
             <Link
               href="/property-manager/work/jobs/new"
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-[#2563EB] text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-[var(--brand)] text-white rounded-lg text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               Create Job
@@ -258,7 +258,7 @@ export default function SuppliersPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search suppliers..."
-            className="w-full pl-9 pr-4 py-1.5 border border-slate-200 rounded-lg text-[13px] text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+            className="w-full pl-9 pr-4 py-1.5 border border-slate-200 rounded-lg text-[13px] text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 bg-white"
           />
         </div>
         <select
@@ -285,7 +285,7 @@ export default function SuppliersPage() {
             setTradeFilter("All Trades")
             setSortBy("name")
           }}
-          className="text-[12px] font-medium text-[#2563EB] hover:underline px-2"
+          className="text-[12px] font-medium text-[var(--brand)] hover:underline px-2"
         >
           Clear Filters
         </button>
@@ -315,7 +315,7 @@ export default function SuppliersPage() {
                   </div>
                   <p className="text-base font-semibold text-slate-900 mb-1">No suppliers found</p>
                   <p className="text-sm text-slate-500 mb-4">Add a supplier contact or adjust your filters.</p>
-                  <Link href="/property-manager/contacts/new?type=supplier" className="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold">Add Supplier</Link>
+                  <Link href="/property-manager/contacts/new?type=supplier" className="px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold">Add Supplier</Link>
                 </div>
               }
               mobile={{
@@ -372,7 +372,7 @@ export default function SuppliersPage() {
                           <p className="text-sm text-slate-500 mb-4">Add a supplier contact or adjust your filters.</p>
                           <Link
                             href="/property-manager/contacts/new?type=supplier"
-                            className="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+                            className="px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
                           >
                             Add Supplier
                           </Link>
@@ -476,7 +476,7 @@ export default function SuppliersPage() {
               <div className="px-4 py-3 border-b border-slate-100">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-slate-900">Network by Trade</h3>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
                     {suppliers.length} Active
                   </span>
                 </div>
@@ -490,7 +490,7 @@ export default function SuppliersPage() {
                       <div key={t.trade} className="flex items-center gap-3">
                         <span className="text-[11px] text-slate-600 w-28 shrink-0 truncate">{t.trade}</span>
                         <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                          <div className="h-2 rounded-full bg-[#2563EB]" style={{ width: `${(t.count / tradeBreakdown[0].count) * 100}%` }} />
+                          <div className="h-2 rounded-full bg-[var(--brand)]" style={{ width: `${(t.count / tradeBreakdown[0].count) * 100}%` }} />
                         </div>
                         <span className="text-[11px] font-semibold text-slate-700 w-5 text-right shrink-0">{t.count}</span>
                       </div>
@@ -508,7 +508,7 @@ export default function SuppliersPage() {
                     <Award className="w-4 h-4 text-amber-500" />
                     <h3 className="text-sm font-semibold text-slate-900">Preferred Suppliers</h3>
                   </div>
-                  <Link href="/property-manager/work/suppliers/preferred" className="text-[12px] text-[#2563EB] hover:underline">
+                  <Link href="/property-manager/work/suppliers/preferred" className="text-[12px] text-[var(--brand)] hover:underline">
                     Manage
                   </Link>
                 </div>
@@ -547,7 +547,7 @@ export default function SuppliersPage() {
                     <Shield className="w-4 h-4 text-emerald-600" />
                     <h3 className="text-sm font-semibold text-slate-900">Compliance Overview</h3>
                   </div>
-                  <Link href="/property-manager/work/suppliers/compliance" className="text-[12px] text-[#2563EB] hover:underline">
+                  <Link href="/property-manager/work/suppliers/compliance" className="text-[12px] text-[var(--brand)] hover:underline">
                     Details
                   </Link>
                 </div>
@@ -569,12 +569,12 @@ export default function SuppliersPage() {
           <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-slate-900">Supplier Requests / RFQs</h3>
-              <Link href="/property-manager/work/jobs" className="text-[12px] text-[#2563EB] hover:underline">
+              <Link href="/property-manager/work/jobs" className="text-[12px] text-[var(--brand)] hover:underline">
                 View All
               </Link>
             </div>
             <p className="text-[12px] text-slate-400 text-center py-4">No open requests. Create one to source quotes from suppliers.</p>
-            <Link href="/property-manager/work/jobs/new" className="w-full mt-2 text-[12px] font-semibold text-[#2563EB] hover:underline block text-center">
+            <Link href="/property-manager/work/jobs/new" className="w-full mt-2 text-[12px] font-semibold text-[var(--brand)] hover:underline block text-center">
               Create New Request →
             </Link>
           </div>
@@ -583,7 +583,7 @@ export default function SuppliersPage() {
           <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-blue-600" />
+                <TrendingUp className="w-4 h-4 text-[var(--brand)]" />
                 <h3 className="text-sm font-semibold text-slate-900">Supplier Performance</h3>
               </div>
             </div>
@@ -607,7 +607,7 @@ export default function SuppliersPage() {
                   <Link
                     key={a.label}
                     href={a.href}
-                    className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-slate-200 hover:border-blue-200 hover:bg-blue-50/40 transition-colors text-center"
+                    className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-slate-200 hover:border-[var(--color-brand-100)] hover:bg-[var(--brand-soft)]/40 transition-colors text-center"
                   >
                     <Icon className="w-4 h-4 text-slate-500" />
                     <span className="text-[10.5px] font-medium text-slate-600 leading-tight">{a.label}</span>

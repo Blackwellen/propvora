@@ -35,7 +35,7 @@ function PrimaryActions({ contact, onToast, onArchive, onDelete, editable, onTab
     <div className="flex items-center gap-2 flex-wrap">
       <button
         onClick={() => onTabChange("messages")}
-        className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+        className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-[var(--brand)] text-white text-sm font-medium hover:bg-[var(--brand-strong)] transition-colors"
       >
         <MessageSquare className="w-3.5 h-3.5" /> Message
       </button>
@@ -153,7 +153,7 @@ export function ContactDetailHeader({ contact, editable, onToast, onArchive, onD
               <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                 <Wrench className="w-3 h-3 text-slate-400" />
                 {contact.service_categories!.map(cat => (
-                  <span key={cat} className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">{cat}</span>
+                  <span key={cat} className="inline-flex items-center px-2 py-0.5 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] text-xs font-medium">{cat}</span>
                 ))}
               </div>
             )}
@@ -161,11 +161,11 @@ export function ContactDetailHeader({ contact, editable, onToast, onArchive, onD
               <MapPin className="w-3.5 h-3.5" /> {contact.city}{contact.postcode ? `, ${contact.postcode}` : ""}
             </p>
             <div className="flex items-center gap-4 mt-2 flex-wrap text-sm text-slate-600">
-              <a href={`mailto:${contact.email}`} className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
+              <a href={`mailto:${contact.email}`} className="flex items-center gap-1.5 hover:text-[var(--brand)] transition-colors">
                 <Mail className="w-3.5 h-3.5" /> {contact.email}
               </a>
               {contact.phone && (
-                <a href={`tel:${contact.phone}`} className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
+                <a href={`tel:${contact.phone}`} className="flex items-center gap-1.5 hover:text-[var(--brand)] transition-colors">
                   <Phone className="w-3.5 h-3.5" /> {contact.phone}
                 </a>
               )}

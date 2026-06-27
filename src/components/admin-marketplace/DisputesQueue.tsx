@@ -51,7 +51,7 @@ export default function DisputesQueue({ rows }: { rows: AdminDisputeRow[] }) {
               <button
                 type="button"
                 onClick={() => setSheetId(d.id)}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-[#2563EB]"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)]"
               >
                 <Gavel className="w-3.5 h-3.5" /> Resolve
               </button>
@@ -101,7 +101,7 @@ export default function DisputesQueue({ rows }: { rows: AdminDisputeRow[] }) {
                     <button
                       type="button"
                       onClick={() => setOpenId((id) => (id === d.id ? null : d.id))}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:underline"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:underline"
                     >
                       <Gavel className="w-3.5 h-3.5" /> Resolve
                       <ChevronDown

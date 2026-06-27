@@ -48,7 +48,7 @@ const INTENT_GRADIENT: Record<string, string> = {
   suppliers: "linear-gradient(135deg, #EA580C 0%, #F97316 100%)",
   emergency: "linear-gradient(135deg, #B91C1C 0%, #EF4444 100%)",
   services: "linear-gradient(135deg, #6D28D9 0%, #8B5CF6 100%)",
-  all: "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
+  all: "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)",
 }
 
 function Cover({
@@ -114,14 +114,14 @@ export function StayCard({ listing, className }: CardProps) {
         <Cover listing={listing} height="h-48">
           <WishHeart id={listing.id} />
           {listing.instantBook && (
-            <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-bold text-[#2563EB] shadow-sm">
+            <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-bold text-[var(--brand)] shadow-sm">
               <Zap className="w-3 h-3" /> Instant book
             </span>
           )}
         </Cover>
         <div className="px-4 pt-3 pb-3.5 flex flex-col flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-[14px] font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-[#2563EB] transition-colors">
+            <h3 className="text-[14px] font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-[var(--brand)] transition-colors">
               {listing.title}
             </h3>
             <Rating rating={listing.rating} count={listing.reviewCount} />
@@ -187,7 +187,7 @@ export function SupplierCard({ listing, className }: CardProps) {
         )}
         {/* Fast response — top right */}
         {listing.instantBook && (
-          <span className="absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-bold text-[#2563EB] shadow-sm pointer-events-none">
+          <span className="absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-bold text-[var(--brand)] shadow-sm pointer-events-none">
             <Clock className="w-3 h-3" aria-hidden="true" /> Fast response
           </span>
         )}
@@ -195,8 +195,8 @@ export function SupplierCard({ listing, className }: CardProps) {
 
       {/* Body */}
       <div className="px-4 pt-3 pb-3.5 flex flex-col flex-1">
-        <Link href={href} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] rounded">
-          <h3 className="text-[14px] font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-[#2563EB] transition-colors">
+        <Link href={href} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] rounded">
+          <h3 className="text-[14px] font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-[var(--brand)] transition-colors">
             {listing.title}
           </h3>
         </Link>
@@ -226,7 +226,7 @@ export function SupplierCard({ listing, className }: CardProps) {
           </div>
           <Link
             href={href}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11.5px] font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-1"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11.5px] font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1"
           >
             Get quote
           </Link>

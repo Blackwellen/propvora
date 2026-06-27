@@ -50,7 +50,7 @@ const DEFAULT_ICONS: Record<string, React.ElementType> = {
 /* ------------------------------------------------------------------ */
 const NODE_CFG: Record<TimelineStageStatus, { ring: string; bg: string; icon: string; label: string; labelColor: string; dateColor: string }> = {
   completed: { ring: "border-emerald-500",  bg: "bg-emerald-500",  icon: "text-white",          label: "Completed", labelColor: "text-emerald-700",  dateColor: "text-emerald-600" },
-  current:   { ring: "border-[#2563EB]",    bg: "bg-[#2563EB]",   icon: "text-white",          label: "Current",   labelColor: "text-[#2563EB]",    dateColor: "text-[#2563EB]" },
+  current:   { ring: "border-[var(--brand)]",    bg: "bg-[var(--brand)]",   icon: "text-white",          label: "Current",   labelColor: "text-[var(--brand)]",    dateColor: "text-[var(--brand)]" },
   upcoming:  { ring: "border-slate-300",    bg: "bg-white",       icon: "text-slate-300",      label: "Upcoming",  labelColor: "text-slate-400",    dateColor: "text-slate-400" },
   overdue:   { ring: "border-red-500",      bg: "bg-red-50",      icon: "text-red-500",        label: "Overdue",   labelColor: "text-red-700",      dateColor: "text-red-600" },
   pending:   { ring: "border-amber-400",    bg: "bg-amber-50",    icon: "text-amber-500",      label: "Pending",   labelColor: "text-amber-700",    dateColor: "text-amber-600" },
@@ -87,7 +87,7 @@ export function TenancyTimeline({ stages, currentStageDetail, className }: Tenan
                 <div className={cn(
                   "w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all mb-2",
                   cfg.ring, cfg.bg,
-                  stage.status === "current" && "shadow-lg shadow-blue-200 ring-4 ring-[#2563EB]/20",
+                  stage.status === "current" && "shadow-lg shadow-[var(--color-brand-100)] ring-4 ring-[var(--brand)]/20",
                 )}>
                   {stage.status === "completed" ? (
                     <CheckCircle2 className={cn("w-5 h-5", cfg.icon)} />
@@ -120,10 +120,10 @@ export function TenancyTimeline({ stages, currentStageDetail, className }: Tenan
 
       {/* ── Current stage detail card ─────────────────────────── */}
       {currentStageDetail && (
-        <div className="mx-4 mb-4 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start justify-between gap-3">
+        <div className="mx-4 mb-4 bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-xl p-4 flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-2 rounded-full bg-[#2563EB]" />
+              <div className="w-2 h-2 rounded-full bg-[var(--brand)]" />
               <p className="text-[13px] font-bold text-slate-900">{currentStageDetail.label}</p>
               <span className="text-[11px] text-slate-500">{fmtDate(currentStageDetail.date)}</span>
             </div>
@@ -133,7 +133,7 @@ export function TenancyTimeline({ stages, currentStageDetail, className }: Tenan
           {currentStageDetail.action && (
             <button
               onClick={currentStageDetail.action.onClick}
-              className="shrink-0 px-4 py-2 bg-[#2563EB] text-white text-[12px] font-bold rounded-xl hover:bg-[#1d4ed8] transition-colors shadow-sm"
+              className="shrink-0 px-4 py-2 bg-[var(--brand)] text-white text-[12px] font-bold rounded-xl hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
             >
               {currentStageDetail.action.label}
             </button>

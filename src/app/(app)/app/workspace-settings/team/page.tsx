@@ -265,7 +265,7 @@ export default function TeamPage() {
         </div>
         <button
           onClick={() => setShowInviteModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
         >
           <UserPlus className="w-4 h-4" />
           Invite user
@@ -295,14 +295,14 @@ export default function TeamPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search team..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-[#2563EB] transition-all"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-700 focus:outline-none focus:border-[var(--brand)] transition-all"
           />
         </div>
         <select
           aria-label="Filter by role"
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-700 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+          className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-700 bg-white focus:outline-none focus:border-[var(--brand)] transition-all"
         >
           <option value="all">All roles</option>
           <option value="owner">Owner</option>
@@ -356,7 +356,7 @@ export default function TeamPage() {
                     value={m.role.toLowerCase()}
                     disabled={busyId === m.id}
                     onChange={(e) => handleRoleChange(m.id, e.target.value)}
-                    className="w-full text-[13px] font-medium text-slate-700 px-2.5 py-2 rounded-lg bg-slate-100 capitalize focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 disabled:opacity-50 min-h-[40px]"
+                    className="w-full text-[13px] font-medium text-slate-700 px-2.5 py-2 rounded-lg bg-slate-100 capitalize focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 disabled:opacity-50 min-h-[40px]"
                   >
                     {ROLE_OPTIONS.map((r) => (
                       <option key={r} value={r}>
@@ -398,7 +398,7 @@ export default function TeamPage() {
                     <button
                       onClick={() => handleResendInvite(m.id, m.email)}
                       disabled={resendingId === m.id}
-                      className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-lg text-[13px] font-medium text-blue-600 hover:bg-blue-50 transition-colors disabled:opacity-50"
+                      className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-lg text-[13px] font-medium text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors disabled:opacity-50"
                     >
                       <RefreshCw className={cn("w-4 h-4", resendingId === m.id && "animate-spin")} />
                       {resendingId === m.id ? "Sending…" : "Resend"}
@@ -471,7 +471,7 @@ export default function TeamPage() {
                         value={member.role.toLowerCase()}
                         disabled={busyId === member.id}
                         onChange={(e) => handleRoleChange(member.id, e.target.value)}
-                        className="text-[12px] font-medium text-slate-700 px-2.5 py-1 rounded-lg bg-slate-100 capitalize focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 disabled:opacity-50"
+                        className="text-[12px] font-medium text-slate-700 px-2.5 py-1 rounded-lg bg-slate-100 capitalize focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 disabled:opacity-50"
                       >
                         {ROLE_OPTIONS.map((r) => (
                           <option key={r} value={r}>
@@ -541,7 +541,7 @@ export default function TeamPage() {
                               onClick={() => handleResendInvite(member.id, member.email)}
                               disabled={resendingId === member.id}
                               aria-label={`Resend invite to ${member.name}`}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors disabled:opacity-50"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors disabled:opacity-50"
                               title="Resend invite"
                             >
                               <RefreshCw className={cn("w-3.5 h-3.5", resendingId === member.id && "animate-spin")} />
@@ -588,7 +588,7 @@ export default function TeamPage() {
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder="name@example.com"
                   type="email"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] focus:outline-none focus:border-[#2563EB] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] focus:outline-none focus:border-[var(--brand)] transition-all"
                 />
               </div>
               <div>
@@ -599,7 +599,7 @@ export default function TeamPage() {
                   id="invite-role"
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] bg-white focus:outline-none focus:border-[var(--brand)] transition-all"
                 >
                   <option>Admin</option>
                   <option>Manager</option>
@@ -623,7 +623,7 @@ export default function TeamPage() {
               <button
                 onClick={handleSendInvite}
                 disabled={!inviteEmail.trim() || inviting}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-60"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60"
               >
                 {inviting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 {inviting ? "Sending…" : "Send invite"}

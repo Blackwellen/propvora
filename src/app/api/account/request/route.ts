@@ -66,12 +66,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Password is incorrect." }, { status: 403 })
   }
 
-  // Resolve the user's current workspace (for context on the request).
+  // Resolve the user's current workspace (for context on the request). The
+  // audit_logs INSERT policy requires a workspace the user belongs to, so fall
+  // back to their first membership when no current workspace is set — otherwise
+  // the export/deletion audit entry is silently rejected.
   let workspaceId: string | null = null
   try {
     const { data: profile } = await supabase
       .from("profiles").select("current_workspace_id").eq("id", user.id).maybeSingle()
     workspaceId = (profile?.current_workspace_id as string | null) ?? null
+    if (!workspaceId) {
+      const { data: membership } = await supabase
+        .from("workspace_members")
+        .select("workspace_id")
+        .eq("user_id", user.id)
+        .order("joined_at", { ascending: true })
+        .limit(1)
+        .maybeSingle()
+      workspaceId = (membership?.workspace_id as string | null) ?? null
+    }
   } catch { /* non-fatal */ }
 
   if (type === "export") {

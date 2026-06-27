@@ -95,15 +95,15 @@ export default function CreateWorkspaceWizard({ users }: { users: UserPick[] }) 
               <p className="text-center text-xs text-slate-400 py-6">No matching users</p>
             ) : filteredUsers.map((u) => (
               <button key={u.id} type="button" onClick={() => setOwnerId(u.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${ownerId === u.id ? "bg-[#EFF6FF]" : "hover:bg-slate-50"}`}>
-                <div className="w-7 h-7 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${ownerId === u.id ? "bg-[var(--brand-soft)]" : "hover:bg-slate-50"}`}>
+                <div className="w-7 h-7 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
                   {(u.name || u.email || "?").slice(0, 2).toUpperCase()}
                 </div>
                 <div className="min-w-0">
                   <p className="text-[13px] font-medium text-slate-800 truncate">{u.name ?? "—"}</p>
                   <p className="text-[11px] text-slate-400 truncate">{u.email ?? u.id.slice(0, 8)}</p>
                 </div>
-                {ownerId === u.id && <span className="ml-auto text-[11px] font-semibold text-[#2563EB]">Selected</span>}
+                {ownerId === u.id && <span className="ml-auto text-[11px] font-semibold text-[var(--brand)]">Selected</span>}
               </button>
             ))}
           </div>
@@ -149,7 +149,7 @@ export default function CreateWorkspaceWizard({ users }: { users: UserPick[] }) 
   return (
     <>
       <button type="button" onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4fd7] transition-colors shadow-sm">
+        className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[#1d4fd7] transition-colors shadow-sm">
         <Plus className="w-4 h-4" /> New Workspace
       </button>
       <AdminWizard open={open} onOpenChange={setOpen} title="New Workspace" subtitle="Provision a tenant"

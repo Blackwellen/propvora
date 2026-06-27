@@ -27,7 +27,7 @@ interface OrganisationCardProps {
 }
 
 const COLORS = [
-  "bg-blue-500",
+  "bg-[var(--brand)]",
   "bg-emerald-500",
   "bg-violet-500",
   "bg-orange-500",

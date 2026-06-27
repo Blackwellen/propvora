@@ -54,7 +54,7 @@ export function AddressForm({
                 disabled={disabled}
                 value={value[f.key] ?? ""}
                 onChange={(e) => set(f.key, e.target.value)}
-                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-400"
+                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-900 focus:border-[var(--color-brand-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)] disabled:bg-slate-50 disabled:text-slate-400"
               >
                 <option value="">Select {model.regionLabel ?? "region"}…</option>
                 {(f.options ?? []).map((opt) => (
@@ -72,7 +72,7 @@ export function AddressForm({
                 value={value[f.key] ?? ""}
                 placeholder={model.example[f.key] ?? ""}
                 onChange={(e) => set(f.key, e.target.value)}
-                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-900 placeholder:text-slate-300 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-400"
+                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-900 placeholder:text-slate-300 focus:border-[var(--color-brand-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)] disabled:bg-slate-50 disabled:text-slate-400"
               />
             )}
           </div>

@@ -27,8 +27,8 @@ export function JobsKpiStrip({ jobs }: JobsKpiStripProps) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
       {[
-        { label: "Scheduled Jobs",   value: String(scheduledCount),      sub: "Upcoming this week", color: "text-[#2563EB]",   bg: "bg-blue-50",    icon: Calendar      },
-        { label: "In Progress",      value: String(inProgressCount),     sub: "Currently active",   color: "text-[#2563EB]",   bg: "bg-blue-50",    icon: Briefcase     },
+        { label: "Scheduled Jobs",   value: String(scheduledCount),      sub: "Upcoming this week", color: "text-[var(--brand)]",   bg: "bg-[var(--brand-soft)]",    icon: Calendar      },
+        { label: "In Progress",      value: String(inProgressCount),     sub: "Currently active",   color: "text-[var(--brand)]",   bg: "bg-[var(--brand-soft)]",    icon: Briefcase     },
         { label: "Overdue",          value: String(overdueCount),        sub: "Past due date",      color: "text-red-600",     bg: "bg-red-50",     icon: AlertTriangle },
         { label: "Waiting Supplier", value: String(waitingCount),        sub: "Pending response",   color: "text-amber-600",   bg: "bg-amber-50",   icon: Clock         },
         { label: "Invoice Pending",  value: String(invoicePendingCount), sub: "Awaiting invoice",   color: "text-violet-600",  bg: "bg-violet-50",  icon: Receipt       },

@@ -4,10 +4,9 @@ import { useMemo, useState } from "react"
 import Link from "next/link"
 import {
   MessagesSquare, AlertTriangle, CalendarCheck, Headphones, Search,
-  FileText, Plus, MessageSquare,
+  Plus, MessageSquare,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useCustomerToast } from "../components/toast"
 import MessageContextRail from "./components/MessageContextRail"
 import type { CustomerThread } from "@/lib/customer/types"
 
@@ -19,8 +18,10 @@ import type { CustomerThread } from "@/lib/customer/types"
    fabricated names or conversations. Opening a thread navigates to the
    /user/messages/[id] detail route (which loads the real messages + composer).
 
-   The top-level "New message" / "Message templates" buttons are honest stubs
-   (a clear toast) — there is no dedicated compose-new-thread endpoint yet.
+   New conversations are started in-context from a booking (a guest messages
+   the host of a specific trip), so "New message" routes to the bookings list
+   rather than opening an orphan compose form with no host to address. This
+   keeps every CTA wired to a real destination (no toast/dead-button stubs).
 ─────────────────────────────────────────────────────────────────────────── */
 
 const FILTERS = ["All", "Unread"] as const
@@ -41,7 +42,6 @@ function relTime(iso: string | null): string {
 }
 
 export default function MessagesClient({ threads = [] }: { threads?: CustomerThread[] }) {
-  const { toast } = useCustomerToast()
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All")
   const [query, setQuery] = useState("")
 
@@ -62,7 +62,7 @@ export default function MessagesClient({ threads = [] }: { threads?: CustomerThr
     { id: "unread", label: "Unread messages", value: String(unreadTotal), sub: unreadTotal ? "Across your conversations" : "No unread conversations", icon: MessagesSquare, bg: "bg-violet-50 text-violet-600" },
     { id: "action", label: "Action needed", value: String(actionNeeded), sub: actionNeeded ? "Conversations need a reply" : "No messages need a reply", icon: AlertTriangle, bg: "bg-amber-50 text-amber-600" },
     { id: "threads", label: "Active conversations", value: String(threads.length), sub: threads.length ? "Open threads" : "No open threads", icon: CalendarCheck, bg: "bg-emerald-50 text-emerald-600" },
-    { id: "support", label: "Support threads", value: String(supportThreads), sub: supportThreads ? "Open with Support" : "No open support threads", icon: Headphones, bg: "bg-blue-50 text-blue-600" },
+    { id: "support", label: "Support threads", value: String(supportThreads), sub: supportThreads ? "Open with Support" : "No open support threads", icon: Headphones, bg: "bg-[var(--brand-soft)] text-[var(--brand)]" },
   ]
 
   const filtered = useMemo(() => {
@@ -80,25 +80,20 @@ export default function MessagesClient({ threads = [] }: { threads?: CustomerThr
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-[26px] font-bold text-slate-900 flex items-center gap-2">
-            <MessagesSquare className="w-6 h-6 text-blue-600" /> Messages
+            <MessagesSquare className="w-6 h-6 text-[var(--brand)]" /> Messages
           </h1>
           <p className="text-[13.5px] text-slate-500 mt-1">
             Stay in touch with hosts, property managers and our support team.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => toast("Message templates — coming soon", "info")}
-            className="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            <FileText className="w-4 h-4" /> Message templates
-          </button>
-          <button
-            onClick={() => toast("Start a new conversation from a booking — open a trip to message its host", "info")}
-            className="inline-flex items-center gap-1.5 bg-[#0D1B2A] text-white rounded-xl px-3 py-2 text-[12.5px] font-semibold"
+          <Link
+            href="/user/bookings"
+            title="Open a trip to message its host"
+            className="inline-flex items-center gap-1.5 bg-[#0D1B2A] text-white rounded-xl px-3 py-2 text-[12.5px] font-semibold hover:bg-[#0D1B2A]/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
           >
             <Plus className="w-4 h-4" /> New message
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -129,7 +124,7 @@ export default function MessagesClient({ threads = [] }: { threads?: CustomerThr
             onClick={() => setFilter(f)}
             className={cn(
               "px-3 py-2 text-[12.5px] font-semibold border-b-2 -mb-px transition-colors",
-              filter === f ? "border-[#2563EB] text-[#2563EB]" : "border-transparent text-slate-500 hover:text-slate-700"
+              filter === f ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-500 hover:text-slate-700"
             )}
           >
             {f}
@@ -150,7 +145,7 @@ export default function MessagesClient({ threads = [] }: { threads?: CustomerThr
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search conversations…"
                 aria-label="Search conversations"
-                className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-1.5 text-[12.5px] outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
+                className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-1.5 text-[12.5px] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
               />
             </div>
           </div>
@@ -188,7 +183,7 @@ export default function MessagesClient({ threads = [] }: { threads?: CustomerThr
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       <span className="text-[10.5px] text-slate-400">{relTime(t.last_at ?? t.updated_at)}</span>
                       {(t.unread ?? 0) > 0 && (
-                        <span className="min-w-[16px] h-[16px] px-1 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
+                        <span className="min-w-[16px] h-[16px] px-1 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold flex items-center justify-center">
                           {t.unread}
                         </span>
                       )}

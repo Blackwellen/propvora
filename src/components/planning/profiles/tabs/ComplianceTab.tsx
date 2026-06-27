@@ -110,8 +110,8 @@ export default function ComplianceTab({ profile }: Props) {
 
         {/* Required Docs */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-            <FileText className="w-6 h-6 text-blue-500" />
+          <div className="w-12 h-12 rounded-xl bg-[var(--color-brand-100)] flex items-center justify-center shrink-0">
+            <FileText className="w-6 h-6 text-[var(--brand)]" />
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Required Documents</p>
@@ -204,13 +204,13 @@ export default function ComplianceTab({ profile }: Props) {
       </div>
 
       {/* 5. Compliance Guidance */}
-      <div className="flex items-start gap-4 bg-blue-50 border border-blue-200 rounded-2xl px-5 py-5">
-        <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shrink-0">
+      <div className="flex items-start gap-4 bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-2xl px-5 py-5">
+        <div className="w-9 h-9 rounded-xl bg-[var(--brand)] flex items-center justify-center shrink-0">
           <Shield className="w-5 h-5 text-white" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-blue-900 mb-1">Compliance Guidance</p>
-          <p className="text-sm text-blue-700 leading-relaxed">{compliance.aiInsight}</p>
+          <p className="text-sm font-semibold text-[var(--brand-strong)] mb-1">Compliance Guidance</p>
+          <p className="text-sm text-[var(--brand)] leading-relaxed">{compliance.aiInsight}</p>
         </div>
       </div>
     </div>

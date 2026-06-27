@@ -40,7 +40,7 @@ export default function PaymentMethodsSection() {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-[13px] font-bold text-slate-900 flex items-center gap-1.5"><CreditCard className="w-4 h-4 text-slate-400" /> Saved cards</p>
-            <button onClick={() => setShowAdd(true)} className="inline-flex items-center gap-1 text-[12px] font-semibold text-blue-600"><Plus className="w-3.5 h-3.5" /> Add card</button>
+            <button onClick={() => setShowAdd(true)} className="inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)]"><Plus className="w-3.5 h-3.5" /> Add card</button>
           </div>
           {loading ? (
             <div className="py-4 flex justify-center text-slate-300"><Loader2 className="w-4 h-4 animate-spin" /></div>
@@ -64,7 +64,7 @@ export default function PaymentMethodsSection() {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
           <p className="text-[13px] font-bold text-slate-900 mb-2 flex items-center gap-1.5"><Receipt className="w-4 h-4 text-slate-400" /> Receipts</p>
           <p className="text-[12px] text-slate-500">A receipt is available on each booking once payment completes.</p>
-          <Link href="/customer/bookings" className="mt-2 inline-block text-[12px] font-semibold text-blue-600">View your bookings →</Link>
+          <Link href="/customer/bookings" className="mt-2 inline-block text-[12px] font-semibold text-[var(--brand)]">View your bookings →</Link>
         </div>
       </div>
 

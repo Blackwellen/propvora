@@ -77,7 +77,7 @@ export function InviteMemberModal({ onClose, onInvite, seatLimitReached }: Invit
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="colleague@example.com"
                 required
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
               />
             </div>
             <div>
@@ -85,7 +85,7 @@ export function InviteMemberModal({ onClose, onInvite, seatLimitReached }: Invit
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
               >
                 {INVITABLE_ROLES.map((r) => (
                   <option key={r.value} value={r.value}>{r.label}</option>
@@ -97,7 +97,7 @@ export function InviteMemberModal({ onClose, onInvite, seatLimitReached }: Invit
               <button
                 type="submit"
                 disabled={sending}
-                className="px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-60"
+                className="px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60"
               >
                 {sending ? "Sending…" : "Send invite"}
               </button>

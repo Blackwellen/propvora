@@ -229,8 +229,8 @@ export function MarketplaceBrowseClient({
         /* Entitlement-gated: show the shell + a real upgrade prompt, never hide. */
         <div className="mt-2 rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col items-center text-center py-20 px-6">
-            <div className="w-20 h-20 rounded-3xl bg-[#EFF6FF] flex items-center justify-center mb-5">
-              <Lock className="w-9 h-9 text-[#2563EB]" />
+            <div className="w-20 h-20 rounded-3xl bg-[var(--brand-soft)] flex items-center justify-center mb-5">
+              <Lock className="w-9 h-9 text-[var(--brand)]" />
             </div>
             <h3 className="text-base font-bold text-slate-800">Marketplace browsing isn&apos;t on your plan</h3>
             <p className="mt-1.5 max-w-md text-sm text-slate-500 text-pretty">

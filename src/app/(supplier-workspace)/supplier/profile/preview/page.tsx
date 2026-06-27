@@ -112,8 +112,8 @@ export default function SupplierProfilePreviewPage() {
 function PreviewBody({ compact }: { compact?: boolean }) {
   return (
     <div className={compact ? "p-3" : "p-5"}>
-      <div className="h-24 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 mb-3 flex items-end p-3">
-        <div className="w-12 h-12 rounded-xl bg-white shadow flex items-center justify-center -mb-6 ml-1"><Wrench className="w-6 h-6 text-blue-600" /></div>
+      <div className="h-24 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-strong)] mb-3 flex items-end p-3">
+        <div className="w-12 h-12 rounded-xl bg-white shadow flex items-center justify-center -mb-6 ml-1"><Wrench className="w-6 h-6 text-[var(--brand)]" /></div>
       </div>
       <div className="pt-5">
         <div className="flex items-center gap-1.5 flex-wrap">

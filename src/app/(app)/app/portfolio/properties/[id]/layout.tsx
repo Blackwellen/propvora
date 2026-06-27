@@ -79,7 +79,7 @@ export default function PropertyDetailLayout({ children }: { children: React.Rea
     return (
       <div className="min-h-screen bg-slate-50/40 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <RefreshCw size={24} className="text-blue-600 animate-spin" />
+          <RefreshCw size={24} className="text-[var(--brand)] animate-spin" />
           <p className="text-[13px] text-slate-500">Loading property…</p>
         </div>
       </div>
@@ -97,7 +97,7 @@ export default function PropertyDetailLayout({ children }: { children: React.Rea
             <p className="text-[15px] font-bold text-slate-700">Property not found</p>
             <p className="text-[13px] text-slate-500 mt-1">This property doesn&apos;t exist or you don&apos;t have access to it.</p>
           </div>
-          <Link href="/property-manager/portfolio/properties" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
+          <Link href="/property-manager/portfolio/properties" className="text-[13px] font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
             <ChevronLeft size={14} /> Back to Properties
           </Link>
         </div>
@@ -120,7 +120,7 @@ export default function PropertyDetailLayout({ children }: { children: React.Rea
                 className={cn(
                   "text-[13px] font-medium px-4 py-3.5 border-b-2 transition-all whitespace-nowrap",
                   activeTab === tab.key
-                    ? "border-blue-600 text-blue-600"
+                    ? "border-[var(--brand)] text-[var(--brand)]"
                     : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
                 )}
               >

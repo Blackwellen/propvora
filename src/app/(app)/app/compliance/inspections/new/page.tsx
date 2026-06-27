@@ -127,7 +127,7 @@ function StepSidebar({ current }: { current: number }) {
                 key={step.id}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all",
-                  active && "bg-[#EFF6FF] text-[#2563EB]",
+                  active && "bg-[var(--brand-soft)] text-[var(--brand)]",
                   done && "text-emerald-600",
                   !active && !done && "text-slate-400"
                 )}
@@ -135,7 +135,7 @@ function StepSidebar({ current }: { current: number }) {
                 <span
                   className={cn(
                     "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
-                    active && "bg-[#2563EB] text-white",
+                    active && "bg-[var(--brand)] text-white",
                     done && "bg-emerald-100 text-emerald-600",
                     !active && !done && "bg-slate-100 text-slate-400"
                   )}
@@ -432,9 +432,9 @@ export default function NewInspectionPage() {
       {/* Breadcrumb */}
       <div className="px-6 pt-4">
         <nav className="flex items-center gap-2 text-sm text-slate-500">
-          <Link href="/property-manager/compliance" className="hover:text-[#2563EB] transition-colors">Compliance</Link>
+          <Link href="/property-manager/compliance" className="hover:text-[var(--brand)] transition-colors">Compliance</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link href="/property-manager/compliance/inspections" className="hover:text-[#2563EB] transition-colors">Inspections</Link>
+          <Link href="/property-manager/compliance/inspections" className="hover:text-[var(--brand)] transition-colors">Inspections</Link>
           <ChevronRight className="w-3.5 h-3.5" />
           <span className="text-slate-900 font-medium">Schedule Inspection</span>
         </nav>
@@ -468,7 +468,7 @@ export default function NewInspectionPage() {
                         className={cn(
                           "text-left p-3 rounded-xl border-2 transition-all hover:shadow-sm",
                           selected
-                            ? "border-[#2563EB] bg-[#EFF6FF]"
+                            ? "border-[var(--brand)] bg-[var(--brand-soft)]"
                             : "border-slate-200 bg-white hover:border-slate-300"
                         )}
                       >
@@ -480,7 +480,7 @@ export default function NewInspectionPage() {
                             <Icon className="w-4 h-4" />
                           </div>
                         </div>
-                        <p className={cn("text-xs font-semibold", selected ? "text-[#2563EB]" : "text-slate-800")}>
+                        <p className={cn("text-xs font-semibold", selected ? "text-[var(--brand)]" : "text-slate-800")}>
                           {t.label}
                         </p>
                         <p className="text-xs text-slate-400 mt-0.5">{t.description}</p>
@@ -508,7 +508,7 @@ export default function NewInspectionPage() {
                         <select
                           value={propertyId}
                           onChange={(e) => { setPropertyId(e.target.value); setUnit("") }}
-                          className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                          className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                         >
                           <option value="">Select a property…</option>
                           {properties.map((p) => (
@@ -523,7 +523,7 @@ export default function NewInspectionPage() {
                           <select
                             value={unit}
                             onChange={(e) => setUnit(e.target.value)}
-                            className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                            className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                           >
                             <option value="">Whole property</option>
                             {propertyUnits.map((u) => (
@@ -539,7 +539,7 @@ export default function NewInspectionPage() {
                       <select
                         value={supplierId}
                         onChange={(e) => setSupplierId(e.target.value)}
-                        className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                        className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                       >
                         <option value="">{suppliers.length ? "Select a supplier…" : "No suppliers found"}</option>
                         {suppliers.map((s) => (
@@ -554,7 +554,7 @@ export default function NewInspectionPage() {
                     <select
                       value={inspectorId}
                       onChange={(e) => setInspectorId(e.target.value)}
-                      className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                      className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                     >
                       <option value="">{inspectors.length ? "Select an inspector…" : "No contacts found"}</option>
                       {inspectors.map((c) => (
@@ -584,7 +584,7 @@ export default function NewInspectionPage() {
                     <select
                       value={scheduledTime}
                       onChange={(e) => setScheduledTime(e.target.value)}
-                      className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                      className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                     >
                       {["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"].map((t) => (
                         <option key={t} value={t}>{t}</option>
@@ -596,7 +596,7 @@ export default function NewInspectionPage() {
                     <select
                       value={duration}
                       onChange={(e) => setDuration(e.target.value)}
-                      className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                      className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                     >
                       <option value="30min">30 minutes</option>
                       <option value="1hr">1 hour</option>
@@ -613,7 +613,7 @@ export default function NewInspectionPage() {
                     onChange={(e) => setInspectorNotes(e.target.value)}
                     rows={3}
                     placeholder="Any notes for the inspector…"
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] resize-none"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] resize-none"
                   />
                 </div>
               </Card>
@@ -637,7 +637,7 @@ export default function NewInspectionPage() {
                       <select
                         value={item.severity}
                         onChange={(e) => updateSeverity(item.id, e.target.value as ChecklistSeverity)}
-                        className="h-7 rounded border border-slate-200 bg-white px-2 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#2563EB]/30"
+                        className="h-7 rounded border border-slate-200 bg-white px-2 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-[var(--brand)]/30"
                       >
                         <option value="ok">OK</option>
                         <option value="minor">Minor Issue</option>
@@ -660,7 +660,7 @@ export default function NewInspectionPage() {
                     onChange={(e) => setNewItemLabel(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && addChecklistItem()}
                     placeholder="Add a checklist item…"
-                    className="flex-1 h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                    className="flex-1 h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                   />
                   <Button variant="outline" size="md" onClick={addChecklistItem}>
                     <Plus className="w-4 h-4" />
@@ -697,7 +697,7 @@ export default function NewInspectionPage() {
                     <select
                       value={userReminder}
                       onChange={(e) => setUserReminder(e.target.value)}
-                      className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                      className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                     >
                       <option value="attime">At time of inspection</option>
                       <option value="1hr">1 hour before</option>
@@ -716,7 +716,7 @@ export default function NewInspectionPage() {
                       onClick={() => setInspectorReminderEnabled((v) => !v)}
                       className={cn(
                         "relative w-10 h-6 rounded-full transition-colors",
-                        inspectorReminderEnabled ? "bg-[#2563EB]" : "bg-slate-300"
+                        inspectorReminderEnabled ? "bg-[var(--brand)]" : "bg-slate-300"
                       )}
                     >
                       <span
@@ -734,7 +734,7 @@ export default function NewInspectionPage() {
                       <select
                         value={inspectorReminderTiming}
                         onChange={(e) => setInspectorReminderTiming(e.target.value)}
-                        className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                        className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                       >
                         <option value="attime">At time of inspection</option>
                         <option value="1hr">1 hour before</option>
@@ -762,7 +762,7 @@ export default function NewInspectionPage() {
                     onClick={() => setCreateWorkJob((v) => !v)}
                     className={cn(
                       "relative w-10 h-6 rounded-full transition-colors",
-                      createWorkJob ? "bg-[#2563EB]" : "bg-slate-300"
+                      createWorkJob ? "bg-[var(--brand)]" : "bg-slate-300"
                     )}
                   >
                     <span
@@ -775,7 +775,7 @@ export default function NewInspectionPage() {
                 </div>
 
                 {createWorkJob && (
-                  <div className="space-y-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                  <div className="space-y-4 p-4 bg-[var(--brand-soft)] rounded-xl border border-[var(--color-brand-100)]">
                     <Input
                       label="Job Title"
                       value={workJobTitle}
@@ -787,7 +787,7 @@ export default function NewInspectionPage() {
                       <select
                         value={workJobAssignee}
                         onChange={(e) => setWorkJobAssignee(e.target.value)}
-                        className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                        className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                       >
                         <option value="">{inspectors.length ? "Select assignee…" : "No contacts found"}</option>
                         {inspectors.map((c) => (

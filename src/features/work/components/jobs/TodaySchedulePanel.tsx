@@ -18,8 +18,8 @@ export interface TodaySchedulePanelProps {
 
 function JobStatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    scheduled:   "bg-[#EFF6FF] text-[#2563EB]",
-    in_progress: "bg-blue-50 text-blue-700",
+    scheduled:   "bg-[var(--brand-soft)] text-[var(--brand)]",
+    in_progress: "bg-[var(--brand-soft)] text-[var(--brand)]",
     overdue:     "bg-red-50 text-red-700",
     waiting:     "bg-amber-50 text-amber-700",
     complete:    "bg-emerald-50 text-emerald-700",

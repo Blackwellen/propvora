@@ -51,7 +51,7 @@ export function LogoUploadZone({ name, currentKey, workspaceId, onUploaded }: Lo
   return (
     <div
       onClick={() => !uploading && inputRef.current?.click()}
-      className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-[#2563EB] transition-colors cursor-pointer group"
+      className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-[var(--brand)] transition-colors cursor-pointer group"
     >
       <input
         ref={inputRef}
@@ -66,15 +66,15 @@ export function LogoUploadZone({ name, currentKey, workspaceId, onUploaded }: Lo
           <img src={previewUrl} alt={`${name} preview`} className="max-w-full max-h-full object-contain" />
         </div>
       ) : (
-        <div className="w-10 h-10 rounded-xl bg-slate-100 group-hover:bg-blue-50 flex items-center justify-center mx-auto mb-3 transition-colors">
+        <div className="w-10 h-10 rounded-xl bg-slate-100 group-hover:bg-[var(--brand-soft)] flex items-center justify-center mx-auto mb-3 transition-colors">
           {uploading ? (
-            <Loader2 className="w-5 h-5 text-[#2563EB] animate-spin" />
+            <Loader2 className="w-5 h-5 text-[var(--brand)] animate-spin" />
           ) : (
-            <Upload className="w-5 h-5 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+            <Upload className="w-5 h-5 text-slate-400 group-hover:text-[var(--brand)] transition-colors" />
           )}
         </div>
       )}
-      <p className="text-[13px] font-semibold text-slate-700 group-hover:text-[#2563EB] transition-colors">
+      <p className="text-[13px] font-semibold text-slate-700 group-hover:text-[var(--brand)] transition-colors">
         {uploading ? "Uploading…" : currentKey ? `Replace ${name}` : `Upload ${name}`}
       </p>
       {currentKey ? (

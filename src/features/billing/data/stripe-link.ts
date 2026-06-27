@@ -78,6 +78,47 @@ export async function requestResume(): Promise<CancelResponse> {
   return json
 }
 
+// ── Retention offer (conditional, one-time, Starter-only, 3-month tenure) ────
+
+export interface RetentionEligibility {
+  eligible: boolean
+  reason?: string
+  creditMinor?: number
+  currency?: string
+}
+
+/** Authoritative server eligibility — drives whether the offer is shown at all. */
+export async function getRetentionEligibility(): Promise<RetentionEligibility> {
+  try {
+    const res = await fetch("/api/billing/retention", { method: "GET" })
+    const json = (await res.json().catch(() => ({}))) as RetentionEligibility
+    if (!res.ok) return { eligible: false, reason: "error" }
+    return json
+  } catch {
+    return { eligible: false, reason: "error" }
+  }
+}
+
+interface RetentionClaimResponse {
+  ok?: boolean
+  claimed?: boolean
+  creditMinor?: number
+  currency?: string
+  alreadyClaimed?: boolean
+  error?: string
+}
+
+/** Claim the retention credit via /api/billing/retention (re-checks all rules). */
+export async function claimRetentionOffer(): Promise<RetentionClaimResponse> {
+  const res = await fetch("/api/billing/retention", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  })
+  const json = (await res.json().catch(() => ({}))) as RetentionClaimResponse
+  if (!res.ok) throw new Error(json.error || "Could not claim the retention offer")
+  return json
+}
+
 // ── Add-ons ─────────────────────────────────────────────────────────────────
 
 /** Section AddonCode → canonical catalogue key in src/lib/billing/plans.ts. */
@@ -85,14 +126,45 @@ const ADDON_TO_CATALOG_KEY: Partial<Record<AddonCode, string>> = {
   extra_listings: "extra_props_10",
   extra_seats: "extra_seat",
   white_label: "white_label",
-  ai_pack: "ai_credits_1k",
   automation_pack: "automation_pack",
-  // premium_support / marketplace_boost / extra_storage have no catalogue price
-  // yet — the route returns an honest 409 if their key is sent.
+  // RECURRING add-ons only — these are applied as Stripe subscription items.
+  // ai_pack maps to a ONE-TIME credit pack (ai_credits_1k) which cannot be a
+  // subscription item, so it is intentionally NOT self-serve here (the UI shows
+  // it as "contact billing"). premium_support / marketplace_boost / extra_storage
+  // have no catalogue price yet — the route returns an honest 409 if sent.
 }
 
 export function catalogKeyForAddon(code: AddonCode): string | null {
   return ADDON_TO_CATALOG_KEY[code] ?? null
+}
+
+/** Section AddonCode → canonical ONE-TIME catalogue key (paid via one-off checkout). */
+const ONE_OFF_ADDON_TO_CATALOG_KEY: Partial<Record<AddonCode, string>> = {
+  ai_pack: "ai_credits_1k", // AI usage pack — one-time, payment-mode checkout
+}
+
+export function oneOffCatalogKeyForAddon(code: AddonCode): string | null {
+  return ONE_OFF_ADDON_TO_CATALOG_KEY[code] ?? null
+}
+
+/**
+ * Start a one-off (payment-mode) Stripe Checkout for a one-time add-on pack.
+ * Redirects to Stripe; credits are granted by the webhook AFTER payment.
+ */
+export async function startAddonOneOffCheckout(input: {
+  code: AddonCode
+  quantity?: number
+}): Promise<void> {
+  const addonKey = oneOffCatalogKeyForAddon(input.code)
+  if (!addonKey) throw new Error("This pack isn't available for purchase yet.")
+  const res = await fetch("/api/billing/checkout/addon", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ addonKey, quantity: input.quantity ?? 1 }),
+  })
+  const json = (await res.json().catch(() => ({}))) as { url?: string; error?: string }
+  if (!res.ok || !json.url) throw new Error(json.error || "Could not start the add-on checkout")
+  window.location.href = json.url
 }
 
 interface AddonResponse {

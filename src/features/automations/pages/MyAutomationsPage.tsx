@@ -16,7 +16,7 @@ import type { AutomationRow, Health } from "../data/types"
 
 const HEALTH_META: Record<Health, { label: string; cls: string; bars: number }> = {
   excellent: { label: "Excellent", cls: "text-emerald-600", bars: 4 },
-  good: { label: "Good", cls: "text-blue-600", bars: 3 },
+  good: { label: "Good", cls: "text-[var(--brand)]", bars: 3 },
   fair: { label: "Fair", cls: "text-amber-600", bars: 2 },
   poor: { label: "Poor", cls: "text-red-600", bars: 1 },
   unknown: { label: "Unknown", cls: "text-slate-400", bars: 0 },
@@ -220,7 +220,7 @@ export default function MyAutomationsPage() {
 
       {/* Filters */}
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <input placeholder="Search…" className="w-48 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none" />
+        <input placeholder="Search…" className="w-48 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-[var(--color-brand-400)] focus:outline-none" />
         {["Status", "Owner", "Module", "Frequency", "Last run", "Category"].map((f) => (
           <span key={f} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">{f}: All</span>
         ))}
@@ -286,7 +286,7 @@ export default function MyAutomationsPage() {
                       ]}
                     />
                     <div className="space-y-1 text-xs">
-                      {([["Excellent", excellent, "bg-emerald-500"], ["Good", good, "bg-blue-500"], ["Fair", fair, "bg-amber-500"], ["Poor", poor, "bg-red-500"], ["Unknown", unknown, "bg-slate-300"]] as [string, number, string][]).map(([l, v, c]) => (
+                      {([["Excellent", excellent, "bg-emerald-500"], ["Good", good, "bg-[var(--brand)]"], ["Fair", fair, "bg-amber-500"], ["Poor", poor, "bg-red-500"], ["Unknown", unknown, "bg-slate-300"]] as [string, number, string][]).map(([l, v, c]) => (
                         <div key={l} className="flex items-center gap-1.5"><span className={`h-2 w-2 rounded-full ${c}`} /><span className="text-slate-600">{l}</span><span className="ml-auto font-medium text-slate-800">{v}</span></div>
                       ))}
                     </div>
@@ -294,7 +294,7 @@ export default function MyAutomationsPage() {
                 </Card>
                 {reviewRows.length > 0 && (
                   <Card>
-                    <CardHeader title={`Needs review (${reviewRows.length})`} action={<button onClick={() => router.push("/property-manager/automations/approvals")} className="text-xs font-medium text-blue-600 hover:underline">Open</button>} />
+                    <CardHeader title={`Needs review (${reviewRows.length})`} action={<button onClick={() => router.push("/property-manager/automations/approvals")} className="text-xs font-medium text-[var(--brand)] hover:underline">Open</button>} />
                     <div className="p-3 space-y-1">
                       {reviewRows.slice(0, 3).map((r) => (
                         <button key={r.id} onClick={() => router.push("/property-manager/automations/approvals")} className="block w-full rounded-lg px-2 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-50">{r.name}</button>

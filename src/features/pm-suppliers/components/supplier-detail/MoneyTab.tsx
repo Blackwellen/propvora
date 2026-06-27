@@ -45,7 +45,7 @@ export function MoneyTab({ supplier: _supplier, jobs, mode }: MoneyTabProps) {
           {[
             { label: title,        value: String(rows.length),        color: "text-slate-900"   },
             { label: "Total Value", value: `£${total.toLocaleString()}`, color: "text-emerald-600" },
-            { label: "Average",     value: `£${avg.toLocaleString()}`,   color: "text-[#2563EB]"   },
+            { label: "Average",     value: `£${avg.toLocaleString()}`,   color: "text-[var(--brand)]"   },
           ].map((k) => (
             <div key={k.label} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
               <p className="text-[11px] font-medium text-slate-500">{k.label}</p>
@@ -58,7 +58,7 @@ export function MoneyTab({ supplier: _supplier, jobs, mode }: MoneyTabProps) {
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <TitleIcon className="w-4 h-4 text-[#2563EB]" />
+            <TitleIcon className="w-4 h-4 text-[var(--brand)]" />
             <h3 className="text-sm font-semibold text-slate-900">
               {title} <span className="text-slate-400 font-normal ml-1">({rows.length})</span>
             </h3>
@@ -97,7 +97,7 @@ export function MoneyTab({ supplier: _supplier, jobs, mode }: MoneyTabProps) {
                   return (
                     <tr key={j.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
                       <td className="px-4 py-3">
-                        <Link href={`/property-manager/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[#2563EB]">
+                        <Link href={`/property-manager/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[var(--brand)]">
                           {j.title}
                         </Link>
                         {j.reference && <p className="text-[11px] text-slate-400">{j.reference}</p>}

@@ -25,7 +25,7 @@ export function TasksKpiStrip({ tasks }: TasksKpiStripProps) {
   const completionRate = total > 0 ? Math.round((doneCount / total) * 100) : 0
 
   const kpis = [
-    { label: "Open Tasks",       value: String(openCount || "142"),    sub: "Active tasks",          color: "text-[#2563EB]",   bg: "bg-blue-50"    },
+    { label: "Open Tasks",       value: String(openCount || "142"),    sub: "Active tasks",          color: "text-[var(--brand)]",   bg: "bg-[var(--brand-soft)]"    },
     { label: "Overdue",          value: String(overdueCount || "18"),   sub: "Need immediate action", color: "text-red-600",     bg: "bg-red-50"     },
     { label: "Due Today",        value: String(dueTodayCount || "9"),   sub: "Action required today", color: "text-amber-600",   bg: "bg-amber-50"   },
     { label: "Waiting Supplier", value: String(waitingCount || "23"),   sub: "Pending response",      color: "text-violet-600",  bg: "bg-violet-50"  },

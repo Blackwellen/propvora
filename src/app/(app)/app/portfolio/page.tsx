@@ -15,6 +15,7 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties, useDeleteProperty } from "@/hooks/useProperties"
 import { useUnits } from "@/hooks/useUnits"
 import { useTenancies } from "@/hooks/useTenancies"
+import { useMoneyArrearsSummary } from "@/hooks/useMoneyData"
 import { Trash2 } from "lucide-react"
 import {
   Building2, LayoutGrid, List, Plus, TrendingUp, Users, PoundSterling, Home,
@@ -35,7 +36,7 @@ import { mapPreviewTile } from "@/lib/maps/tiles"
 /* 13 Operational Profiles                                              */
 /* ------------------------------------------------------------------ */
 const ALL_PROFILES = [
-  { key: "HMO",                    label: "HMO",                    shortLabel: "HMO",        color: "#1D4ED8", gradient: "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)", img: "/property-types/hmo.jpg" },
+  { key: "HMO",                    label: "HMO",                    shortLabel: "HMO",        color: "#1d4ed8", gradient: "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)", img: "/property-types/hmo.jpg" },
   { key: "Long-Term Let",          label: "Long-Term Let",          shortLabel: "LTL",        color: "#059669", gradient: "linear-gradient(135deg, #059669 0%, #10B981 100%)", img: "/property-types/btl.jpg" },
   { key: "Serviced Accommodation", label: "Serviced Accommodation", shortLabel: "SA",         color: "#7C3AED", gradient: "linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)", img: "/property-types/sa.jpg" },
   { key: "Rent-to-Rent",           label: "Rent-to-Rent",           shortLabel: "R2R",        color: "#EA580C", gradient: "linear-gradient(135deg, #EA580C 0%, #F97316 100%)", img: "/property-types/r2r.jpg" },
@@ -130,6 +131,7 @@ export default function PortfolioPage() {
   const { data: rawProperties, isLoading: propsLoading } = useProperties(workspace?.id)
   const { data: rawUnits, isLoading: unitsLoading } = useUnits(workspace?.id)
   const { data: rawTenancies, isLoading: tenanciesLoading } = useTenancies(workspace?.id)
+  const { data: arrearsSummary } = useMoneyArrearsSummary(workspace?.id)
   const loading = propsLoading || unitsLoading || tenanciesLoading
 
   /* Real uploaded cover photos → card coverImageUrl. Keyed by property id
@@ -234,8 +236,11 @@ export default function PortfolioPage() {
   const totalRentRoll   = tenancies.filter(t => t.status === "active").reduce((s, t) => s + t.rent_amount, 0)
   const occupancyPct    = totalUnits > 0 ? Math.round((occupiedUnits / totalUnits) * 100) : 0
   const endingSoon      = tenancies.filter(t => t.end_date && daysUntil(t.end_date) >= 0 && daysUntil(t.end_date) <= 60)
-  const arrearsCount    = tenancies.filter(t => (t.arrears ?? 0) > 0).length
-  const arrearsTotal    = tenancies.reduce((s, t) => s + (t.arrears ?? 0), 0)
+  // Arrears come from the canonical arrears-case ledger (arrears_records) — the
+  // same source the Money › Arrears section reads, so the figure stays consistent
+  // cross-section. The tenancy card list carries no arrears field of its own.
+  const arrearsCount    = arrearsSummary?.openCases ?? 0
+  const arrearsTotal    = arrearsSummary?.totalArrears ?? 0
 
 
   /* AI Portfolio Review — pre-flight cost confirmation → server-side AI action → inline result.
@@ -265,7 +270,9 @@ export default function PortfolioPage() {
         setAiReviewPhase("error")
         return
       }
-      setAiReviewResult(json.result ?? json.text ?? json.message ?? "Review complete.")
+      // The /api/ai/actions route returns the AI text in `content`; keep the
+      // legacy fallbacks for safety.
+      setAiReviewResult(json.content ?? json.result ?? json.text ?? json.message ?? "Review complete.")
       setAiReviewPhase("result")
     } catch {
       setAiReviewError("Network error. Please check your connection and try again.")
@@ -302,7 +309,7 @@ export default function PortfolioPage() {
 
   const openWorkTotal = properties.reduce((s, p) => s + (p.openWork ?? 0), 0)
   const portfolioKpis = [
-    { label: "Properties",    value: String(properties.length), icon: Building2,    color: "text-[#2563EB]",  bg: "bg-blue-50",    href: "/property-manager/portfolio/properties", sub: `${properties.filter(p => p.status === "Active").length} active` },
+    { label: "Properties",    value: String(properties.length), icon: Building2,    color: "text-[var(--brand)]",  bg: "bg-[var(--brand-soft)]",    href: "/property-manager/portfolio/properties", sub: `${properties.filter(p => p.status === "Active").length} active` },
     { label: "Units",         value: String(totalUnits),        icon: Home,          color: "text-[#7C3AED]",  bg: "bg-violet-50",  href: "/property-manager/portfolio/units", sub: `${vacantUnits} vacant` },
     { label: "Tenancies",     value: String(activeTenancies),   icon: Users,         color: "text-[#10B981]",  bg: "bg-emerald-50", href: "/property-manager/portfolio/tenancies", sub: "Active" },
     { label: "Occupancy",     value: totalUnits > 0 ? `${occupancyPct}%` : "—",  icon: TrendingUp,    color: occupancyPct >= 90 ? "text-[#10B981]" : occupancyPct >= 70 ? "text-[#F59E0B]" : "text-[#EF4444]", bg: occupancyPct >= 90 ? "bg-emerald-50" : occupancyPct >= 70 ? "bg-amber-50" : "bg-red-50", href: "/property-manager/portfolio/units", sub: "Portfolio avg" },
@@ -396,12 +403,12 @@ export default function PortfolioPage() {
           const badge = tab.count != null && (
             <span className={cn(
               "inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[11px] font-semibold",
-              active ? "bg-blue-100 text-[#2563EB]" : "bg-slate-100 text-slate-500"
+              active ? "bg-[var(--color-brand-100)] text-[var(--brand)]" : "bg-slate-100 text-slate-500"
             )}>{tab.count}</span>
           )
           const className = cn(
             "flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-medium border-b-2 -mb-px whitespace-nowrap transition-all duration-150",
-            active ? "border-[#2563EB] text-[#2563EB]" : "border-transparent text-slate-500 hover:text-slate-700"
+            active ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-500 hover:text-slate-700"
           )
           // Overview stays an inline tab; the list tabs navigate to canonical routes.
           if (tab.key === "overview") {
@@ -453,7 +460,7 @@ export default function PortfolioPage() {
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-[14px] font-bold text-slate-900">Portfolio segments</h3>
                 <button onClick={() => router.push("/property-manager/portfolio/properties")}
-                  className="text-[12px] text-[#2563EB] hover:text-[#1d4ed8] font-semibold flex items-center gap-1 transition-colors">
+                  className="text-[12px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-semibold flex items-center gap-1 transition-colors">
                   View all <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -572,7 +579,7 @@ export default function PortfolioPage() {
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-[14px] font-bold text-slate-900">Recent properties</h3>
                   <button onClick={() => router.push("/property-manager/portfolio/properties")}
-                    className="text-[12px] text-[#2563EB] hover:text-[#1d4ed8] font-semibold flex items-center gap-1 transition-colors">
+                    className="text-[12px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-semibold flex items-center gap-1 transition-colors">
                     View all <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -592,7 +599,7 @@ export default function PortfolioPage() {
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-[14px] font-bold text-slate-900">Map preview</h3>
                     <Link href="/property-manager/portfolio/map"
-                      className="text-[12px] text-[#2563EB] hover:text-[#1d4ed8] font-semibold flex items-center gap-1 transition-colors">
+                      className="text-[12px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-semibold flex items-center gap-1 transition-colors">
                       Open full map <ChevronRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>
@@ -617,7 +624,7 @@ export default function PortfolioPage() {
                             <p className="text-[18px] font-black text-slate-900 tabular-nums leading-none">{cities.length || "—"}</p>
                             <p className="text-[10px] text-slate-500 mt-0.5">{cities.length === 1 ? "Location" : "Locations"}</p>
                           </div>
-                          <div className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2563EB] pl-1">
+                          <div className="flex items-center gap-1.5 text-[13px] font-semibold text-[var(--brand)] pl-1">
                             <Map className="w-4 h-4" />View map
                           </div>
                         </div>
@@ -654,7 +661,7 @@ export default function PortfolioPage() {
               </div>
               <div className="flex flex-col divide-y divide-slate-50">
                 {([
-                  { label: "Add property",      href: "/property-manager/portfolio/properties/new", icon: Building2,  iconBg: "bg-blue-50",    iconColor: "text-[#2563EB]" },
+                  { label: "Add property",      href: "/property-manager/portfolio/properties/new", icon: Building2,  iconBg: "bg-[var(--brand-soft)]",    iconColor: "text-[var(--brand)]" },
                   { label: "Add unit",           href: "/property-manager/portfolio/units/new",      icon: Home,       iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
                   { label: "Create tenancy",     href: "/property-manager/portfolio/tenancies/new",  icon: Users,      iconBg: "bg-emerald-50", iconColor: "text-emerald-600" },
                   { label: "Open work queue",    href: "/property-manager/work",                     icon: Wrench,     iconBg: "bg-slate-100",  iconColor: "text-slate-500" },

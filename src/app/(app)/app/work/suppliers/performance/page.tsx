@@ -89,7 +89,7 @@ export default function SupplierPerformancePage() {
         ? Math.round(withJobs.reduce((s, r) => s + r.completionRate, 0) / withJobs.length)
         : 0
     return [
-      { label: "Active Suppliers", value: String(withJobs.length), sub: `${suppliers.length} total`, icon: Briefcase, bg: "bg-blue-50", color: "text-blue-600" },
+      { label: "Active Suppliers", value: String(withJobs.length), sub: `${suppliers.length} total`, icon: Briefcase, bg: "bg-[var(--brand-soft)]", color: "text-[var(--brand)]" },
       { label: "Jobs Tracked", value: String(totalJobs), sub: `${totalCompleted} completed`, icon: LayoutGrid, bg: "bg-violet-50", color: "text-violet-600" },
       { label: "Avg Completion", value: `${avgCompletion}%`, sub: "Across active suppliers", icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" },
       { label: "Total Invoiced", value: `£${totalInvoiced.toLocaleString()}`, sub: "All suppliers", icon: Receipt, bg: "bg-amber-50", color: "text-amber-600" },
@@ -183,7 +183,7 @@ export default function SupplierPerformancePage() {
             </div>
             <p className="text-base font-semibold text-slate-900 mb-1">No suppliers yet</p>
             <p className="text-sm text-slate-500 mb-4">Add supplier contacts and assign them to jobs to build performance data.</p>
-            <Link href="/property-manager/contacts/new?type=supplier" className="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold">Add Supplier</Link>
+            <Link href="/property-manager/contacts/new?type=supplier" className="px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold">Add Supplier</Link>
           </div>
         ) : (
           <div className="overflow-x-auto">

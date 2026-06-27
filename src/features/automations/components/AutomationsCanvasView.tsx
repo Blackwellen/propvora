@@ -14,7 +14,7 @@ function CanvasFallback() {
   return (
     <div className="flex h-[600px] items-center justify-center rounded-2xl border border-slate-200 bg-white">
       <div className="flex items-center gap-2 text-slate-400">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-blue-500" />
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-[var(--brand)]" />
         <span className="text-sm">Loading canvas…</span>
       </div>
     </div>

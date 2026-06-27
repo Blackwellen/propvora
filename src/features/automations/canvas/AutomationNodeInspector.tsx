@@ -73,7 +73,7 @@ function SettingsTab({
         <input
           value={node.data.label}
           onChange={(e) => onUpdateLabel(node.id, e.target.value)}
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition"
+          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-[var(--color-brand-400)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)] transition"
         />
       </div>
 
@@ -107,13 +107,13 @@ function SettingsTab({
                   rows={3}
                   value={String(config?.[field.key] ?? field.default ?? "")}
                   onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                  className="w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition"
+                  className="w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-[var(--color-brand-400)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)] transition"
                 />
               ) : field.kind === "select" ? (
                 <select
                   value={String(config?.[field.key] ?? field.default ?? "")}
                   onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition"
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-[var(--color-brand-400)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)] transition"
                 >
                   {field.options?.map((o) => (
                     <option key={o.value} value={o.value}>{o.label}</option>
@@ -125,7 +125,7 @@ function SettingsTab({
                     type="checkbox"
                     checked={Boolean(config?.[field.key] ?? field.default ?? false)}
                     onChange={(e) => handleFieldChange(field.key, e.target.checked)}
-                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-400"
+                    className="h-4 w-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--color-brand-400)]"
                   />
                   <span className="text-sm text-slate-700">{field.label}</span>
                 </label>
@@ -140,7 +140,7 @@ function SettingsTab({
                       field.kind === "number" ? Number(e.target.value) : e.target.value
                     )
                   }
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition"
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-[var(--color-brand-400)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)] transition"
                 />
               )}
               {field.help && (
@@ -315,7 +315,7 @@ function TestDataTab({ node }: { node: Node<CanvasFlowNodeData> }) {
           onChange={(e) => setPayload(e.target.value)}
           rows={8}
           spellCheck={false}
-          className="w-full resize-none rounded-xl border border-slate-200 bg-slate-900 p-3 font-mono text-[11px] leading-relaxed text-emerald-300 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          className="w-full resize-none rounded-xl border border-slate-200 bg-slate-900 p-3 font-mono text-[11px] leading-relaxed text-emerald-300 focus:border-[var(--color-brand-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)]"
         />
       </div>
       <div>
@@ -325,7 +325,7 @@ function TestDataTab({ node }: { node: Node<CanvasFlowNodeData> }) {
         <select
           value={expectedBranch}
           onChange={(e) => setExpectedBranch(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 transition"
+          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-[var(--color-brand-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)] transition"
         >
           <option value="TRUE">TRUE</option>
           <option value="FALSE">FALSE</option>
@@ -335,7 +335,7 @@ function TestDataTab({ node }: { node: Node<CanvasFlowNodeData> }) {
       </div>
       <button
         onClick={() => setRan(true)}
-        className="w-full rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition"
+        className="w-full rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[var(--brand-strong)] transition"
       >
         Run node test
       </button>
@@ -379,7 +379,7 @@ export function AutomationNodeInspector({ node, onUpdateConfig, onUpdateLabel, o
                 className={[
                   "flex shrink-0 items-center gap-1 rounded-t-lg px-2.5 py-2 text-[11px] font-medium transition border-b-2",
                   active
-                    ? "border-blue-600 text-blue-600 bg-blue-50/60"
+                    ? "border-[var(--brand)] text-[var(--brand)] bg-[var(--brand-soft)]/60"
                     : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50",
                 ].join(" ")}
               >

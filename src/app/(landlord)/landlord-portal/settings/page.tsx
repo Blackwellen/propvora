@@ -192,7 +192,7 @@ export default function LandlordSettingsPage() {
                 type="button"
                 onClick={() => toggleNotif(pref.key)}
                 aria-pressed={notifs[pref.key]}
-                className={`w-10 h-5 rounded-full transition-colors relative ${notifs[pref.key] ? "bg-[#2563EB]" : "bg-slate-200"}`}
+                className={`w-10 h-5 rounded-full transition-colors relative ${notifs[pref.key] ? "bg-[var(--brand)]" : "bg-slate-200"}`}
               >
                 <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${notifs[pref.key] ? "translate-x-5" : "translate-x-0.5"}`} />
               </button>
@@ -209,8 +209,8 @@ export default function LandlordSettingsPage() {
       <Card className="rounded-2xl border-slate-200">
         <CardHeader><CardTitle>Account &amp; Security</CardTitle></CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-start gap-3 rounded-xl bg-[#EFF6FF] border border-blue-100 p-3">
-            <ShieldCheck className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0" />
+          <div className="flex items-start gap-3 rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)] p-3">
+            <ShieldCheck className="w-4 h-4 text-[var(--brand)] mt-0.5 shrink-0" />
             <p className="text-xs text-[#1e40af]">
               You&apos;re signed in as <span className="font-semibold">{(ctx?.email ?? form.email) || "your account"}</span>.
               {ctx?.source === "email_match" && " Linked by matching email."}

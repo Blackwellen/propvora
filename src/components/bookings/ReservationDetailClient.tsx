@@ -246,7 +246,7 @@ export function ReservationDetailClient({ booking: initial }: Props) {
                 onClick={() => setTab(t.key)}
                 className={cn(
                   "inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[13px] font-medium whitespace-nowrap transition-colors shrink-0",
-                  active ? "bg-[#2563EB] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                  active ? "bg-[var(--brand)] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                 )}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -299,13 +299,13 @@ export function ReservationDetailClient({ booking: initial }: Props) {
                             <span
                               className={cn(
                                 "absolute left-0 top-1 w-[11px] h-[11px] rounded-full border-2",
-                                done ? "bg-emerald-500 border-emerald-500" : active ? "bg-white border-[#2563EB]" : "bg-white border-slate-300"
+                                done ? "bg-emerald-500 border-emerald-500" : active ? "bg-white border-[var(--brand)]" : "bg-white border-slate-300"
                               )}
                             />
                             <p className={cn("text-[13px] font-medium", done ? "text-slate-500" : active ? "text-slate-900 font-semibold" : "text-slate-400")}>
                               {stage.label}
                             </p>
-                            {active && <p className="text-[11px] text-[#2563EB] mt-0.5">Current stage</p>}
+                            {active && <p className="text-[11px] text-[var(--brand)] mt-0.5">Current stage</p>}
                           </li>
                         )
                       })}
@@ -338,7 +338,7 @@ export function ReservationDetailClient({ booking: initial }: Props) {
         {tab === "guest" && (
           <Card title="Guest">
             <div className="px-5 py-4 flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+              <div className="w-11 h-11 rounded-full bg-[var(--brand-soft)] flex items-center justify-center text-[var(--brand)] shrink-0">
                 <User className="w-5 h-5" />
               </div>
               <div className="min-w-0">
@@ -441,13 +441,13 @@ export function ReservationDetailClient({ booking: initial }: Props) {
             </button>
           )}
           {canCheckIn && (
-            <button onClick={() => doTransition("checked_in", "Guest checked in.")} disabled={pending} className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-semibold bg-[#2563EB] text-white disabled:opacity-60">
+            <button onClick={() => doTransition("checked_in", "Guest checked in.")} disabled={pending} className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white disabled:opacity-60">
               <LogIn className="w-4 h-4" />
               Check in
             </button>
           )}
           {canCheckOut && (
-            <button onClick={() => doTransition("checked_out", "Guest checked out.")} disabled={pending} className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-semibold bg-[#2563EB] text-white disabled:opacity-60">
+            <button onClick={() => doTransition("checked_out", "Guest checked out.")} disabled={pending} className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white disabled:opacity-60">
               <LogOut className="w-4 h-4" />
               Check out
             </button>
@@ -546,7 +546,7 @@ function ActionBtn({
       disabled={pending}
       className={cn(
         "inline-flex items-center gap-2 h-9 px-4 rounded-xl text-sm font-semibold text-white transition-colors disabled:opacity-60",
-        tone === "emerald" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-[#2563EB] hover:bg-blue-700"
+        tone === "emerald" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-[var(--brand)] hover:bg-[var(--brand-strong)]"
       )}
     >
       <Icon className="w-4 h-4" />

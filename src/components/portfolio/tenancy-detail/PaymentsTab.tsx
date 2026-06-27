@@ -11,7 +11,7 @@ export function PaymentsTab({ t }: { t: TenancyDisplay }) {
     <div className="mt-4 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <p className="text-[13px] text-slate-500">Rent terms shown from the tenancy. Recorded payments, arrears and receipts live in Money.</p>
-        <Link href="/property-manager/money" className="flex items-center gap-1.5 text-[13px] font-semibold text-white bg-blue-600 rounded-xl px-4 py-2 hover:bg-blue-700 transition-colors shadow-sm">
+        <Link href="/property-manager/money" className="flex items-center gap-1.5 text-[13px] font-semibold text-white bg-[var(--brand)] rounded-xl px-4 py-2 hover:bg-[var(--brand-strong)] transition-colors shadow-sm">
           Open Money <ArrowUpRight className="w-3.5 h-3.5" />
         </Link>
       </div>
@@ -40,7 +40,7 @@ export function PaymentsTab({ t }: { t: TenancyDisplay }) {
           <p className="text-[14px] font-semibold text-slate-600">Payment history is tracked in Money</p>
           <p className="text-[12px] text-slate-500 mt-1">Record rent receipts, charges and arrears against this tenancy in the Money section.</p>
         </div>
-        <Link href="/property-manager/money" className="text-[12px] text-blue-600 font-semibold hover:underline flex items-center gap-1">
+        <Link href="/property-manager/money" className="text-[12px] text-[var(--brand)] font-semibold hover:underline flex items-center gap-1">
           Go to Money <ArrowUpRight className="w-3.5 h-3.5" />
         </Link>
       </SectionCard>

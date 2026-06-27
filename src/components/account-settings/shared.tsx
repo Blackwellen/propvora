@@ -15,7 +15,7 @@ export function Toggle({
       onClick={() => onChange(!checked)}
       className={cn(
         "w-11 h-6 rounded-full transition-all relative shrink-0",
-        checked ? "bg-blue-600" : "bg-slate-200"
+        checked ? "bg-[var(--brand)]" : "bg-slate-200"
       )}
       role="switch"
       aria-checked={checked}

@@ -41,7 +41,7 @@ export function PerformanceMetricsCard({
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[13px] font-semibold text-slate-800">Performance</h3>
-        <Link href={detailHref} className="text-[11px] text-[#2563EB] hover:underline font-medium">
+        <Link href={detailHref} className="text-[11px] text-[var(--brand)] hover:underline font-medium">
           View all
         </Link>
       </div>

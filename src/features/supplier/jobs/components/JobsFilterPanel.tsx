@@ -30,7 +30,7 @@ export function JobsFilterPanel({ active, onChange, counts }: JobsFilterPanelPro
             className={cn(
               "px-3.5 py-2.5 text-sm font-semibold -mb-px border-b-2 whitespace-nowrap transition-colors",
               active === f.id
-                ? "border-[#2563EB] text-[#2563EB]"
+                ? "border-[var(--brand)] text-[var(--brand)]"
                 : "border-transparent text-slate-500 hover:text-slate-700"
             )}
           >

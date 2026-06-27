@@ -34,26 +34,26 @@ export function TaskLinkedWorkTab({ linkedRecords, propertyId }: TaskLinkedWorkT
               <Link
                 key={rec.label}
                 href={rec.href}
-                className="group flex items-center gap-3 py-3 px-3.5 rounded-xl border border-slate-200 bg-white hover:border-[#2563EB]/40 hover:shadow-sm transition-all"
+                className="group flex items-center gap-3 py-3 px-3.5 rounded-xl border border-slate-200 bg-white hover:border-[var(--brand)]/40 hover:shadow-sm transition-all"
               >
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                  <Building2 className="w-5 h-5 text-[#2563EB]" />
+                <div className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                  <Building2 className="w-5 h-5 text-[var(--brand)]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold">{rec.type}</p>
-                  <p className="text-sm font-semibold text-slate-800 group-hover:text-[#2563EB] transition-colors truncate">{rec.label}</p>
+                  <p className="text-sm font-semibold text-slate-800 group-hover:text-[var(--brand)] transition-colors truncate">{rec.label}</p>
                 </div>
                 {rec.status && (
-                  <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full shrink-0">{rec.status}</span>
+                  <span className="text-[11px] font-medium text-[var(--brand)] bg-[var(--brand-soft)] px-2 py-0.5 rounded-full shrink-0">{rec.status}</span>
                 )}
-                <ChevronLeft className="w-4 h-4 text-slate-300 rotate-180 group-hover:text-[#2563EB] transition-colors shrink-0" />
+                <ChevronLeft className="w-4 h-4 text-slate-300 rotate-180 group-hover:text-[var(--brand)] transition-colors shrink-0" />
               </Link>
             ))}
           </div>
         )}
         <Link
           href={propertyId ? `/property-manager/work/jobs/new?propertyId=${propertyId}` : "/property-manager/work/jobs/new"}
-          className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#2563EB] hover:underline"
+          className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[var(--brand)] hover:underline"
         >
           <Plus className="w-3.5 h-3.5" /> Raise a job from this task
         </Link>

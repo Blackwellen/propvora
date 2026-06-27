@@ -53,7 +53,7 @@ const PRICING_MODELS = [
 ]
 
 const FIELD =
-  "w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+  "w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
 const LABEL = "text-[11px] font-semibold uppercase tracking-wide text-slate-500 mb-1 block"
 
 function penceToMajor(p: number | null | undefined): string {

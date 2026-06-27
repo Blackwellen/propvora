@@ -30,7 +30,7 @@ export function PendingTab({ suppliers, pendingStatuses = ["inactive", "pending"
         </p>
         <Link
           href="/property-manager/contacts/new?type=supplier"
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--brand)] text-white rounded-lg text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
         >
           <UserPlus className="w-3.5 h-3.5" />
           Invite Supplier
@@ -54,14 +54,14 @@ export function PendingTab({ suppliers, pendingStatuses = ["inactive", "pending"
               <div className="flex flex-wrap items-center gap-2 mb-0.5">
                 <Link
                   href={`/property-manager/work/suppliers/${s.id}`}
-                  className="text-[13.5px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors"
+                  className="text-[13.5px] font-semibold text-slate-900 hover:text-[var(--brand)] transition-colors"
                 >
                   {s.name}
                 </Link>
                 <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-semibold">
                   Pending
                 </span>
-                <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-medium">{s.trade}</span>
+                <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] font-medium">{s.trade}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <MapPin className="w-3 h-3 text-slate-400 shrink-0" />

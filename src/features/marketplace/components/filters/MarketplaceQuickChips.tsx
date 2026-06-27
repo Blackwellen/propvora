@@ -31,7 +31,7 @@ function QuickChip({
       className={cn(
         "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition-colors",
         active
-          ? "border-[#2563EB] bg-blue-50 text-[#2563EB]"
+          ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
           : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
       )}
     >

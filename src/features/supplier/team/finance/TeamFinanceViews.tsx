@@ -14,7 +14,7 @@ import { moneyPence, shortDate } from "@/components/supplier-workspace/format"
 import { TEAM_REVENUE_BY_MEMBER } from "@/features/supplier/team/data/overview"
 
 function Mini({ label, value, tone = "slate" }: { label: string; value: string; tone?: "blue" | "emerald" | "red" | "amber" | "slate" }) {
-  const c = tone === "blue" ? "text-[#2563EB]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : tone === "amber" ? "text-amber-600" : "text-slate-900"
+  const c = tone === "blue" ? "text-[var(--brand)]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : tone === "amber" ? "text-amber-600" : "text-slate-900"
   return <SupplierCard className="p-3.5"><span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span><p className={cn("text-lg font-bold mt-1", c)}>{value}</p></SupplierCard>
 }
 
@@ -50,7 +50,7 @@ export function TeamRevenue() {
                 <span className="w-7 h-7 rounded-full bg-slate-100 text-[11px] font-semibold text-slate-600 flex items-center justify-center shrink-0">{m.initials}</span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2"><p className="text-[13px] font-medium text-slate-700 truncate">{m.name}</p><span className="text-[12px] font-bold text-slate-900">{moneyPence(m.revenuePence)}</span></div>
-                  <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden mt-1"><div className="h-full rounded-full bg-[#2563EB]" style={{ width: `${(m.revenuePence / maxMember) * 100}%` }} /></div>
+                  <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden mt-1"><div className="h-full rounded-full bg-[var(--brand)]" style={{ width: `${(m.revenuePence / maxMember) * 100}%` }} /></div>
                 </div>
               </div>
             ))}
@@ -99,7 +99,7 @@ export function TeamStatements() {
             <thead><tr className="text-left text-xs text-slate-500 border-b border-slate-100 bg-slate-50/60"><th className="px-4 py-3 font-semibold">Period</th><th className="px-4 py-3 font-semibold text-right">Net</th><th className="px-4 py-3 font-semibold text-right">Fees</th><th className="px-4 py-3 font-semibold">Status</th></tr></thead>
             <tbody className="divide-y divide-slate-50">
               {STATEMENTS.map((s) => (
-                <tr key={s.id} onClick={() => setSelId(s.id)} className={cn("hover:bg-slate-50/60 cursor-pointer", sel?.id === s.id && "bg-blue-50/40")}>
+                <tr key={s.id} onClick={() => setSelId(s.id)} className={cn("hover:bg-slate-50/60 cursor-pointer", sel?.id === s.id && "bg-[var(--brand-soft)]/40")}>
                   <td className="px-4 py-3 font-semibold text-slate-800">{s.period}</td>
                   <td className="px-4 py-3 text-right text-slate-700">{moneyPence(s.totalPence)}</td>
                   <td className="px-4 py-3 text-right text-slate-500">{moneyPence(s.feePence)}</td>
@@ -144,7 +144,7 @@ export function TeamTaxes() {
     <div className="space-y-4">
       {toast && <SupplierBanner tone="emerald" onDismiss={() => setToast(null)}>{toast}</SupplierBanner>}
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex gap-1.5">{["Q1 2025/26", "Q4 2024/25", "Q3 2024/25"].map((p) => <button key={p} onClick={() => setPeriod(p)} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium", period === p ? "bg-[#2563EB] text-white" : "bg-white border border-slate-200 text-slate-600")}>{p}</button>)}</div>
+        <div className="flex gap-1.5">{["Q1 2025/26", "Q4 2024/25", "Q3 2024/25"].map((p) => <button key={p} onClick={() => setPeriod(p)} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium", period === p ? "bg-[var(--brand)] text-white" : "bg-white border border-slate-200 text-slate-600")}>{p}</button>)}</div>
         <SupplierButton variant="outline" onClick={() => setToast("VAT report exported (MTD-ready).")}><Download className="w-4 h-4" /> Export VAT report</SupplierButton>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

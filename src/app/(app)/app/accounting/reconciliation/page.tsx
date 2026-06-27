@@ -192,7 +192,7 @@ export default function ReconciliationPage() {
             onClick={() => setActiveTab(tab.key)}
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all",
-              activeTab === tab.key ? "bg-[#2563EB] text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
+              activeTab === tab.key ? "bg-[var(--brand)] text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
             )}
           >
             {tab.label}
@@ -217,8 +217,8 @@ export default function ReconciliationPage() {
             <div className="p-12 text-center text-slate-500 text-sm">Loading statement lines…</div>
           ) : lines.length === 0 ? (
             <div className="p-12 flex flex-col items-center justify-center gap-3 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-                <Banknote className="w-5 h-5 text-[#2563EB]" />
+              <div className="w-12 h-12 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center">
+                <Banknote className="w-5 h-5 text-[var(--brand)]" />
               </div>
               <p className="text-sm font-semibold text-slate-700">No bank statement imported yet</p>
               <p className="text-xs text-slate-500 max-w-sm">

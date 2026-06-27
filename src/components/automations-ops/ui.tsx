@@ -11,7 +11,7 @@ export type RunStatus = "queued" | "running" | "succeeded" | "failed" | "skipped
 
 const RUN_META: Record<RunStatus, { label: string; cls: string; dot: string }> = {
   queued: { label: "Queued", cls: "bg-slate-100 text-slate-600 border-slate-200", dot: "bg-slate-400" },
-  running: { label: "Running", cls: "bg-blue-50 text-blue-700 border-blue-200", dot: "bg-blue-500" },
+  running: { label: "Running", cls: "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]", dot: "bg-[var(--brand)]" },
   succeeded: { label: "Succeeded", cls: "bg-emerald-50 text-emerald-700 border-emerald-200", dot: "bg-emerald-500" },
   failed: { label: "Failed", cls: "bg-red-50 text-red-700 border-red-200", dot: "bg-red-500" },
   skipped: { label: "Skipped", cls: "bg-slate-100 text-slate-600 border-slate-200", dot: "bg-slate-400" },

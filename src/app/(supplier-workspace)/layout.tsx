@@ -24,9 +24,12 @@ export default async function SupplierWorkspaceLayout({
   } = await supabase.auth.getUser()
   if (!user) redirect("/login?redirectTo=/supplier")
 
-  // Staged platform: independent supplier workspace is Layer C — V2.
-  // Flag check bypassed for QA — re-enable before production.
-  // if (!(await getGlobalFlag("supplierWorkspace"))) redirect("/property-manager")
+  // Staged platform: independent supplier workspace is Layer C — V2. Gated behind
+  // the global `supplierWorkspace` flag (default OFF). QA-all-flags env bypass keeps
+  // it reachable during QA without leaving the V2 surface open in production.
+  if (process.env.NEXT_PUBLIC_QA_ALL_FLAGS !== "true") {
+    if (!(await getGlobalFlag("supplierWorkspace"))) redirect("/property-manager")
+  }
 
   // Core gate: user must belong to a supplier-type workspace.
   let workspaceId: string | null = null

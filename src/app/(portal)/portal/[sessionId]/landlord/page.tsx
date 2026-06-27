@@ -119,7 +119,7 @@ export default async function LandlordPortalHome({ params }: { params: Promise<{
             <div className="grid grid-cols-2 gap-2">
               {[["Properties", `${base}/properties`, Building2], ["Financials", `${base}/financials`, Wallet], ["Maintenance", `${base}/maintenance`, Wrench], ["Messages", `${base}/messages`, MessageSquare]].map(([l, h, I]) => {
                 const Icon = I as typeof Building2
-                return <Link key={l as string} href={h as string} className="flex items-center gap-2 rounded-xl border border-[#EEF3FB] hover:bg-[#F8FBFF] px-3 py-2.5 text-sm font-semibold text-[#071B4D]"><Icon className="w-4 h-4 text-[#2563EB]" />{l as string}<ChevronRight className="w-4 h-4 text-slate-300 ml-auto" /></Link>
+                return <Link key={l as string} href={h as string} className="flex items-center gap-2 rounded-xl border border-[#EEF3FB] hover:bg-[#F8FBFF] px-3 py-2.5 text-sm font-semibold text-[#071B4D]"><Icon className="w-4 h-4 text-[var(--brand)]" />{l as string}<ChevronRight className="w-4 h-4 text-slate-300 ml-auto" /></Link>
               })}
             </div>
           </PortalSectionCard>

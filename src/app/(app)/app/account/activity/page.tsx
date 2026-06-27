@@ -33,6 +33,44 @@ const TYPE_LABELS: Record<ActivityItem["type"], string> = {
 const ALL_TYPES = ["all", "login", "profile", "ai", "settings", "security"] as const
 type FilterType = (typeof ALL_TYPES)[number]
 
+/** Maps a dot-namespaced audit action to a UI category for filtering/colours. */
+function classifyAction(action: string): ActivityItem["type"] {
+  const a = action.toLowerCase()
+  if (/^(auth|login|logout|session)/.test(a) || a.includes("signed_in") || a.includes("sign_in")) return "login"
+  if (/(mfa|password|2fa|two_factor|recovery|account\.deletion|account\.export|security)/.test(a)) return "security"
+  if (/^(ai|automation|copilot)\.|\.ai_/.test(a) || a.startsWith("ai.")) return "ai"
+  if (/(profile|avatar)/.test(a)) return "profile"
+  return "settings"
+}
+
+/** Higher-risk actions get a non-low risk tag so the dot/badge reads correctly. */
+function classifyRisk(action: string): ActivityItem["risk"] {
+  const a = action.toLowerCase()
+  if (/(deletion|delete|password|mfa|2fa|ownership|removed|revoke|archived)/.test(a)) return "high"
+  if (/(export|role_changed|disabled|transferred|updated)/.test(a)) return "medium"
+  return "low"
+}
+
+/** Turns "workspace_settings.updated" into "Workspace settings updated". */
+function humanizeAction(action: string): string {
+  const cleaned = action.replace(/[._]/g, " ").trim()
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
+}
+
+/** Builds a concise, human-readable detail line from the audit metadata. */
+function buildDetail(metadata: unknown, resourceType: string | null): string {
+  if (metadata && typeof metadata === "object" && !Array.isArray(metadata)) {
+    const m = metadata as Record<string, unknown>
+    if (typeof m.detail === "string" && m.detail) return m.detail
+    const parts = Object.entries(m)
+      .filter(([, v]) => v !== null && typeof v !== "object")
+      .slice(0, 3)
+      .map(([k, v]) => `${k.replace(/_/g, " ")}: ${String(v)}`)
+    if (parts.length) return parts.join(" · ")
+  }
+  return resourceType ? `Resource: ${resourceType.replace(/_/g, " ")}` : ""
+}
+
 export default function ActivityPage() {
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState<FilterType>("all")
@@ -43,9 +81,19 @@ export default function ActivityPage() {
     async function load() {
       try {
         const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) { setLoading(false); return }
+
+        // Personal activity feed: the signed-in user's own audited actions over
+        // the last 30 days. RLS already scopes audit_logs to the user's
+        // workspaces; the user_id filter keeps this to *their* actions only and
+        // strips out system/automation noise (which is attributed elsewhere).
+        const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
         const { data, error } = await supabase
           .from("audit_logs")
-          .select("id, action, metadata, created_at")
+          .select("id, action, resource_type, metadata, created_at")
+          .eq("user_id", user.id)
+          .gte("created_at", since)
           .order("created_at", { ascending: false })
           .limit(100)
 
@@ -53,18 +101,19 @@ export default function ActivityPage() {
 
         if (data && data.length > 0) {
           setActivity(
-            data.map((row) => ({
-              id: row.id as string,
-              event: (row.action as string) ?? "Action",
-              detail: typeof row.metadata === "object" && row.metadata !== null
-                ? ((row.metadata as Record<string, unknown>).detail as string) ?? ""
-                : "",
-              time: new Date(row.created_at as string).toLocaleString("en-GB", {
-                day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
-              }),
-              type: "settings" as const,
-              risk: "low" as const,
-            }))
+            data.map((row) => {
+              const action = (row.action as string) ?? "action"
+              return {
+                id: row.id as string,
+                event: humanizeAction(action),
+                detail: buildDetail(row.metadata, (row.resource_type as string | null) ?? null),
+                time: new Date(row.created_at as string).toLocaleString("en-GB", {
+                  day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+                }),
+                type: classifyAction(action),
+                risk: classifyRisk(action),
+              }
+            })
           )
         }
       } catch {
@@ -103,7 +152,7 @@ export default function ActivityPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search activity…"
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/20 transition-all"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[var(--brand)] focus:ring-1 focus:ring-[var(--brand)]/20 transition-all"
           />
         </div>
         {/* Type filter */}

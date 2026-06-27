@@ -384,17 +384,17 @@ function AiReviewContent({ review: r }: { review: PlanningAiReview }) {
         )}
 
         {(r.suggestions ?? []).length > 0 && (
-          <div className="bg-white rounded-2xl border border-blue-200 shadow-sm p-4">
+          <div className="bg-white rounded-2xl border border-[var(--color-brand-100)] shadow-sm p-4">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-xl bg-blue-100 flex items-center justify-center">
-                <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
+              <div className="w-7 h-7 rounded-xl bg-[var(--color-brand-100)] flex items-center justify-center">
+                <TrendingUp className="w-3.5 h-3.5 text-[var(--brand)]" />
               </div>
               <h3 className="text-sm font-semibold text-slate-900">Suggested Improvements</h3>
             </div>
             <div className="flex flex-col gap-1.5">
               {(r.suggestions ?? []).map((s) => (
                 <div key={s} className="flex items-start gap-2">
-                  <ArrowRight className="w-3.5 h-3.5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <ArrowRight className="w-3.5 h-3.5 text-[var(--brand)] flex-shrink-0 mt-0.5" />
                   <span className="text-xs text-slate-700">{s}</span>
                 </div>
               ))}

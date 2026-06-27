@@ -27,7 +27,7 @@ export default function Maintenance({ t }: { t: Tenancy }) {
 
   return (
     <div className="space-y-5">
-      <Link href={`/customer/lets/tenancies/${t.id}`} className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue-600 hover:text-blue-700">
+      <Link href={`/customer/lets/tenancies/${t.id}`} className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">
         <ArrowLeft className="w-4 h-4" /> Back to tenancy
       </Link>
       <div className="flex items-center justify-between gap-3">
@@ -37,7 +37,7 @@ export default function Maintenance({ t }: { t: Tenancy }) {
         </div>
         <button
           onClick={() => toast("Report repair — opens form", "info")}
-          className="inline-flex items-center gap-1.5 bg-[#2563EB] text-white rounded-xl px-3.5 py-2 text-[12.5px] font-semibold"
+          className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-[12.5px] font-semibold"
         >
           <Plus className="w-4 h-4" /> Report a repair
         </button>

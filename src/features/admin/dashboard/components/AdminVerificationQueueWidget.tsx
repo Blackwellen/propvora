@@ -36,7 +36,7 @@ export function AdminVerificationQueueWidget({ items }: Props) {
                 <p className="text-[12.5px] font-semibold text-[#0B1B3F] truncate">{v.businessName ?? v.workspaceName ?? v.workspaceId.slice(0, 8)}</p>
                 <p className="text-[11px] text-slate-400">{shortDate(v.submittedAt)}</p>
               </div>
-              <Link href={`/admin/supplier-verification?workspace=${v.workspaceId}`} className="text-[12px] font-semibold text-[#2563EB] hover:underline shrink-0">Review</Link>
+              <Link href={`/admin/supplier-verification?workspace=${v.workspaceId}`} className="text-[12px] font-semibold text-[var(--brand)] hover:underline shrink-0">Review</Link>
             </li>
           ))}
         </ul>

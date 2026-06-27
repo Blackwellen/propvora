@@ -59,7 +59,7 @@ function HmoTabStrip({ propertyId }: { propertyId: string }) {
             href={tab.href}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
               isActive
-                ? "border-blue-600 text-blue-600"
+                ? "border-[var(--brand)] text-[var(--brand)]"
                 : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -145,7 +145,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
               <div
                 key={step.number}
                 className={`h-1.5 flex-1 rounded-full transition-colors ${
-                  step.number <= currentStep ? "bg-blue-600" : "bg-slate-200"
+                  step.number <= currentStep ? "bg-[var(--brand)]" : "bg-slate-200"
                 }`}
               />
             ))}
@@ -155,7 +155,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
               <span
                 key={step.number}
                 className={`text-[9px] font-medium ${
-                  step.number === currentStep ? "text-blue-600" : "text-slate-400"
+                  step.number === currentStep ? "text-[var(--brand)]" : "text-slate-400"
                 }`}
               >
                 {step.number}
@@ -176,7 +176,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     key={room.id}
                     className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
                       selectedRoom === room.id
-                        ? "border-blue-600 bg-blue-50"
+                        ? "border-[var(--brand)] bg-[var(--brand-soft)]"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
                   >
@@ -186,7 +186,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                       value={room.id}
                       checked={selectedRoom === room.id}
                       onChange={(e) => setSelectedRoom(e.target.value)}
-                      className="text-blue-600"
+                      className="text-[var(--brand)]"
                     />
                     <div>
                       <p className="text-sm font-medium text-slate-800">{room.room}</p>
@@ -209,7 +209,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     type="text"
                     value={form.firstName}
                     onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                     placeholder="First name"
                   />
                 </div>
@@ -219,7 +219,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     type="text"
                     value={form.lastName}
                     onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                     placeholder="Last name"
                   />
                 </div>
@@ -229,7 +229,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                     placeholder="tenant@email.com"
                   />
                 </div>
@@ -239,7 +239,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     type="tel"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                     placeholder="+44 7700 000000"
                   />
                 </div>
@@ -248,7 +248,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                   <select
                     value={form.source}
                     onChange={(e) => setForm({ ...form, source: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                   >
                     <option value="">Select source</option>
                     <option value="direct">Direct enquiry</option>
@@ -272,7 +272,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     type="number"
                     value={form.rent}
                     onChange={(e) => setForm({ ...form, rent: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                     placeholder="750"
                   />
                 </div>
@@ -284,7 +284,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     max={28}
                     value={form.paymentDay}
                     onChange={(e) => setForm({ ...form, paymentDay: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                     placeholder="1"
                   />
                 </div>
@@ -294,7 +294,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     type="date"
                     value={form.moveInDate}
                     onChange={(e) => setForm({ ...form, moveInDate: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                   />
                 </div>
               </div>
@@ -306,8 +306,8 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-slate-900">Generate Room Agreement</h3>
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3">
-                <div className="w-10 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-blue-600 text-[10px] font-bold">PDF</span>
+                <div className="w-10 h-12 bg-[var(--color-brand-100)] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-[var(--brand)] text-[10px] font-bold">PDF</span>
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-800">Room AST — Room 6</p>
@@ -315,7 +315,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     Assured Shorthold Tenancy Agreement · Room only · Periodic
                   </p>
                   <div className="flex items-center gap-2 mt-2">
-                    <button className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                    <button className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
                       Generate & Preview
                     </button>
                     <button className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
@@ -341,7 +341,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     type="number"
                     value={form.depositAmount}
                     onChange={(e) => setForm({ ...form, depositAmount: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                     placeholder="750"
                   />
                 </div>
@@ -350,7 +350,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                   <select
                     value={form.depositScheme}
                     onChange={(e) => setForm({ ...form, depositScheme: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                   >
                     <option value="">Select scheme</option>
                     <option value="DPS">DPS</option>
@@ -364,11 +364,11 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     type="date"
                     value={form.depositDate}
                     onChange={(e) => setForm({ ...form, depositDate: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                   />
                 </div>
               </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5 text-xs text-blue-700">
+              <div className="bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-lg px-3 py-2.5 text-xs text-[var(--brand)]">
                 Deposit must be protected within 30 days of receipt. Prescribed Information must be served.
               </div>
             </div>
@@ -384,7 +384,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                   <select
                     value={form.docType}
                     onChange={(e) => setForm({ ...form, docType: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                   >
                     <option value="">Select document</option>
                     <option value="passport_uk">UK/EEA Passport</option>
@@ -400,7 +400,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     type="date"
                     value={form.dateChecked}
                     onChange={(e) => setForm({ ...form, dateChecked: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                   />
                 </div>
                 <div>
@@ -411,7 +411,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     type="date"
                     value={form.expiryDate}
                     onChange={(e) => setForm({ ...form, expiryDate: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                   />
                 </div>
               </div>
@@ -435,7 +435,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     type="text"
                     value={form.keyRef}
                     onChange={(e) => setForm({ ...form, keyRef: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                     placeholder="e.g. R6-A"
                   />
                 </div>
@@ -446,7 +446,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     min={1}
                     value={form.keySets}
                     onChange={(e) => setForm({ ...form, keySets: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                     placeholder="2"
                   />
                 </div>
@@ -480,17 +480,17 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     <tr key={r}>
                       <td className="py-2 text-slate-700">{r}</td>
                       <td className="py-2 text-right text-slate-700">20%</td>
-                      <td className="py-2 text-right text-blue-600 font-medium">16.7%</td>
+                      <td className="py-2 text-right text-[var(--brand)] font-medium">16.7%</td>
                     </tr>
                   ))}
                   <tr>
                     <td className="py-2 text-slate-700 font-medium">Room 6 (new)</td>
                     <td className="py-2 text-right text-slate-400">—</td>
-                    <td className="py-2 text-right text-blue-600 font-medium">16.7%</td>
+                    <td className="py-2 text-right text-[var(--brand)] font-medium">16.7%</td>
                   </tr>
                 </tbody>
               </table>
-              <button className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+              <button className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
                 Add to Equal Split
               </button>
             </div>
@@ -511,7 +511,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
                     {form.firstName || "Tenant"} {form.lastName} · {form.email || "email not entered"}
                   </p>
                 </div>
-                <button className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                <button className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
                   Send Welcome Email with Portal Link
                 </button>
               </div>
@@ -556,7 +556,7 @@ function OnboardingWizard({ onClose }: { onClose: () => void }) {
           {currentStep < 10 ? (
             <button
               onClick={handleNext}
-              className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-4 py-1.5 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-4 py-1.5 rounded-lg transition-colors"
             >
               Next
               <ChevronRight className="w-3.5 h-3.5" />
@@ -633,7 +633,7 @@ export default function HmoRoomsPage({
           </button>
           <button
             onClick={() => setShowWizard(true)}
-            className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Add Room
@@ -717,7 +717,7 @@ export default function HmoRoomsPage({
                           <div>
                             <p className="text-xs text-slate-700 font-medium">{room.deposit}</p>
                             {room.scheme && (
-                              <span className="bg-blue-50 text-blue-700 border border-blue-200 px-1.5 py-0.5 rounded-full text-[10px] font-medium">
+                              <span className="bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)] px-1.5 py-0.5 rounded-full text-[10px] font-medium">
                                 {room.scheme}
                               </span>
                             )}
@@ -750,7 +750,7 @@ export default function HmoRoomsPage({
                         ) : (
                           <button
                             onClick={() => setShowWizard(true)}
-                            className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-2 py-1 rounded-lg transition-colors"
+                            className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-2 py-1 rounded-lg transition-colors"
                           >
                             Create Vacancy
                           </button>

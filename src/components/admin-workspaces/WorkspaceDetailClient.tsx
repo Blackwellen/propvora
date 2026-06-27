@@ -132,7 +132,7 @@ export default function WorkspaceDetailClient({ ws }: { ws: AdminWorkspaceDetail
               <div className="px-4 py-3 border-b border-[#E2E8F0] flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-slate-900">Workspace Settings</h3>
                 {!editing ? (
-                  <button onClick={() => setEditing(true)} className="inline-flex items-center gap-1.5 text-xs font-medium text-[#2563EB] hover:underline">
+                  <button onClick={() => setEditing(true)} className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--brand)] hover:underline">
                     <Pencil className="w-3.5 h-3.5" /> Edit
                   </button>
                 ) : (
@@ -171,7 +171,7 @@ export default function WorkspaceDetailClient({ ws }: { ws: AdminWorkspaceDetail
               <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {dataEntries.map(([k, v]) => (
                   <div key={k} className="p-3 rounded-xl border border-[#E2E8F0] bg-white">
-                    <p className="text-xl font-bold text-[#2563EB]">{v === null ? "—" : v.toLocaleString("en-GB")}</p>
+                    <p className="text-xl font-bold text-[var(--brand)]">{v === null ? "—" : v.toLocaleString("en-GB")}</p>
                     <p className="text-xs text-slate-500 mt-0.5 capitalize">{k}</p>
                   </div>
                 ))}
@@ -194,7 +194,7 @@ export default function WorkspaceDetailClient({ ws }: { ws: AdminWorkspaceDetail
                     return (
                       <div key={m.userId} className="flex items-center justify-between gap-3 px-4 py-3">
                         <Link href={`/admin/users/${m.userId}`} className="min-w-0 group">
-                          <p className="text-sm font-medium text-slate-800 group-hover:text-[#2563EB] truncate">{m.name ?? m.email ?? "Unknown"}</p>
+                          <p className="text-sm font-medium text-slate-800 group-hover:text-[var(--brand)] truncate">{m.name ?? m.email ?? "Unknown"}</p>
                           <p className="text-[11px] text-slate-400 truncate">{m.email ?? ""}</p>
                         </Link>
                         <div className="flex items-center gap-2 shrink-0">
@@ -202,7 +202,7 @@ export default function WorkspaceDetailClient({ ws }: { ws: AdminWorkspaceDetail
                             value={m.role}
                             disabled={isOwner}
                             onChange={(e) => changeMemberRole(m.userId, e.target.value)}
-                            className="h-8 px-2 rounded-lg border border-[#E2E8F0] bg-white text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 disabled:opacity-60"
+                            className="h-8 px-2 rounded-lg border border-[#E2E8F0] bg-white text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 disabled:opacity-60"
                           >
                             {MEMBER_ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                           </select>
@@ -241,7 +241,7 @@ export default function WorkspaceDetailClient({ ws }: { ws: AdminWorkspaceDetail
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500">Stripe customer</span>
                   {ws.stripeCustomerId ? (
-                    <a href={`https://dashboard.stripe.com/customers/${ws.stripeCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-medium text-[#2563EB] hover:underline">
+                    <a href={`https://dashboard.stripe.com/customers/${ws.stripeCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--brand)] hover:underline">
                       <ExternalLink className="w-3.5 h-3.5" /> View in Stripe
                     </a>
                   ) : <span className="text-xs text-slate-400">Not linked</span>}
@@ -277,7 +277,7 @@ export default function WorkspaceDetailClient({ ws }: { ws: AdminWorkspaceDetail
                   <div className="space-y-2.5">
                     {ws.recentAudit.map((e) => (
                       <div key={e.id} className="flex items-start gap-3 py-1.5 border-b border-slate-50 last:border-0">
-                        <div className="w-6 h-6 rounded-full bg-[#EFF6FF] flex items-center justify-center shrink-0"><Activity className="w-3 h-3 text-[#2563EB]" /></div>
+                        <div className="w-6 h-6 rounded-full bg-[var(--brand-soft)] flex items-center justify-center shrink-0"><Activity className="w-3 h-3 text-[var(--brand)]" /></div>
                         <div className="flex-1 min-w-0"><p className="text-xs font-mono font-medium text-slate-700">{e.action}</p><p className="text-[11px] text-slate-400">{e.actorName ?? e.actorEmail ?? "system"}</p></div>
                         <p className="text-[11px] text-slate-400 whitespace-nowrap shrink-0">{e.createdAt ? new Date(e.createdAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : ""}</p>
                       </div>

@@ -26,8 +26,8 @@ const STATUS_MAP: Record<string, StatusConfig> = {
   },
   offer_sent: {
     label: "Offer Sent",
-    pill: "bg-blue-50 text-blue-700 border border-blue-200",
-    dot: "bg-blue-500",
+    pill: "bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]",
+    dot: "bg-[var(--brand)]",
   },
   offer_drafted: {
     label: "Offer Drafted",

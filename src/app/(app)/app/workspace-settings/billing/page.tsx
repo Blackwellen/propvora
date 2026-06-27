@@ -100,8 +100,8 @@ export default function BillingPage() {
       {/* Payment method — managed in the Stripe portal (PCI-compliant) */}
       <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-5">
         <div className="flex items-center gap-2.5 mb-3">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-[#2563EB]/10">
-            <CreditCard className="w-4 h-4 text-[#2563EB]" />
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-[var(--brand)]/10">
+            <CreditCard className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <h3 className="text-[14px] font-bold text-slate-900">Payment Method</h3>
         </div>
@@ -114,7 +114,7 @@ export default function BillingPage() {
             setPortalError(null)
             try { await openBillingPortal() } catch (e) { setPortalError(e instanceof Error ? e.message : "Portal unavailable") }
           }}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
         >
           <CreditCard className="w-4 h-4" />
           Manage payment methods
@@ -148,7 +148,7 @@ export default function BillingPage() {
                   value={form[field.key]}
                   onChange={e => update(field.key, e.target.value)}
                   placeholder={field.placeholder}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
                 />
               </div>
             ))}
@@ -159,7 +159,7 @@ export default function BillingPage() {
                 type="text"
                 value={form.address}
                 onChange={e => update("address", e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
               />
             </div>
             <div>
@@ -168,7 +168,7 @@ export default function BillingPage() {
                 type="text"
                 value={form.city}
                 onChange={e => update("city", e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
               />
             </div>
             <div>
@@ -177,7 +177,7 @@ export default function BillingPage() {
                 type="text"
                 value={form.postcode}
                 onChange={e => update("postcode", e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
               />
             </div>
             <div className="sm:col-span-2">
@@ -185,7 +185,7 @@ export default function BillingPage() {
               <select
                 value={form.country}
                 onChange={e => update("country", e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
               >
                 <option>United Kingdom</option>
                 <option>United States</option>
@@ -201,7 +201,7 @@ export default function BillingPage() {
           <button
             onClick={handleSave}
             disabled={loading || saveStatus === "saving"}
-            className="px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            className="px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "Saved" : "Save billing details"}
           </button>
@@ -238,7 +238,7 @@ export default function BillingPage() {
               alert("Stripe billing portal is not configured. Set STRIPE_SECRET_KEY and STRIPE_PORTAL_RETURN_URL to enable it.")
             }
           }}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#2563EB] text-[#2563EB] text-[13px] font-semibold hover:bg-blue-50 transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[var(--brand)] text-[var(--brand)] text-[13px] font-semibold hover:bg-[var(--brand-soft)] transition-colors"
         >
           <ExternalLink className="w-4 h-4" />
           Open billing portal

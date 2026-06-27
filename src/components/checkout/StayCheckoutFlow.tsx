@@ -151,7 +151,7 @@ export default function StayCheckoutFlow(props: StayCheckoutFlowProps) {
             <Image src={props.thumbUrl} alt="" fill className="object-cover" sizes="80px" />
           </div>
         ) : (
-          <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-xl bg-[#EFF5FF] text-[#2563EB]">
+          <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-xl bg-[#EFF5FF] text-[var(--brand)]">
             <MapPin className="h-5 w-5" />
           </div>
         )}
@@ -195,7 +195,7 @@ export default function StayCheckoutFlow(props: StayCheckoutFlowProps) {
       {props.trustChips && props.trustChips.length > 0 && (
         <div className="flex flex-wrap gap-1.5 border-t border-[#EEF2F9] px-4 py-3">
           {props.trustChips.map((c) => (
-            <span key={c} className="inline-flex items-center gap-1 rounded-full bg-[#F1F6FF] px-2 py-0.5 text-[11px] font-semibold text-[#1D4ED8]">
+            <span key={c} className="inline-flex items-center gap-1 rounded-full bg-[#F1F6FF] px-2 py-0.5 text-[11px] font-semibold text-[var(--brand-strong)]">
               <ShieldCheck className="h-3 w-3" /> {c}
             </span>
           ))}
@@ -223,7 +223,7 @@ export default function StayCheckoutFlow(props: StayCheckoutFlowProps) {
                   : <>Your booking has been received. We&apos;ll confirm shortly and email <strong className="font-semibold text-[#0B1B3F]">{email}</strong>.</>}
               </p>
               {reservationId && (
-                <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#F1F6FF] px-3 py-1.5 text-[12.5px] font-semibold text-[#1D4ED8]">
+                <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#F1F6FF] px-3 py-1.5 text-[12.5px] font-semibold text-[var(--brand-strong)]">
                   <Tag className="h-3.5 w-3.5" /> Reference {reservationId.slice(0, 8).toUpperCase()}
                 </div>
               )}
@@ -232,7 +232,7 @@ export default function StayCheckoutFlow(props: StayCheckoutFlowProps) {
         </SectionCard>
         <Link
           href={props.successHref ?? "/customer/bookings"}
-          className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-5 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-[#1D4ED8]"
+          className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[var(--brand)] px-5 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-[var(--brand-strong)]"
         >
           {props.successHrefLabel ?? "View my bookings"} <ArrowRight className="h-4 w-4" />
         </Link>
@@ -243,7 +243,7 @@ export default function StayCheckoutFlow(props: StayCheckoutFlowProps) {
 
   return (
     <CheckoutShell step={step} title="Complete your booking" summary={summary}>
-      <Link href={props.backHref} className="inline-flex w-fit items-center gap-1.5 text-[13px] font-semibold text-slate-500 transition-colors hover:text-[#1D4ED8]">
+      <Link href={props.backHref} className="inline-flex w-fit items-center gap-1.5 text-[13px] font-semibold text-slate-500 transition-colors hover:text-[var(--brand-strong)]">
         <ArrowLeft className="h-3.5 w-3.5" /> {props.backLabel ?? "Back to stay"}
       </Link>
 
@@ -290,7 +290,7 @@ export default function StayCheckoutFlow(props: StayCheckoutFlowProps) {
                 "The booking confirms on successful payment; the host is paid after check-out.",
               ].map((t, i) => (
                 <li key={t} className="flex items-start gap-3">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EFF5FF] text-[12px] font-bold text-[#2563EB]">{i + 1}</span>
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EFF5FF] text-[12px] font-bold text-[var(--brand)]">{i + 1}</span>
                   <span className="min-w-0 break-words pt-0.5 text-[13px] text-slate-600">{t}</span>
                 </li>
               ))}

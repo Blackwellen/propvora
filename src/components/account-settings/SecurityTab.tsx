@@ -184,7 +184,7 @@ export default function SecurityTab() {
                 <input
                   {...form.register(field)}
                   type={showPwd[k] ? "text" : "password"}
-                  className="w-full h-10 pl-3 pr-10 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                  className="w-full h-10 pl-3 pr-10 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                 />
                 <button
                   type="button"
@@ -295,7 +295,7 @@ export default function SecurityTab() {
                 placeholder="000000"
                 value={totpCode}
                 onChange={e => setTotpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                className="w-40 h-10 px-3 rounded-lg text-sm font-mono text-center border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 tracking-widest"
+                className="w-40 h-10 px-3 rounded-lg text-sm font-mono text-center border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] tracking-widest"
                 onKeyDown={e => e.key === "Enter" && totpCode.length === 6 && verifyEnroll()}
               />
             </div>

@@ -94,7 +94,7 @@ export function PropertyFilterBar({
           placeholder="Search properties..."
           value={filters.search}
           onChange={(e) => onFilterChange("search", e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-slate-400"
+          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--brand)] placeholder:text-slate-400"
         />
       </div>
     </div>

@@ -66,7 +66,7 @@ export default function TrialBalancePage() {
         <label htmlFor="tb-as-of" className="flex items-center gap-2 text-sm text-slate-600">
           <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">As of</span>
           <input id="tb-as-of" type="date" value={asOf} onChange={(e) => setAsOf(e.target.value)}
-            className="h-9 px-3 rounded-xl border border-[#E2E8F0] text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30" />
+            className="h-9 px-3 rounded-xl border border-[#E2E8F0] text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30" />
         </label>
         <Button variant="outline" size="sm" leftIcon={<Download className="w-3.5 h-3.5" />} onClick={exportCsv} disabled={!tb || tb.rows.length === 0}>
           Export

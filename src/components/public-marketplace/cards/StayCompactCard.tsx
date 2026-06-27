@@ -50,7 +50,7 @@ export default function StayCompactCard({ stay, featured, basePath = '/stays' }:
           <div className="flex items-center gap-1 mt-1">
             <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
             <span className="text-xs font-semibold">{stay.rating}</span>
-            {stay.instantBook && <Zap className="h-3 w-3 text-blue-600 ml-1" />}
+            {stay.instantBook && <Zap className="h-3 w-3 text-[var(--brand)] ml-1" />}
           </div>
           <p className="text-sm font-bold text-slate-900 mt-0.5">£{price}<span className="text-xs font-normal text-slate-500"> /night</span></p>
         </div>

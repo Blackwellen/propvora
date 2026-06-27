@@ -170,29 +170,29 @@ export default function DirectPaymentPanel(props: DirectPaymentPanelProps) {
           <div className="grid grid-cols-2 gap-2.5">
             <label className="block">
               <span className="mb-1 block text-[11.5px] font-semibold text-slate-500">Amount (£)</span>
-              <input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" className="h-9 w-full rounded-lg border border-slate-200 px-2.5 text-[13px] outline-none focus:border-[#2563EB]" />
+              <input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" className="h-9 w-full rounded-lg border border-slate-200 px-2.5 text-[13px] outline-none focus:border-[var(--brand)]" />
             </label>
             <label className="block">
               <span className="mb-1 block text-[11.5px] font-semibold text-slate-500">Method</span>
-              <select value={method} onChange={(e) => setMethod(e.target.value as PaymentMethod)} className="h-9 w-full rounded-lg border border-slate-200 px-2 text-[13px] outline-none focus:border-[#2563EB]">
+              <select value={method} onChange={(e) => setMethod(e.target.value as PaymentMethod)} className="h-9 w-full rounded-lg border border-slate-200 px-2 text-[13px] outline-none focus:border-[var(--brand)]">
                 {methods.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
               </select>
             </label>
           </div>
           <label className="block">
             <span className="mb-1 block text-[11.5px] font-semibold text-slate-500">Reference (optional)</span>
-            <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Payment reference" className="h-9 w-full rounded-lg border border-slate-200 px-2.5 text-[13px] outline-none focus:border-[#2563EB]" />
+            <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Payment reference" className="h-9 w-full rounded-lg border border-slate-200 px-2.5 text-[13px] outline-none focus:border-[var(--brand)]" />
           </label>
           {err && <p className="text-[12px] text-red-600">{err}</p>}
           <div className="flex gap-2">
-            <button onClick={submit} disabled={busy} className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#2563EB] text-[13px] font-semibold text-white hover:bg-[#1d4ed8] disabled:opacity-60">
+            <button onClick={submit} disabled={busy} className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[var(--brand)] text-[13px] font-semibold text-white hover:bg-[var(--brand-strong)] disabled:opacity-60">
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Record payment
             </button>
             <button onClick={() => setOpen(false)} className="h-9 rounded-lg border border-slate-200 px-3 text-[13px] font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
           </div>
         </div>
       ) : (
-        <button onClick={() => setOpen(true)} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#2563EB] px-4 text-[13px] font-semibold text-white hover:bg-[#1d4ed8]">
+        <button onClick={() => setOpen(true)} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[var(--brand)] px-4 text-[13px] font-semibold text-white hover:bg-[var(--brand-strong)]">
           <Banknote className="h-4 w-4" /> {props.recordLabel ?? (mode === "append" ? "Record a rent payment" : "Record a payment")}
         </button>
       )}

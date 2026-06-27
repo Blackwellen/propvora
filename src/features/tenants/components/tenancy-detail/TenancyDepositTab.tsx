@@ -45,7 +45,7 @@ export function TenancyDepositTab({
         <div className="flex-1 flex flex-col gap-4">
           <TenancySectionCard className="p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Shield className="w-4 h-4 text-blue-600" />
+              <Shield className="w-4 h-4 text-[var(--brand)]" />
               <span className="text-sm font-bold text-slate-800">Protection Details</span>
             </div>
             <div className="flex flex-col divide-y divide-slate-100">
@@ -101,7 +101,7 @@ export function TenancyDepositTab({
             <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-center justify-between">
               <span className="text-sm text-slate-500">£0 — No proposed deductions</span>
             </div>
-            <button className="mt-3 flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700">
+            <button className="mt-3 flex items-center gap-1.5 text-xs font-medium text-[var(--brand)] hover:text-[var(--brand)]">
               <Plus className="w-3.5 h-3.5" /> Add deduction
             </button>
           </TenancySectionCard>
@@ -143,9 +143,9 @@ export function TenancyDepositTab({
               ))}
             </div>
             <div className="mt-4 w-full bg-slate-100 rounded-full h-1.5">
-              <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: "0%" }} />
+              <div className="bg-[var(--brand)] h-1.5 rounded-full" style={{ width: "0%" }} />
             </div>
-            <button className="mt-4 w-full flex items-center justify-center gap-2 text-sm font-semibold text-white bg-blue-600 rounded-xl py-2.5 hover:bg-blue-700 transition-colors">
+            <button className="mt-4 w-full flex items-center justify-center gap-2 text-sm font-semibold text-white bg-[var(--brand)] rounded-xl py-2.5 hover:bg-[var(--brand-strong)] transition-colors">
               Start Release Process
             </button>
           </TenancySectionCard>

@@ -89,8 +89,8 @@ export default function SupplierServiceDetailPage() {
           {/* Hero */}
           <SupplierCard className="p-5">
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0">
-                <Hammer className="w-7 h-7 text-blue-600" />
+              <div className="w-14 h-14 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                <Hammer className="w-7 h-7 text-[var(--brand)]" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">

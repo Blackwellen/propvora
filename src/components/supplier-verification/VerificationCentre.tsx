@@ -81,7 +81,7 @@ export default function VerificationCentre({
             </p>
           </div>
           {inReview && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#EFF6FF] px-3 py-1 text-[12px] font-medium text-[#2563EB]">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand-soft)] px-3 py-1 text-[12px] font-medium text-[var(--brand)]">
               <Loader2 className="w-3.5 h-3.5" /> In review
             </span>
           )}

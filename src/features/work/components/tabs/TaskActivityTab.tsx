@@ -20,12 +20,12 @@ export function TaskActivityTab({ activity }: TaskActivityTabProps) {
       <div className="relative space-y-4 pl-6 before:absolute before:left-2 before:top-0 before:bottom-0 before:w-0.5 before:bg-slate-100">
         {activity.map((item) => (
           <div key={item.id} className="relative">
-            <div className="absolute -left-6 w-4 h-4 rounded-full bg-[#2563EB] flex items-center justify-center">
+            <div className="absolute -left-6 w-4 h-4 rounded-full bg-[var(--brand)] flex items-center justify-center">
               <div className="w-2 h-2 rounded-full bg-white" />
             </div>
             <div className="bg-slate-50 rounded-lg p-3">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-5 h-5 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center">
+                <div className="w-5 h-5 rounded-full bg-[var(--brand)] text-white text-[9px] font-bold flex items-center justify-center">
                   {item.initials}
                 </div>
                 <p className="text-xs font-semibold text-slate-700">{item.user}</p>

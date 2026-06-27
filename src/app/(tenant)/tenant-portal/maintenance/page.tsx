@@ -115,7 +115,7 @@ function JobComplaintBlock({
           disabled={!!active}
           className={cn(
             "inline-flex items-center gap-1.5 text-xs font-semibold",
-            active ? "text-slate-400 cursor-default" : "text-[#2563EB] hover:underline"
+            active ? "text-slate-400 cursor-default" : "text-[var(--brand)] hover:underline"
           )}
         >
           <AlertTriangle className="w-3.5 h-3.5" />
@@ -131,14 +131,14 @@ function JobComplaintBlock({
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <select
-              className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
               {COMPLAINT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
             <select
-              className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
               value={severity}
               onChange={(e) => setSeverity(e.target.value as ComplaintSeverity)}
             >
@@ -149,7 +149,7 @@ function JobComplaintBlock({
             </select>
           </div>
           <textarea
-            className="w-full min-h-16 rounded-lg border border-slate-200 px-2.5 py-2 text-xs text-slate-900 resize-y focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+            className="w-full min-h-16 rounded-lg border border-slate-200 px-2.5 py-2 text-xs text-slate-900 resize-y focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             placeholder="Describe what's still wrong…"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -449,7 +449,7 @@ export default function TenantMaintenancePage() {
                     <div className="flex flex-col gap-1.5">
                       <label className="text-sm font-medium text-slate-700">Description</label>
                       <textarea
-                        className="min-h-24 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 resize-y focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                        className="min-h-24 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 resize-y focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                         placeholder="Describe the problem, where it is, and how long it's been happening…"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
@@ -459,7 +459,7 @@ export default function TenantMaintenancePage() {
                       <div className="flex flex-col gap-1.5">
                         <label className="text-sm font-medium text-slate-700">Category</label>
                         <select
-                          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                           value={category}
                           onChange={(e) => setCategory(e.target.value)}
                         >
@@ -469,7 +469,7 @@ export default function TenantMaintenancePage() {
                       <div className="flex flex-col gap-1.5">
                         <label className="text-sm font-medium text-slate-700">Priority</label>
                         <select
-                          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                           value={priority}
                           onChange={(e) => setPriority(e.target.value)}
                         >
@@ -547,8 +547,8 @@ export default function TenantMaintenancePage() {
             </div>
           )}
 
-          <div className="rounded-2xl bg-[#EFF6FF] border border-blue-100 p-3 flex items-start gap-2">
-            <Wrench className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0" />
+          <div className="rounded-2xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)] p-3 flex items-start gap-2">
+            <Wrench className="w-4 h-4 text-[var(--brand)] mt-0.5 shrink-0" />
             <p className="text-xs text-[#1e40af]">
               For emergencies (gas leaks, flooding, no heat in winter, security risks) call your managing agent or
               emergency line immediately — don&apos;t wait for an online response.

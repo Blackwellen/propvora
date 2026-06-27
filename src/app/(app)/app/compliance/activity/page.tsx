@@ -113,7 +113,7 @@ export default function ComplianceActivityPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
-        <ComplianceKpiCard label="Events today" value={isLoading ? "—" : kpis.today} subtitle="Logged today" icon={Activity} iconBg="bg-blue-100" iconColor="text-blue-600" />
+        <ComplianceKpiCard label="Events today" value={isLoading ? "—" : kpis.today} subtitle="Logged today" icon={Activity} iconBg="bg-[var(--color-brand-100)]" iconColor="text-[var(--brand)]" />
         <ComplianceKpiCard label="Escalations" value={isLoading ? "—" : kpis.escalations} subtitle="High / critical" trendPositive={kpis.escalations === 0} icon={AlertTriangle} iconBg="bg-red-100" iconColor="text-red-600" />
         <ComplianceKpiCard label="Completed actions" value={isLoading ? "—" : kpis.completed} subtitle="Approvals & completions" icon={CheckCircle} iconBg="bg-green-100" iconColor="text-green-600" />
         <ComplianceKpiCard label="Evidence uploads" value={isLoading ? "—" : kpis.uploads} subtitle="Files added" icon={Upload} iconBg="bg-violet-100" iconColor="text-violet-600" />
@@ -128,16 +128,16 @@ export default function ComplianceActivityPage() {
             placeholder="Search activity..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-56"
+            className="pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] w-56"
           />
         </div>
-        <select value={severityFilter} onChange={(e) => setSeverityFilter(e.target.value)} className="text-sm border border-slate-200 bg-white rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select value={severityFilter} onChange={(e) => setSeverityFilter(e.target.value)} className="text-sm border border-slate-200 bg-white rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
           {SEVERITY_FILTERS.map((s) => (
             <option key={s} value={s}>{s ? humaniseType(s) : "All severity"}</option>
           ))}
         </select>
         {(search || severityFilter) && (
-          <button onClick={() => { setSearch(""); setSeverityFilter("") }} className="text-sm text-blue-600 hover:underline font-medium px-1">Clear</button>
+          <button onClick={() => { setSearch(""); setSeverityFilter("") }} className="text-sm text-[var(--brand)] hover:underline font-medium px-1">Clear</button>
         )}
         <span className="text-xs text-slate-400 ml-auto">{filtered.length} of {events.length}</span>
       </div>
@@ -172,7 +172,7 @@ export default function ComplianceActivityPage() {
                     <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold bg-blue-500">{initials(row.actor_name)}</div>
+                          <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold bg-[var(--brand)]">{initials(row.actor_name)}</div>
                           <div>
                             <p className="text-xs font-semibold text-slate-800 whitespace-nowrap">{row.actor_name ?? "System"}</p>
                             {row.actor_role && <p className="text-[11px] text-slate-500">{row.actor_role}</p>}
@@ -185,7 +185,7 @@ export default function ComplianceActivityPage() {
                       </td>
                       <td className="px-4 py-3">
                         {row.linked_record_label ? (
-                          <button onClick={() => router.push(linkedRecordHref(row.linked_record_type))} className="text-xs font-medium text-blue-600 hover:underline whitespace-nowrap text-left">
+                          <button onClick={() => router.push(linkedRecordHref(row.linked_record_type))} className="text-xs font-medium text-[var(--brand)] hover:underline whitespace-nowrap text-left">
                             {row.linked_record_label}
                           </button>
                         ) : (

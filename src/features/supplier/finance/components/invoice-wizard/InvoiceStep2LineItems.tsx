@@ -88,7 +88,7 @@ export function InvoiceStep2LineItems({
         ))}
         <button
           onClick={addLine}
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2563EB] hover:text-blue-700 px-1 py-1.5"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--brand)] hover:text-[var(--brand)] px-1 py-1.5"
         >
           <Plus className="w-4 h-4" /> Add line item
         </button>
@@ -104,7 +104,7 @@ export function InvoiceStep2LineItems({
           type="checkbox"
           checked={includeVat}
           onChange={(e) => onIncludeVatChange(e.target.checked)}
-          className="w-5 h-5 accent-[#2563EB]"
+          className="w-5 h-5 accent-[var(--brand)]"
         />
       </label>
     </div>

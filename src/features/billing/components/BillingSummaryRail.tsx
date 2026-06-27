@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import {
   CalendarClock, RefreshCw, Receipt, ArrowUpRight, ArrowDownRight,
-  Mail, Heart, LifeBuoy, ChevronRight, ShieldX,
+  Mail, LifeBuoy, ChevronRight, ShieldX,
 } from "lucide-react"
 import { formatPence } from "@/lib/marketplace/money"
 import { useSubscription, useRenewalEvents, useBillingProfile } from "../data/hooks"
@@ -72,7 +72,7 @@ export function BillingSummaryRail({ basePath = BASE }: { basePath?: string }) {
         <button
           type="button"
           onClick={() => setShowBreakdown((v) => !v)}
-          className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-blue-600 hover:text-blue-700"
+          className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]"
         >
           {showBreakdown ? "Hide breakdown" : "View full breakdown"}
           <ChevronRight className={`w-3.5 h-3.5 transition-transform ${showBreakdown ? "rotate-90" : ""}`} />
@@ -119,20 +119,6 @@ export function BillingSummaryRail({ basePath = BASE }: { basePath?: string }) {
           </>
         )}
       </BillingCard>
-
-      {/* Retention card */}
-      <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
-        <div className="flex items-center gap-2 mb-1.5">
-          <Heart className="w-4 h-4 text-emerald-600" />
-          <h3 className="text-[13.5px] font-bold text-emerald-800">We value your business</h3>
-        </div>
-        <p className="text-[12px] text-emerald-700 leading-relaxed">
-          Thinking of leaving? Claim 2 months free when you stay on an annual plan — our way of saying thanks.
-        </p>
-        <BillingButton href={`${basePath}/cancellation`} variant="secondary" className="w-full mt-3 text-[12px] border-emerald-600 text-emerald-700 hover:bg-emerald-100">
-          See retention offer
-        </BillingButton>
-      </div>
 
       {/* Need help */}
       <BillingCard title="Need help?" icon={LifeBuoy}>

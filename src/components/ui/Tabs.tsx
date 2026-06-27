@@ -44,12 +44,12 @@ const TabsTrigger = React.forwardRef<
     className={cn(
       "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap",
       "text-sm font-medium transition-all duration-150 motion-reduce:transition-none",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30",
       "disabled:pointer-events-none disabled:opacity-50",
       // Underline variant
       "[data-variant=underline]_&:px-3 [data-variant=underline]_&:py-2.5",
       "[data-variant=underline]_&:text-slate-500 [data-variant=underline]_&:border-b-2 [data-variant=underline]_&:border-transparent",
-      "[data-variant=underline]_&:data-[state=active]:text-[#2563EB] [data-variant=underline]_&:data-[state=active]:border-[#2563EB]",
+      "[data-variant=underline]_&:data-[state=active]:text-[var(--brand)] [data-variant=underline]_&:data-[state=active]:border-[var(--brand)]",
       "[data-variant=underline]_&:hover:text-slate-700",
       // Pills variant
       "[data-variant=pills]_&:px-3 [data-variant=pills]_&:py-1.5 [data-variant=pills]_&:rounded-lg",
@@ -69,7 +69,7 @@ const TabsContent = React.forwardRef<
     ref={ref}
     className={cn(
       "mt-4",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30 rounded-lg",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30 rounded-lg",
       className
     )}
     {...props}

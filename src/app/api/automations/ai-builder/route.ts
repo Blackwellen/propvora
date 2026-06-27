@@ -36,6 +36,24 @@ export async function POST(request: NextRequest) {
     const result = await buildFromPrompt(ctx.supabase, ctx.workspaceId, ctx.userId, prompt)
     if (!result.ok) return NextResponse.json({ ok: false, error: result.error, notes: result.notes }, { status: 422 })
 
+    // Audit the AI action (best-effort, never blocks the draft) — every AI action
+    // must leave a trail recording who ran it, in which workspace, and the shape
+    // of the generated draft. Draft-only: no records mutated, no automation run.
+    try {
+      await ctx.supabase.from("ai_action_logs").insert({
+        workspace_id: ctx.workspaceId,
+        user_id: ctx.userId,
+        action_type: "automation.ai_build",
+        context: { prompt_length: prompt.length },
+        result: {
+          node_count: result.graph?.nodes?.length ?? 0,
+          edge_count: result.graph?.edges?.length ?? 0,
+          compiles: result.compile?.ok ?? null,
+        },
+        approved: true,
+      })
+    } catch { /* non-fatal: audit failure must not break the draft */ }
+
     // Honest: returns a DRAFT only. The client must explicitly save it (which
     // creates a disabled draft). We never persist or run here.
     return NextResponse.json({

@@ -24,7 +24,7 @@ export default function PaymentHistoryTable({ payments, selectedId, onSelect }: 
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-            <input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-32" />
+            <input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)] w-32" />
           </div>
           <button className="inline-flex items-center gap-1.5 border border-slate-200 rounded-lg px-2.5 py-1.5 text-[12px] font-semibold text-slate-600">
             <Filter className="w-3.5 h-3.5" /> Filter
@@ -42,7 +42,7 @@ export default function PaymentHistoryTable({ payments, selectedId, onSelect }: 
               onClick={() => onSelect(p.id)}
               className={cn(
                 "rounded-xl border p-3.5 cursor-pointer",
-                active ? "border-blue-500 bg-blue-50/40" : "border-slate-100 bg-slate-50"
+                active ? "border-[var(--brand)] bg-[var(--brand-soft)]/40" : "border-slate-100 bg-slate-50"
               )}
             >
               <div className="flex items-center gap-2.5 mb-2">
@@ -74,14 +74,14 @@ export default function PaymentHistoryTable({ payments, selectedId, onSelect }: 
                 {p.canPay ? (
                   <button
                     onClick={(e) => { e.stopPropagation(); window.location.assign(`/customer/bookings/${p.id}`) }}
-                    className="bg-[#2563EB] text-white rounded-lg px-3 py-1.5 text-[11.5px] font-semibold"
+                    className="bg-[var(--brand)] text-white rounded-lg px-3 py-1.5 text-[11.5px] font-semibold"
                   >
                     Pay now
                   </button>
                 ) : (
                   <button
                     onClick={(e) => { e.stopPropagation(); window.open(`/api/customer/bookings/${p.id}/receipt`, "_blank", "noopener") }}
-                    className="text-[11.5px] font-semibold text-blue-600"
+                    className="text-[11.5px] font-semibold text-[var(--brand)]"
                   >
                     View receipt
                   </button>
@@ -109,7 +109,7 @@ export default function PaymentHistoryTable({ payments, selectedId, onSelect }: 
             {payments.map((p) => {
               const active = p.id === selectedId
               return (
-                <tr key={p.id} onClick={() => onSelect(p.id)} className={cn("text-[12.5px] cursor-pointer", active ? "bg-blue-50/40 outline outline-2 -outline-offset-2 outline-blue-500" : "hover:bg-slate-50")}>
+                <tr key={p.id} onClick={() => onSelect(p.id)} className={cn("text-[12.5px] cursor-pointer", active ? "bg-[var(--brand-soft)]/40 outline outline-2 -outline-offset-2 outline-[var(--brand)]" : "hover:bg-slate-50")}>
                   <td className="py-3 pr-2">
                     <div className="flex items-center gap-2.5 min-w-[170px]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -126,9 +126,9 @@ export default function PaymentHistoryTable({ payments, selectedId, onSelect }: 
                   <td className="py-3 px-2 text-slate-500 whitespace-nowrap">{p.method}</td>
                   <td className="py-3 px-2">
                     {p.canPay ? (
-                      <button onClick={(e) => { e.stopPropagation(); window.location.assign(`/customer/bookings/${p.id}`) }} className="bg-[#2563EB] text-white rounded-lg px-2.5 py-1 text-[11.5px] font-semibold">Pay now</button>
+                      <button onClick={(e) => { e.stopPropagation(); window.location.assign(`/customer/bookings/${p.id}`) }} className="bg-[var(--brand)] text-white rounded-lg px-2.5 py-1 text-[11.5px] font-semibold">Pay now</button>
                     ) : (
-                      <button onClick={(e) => { e.stopPropagation(); window.open(`/api/customer/bookings/${p.id}/receipt`, "_blank", "noopener") }} className="text-[11.5px] font-semibold text-blue-600">View</button>
+                      <button onClick={(e) => { e.stopPropagation(); window.open(`/api/customer/bookings/${p.id}/receipt`, "_blank", "noopener") }} className="text-[11.5px] font-semibold text-[var(--brand)]">View</button>
                     )}
                   </td>
                 </tr>

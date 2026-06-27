@@ -9,7 +9,7 @@ import {
   Building2, User, Link2, Clock, Eye, Mail, Activity,
   ImageIcon, FileSpreadsheet, UploadCloud,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatCurrency } from "@/lib/utils"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useMoneyInvoice, useUpdateInvoiceStatus } from "@/hooks/useMoneyData"
 import { createClient } from "@/lib/supabase/client"
@@ -30,8 +30,8 @@ function InvoiceStatusChip({ status }: { status: string }) {
     draft:      { label: "Draft",      colour: "text-slate-600",   bg: "bg-slate-100" },
     planned:    { label: "Planned",    colour: "text-violet-600",  bg: "bg-violet-50" },
     scheduled:  { label: "Scheduled",  colour: "text-violet-600",  bg: "bg-violet-50" },
-    sent:       { label: "Sent",       colour: "text-blue-600",    bg: "bg-blue-50" },
-    viewed:     { label: "Viewed",     colour: "text-blue-600",    bg: "bg-blue-50" },
+    sent:       { label: "Sent",       colour: "text-[var(--brand)]",    bg: "bg-[var(--brand-soft)]" },
+    viewed:     { label: "Viewed",     colour: "text-[var(--brand)]",    bg: "bg-[var(--brand-soft)]" },
     due:        { label: "Due",        colour: "text-amber-600",   bg: "bg-amber-50" },
     overdue:    { label: "Overdue",    colour: "text-red-600",     bg: "bg-red-50" },
     part_paid:  { label: "Part Paid",  colour: "text-amber-600",   bg: "bg-amber-50" },
@@ -371,7 +371,7 @@ export default function InvoiceDetailPage() {
         <p className="text-slate-500 font-medium">Invoice not found</p>
         <Link
           href="/property-manager/money/invoices"
-          className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Invoices
         </Link>
@@ -440,7 +440,7 @@ export default function InvoiceDetailPage() {
                     />
                   </div>
                 </div>
-                <div><p className="text-xs text-slate-500">Invoice Number</p><p className="font-mono font-semibold text-blue-600 mt-0.5">{invoiceNumber}</p></div>
+                <div><p className="text-xs text-slate-500">Invoice Number</p><p className="font-mono font-semibold text-[var(--brand)] mt-0.5">{invoiceNumber}</p></div>
                 <div>
                   <p className="text-xs text-slate-500">Status</p>
                   <div className="mt-0.5">
@@ -508,7 +508,7 @@ export default function InvoiceDetailPage() {
             {/* Recipient details */}
             <SectionCard title="Recipient Details">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[var(--color-brand-100)] flex items-center justify-center text-[var(--brand)] font-bold text-sm shrink-0">
                   {recipient.charAt(0)}
                 </div>
                 <div className="space-y-1 text-sm">
@@ -517,7 +517,7 @@ export default function InvoiceDetailPage() {
                   {inv.contact_id && (
                     <Link
                       href={`/property-manager/contacts/${inv.contact_id}`}
-                      className="text-xs text-blue-600 hover:underline inline-flex items-center gap-1"
+                      className="text-xs text-[var(--brand)] hover:underline inline-flex items-center gap-1"
                     >
                       View contact <ChevronRight className="w-3 h-3" />
                     </Link>
@@ -628,7 +628,7 @@ export default function InvoiceDetailPage() {
                   }
                 }}
                 disabled={inv.status === "paid" || updateStatus.isPending}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors shadow-sm disabled:opacity-50"
               >
                 <CreditCard className="w-4 h-4" /> Record Payment
               </button>
@@ -676,7 +676,7 @@ export default function InvoiceDetailPage() {
                 <div>
                   <p className="font-semibold text-slate-900 text-sm">{property}</p>
                   {inv.property_id ? (
-                    <Link href={`/property-manager/portfolio/properties/${inv.property_id}`} className="text-xs text-blue-600 hover:underline mt-0.5 inline-flex items-center gap-1">
+                    <Link href={`/property-manager/portfolio/properties/${inv.property_id}`} className="text-xs text-[var(--brand)] hover:underline mt-0.5 inline-flex items-center gap-1">
                       View Property <ChevronRight className="w-3 h-3" />
                     </Link>
                   ) : null}
@@ -700,7 +700,7 @@ export default function InvoiceDetailPage() {
               <div>
                 <p className="font-semibold text-slate-900 text-sm">{recipient}</p>
                 {inv.contact_id ? (
-                  <Link href={`/property-manager/contacts/${inv.contact_id}`} className="text-xs text-blue-600 hover:underline mt-0.5 inline-flex items-center gap-1">
+                  <Link href={`/property-manager/contacts/${inv.contact_id}`} className="text-xs text-[var(--brand)] hover:underline mt-0.5 inline-flex items-center gap-1">
                     View Contact <ChevronRight className="w-3 h-3" />
                   </Link>
                 ) : (
@@ -726,13 +726,13 @@ export default function InvoiceDetailPage() {
               type="button"
               onClick={() => !uploading && docInputRef.current?.click()}
               disabled={uploading}
-              className="w-full border-2 border-dashed border-slate-200 rounded-2xl px-6 py-8 flex flex-col items-center gap-2 text-center bg-slate-50/50 hover:border-[#2563EB] hover:bg-blue-50/40 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full border-2 border-dashed border-slate-200 rounded-2xl px-6 py-8 flex flex-col items-center gap-2 text-center bg-slate-50/50 hover:border-[var(--brand)] hover:bg-[var(--brand-soft)]/40 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {uploading ? (
-                <RefreshCw className="w-6 h-6 text-[#2563EB] animate-spin" />
+                <RefreshCw className="w-6 h-6 text-[var(--brand)] animate-spin" />
               ) : (
                 <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center">
-                  <UploadCloud className="w-5 h-5 text-[#2563EB]" />
+                  <UploadCloud className="w-5 h-5 text-[var(--brand)]" />
                 </div>
               )}
               <p className="text-sm font-semibold text-slate-700">{uploading ? "Uploading…" : "Drag & drop a file, or click to browse"}</p>
@@ -809,10 +809,10 @@ export default function InvoiceDetailPage() {
                   <div key={ev.id} className="flex items-start gap-4 px-5 py-3.5">
                     <div className={cn(
                       "w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5",
-                      ev.action.includes("sent") ? "bg-blue-100" : ev.action.includes("open") ? "bg-emerald-100" : "bg-slate-100"
+                      ev.action.includes("sent") ? "bg-[var(--color-brand-100)]" : ev.action.includes("open") ? "bg-emerald-100" : "bg-slate-100"
                     )}>
                       {ev.action.includes("sent")
-                        ? <div style={{ color: "var(--brand)" }}><Mail className="w-3.5 h-3.5" /></div>
+                        ? <div style={{ color: "#2563EB" }}><Mail className="w-3.5 h-3.5" /></div>
                         : ev.action.includes("open")
                         ? <div style={{ color: "var(--color-success)" }}><Eye className="w-3.5 h-3.5" /></div>
                         : <div style={{ color: "var(--text-secondary)" }}><CheckCircle2 className="w-3.5 h-3.5" /></div>}
@@ -907,7 +907,7 @@ export default function InvoiceDetailPage() {
                   showToast((e as { code?: string })?.code === "42P01" ? "Invoices table not provisioned yet" : "Could not update status")
                 }
               }}
-              className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+              className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors"
             >
               <Send className="w-4 h-4" /> Send Invoice
             </button>
@@ -979,14 +979,14 @@ export default function InvoiceDetailPage() {
         <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2.5">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Related</p>
           {inv.property_id ? (
-            <Link href={`/property-manager/portfolio/properties/${inv.property_id}`} className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition-colors">
+            <Link href={`/property-manager/portfolio/properties/${inv.property_id}`} className="flex items-center gap-2 text-sm text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
               <Building2 className="w-3.5 h-3.5" /> {property}
             </Link>
           ) : (
             <p className="flex items-center gap-2 text-sm text-slate-500"><Building2 className="w-3.5 h-3.5" /> {property}</p>
           )}
           {inv.contact_id ? (
-            <Link href={`/property-manager/contacts/${inv.contact_id}`} className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition-colors">
+            <Link href={`/property-manager/contacts/${inv.contact_id}`} className="flex items-center gap-2 text-sm text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
               <User className="w-3.5 h-3.5" /> {recipient}
             </Link>
           ) : (
@@ -1033,8 +1033,8 @@ export default function InvoiceDetailPage() {
           {/* Left */}
           <div className="space-y-3">
             <div className="flex items-center gap-3 flex-wrap">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                <FileText className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 rounded-xl bg-[var(--color-brand-100)] flex items-center justify-center shrink-0">
+                <FileText className="w-5 h-5 text-[var(--brand)]" />
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -1076,7 +1076,7 @@ export default function InvoiceDetailPage() {
                     showToast((e as { code?: string })?.code === "42P01" ? "Invoices table not provisioned yet" : "Could not update status")
                   }
                 }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
               >
                 <Send className="w-3.5 h-3.5" /> Send Invoice
               </button>
@@ -1173,11 +1173,11 @@ export default function InvoiceDetailPage() {
 
       {/* KPI strip */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-5">
-        <KpiCard label="Subtotal" value={`£${subtotal.toLocaleString("en-GB")}`} colour="text-slate-900" />
-        <KpiCard label="Tax" value={`£${taxTotal.toLocaleString("en-GB")}`} colour="text-slate-700" />
-        <KpiCard label="Total" value={`£${total.toLocaleString("en-GB")}`} colour="text-slate-900" />
-        <KpiCard label="Amount Paid" value={`£${amountPaid.toLocaleString("en-GB")}`} colour="text-emerald-600" />
-        <KpiCard label="Outstanding" value={`£${outstanding.toLocaleString("en-GB")}`} colour={outstanding > 0 ? "text-red-600" : "text-emerald-600"} />
+        <KpiCard label="Subtotal" value={formatCurrency(subtotal)} colour="text-slate-900" />
+        <KpiCard label="Tax" value={formatCurrency(taxTotal)} colour="text-slate-700" />
+        <KpiCard label="Total" value={formatCurrency(total)} colour="text-slate-900" />
+        <KpiCard label="Amount Paid" value={formatCurrency(amountPaid)} colour="text-emerald-600" />
+        <KpiCard label="Outstanding" value={formatCurrency(outstanding)} colour={outstanding > 0 ? "text-red-600" : "text-emerald-600"} />
       </div>
 
       {/* Mobile tab strip — same state as desktop */}
@@ -1205,7 +1205,7 @@ export default function InvoiceDetailPage() {
                     className={cn(
                       "flex items-center gap-1.5 px-4 py-3 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all",
                       activeTab === tab
-                        ? "border-[#2563EB] text-[#2563EB]"
+                        ? "border-[var(--brand)] text-[var(--brand)]"
                         : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
                     )}
                   >

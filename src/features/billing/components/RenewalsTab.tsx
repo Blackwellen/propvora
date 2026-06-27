@@ -10,6 +10,7 @@ import { useSubscription, useRenewalEvents, usePaymentMethod, useBillingRole, us
 import { SEED_ADDON_CATALOG } from "../data/seed"
 import { addonMonthlyPence, formatBillingDate } from "../data/calc"
 import { openBillingPortal } from "../data/stripe-link"
+import { useCancellationState } from "../data/cancellation-context"
 import { BillingCard, Row, StatusBadge, BillingButton, Toggle, PermissionNotice } from "./ui"
 
 const STATUS_LABEL: Record<string, string> = {
@@ -27,9 +28,19 @@ export function RenewalsTab({ basePath = BASE }: { basePath?: string }) {
   const { data: card } = usePaymentMethod()
   const { data: activeAddons } = useActiveAddons()
   const { canManageBilling } = useBillingRole()
-  const [autoRenew, setAutoRenew] = useState(sub.autoRenew)
+  // Auto-renew is the inverse of a scheduled cancel-at-period-end. It shares the
+  // single cancellation source of truth (context) so the toggle, the Cancellation
+  // tab and the summary rail can never disagree, and the change is persisted to
+  // Stripe via /api/billing/resume | /api/billing/cancel rather than local-only.
+  const { view, schedule, keep, busy, error: autoRenewError } = useCancellationState()
+  const autoRenew = !view.scheduled && sub.autoRenew
   const [showBreakdown, setShowBreakdown] = useState(false)
   const [portalError, setPortalError] = useState<string | null>(null)
+
+  async function toggleAutoRenew(next: boolean) {
+    if (next) await keep()
+    else await schedule({ reason: "Auto-renew turned off" })
+  }
 
   const estimate = renewals.find((r) => r.kind === "estimate")
   const reminders = renewals.filter((r) => r.kind === "reminder")
@@ -66,8 +77,8 @@ export function RenewalsTab({ basePath = BASE }: { basePath?: string }) {
           <div className="flex items-center justify-between py-2 border-b border-slate-50">
             <span className="text-[12.5px] text-slate-500">Auto-renew</span>
             <div className="flex items-center gap-2">
-              <Toggle label="Toggle auto-renew" checked={autoRenew} disabled={!canManageBilling} onChange={setAutoRenew} />
-              <span className="text-[12px] font-semibold text-slate-700">{autoRenew ? "On" : "Off"}</span>
+              <Toggle label="Toggle auto-renew" checked={autoRenew} disabled={!canManageBilling || busy} onChange={(v) => void toggleAutoRenew(v)} />
+              <span className="text-[12px] font-semibold text-slate-700">{busy ? "Saving…" : autoRenew ? "On" : "Off"}</span>
             </div>
           </div>
           <Row label="Upcoming invoice" value={estimate?.amountPence != null ? `${formatPence(estimate.amountPence)} inc. VAT` : "—"} />
@@ -76,7 +87,7 @@ export function RenewalsTab({ basePath = BASE }: { basePath?: string }) {
         <button
           type="button"
           onClick={() => setShowBreakdown((v) => !v)}
-          className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-blue-600 hover:text-blue-700"
+          className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]"
         >
           View full breakdown <ChevronRight className={`w-3.5 h-3.5 transition-transform ${showBreakdown ? "rotate-90" : ""}`} />
         </button>
@@ -95,6 +106,9 @@ export function RenewalsTab({ basePath = BASE }: { basePath?: string }) {
               <p className="text-[11px] text-slate-400 pt-1">VAT and the final renewal total are confirmed on your next invoice.</p>
             )}
           </div>
+        )}
+        {autoRenewError && (
+          <p className="mt-3 text-[12px] text-red-600">{autoRenewError}</p>
         )}
         {!autoRenew && (
           <p className="mt-3 text-[12px] text-amber-700 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
@@ -117,7 +131,7 @@ export function RenewalsTab({ basePath = BASE }: { basePath?: string }) {
             {reminders.length === 0 && <li className="text-[12.5px] text-slate-400">No reminders scheduled.</li>}
             {reminders.map((r) => (
               <li key={r.id} className="flex items-start gap-2.5">
-                <Bell className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                <Bell className="w-4 h-4 text-[var(--brand)] mt-0.5 shrink-0" />
                 <div>
                   <p className="text-[13px] font-medium text-slate-800">{r.title}</p>
                   <p className="text-[12px] text-slate-500">{r.detail} · {formatBillingDate(r.dueAt)}</p>
@@ -156,7 +170,7 @@ export function RenewalsTab({ basePath = BASE }: { basePath?: string }) {
         <ol className="relative border-l border-slate-200 ml-2 space-y-4">
           {timeline.map((t) => (
             <li key={t.id} className="ml-4">
-              <span className={`absolute -left-1.5 w-3 h-3 rounded-full ${t.status === "completed" ? "bg-emerald-500" : "bg-blue-500"}`} />
+              <span className={`absolute -left-1.5 w-3 h-3 rounded-full ${t.status === "completed" ? "bg-emerald-500" : "bg-[var(--brand)]"}`} />
               <div className="flex items-center justify-between gap-3">
                 <p className="text-[13px] font-medium text-slate-800">{t.title}</p>
                 <span className="text-[12px] text-slate-400">{formatBillingDate(t.dueAt)}</span>

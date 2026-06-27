@@ -33,7 +33,7 @@ export function TenantPortalMaintenanceStep1({ title, description, priority, onT
           value={title}
           onChange={(e) => onTitle(e.target.value)}
           placeholder="e.g. Leaking kitchen tap"
-          className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-blue-100"
+          className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-[var(--color-brand-100)]"
         />
       </div>
 
@@ -44,7 +44,7 @@ export function TenantPortalMaintenanceStep1({ title, description, priority, onT
           onChange={(e) => onDescription(e.target.value)}
           rows={4}
           placeholder="Where is it, when did it start, any access notes…"
-          className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none resize-none focus:ring-2 focus:ring-blue-100"
+          className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none resize-none focus:ring-2 focus:ring-[var(--color-brand-100)]"
         />
       </div>
 
@@ -58,7 +58,7 @@ export function TenantPortalMaintenanceStep1({ title, description, priority, onT
               onClick={() => onPriority(p)}
               className={`capitalize rounded-lg px-3 py-1.5 text-[12px] font-semibold border ${
                 priority === p
-                  ? "bg-blue-600 text-white border-blue-600"
+                  ? "bg-[var(--brand)] text-white border-[var(--brand)]"
                   : "border-slate-200 text-slate-600 hover:bg-slate-50"
               }`}
             >

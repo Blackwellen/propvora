@@ -18,21 +18,21 @@ import { getPropertyTypeOption } from "@/lib/constants/propertyTypes"
 const STATUS_CFG: Record<string, { label: string; dot: string; text: string; bg: string }> = {
   Active:        { label: "Active",      dot: "bg-emerald-500", text: "text-emerald-700", bg: "bg-emerald-50 border border-emerald-200" },
   Vacant:        { label: "Vacant",      dot: "bg-amber-500",   text: "text-amber-700",   bg: "bg-amber-50 border border-amber-200" },
-  "Under Works": { label: "In Progress", dot: "bg-blue-500",    text: "text-blue-700",    bg: "bg-blue-50 border border-blue-200" },
+  "Under Works": { label: "In Progress", dot: "bg-[var(--brand)]",    text: "text-[var(--brand)]",    bg: "bg-[var(--brand-soft)] border border-[var(--color-brand-100)]" },
   Archived:      { label: "Archived",    dot: "bg-slate-400",   text: "text-slate-600",   bg: "bg-slate-50 border border-slate-200" },
 }
 
 const PROFILE_BADGE: Record<string, { label: string; bg: string; text: string }> = {
   "Serviced Accommodation": { label: "SA",      bg: "bg-violet-100", text: "text-violet-700" },
   "Rent-to-Rent":           { label: "R2R",     bg: "bg-orange-100", text: "text-orange-700" },
-  "HMO":                    { label: "HMO",     bg: "bg-blue-100",   text: "text-blue-700" },
+  "HMO":                    { label: "HMO",     bg: "bg-[var(--color-brand-100)]",   text: "text-[var(--brand)]" },
   "Long-Term Let":          { label: "BTL",     bg: "bg-emerald-100",text: "text-emerald-700" },
   "Student Let":            { label: "Student", bg: "bg-teal-100",   text: "text-teal-700" },
   "Co-Living":              { label: "Co-Liv",  bg: "bg-purple-100", text: "text-purple-700" },
 }
 
 const TYPE_GRADIENTS: Record<string, string> = {
-  HMO:          "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
+  HMO:          "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)",
   BTL:          "linear-gradient(135deg, #059669 0%, #10B981 100%)",
   SA:           "linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)",
   R2R:          "linear-gradient(135deg, #EA580C 0%, #F97316 100%)",
@@ -77,8 +77,8 @@ export function PropertyListView({ properties }: { properties: PropertyCardData[
   function SortIcon({ col }: { col: SortKey }) {
     if (sortKey !== col) return <ChevronUp className="w-3 h-3 text-slate-300 ml-0.5" />
     return sortDir === "asc"
-      ? <ChevronUp className="w-3 h-3 text-[#2563EB] ml-0.5" />
-      : <ChevronDown className="w-3 h-3 text-[#2563EB] ml-0.5" />
+      ? <ChevronUp className="w-3 h-3 text-[var(--brand)] ml-0.5" />
+      : <ChevronDown className="w-3 h-3 text-[var(--brand)] ml-0.5" />
   }
 
   function Th({ col, label }: { col: SortKey; label: string }) {
@@ -131,7 +131,7 @@ export function PropertyListView({ properties }: { properties: PropertyCardData[
                       </div>
                       <div className="min-w-0">
                         <Link href={`/property-manager/portfolio/properties/${p.id}`}
-                          className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors truncate block">
+                          className="text-[13px] font-semibold text-slate-900 hover:text-[var(--brand)] transition-colors truncate block">
                           {p.name}
                         </Link>
                         <p className="text-[11px] text-slate-500 truncate">
@@ -194,7 +194,7 @@ export function PropertyListView({ properties }: { properties: PropertyCardData[
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Link href={`/property-manager/portfolio/properties/${p.id}`}
-                        className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-[#2563EB] hover:text-white flex items-center justify-center text-slate-500 transition-all">
+                        className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-[var(--brand)] hover:text-white flex items-center justify-center text-slate-500 transition-all">
                         <Eye className="w-3.5 h-3.5" />
                       </Link>
                       <ActionMenu

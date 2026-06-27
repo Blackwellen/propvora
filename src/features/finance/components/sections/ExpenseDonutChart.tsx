@@ -115,7 +115,7 @@ export function ExpenseSummaryCard({
 }: ExpenseSummaryCardProps) {
   const rows = [
     { label: "Total Paid", value: totalPaid, dot: "bg-emerald-500" },
-    { label: "Total Planned", value: planned, dot: "bg-blue-500" },
+    { label: "Total Planned", value: planned, dot: "bg-[var(--brand)]" },
     { label: "Fixed Costs", value: fixedCosts, dot: "bg-slate-400" },
     { label: "Capital / Reno", value: capitalReno, dot: "bg-violet-500" },
   ]

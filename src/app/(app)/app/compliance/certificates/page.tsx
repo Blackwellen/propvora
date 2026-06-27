@@ -145,7 +145,7 @@ export default function CertificatesPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => router.push("/property-manager/compliance/certificates/new")}
-            className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-[var(--brand-strong)] transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Add certificate
@@ -190,7 +190,7 @@ export default function CertificatesPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
-        <ComplianceKpiCard label="Total Certificates" value={isLoading ? "—" : kpis.total} subtitle="On record" icon={FileCheck2} iconBg="bg-blue-100" iconColor="text-blue-600" />
+        <ComplianceKpiCard label="Total Certificates" value={isLoading ? "—" : kpis.total} subtitle="On record" icon={FileCheck2} iconBg="bg-[var(--color-brand-100)]" iconColor="text-[var(--brand)]" />
         <ComplianceKpiCard label="Valid" value={isLoading ? "—" : kpis.valid} subtitle={kpis.total ? `${Math.round((kpis.valid / kpis.total) * 100)}% of total` : "—"} icon={CheckCircle} iconBg="bg-emerald-100" iconColor="text-emerald-600" />
         <ComplianceKpiCard label="Expiring Soon" value={isLoading ? "—" : kpis.expiring} subtitle="Within 30 days" icon={Clock} iconBg="bg-amber-100" iconColor="text-amber-600" />
         <ComplianceKpiCard label="Expired" value={isLoading ? "—" : kpis.expired} subtitle="Requires attention" icon={AlertTriangle} iconBg="bg-red-100" iconColor="text-red-600" />
@@ -206,15 +206,15 @@ export default function CertificatesPage() {
             placeholder="Search certificates..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-lg w-56 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300"
+            className="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-lg w-56 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--color-brand-300)]"
           />
         </div>
-        <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
+        <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]">
           {STATUS_FILTERS.map((s) => (
             <option key={s} value={s}>{s ? humaniseType(s) : "All statuses"}</option>
           ))}
         </select>
-        <select aria-label="Filter by risk level" value={riskFilter} onChange={(e) => setRiskFilter(e.target.value)} className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
+        <select aria-label="Filter by risk level" value={riskFilter} onChange={(e) => setRiskFilter(e.target.value)} className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]">
           {RISK_FILTERS.map((r) => (
             <option key={r} value={r}>{r ? humaniseType(r) : "All risk levels"}</option>
           ))}
@@ -236,7 +236,7 @@ export default function CertificatesPage() {
               <p className="text-sm font-medium text-slate-700">{certs.length === 0 ? "No certificates yet" : "No certificates match your filters"}</p>
               <p className="text-xs text-slate-400 mt-1 mb-4">{certs.length === 0 ? "Add your first compliance certificate to get started." : "Try adjusting your search or filters."}</p>
               {certs.length === 0 && (
-                <button onClick={() => router.push("/property-manager/compliance/certificates/new")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
+                <button onClick={() => router.push("/property-manager/compliance/certificates/new")} className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-[var(--brand-strong)]">
                   <Plus className="w-3.5 h-3.5" /> Add certificate
                 </button>
               )}

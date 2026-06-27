@@ -22,11 +22,11 @@ export function ContactsTab({ contacts }: { contacts: import("@/types/database")
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search contacts…"
-            className="w-full pl-8 pr-3 py-2 text-[13px] border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+            className="w-full pl-8 pr-3 py-2 text-[13px] border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--color-brand-400)]"
           />
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <Link href="/property-manager/contacts/new" className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+          <Link href="/property-manager/contacts/new" className="flex items-center gap-1.5 text-[13px] font-semibold bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-3 py-2 rounded-lg transition-colors">
             <Plus size={13} /> Add Contact
           </Link>
           <Link href="/property-manager/contacts" className="flex items-center gap-1.5 text-[13px] text-slate-600 border border-slate-200 rounded-lg px-3 py-2 bg-white hover:bg-slate-50">
@@ -64,13 +64,13 @@ export function ContactsTab({ contacts }: { contacts: import("@/types/database")
                         <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0" style={{ backgroundColor: getAvatarColor(c.full_name) }}>
                           {c.full_name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()}
                         </div>
-                        <span className="font-medium text-blue-600 group-hover:underline">{c.full_name}</span>
+                        <span className="font-medium text-[var(--brand)] group-hover:underline">{c.full_name}</span>
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-slate-600 capitalize">{c.contact_type?.replace(/_/g, " ") ?? "—"}</td>
                     <td className="px-4 py-3 text-slate-600">{c.company_name ?? "—"}</td>
-                    <td className="px-4 py-3 text-slate-600">{c.email ? <a href={`mailto:${c.email}`} className="text-blue-600 hover:underline">{c.email}</a> : "—"}</td>
-                    <td className="px-4 py-3 text-slate-600">{c.phone ? <a href={`tel:${c.phone}`} className="text-blue-600 hover:underline">{c.phone}</a> : "—"}</td>
+                    <td className="px-4 py-3 text-slate-600">{c.email ? <a href={`mailto:${c.email}`} className="text-[var(--brand)] hover:underline">{c.email}</a> : "—"}</td>
+                    <td className="px-4 py-3 text-slate-600">{c.phone ? <a href={`tel:${c.phone}`} className="text-[var(--brand)] hover:underline">{c.phone}</a> : "—"}</td>
                     <td className="px-4 py-3">
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                         <ActionMenu align="right" items={[

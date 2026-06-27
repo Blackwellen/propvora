@@ -33,7 +33,7 @@ export function ScheduleToastProvider({ children }: { children: React.ReactNode 
               "flex items-start gap-2 rounded-xl border px-4 py-3 text-sm font-medium shadow-lg",
               t.tone === "ok"
                 ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-                : "bg-blue-50 border-blue-200 text-blue-800"
+                : "bg-[var(--brand-soft)] border-[var(--color-brand-100)] text-[var(--brand-strong)]"
             )}
           >
             {t.tone === "ok" ? <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" /> : <Info className="w-4 h-4 mt-0.5 shrink-0" />}
@@ -139,7 +139,7 @@ export function MapPlaceholder({
       <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
         <path d="M 18 70 Q 70 30 130 60 T 240 50" fill="none" stroke="#2563EB" strokeWidth="2.5" strokeDasharray="5 4" />
       </svg>
-      <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600 w-3 h-3 ring-4 ring-blue-200" />
+      <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--brand)] w-3 h-3 ring-4 ring-[var(--color-brand-100)]" />
       {label && (
         <span className="absolute bottom-2 left-2 rounded-md bg-white/90 px-2 py-0.5 text-[11px] font-medium text-slate-600 border border-slate-200">
           {label}

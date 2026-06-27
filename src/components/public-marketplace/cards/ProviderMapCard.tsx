@@ -49,7 +49,7 @@ export default function ProviderMapCard({
   return (
     <Link
       href={`${basePath}/${provider.slug}`}
-      className="group relative flex gap-3 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-[0_12px_28px_rgba(15,23,42,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+      className="group relative flex gap-3 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all hover:-translate-y-0.5 hover:border-[var(--color-brand-100)] hover:shadow-[0_12px_28px_rgba(15,23,42,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
     >
       {/* Thumbnail */}
       <div className="relative h-[116px] w-[116px] shrink-0 overflow-hidden rounded-xl bg-slate-200">
@@ -138,7 +138,7 @@ export default function ProviderMapCard({
             {formatPence(provider.fromPrice)}
             <span className="text-[11px] font-normal text-slate-500"> /day</span>
           </p>
-          <span className="flex items-center gap-0.5 text-[11px] font-bold text-blue-600 opacity-0 transition-opacity group-hover:opacity-100">
+          <span className="flex items-center gap-0.5 text-[11px] font-bold text-[var(--brand)] opacity-0 transition-opacity group-hover:opacity-100">
             View <ChevronRight className="h-3 w-3" />
           </span>
         </div>

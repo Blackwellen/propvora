@@ -98,7 +98,7 @@ export default function QuoteRequestForm({ listingId, defaultEmail, defaultName,
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Your name"
-          className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+          className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
         />
       )}
       {!defaultEmail && (
@@ -107,14 +107,14 @@ export default function QuoteRequestForm({ listingId, defaultEmail, defaultName,
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+          className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
         />
       )}
       <input
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
         placeholder="Phone (optional)"
-        className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+        className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
       />
       <div className="relative">
         <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
@@ -125,7 +125,7 @@ export default function QuoteRequestForm({ listingId, defaultEmail, defaultName,
           value={date}
           onChange={(e) => setDate(e.target.value)}
           min={new Date().toISOString().slice(0, 10)}
-          className="w-full h-10 rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+          className="w-full h-10 rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
           aria-label="Preferred date (optional)"
         />
       </div>
@@ -134,14 +134,14 @@ export default function QuoteRequestForm({ listingId, defaultEmail, defaultName,
         onChange={(e) => setMessage(e.target.value)}
         rows={4}
         placeholder={urgent ? "Describe the emergency and your location…" : "Describe the job, timing and location…"}
-        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 resize-none"
+        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 resize-none"
       />
       <label className="flex items-start gap-2 text-[11.5px] text-slate-500">
         <input
           type="checkbox"
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
-          className="mt-0.5 accent-[#2563EB]"
+          className="mt-0.5 accent-[var(--brand)]"
         />
         I agree my details may be shared with this supplier so they can respond.
       </label>
@@ -153,7 +153,7 @@ export default function QuoteRequestForm({ listingId, defaultEmail, defaultName,
       <button
         type="submit"
         disabled={phase === "submitting"}
-        className="w-full h-11 rounded-xl bg-[#2563EB] text-white text-[14px] font-semibold shadow-[0_2px_10px_rgba(37,99,235,0.30)] hover:bg-[#1d4ed8] disabled:opacity-60 transition-colors flex items-center justify-center gap-2"
+        className="w-full h-11 rounded-xl bg-[var(--brand)] text-white text-[14px] font-semibold shadow-[0_2px_10px_rgba(37,99,235,0.30)] hover:bg-[var(--brand-strong)] disabled:opacity-60 transition-colors flex items-center justify-center gap-2"
       >
         {phase === "submitting" ? (
           <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>

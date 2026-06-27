@@ -248,7 +248,7 @@ function InsuranceRenewInner() {
           </div>
           <input ref={fileRef} type="file" hidden accept="image/*,application/pdf" onChange={(e) => onFile(e.target.files?.[0])} />
           {!fileName ? (
-            <button onClick={() => fileRef.current?.click()} className="w-full rounded-2xl border-2 border-dashed border-slate-300 hover:border-[#2563EB] hover:bg-blue-50/30 transition-colors py-12 flex flex-col items-center gap-2">
+            <button onClick={() => fileRef.current?.click()} className="w-full rounded-2xl border-2 border-dashed border-slate-300 hover:border-[#2563EB] hover:bg-[var(--brand-soft)]/30 transition-colors py-12 flex flex-col items-center gap-2">
               <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center"><Upload className="w-6 h-6" /></div>
               <p className="text-sm font-semibold text-slate-700">Drag &amp; drop or click to upload</p>
               <p className="text-xs text-slate-400">PDF, JPG or PNG · upload-only, no links</p>
@@ -286,7 +286,7 @@ function InsuranceRenewInner() {
   )
 }
 
-const inputClass = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+const inputClass = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
 
 function Field({ label, children, required }: { label: string; children: React.ReactNode; required?: boolean }) {
   return (

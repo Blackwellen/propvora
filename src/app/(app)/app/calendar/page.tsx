@@ -79,7 +79,7 @@ function KpiRow({ items }: { items: CalendarItem[] }) {
   }).length
 
   const cards: KpiCardData[] = [
-    { label: "Today's Events", value: buckets.today.length, sub: buckets.today.length === 1 ? "1 item today" : `${buckets.today.length} items today`, icon: CalendarDays, iconBg: "bg-blue-50", iconColor: "text-blue-600" },
+    { label: "Today's Events", value: buckets.today.length, sub: buckets.today.length === 1 ? "1 item today" : `${buckets.today.length} items today`, icon: CalendarDays, iconBg: "bg-[var(--brand-soft)]", iconColor: "text-[var(--brand)]" },
     { label: "Overdue", value: buckets.overdue.length, sub: "Past due, not done", icon: AlertTriangle, iconBg: "bg-red-50", iconColor: "text-red-600" },
     { label: "Work Scheduled", value: workScheduled, sub: "Tasks & jobs this week", icon: Wrench, iconBg: "bg-amber-50", iconColor: "text-amber-600" },
     { label: "Compliance Due", value: complianceDue, sub: "Next 30 days", icon: Shield, iconBg: "bg-violet-50", iconColor: "text-violet-600" },
@@ -130,8 +130,8 @@ function TodayScheduleCard({ items, loading }: { items: CalendarItem[]; loading:
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
       <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
-            <CalendarDays className="w-4 h-4 text-blue-600" />
+          <div className="w-8 h-8 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+            <CalendarDays className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <div>
             <h2 className="text-[15px] font-semibold text-slate-900">Today &mdash; {todayLabel}</h2>
@@ -140,7 +140,7 @@ function TodayScheduleCard({ items, loading }: { items: CalendarItem[]; loading:
         </div>
         <Link
           href={sectionLink("/property-manager/calendar/views/day")}
-          className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+          className="text-xs text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium flex items-center gap-1"
         >
           Full day view <ChevronRight className="w-3.5 h-3.5" />
         </Link>
@@ -227,7 +227,7 @@ function TodayScheduleCard({ items, loading }: { items: CalendarItem[]; loading:
         <div className="px-5 py-2 border-t border-slate-50">
           <button
             onClick={() => setExpanded(!expanded)}
-            className="text-[12px] text-blue-600 hover:text-blue-800 font-medium"
+            className="text-[12px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium"
           >
             {expanded ? "Show less" : `${todayItems.length - 8} more items`}
           </button>
@@ -282,7 +282,7 @@ function AttentionQueueCard({ items }: { items: CalendarItem[] }) {
         </div>
       )}
       <div className="px-4 py-3 border-t border-slate-50">
-        <Link href={sectionLink("/property-manager/calendar/schedule")} className="text-[12px] text-blue-600 hover:text-blue-800 font-medium">
+        <Link href={sectionLink("/property-manager/calendar/schedule")} className="text-[12px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium">
           View full schedule &gt;
         </Link>
       </div>
@@ -305,10 +305,10 @@ function UpcomingWeekCard({ items }: { items: CalendarItem[] }) {
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-100">
         <div className="flex items-center gap-2">
-          <CalendarDays className="w-4 h-4 text-blue-500" />
+          <CalendarDays className="w-4 h-4 text-[var(--brand)]" />
           <span className="text-[14px] font-semibold text-slate-900">Upcoming This Week</span>
         </div>
-        <Link href={sectionLink("/property-manager/calendar/views/week")} className="text-[11px] text-blue-600 hover:text-blue-800 font-medium">
+        <Link href={sectionLink("/property-manager/calendar/views/week")} className="text-[11px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium">
           View all &rarr;
         </Link>
       </div>
@@ -359,7 +359,7 @@ function SourcesCard({ items }: { items: CalendarItem[] }) {
                 <span className={cn("w-2.5 h-2.5 rounded-full shrink-0", SOURCE_META[r.source].dot)} />
                 <span className="text-[13px] text-slate-600">{SOURCE_META[r.source].label}</span>
               </div>
-              <span className="text-[13px] font-bold text-blue-600">{r.count}</span>
+              <span className="text-[13px] font-bold text-[var(--brand)]">{r.count}</span>
             </div>
           ))}
         </div>
@@ -400,7 +400,7 @@ export default function CalendarOverviewPage() {
             <>
               <Link
                 href={sectionLink("/property-manager/calendar/events/new")}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
               >
                 <Plus className="w-4 h-4" />
                 New Event

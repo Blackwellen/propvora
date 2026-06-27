@@ -47,7 +47,7 @@ const STATUS_STYLE: Record<DayStatus, { dot: string; label: string; cell: string
   blocked_owner: { dot: "bg-amber-400", label: "Owner block", cell: "bg-amber-50/40" },
   blocked_maintenance: { dot: "bg-orange-400", label: "Maintenance", cell: "bg-orange-50/40" },
   blocked_channel: { dot: "bg-violet-400", label: "Channel block", cell: "bg-violet-50/40" },
-  booked_direct: { dot: "bg-blue-500", label: "Booked", cell: "bg-blue-50/60" },
+  booked_direct: { dot: "bg-[var(--brand)]", label: "Booked", cell: "bg-[var(--brand-soft)]/60" },
   booked_channel: { dot: "bg-indigo-500", label: "Channel booking", cell: "bg-indigo-50/60" },
   pending: { dot: "bg-amber-500", label: "Pending", cell: "bg-amber-50/50" },
   hold: { dot: "bg-slate-300", label: "Hold", cell: "bg-slate-50" },
@@ -218,7 +218,7 @@ export function BookingCalendarClient({
                 <select
                   value={selectedListingId ?? ""}
                   onChange={(e) => selectListing(e.target.value)}
-                  className="h-9 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 max-w-full"
+                  className="h-9 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 max-w-full"
                 >
                   {listings.map((l) => (
                     <option key={l.id} value={l.id}>
@@ -258,7 +258,7 @@ export function BookingCalendarClient({
                   onClick={() => setMobileView(v)}
                   className={cn(
                     "flex-1 h-9 rounded-xl text-[13px] font-medium capitalize transition-colors",
-                    mobileView === v ? "bg-[#2563EB] text-white" : "bg-white text-slate-600 border border-slate-200"
+                    mobileView === v ? "bg-[var(--brand)] text-white" : "bg-white text-slate-600 border border-slate-200"
                   )}
                 >
                   {v}
@@ -299,7 +299,7 @@ export function BookingCalendarClient({
                               setPriceInput(cell.priceOverridePence != null ? String(cell.priceOverridePence / 100) : "")
                             }}
                             className={cn(
-                              "relative aspect-square md:aspect-[4/3] border-b border-r border-slate-50 p-1.5 md:p-2 text-left hover:ring-2 hover:ring-inset hover:ring-blue-300 transition-shadow",
+                              "relative aspect-square md:aspect-[4/3] border-b border-r border-slate-50 p-1.5 md:p-2 text-left hover:ring-2 hover:ring-inset hover:ring-[var(--color-brand-300)] transition-shadow",
                               style.cell
                             )}
                           >
@@ -307,7 +307,7 @@ export function BookingCalendarClient({
                               <span
                                 className={cn(
                                   "text-[12px] font-semibold tabular-nums",
-                                  isToday ? "text-[#2563EB]" : "text-slate-700"
+                                  isToday ? "text-[var(--brand)]" : "text-slate-700"
                                 )}
                               >
                                 {dayNum}
@@ -317,7 +317,7 @@ export function BookingCalendarClient({
                             {price != null && cell.status === "available" && (
                               <span className="hidden md:block absolute bottom-1.5 left-2 text-[10.5px] tabular-nums text-slate-500">
                                 {fmtMoney(price, currency)}
-                                {cell.priceOverridePence != null && <span className="text-[#2563EB]">*</span>}
+                                {cell.priceOverridePence != null && <span className="text-[var(--brand)]">*</span>}
                               </span>
                             )}
                             {cell.status !== "available" && (
@@ -340,7 +340,7 @@ export function BookingCalendarClient({
                       </span>
                     ))}
                     <span className="inline-flex items-center gap-1 text-[11px] text-slate-400">
-                      <span className="text-[#2563EB]">*</span> price override
+                      <span className="text-[var(--brand)]">*</span> price override
                     </span>
                   </div>
                 </div>
@@ -446,12 +446,12 @@ export function BookingCalendarClient({
                       min="0"
                       step="1"
                       placeholder={basePricePence != null ? String(basePricePence / 100) : "Base price"}
-                      className="flex-1 h-10 px-3 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                      className="flex-1 h-10 px-3 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                     />
                     <button
                       onClick={applyPriceOverride}
                       disabled={pending}
-                      className="h-10 px-4 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 disabled:opacity-60"
+                      className="h-10 px-4 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-60"
                     >
                       Save
                     </button>

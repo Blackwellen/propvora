@@ -80,7 +80,7 @@ export function IntegrationGrid({ integrations, onConnect, onManage }: Integrati
             className={`w-full py-2 rounded-xl text-[12.5px] font-semibold transition-colors ${
               intg.isConnected
                 ? "border border-slate-200 text-slate-600 hover:bg-slate-50"
-                : "bg-[#2563EB] text-white hover:bg-[#1d4ed8]"
+                : "bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)]"
             }`}
           >
             {intg.isConnected ? "Manage" : "Connect"}

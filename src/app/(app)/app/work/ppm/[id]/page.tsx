@@ -161,8 +161,8 @@ function PpmKpiStrip({ plan }: { plan: PpmPlan }) {
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
       <div className="bg-white border border-slate-200 rounded-xl p-4">
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">
-            <RefreshCw className="w-3.5 h-3.5 text-blue-600" />
+          <div className="w-6 h-6 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center">
+            <RefreshCw className="w-3.5 h-3.5 text-[var(--brand)]" />
           </div>
           <p className="text-[11px] text-slate-500">Frequency</p>
         </div>
@@ -205,8 +205,8 @@ function PpmKpiStrip({ plan }: { plan: PpmPlan }) {
 
       <div className="bg-white border border-slate-200 rounded-xl p-4">
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">
-            <Activity className="w-3.5 h-3.5 text-blue-600" />
+          <div className="w-6 h-6 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center">
+            <Activity className="w-3.5 h-3.5 text-[var(--brand)]" />
           </div>
           <p className="text-[11px] text-slate-500">Auto-Generate</p>
         </div>
@@ -263,7 +263,7 @@ function PpmRemindersEditor({
                 className={cn(
                   "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all disabled:opacity-50",
                   active
-                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
                     : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50",
                 )}
               >
@@ -366,9 +366,9 @@ export default function PpmDetailPage() {
 
       {/* Breadcrumb */}
       <div className="hidden md:flex items-center gap-2 text-sm text-slate-500">
-        <Link href="/property-manager/work/ppm/overview" className="hover:text-[#2563EB] transition-colors">PPM</Link>
+        <Link href="/property-manager/work/ppm/overview" className="hover:text-[var(--brand)] transition-colors">PPM</Link>
         <ChevronRight className="w-3.5 h-3.5" />
-        <Link href="/property-manager/work/ppm/schedules" className="hover:text-[#2563EB] transition-colors">Schedules</Link>
+        <Link href="/property-manager/work/ppm/schedules" className="hover:text-[var(--brand)] transition-colors">Schedules</Link>
         <ChevronRight className="w-3.5 h-3.5" />
         <span className="text-slate-900 font-semibold truncate max-w-[200px]">{plan.name}</span>
       </div>
@@ -397,7 +397,7 @@ export default function PpmDetailPage() {
           <button
             onClick={handleGenerateJob}
             disabled={generating}
-            className="h-8 px-3 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-60"
+            className="h-8 px-3 rounded-lg bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-60"
           >
             <Wrench className="w-3.5 h-3.5" /> {generating ? "Generating…" : "Generate Job"}
           </button>
@@ -440,8 +440,8 @@ export default function PpmDetailPage() {
       {/* Hero strip — name & status inline-editable when live */}
       <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center shrink-0">
-            <CalendarClock className="w-6 h-6 text-[#2563EB]" />
+          <div className="w-12 h-12 rounded-2xl bg-[var(--color-brand-100)] flex items-center justify-center shrink-0">
+            <CalendarClock className="w-6 h-6 text-[var(--brand)]" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 flex-wrap">
@@ -469,7 +469,7 @@ export default function PpmDetailPage() {
               <span className="flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5" />
                 {plan.property_id ? (
-                  <Link href="/property-manager/portfolio" className="text-[#2563EB] hover:underline">View Property</Link>
+                  <Link href="/property-manager/portfolio" className="text-[var(--brand)] hover:underline">View Property</Link>
                 ) : (
                   <span>No property linked</span>
                 )}
@@ -521,7 +521,7 @@ export default function PpmDetailPage() {
               className={cn(
                 "flex items-center gap-1.5 px-4 py-3 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all",
                 activeTab === tab
-                  ? "border-[#2563EB] text-[#2563EB]"
+                  ? "border-[var(--brand)] text-[var(--brand)]"
                   : "border-transparent text-slate-500 hover:text-slate-700"
               )}
             >
@@ -644,9 +644,9 @@ export default function PpmDetailPage() {
                     <p className="text-xs text-slate-600">Certification tracked on completion</p>
                   </div>
                 </div>
-                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-2">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
-                  <p className="text-[11px] text-blue-700 leading-snug">
+                <div className="bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-xl p-4 flex items-start gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-[var(--brand)] shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-[var(--brand)] leading-snug">
                     Generate a job from this plan to dispatch a work order to your supplier.
                   </p>
                 </div>
@@ -704,7 +704,7 @@ export default function PpmDetailPage() {
                     onClick={() => save("auto_generate_job", !plan.auto_generate_job)}
                     className={cn(
                       "relative w-11 h-6 rounded-full transition-colors shrink-0",
-                      plan.auto_generate_job ? "bg-[#2563EB]" : "bg-slate-200"
+                      plan.auto_generate_job ? "bg-[var(--brand)]" : "bg-slate-200"
                     )}
                   >
                     <span className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all", plan.auto_generate_job ? "left-[22px]" : "left-0.5")} />
@@ -734,7 +734,7 @@ export default function PpmDetailPage() {
                 <button
                   onClick={handleGenerateJob}
                   disabled={generating}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs font-semibold transition-colors disabled:opacity-60"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-xs font-semibold transition-colors disabled:opacity-60"
                 >
                   <Wrench className="w-3.5 h-3.5" /> {generating ? "Generating…" : "Generate Job"}
                 </button>
@@ -763,13 +763,13 @@ export default function PpmDetailPage() {
                           return (
                             <tr key={j.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
                               <td className="px-4 py-3">
-                                <Link href={`/property-manager/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[#2563EB]">
+                                <Link href={`/property-manager/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[var(--brand)]">
                                   {j.title}
                                 </Link>
                                 {j.reference && <p className="text-[11px] text-slate-400">{j.reference}</p>}
                               </td>
                               <td className="px-4 py-3 hidden sm:table-cell">
-                                <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold border bg-blue-50 text-blue-700 border-blue-100 capitalize">
+                                <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold border bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)] capitalize">
                                   {j.status.replace(/_/g, " ")}
                                 </span>
                               </td>
@@ -815,7 +815,7 @@ export default function PpmDetailPage() {
               ) : (
                 <p className="text-sm text-slate-400">No supplier assigned to this plan.</p>
               )}
-              <Link href="/property-manager/work/suppliers" className="mt-3 block text-[12px] text-[#2563EB] hover:underline">Browse Suppliers →</Link>
+              <Link href="/property-manager/work/suppliers" className="mt-3 block text-[12px] text-[var(--brand)] hover:underline">Browse Suppliers →</Link>
             </div>
           )}
 
@@ -827,7 +827,7 @@ export default function PpmDetailPage() {
                 <div className="space-y-3 mb-4 pb-4 border-b border-slate-100">
                   {ppmLogs.map((ev) => (
                     <div key={ev.id} className="flex items-start gap-3">
-                      <div className="w-7 h-7 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
                         {ev.action.slice(0, 2).toUpperCase()}
                       </div>
                       <div className="flex-1">
@@ -853,7 +853,7 @@ export default function PpmDetailPage() {
                       <div
                         className={cn(
                           "absolute -left-[18px] mt-1 w-3 h-3 rounded-full border-2 border-white",
-                          ev.tone === "blue" ? "bg-[#2563EB]" : ev.tone === "emerald" ? "bg-emerald-500" : "bg-slate-400"
+                          ev.tone === "blue" ? "bg-[var(--brand)]" : ev.tone === "emerald" ? "bg-emerald-500" : "bg-slate-400"
                         )}
                       />
                       <p className="text-xs font-medium text-slate-700">{ev.text}</p>

@@ -66,7 +66,7 @@ export default function StayListingCard({
   const Badges = (
     <div className="absolute left-2.5 top-2.5 z-10 flex flex-col items-start gap-1">
       {listing.bookingMode === "instant" && (
-        <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-bold text-[#2563EB] shadow-sm">
+        <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-bold text-[var(--brand)] shadow-sm">
           <Zap className="h-3 w-3" /> Instant book
         </span>
       )}
@@ -121,7 +121,7 @@ export default function StayListingCard({
         href={href}
         onMouseEnter={() => onHover?.(listing.id)}
         onMouseLeave={() => onHover?.(null)}
-        className="group flex gap-3 rounded-2xl border border-[#E2EAF6] bg-white p-2.5 transition-all hover:border-[#C9D8F0] hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+        className="group flex gap-3 rounded-2xl border border-[#E2EAF6] bg-white p-2.5 transition-all hover:border-[#C9D8F0] hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
       >
         <div className="relative w-[112px] shrink-0 overflow-hidden rounded-xl">
           <CardCarousel photos={photos.slice(0, 1)} alt={listing.title} aspect="aspect-square" fallback={<FallbackArt />} />
@@ -143,7 +143,7 @@ export default function StayListingCard({
       href={href}
       onMouseEnter={() => onHover?.(listing.id)}
       onMouseLeave={() => onHover?.(null)}
-      className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+      className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
     >
       <div className="relative overflow-hidden rounded-2xl">
         {Wishlist}
@@ -174,7 +174,7 @@ export default function StayListingCard({
 
 function FallbackArt() {
   return (
-    <div className="flex h-full w-full items-center justify-center text-blue-300">
+    <div className="flex h-full w-full items-center justify-center text-[var(--color-brand-300)]">
       <MapPin className="h-8 w-8" />
     </div>
   )

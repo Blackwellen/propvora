@@ -99,7 +99,7 @@ export function SubmitQuotePanel({ request, onClose, onSubmitted }: SubmitQuoteP
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="flex-1 rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30"
+                className="flex-1 rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30"
               />
             </div>
           </Field>
@@ -111,7 +111,7 @@ export function SubmitQuotePanel({ request, onClose, onSubmitted }: SubmitQuoteP
               value={days}
               onChange={(e) => setDays(e.target.value)}
               placeholder="e.g. 2"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30"
             />
           </Field>
 
@@ -121,7 +121,7 @@ export function SubmitQuotePanel({ request, onClose, onSubmitted }: SubmitQuoteP
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Describe what's included, materials, access needs…"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30"
             />
           </Field>
 
@@ -145,7 +145,7 @@ export function SubmitQuotePanel({ request, onClose, onSubmitted }: SubmitQuoteP
           <button
             onClick={submit}
             disabled={submitting || !amount}
-            className="flex-1 h-11 rounded-xl bg-[#2563EB] text-white font-semibold text-sm hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
+            className="flex-1 h-11 rounded-xl bg-[var(--brand)] text-white font-semibold text-sm hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
           >
             {submitting ? (
               <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />

@@ -64,7 +64,7 @@ export function AddPersonModal({ onClose, onSuccess, workspaceId }: AddPersonMod
           <button
             onClick={onClose}
             aria-label="Close dialog"
-            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
           >
             <X className="w-4 h-4" />
           </button>
@@ -82,7 +82,7 @@ export function AddPersonModal({ onClose, onSuccess, workspaceId }: AddPersonMod
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="James"
-                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
               />
             </div>
             <div>
@@ -95,7 +95,7 @@ export function AddPersonModal({ onClose, onSuccess, workspaceId }: AddPersonMod
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Okafor"
-                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
               />
             </div>
           </div>
@@ -106,7 +106,7 @@ export function AddPersonModal({ onClose, onSuccess, workspaceId }: AddPersonMod
               id="add-person-type"
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] bg-white transition-all"
+              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] bg-white transition-all"
             >
               <option value="tenant">Tenant</option>
               <option value="landlord">Landlord</option>
@@ -126,7 +126,7 @@ export function AddPersonModal({ onClose, onSuccess, workspaceId }: AddPersonMod
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="james@example.com"
-              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+              className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
             />
           </div>
 
@@ -139,7 +139,7 @@ export function AddPersonModal({ onClose, onSuccess, workspaceId }: AddPersonMod
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="07700 900000"
-                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
               />
             </div>
             <div>
@@ -150,7 +150,7 @@ export function AddPersonModal({ onClose, onSuccess, workspaceId }: AddPersonMod
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="Birmingham"
-                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+                className="w-full h-9 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
               />
             </div>
           </div>
@@ -169,7 +169,7 @@ export function AddPersonModal({ onClose, onSuccess, workspaceId }: AddPersonMod
           <button
             onClick={handleSave}
             disabled={saving || !firstName.trim() || !lastName.trim()}
-            className="flex-1 h-9 rounded-lg bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 h-9 rounded-lg bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? "Saving…" : "Save Person"}
           </button>

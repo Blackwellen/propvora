@@ -180,10 +180,10 @@ export default function TenantTenancyPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-3 pt-1">
-                  <Link href="/tenant-portal/rent" className="inline-flex items-center gap-1 text-xs text-[#2563EB] hover:underline">
+                  <Link href="/tenant-portal/rent" className="inline-flex items-center gap-1 text-xs text-[var(--brand)] hover:underline">
                     Rent &amp; payments <ChevronRight className="w-3 h-3" />
                   </Link>
-                  <Link href="/tenant-portal/documents" className="inline-flex items-center gap-1 text-xs text-[#2563EB] hover:underline">
+                  <Link href="/tenant-portal/documents" className="inline-flex items-center gap-1 text-xs text-[var(--brand)] hover:underline">
                     Tenancy documents <ChevronRight className="w-3 h-3" />
                   </Link>
                 </div>
@@ -193,8 +193,8 @@ export default function TenantTenancyPage() {
         })
       )}
 
-      <div className="rounded-2xl bg-[#EFF6FF] border border-blue-100 p-3 flex items-start gap-2">
-        <FileText className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0" />
+      <div className="rounded-2xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)] p-3 flex items-start gap-2">
+        <FileText className="w-4 h-4 text-[var(--brand)] mt-0.5 shrink-0" />
         <p className="text-xs text-[#1e40af]">
           These details are read-only and reflect the tenancy your managing agent holds on record. To request a
           change, send them a message.

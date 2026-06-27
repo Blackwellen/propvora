@@ -54,7 +54,7 @@ export default async function SolicitorMattersPage({ params }: { params: Promise
                 </div>
                 <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#EEF3FB]">
                   <span className="text-xs text-slate-500 flex items-center gap-1.5"><FileSignature className="w-4 h-4 text-violet-500" />{count} document{count === 1 ? "" : "s"}</span>
-                  <Link href={`${base}/documents`} className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]">View documents →</Link>
+                  <Link href={`${base}/documents`} className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]">View documents →</Link>
                 </div>
               </PortalCard>
             )

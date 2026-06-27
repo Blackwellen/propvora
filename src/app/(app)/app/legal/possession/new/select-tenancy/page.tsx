@@ -91,7 +91,7 @@ export default function SelectTenancyPage() {
       </div>
       {selectedRow ? (
         <div className="p-4">
-          <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+          <div className="flex items-center gap-3 p-3 bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-lg mb-4">
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold bg-slate-100 text-slate-700">
               {selectedRow.name.slice(0, 2).toUpperCase()}
             </div>
@@ -141,7 +141,7 @@ export default function SelectTenancyPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search tenants or property…"
-            className="w-full pl-10 pr-4 py-2 text-[12px] border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 text-[12px] border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
           />
           {search && (
             <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -159,7 +159,7 @@ export default function SelectTenancyPage() {
             <p className="text-[12px] text-slate-400 max-w-xs mb-4">
               Add a tenancy in Portfolio first, then return here to start a possession case.
             </p>
-            <Link href="/property-manager/portfolio/tenancies" className="text-[12px] text-blue-600 hover:text-blue-800 font-medium">
+            <Link href="/property-manager/portfolio/tenancies" className="text-[12px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium">
               Go to Tenancies →
             </Link>
           </div>
@@ -172,12 +172,12 @@ export default function SelectTenancyPage() {
                   key={t.id}
                   onClick={() => setSelected(t.id)}
                   className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
-                    isSelected ? "border-[#2563EB] bg-blue-50" : "border-slate-200 bg-white hover:border-slate-300"
+                    isSelected ? "border-[var(--brand)] bg-[var(--brand-soft)]" : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? "border-[#2563EB]" : "border-slate-300"}`}>
-                      {isSelected && <div className="w-2 h-2 rounded-full bg-[#2563EB]" />}
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? "border-[var(--brand)]" : "border-slate-300"}`}>
+                      {isSelected && <div className="w-2 h-2 rounded-full bg-[var(--brand)]" />}
                     </div>
                     <div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 bg-slate-100 text-slate-700">
                       {t.name.slice(0, 2).toUpperCase()}
@@ -186,7 +186,7 @@ export default function SelectTenancyPage() {
                       <div className="flex items-center gap-2">
                         <p className="text-[13px] font-semibold text-slate-800">{t.name}</p>
                         <span className="px-1.5 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded">{t.type}</span>
-                        <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${t.term === "Periodic" ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-600"}`}>
+                        <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${t.term === "Periodic" ? "bg-[var(--color-brand-100)] text-[var(--brand)]" : "bg-slate-100 text-slate-600"}`}>
                           {t.term}
                         </span>
                       </div>

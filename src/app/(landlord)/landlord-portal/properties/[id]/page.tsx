@@ -131,7 +131,7 @@ export default function LandlordPropertyDetailPage({ params }: PageProps) {
   if (error || !property) {
     return (
       <div className="space-y-5">
-        <Link href="/landlord-portal/properties" className="flex items-center gap-1 text-sm text-slate-500 hover:text-[#2563EB]">
+        <Link href="/landlord-portal/properties" className="flex items-center gap-1 text-sm text-slate-500 hover:text-[var(--brand)]">
           <ArrowLeft className="w-4 h-4" /> Properties
         </Link>
         <Card className="rounded-2xl border-slate-200">
@@ -155,7 +155,7 @@ export default function LandlordPropertyDetailPage({ params }: PageProps) {
     <div className="space-y-5">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-slate-500">
-        <Link href="/landlord-portal/properties" className="hover:text-[#2563EB] flex items-center gap-1">
+        <Link href="/landlord-portal/properties" className="hover:text-[var(--brand)] flex items-center gap-1">
           <ArrowLeft className="w-4 h-4" /> Properties
         </Link>
         <span>/</span>
@@ -185,7 +185,7 @@ export default function LandlordPropertyDetailPage({ params }: PageProps) {
         {property.target_rent_pcm != null && (
           <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right shrink-0">
             <p className="text-xs text-slate-500">Target Rent</p>
-            <p className="text-lg font-bold text-[#2563EB]">{formatMoney(property.target_rent_pcm)} <span className="text-xs font-normal text-slate-400">pcm</span></p>
+            <p className="text-lg font-bold text-[var(--brand)]">{formatMoney(property.target_rent_pcm)} <span className="text-xs font-normal text-slate-400">pcm</span></p>
           </div>
         )}
       </div>

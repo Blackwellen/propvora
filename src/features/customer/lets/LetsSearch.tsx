@@ -12,7 +12,7 @@ import { EXPANDED_LONG_TERM_RENTALS } from "@/lib/public-marketplace/seed-expand
 
 const KPIS = [
   { id: "saved", label: "Saved lets", value: "—", icon: Heart, bg: "bg-rose-50 text-rose-500" },
-  { id: "viewings", label: "Upcoming viewings", value: "—", icon: Calendar, bg: "bg-blue-50 text-blue-600" },
+  { id: "viewings", label: "Upcoming viewings", value: "—", icon: Calendar, bg: "bg-[var(--brand-soft)] text-[var(--brand)]" },
   { id: "apps", label: "Active applications", value: "—", icon: FileText, bg: "bg-violet-50 text-violet-600" },
   { id: "offers", label: "Offers in progress", value: "—", icon: Tag, bg: "bg-amber-50 text-amber-600" },
   { id: "tenancies", label: "Active tenancies", value: "—", icon: Key, bg: "bg-emerald-50 text-emerald-600" },
@@ -28,7 +28,7 @@ export default function LetsSearch() {
   return (
     <div className="space-y-5">
       {/* Hero — mirrors the Stays page hero for cross-page consistency */}
-      <section className="rounded-3xl bg-gradient-to-b from-blue-50 to-white px-5 py-8 sm:px-8">
+      <section className="rounded-3xl bg-gradient-to-b from-[var(--brand-soft)] to-white px-5 py-8 sm:px-8">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-2">Find your next home</h1>
         <p className="text-[15px] text-slate-500 mb-6 max-w-2xl">Discover quality long-term lets from verified landlords and agents.</p>
 

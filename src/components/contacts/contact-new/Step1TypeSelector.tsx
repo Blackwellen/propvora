@@ -39,7 +39,7 @@ export default function Step1TypeSelector({
               className={[
                 "flex flex-col items-start gap-2 rounded-xl border-2 p-3 text-left transition",
                 selected
-                  ? "ring-2 ring-blue-500 border-blue-400 bg-blue-50"
+                  ? "ring-2 ring-[var(--brand)] border-[var(--color-brand-400)] bg-[var(--brand-soft)]"
                   : `${colour} hover:opacity-90`,
               ].join(" ")}
             >
@@ -50,7 +50,7 @@ export default function Step1TypeSelector({
               </div>
               {selected && (
                 <div className="self-end ml-auto mt-auto">
-                  <div style={{ color: "var(--brand)" }}><Check className="w-3.5 h-3.5" /></div>
+                  <div style={{ color: "#2563EB" }}><Check className="w-3.5 h-3.5" /></div>
                 </div>
               )}
             </button>
@@ -69,8 +69,8 @@ export default function Step1TypeSelector({
               className={[
                 "flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition",
                 state.entityType === et
-                  ? "border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-500"
-                  : "border-slate-200 text-slate-600 hover:border-blue-300",
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)] ring-2 ring-[var(--brand)]"
+                  : "border-slate-200 text-slate-600 hover:border-[var(--color-brand-300)]",
               ].join(" ")}
             >
               {et === "person" ? <User className="w-4 h-4" /> : <Building2 className="w-4 h-4" />}

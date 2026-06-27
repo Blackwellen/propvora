@@ -338,7 +338,7 @@ export default function AccountDetailPage({
     <div className="p-8 text-center">
       <p className="text-sm font-medium text-slate-600">No posted transactions yet</p>
       <p className="text-xs text-slate-500 mt-1">Activity appears here once journal entries touching this account are posted.</p>
-      <Link href={sectionLink("/property-manager/accounting/accounts/journal-ledger")} className="inline-block mt-3 text-xs font-medium text-[#2563EB] hover:underline">
+      <Link href={sectionLink("/property-manager/accounting/accounts/journal-ledger")} className="inline-block mt-3 text-xs font-medium text-[var(--brand)] hover:underline">
         Go to Journal Ledger →
       </Link>
     </div>
@@ -516,7 +516,7 @@ export default function AccountDetailPage({
                         </p>
                         <Link
                           href={sectionLink("/property-manager/accounting/accounts/journal-ledger")}
-                          className="inline-block mt-3 text-xs font-medium text-[#2563EB] hover:underline"
+                          className="inline-block mt-3 text-xs font-medium text-[var(--brand)] hover:underline"
                         >
                           Go to Journal Ledger →
                         </Link>
@@ -532,7 +532,7 @@ export default function AccountDetailPage({
                         )}
                       >
                         <td className="px-4 py-2.5 text-slate-600 whitespace-nowrap">{tx.date}</td>
-                        <td className="px-4 py-2.5 text-[#2563EB] font-mono whitespace-nowrap">
+                        <td className="px-4 py-2.5 text-[var(--brand)] font-mono whitespace-nowrap">
                           {tx.reference}
                         </td>
                         <td className="px-4 py-2.5 text-slate-700">{tx.description}</td>

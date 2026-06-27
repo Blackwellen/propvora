@@ -38,7 +38,7 @@ export default function WorkflowGuard({
         <EmptyState
           title="Dispute not found"
           message="This dispute may have been closed, archived or moved."
-          action={<Link href="/property-manager/bookings/disputes" className="text-sm text-blue-600 hover:text-blue-700">Back to disputes</Link>}
+          action={<Link href="/property-manager/bookings/disputes" className="text-sm text-[var(--brand)] hover:text-[var(--brand)]">Back to disputes</Link>}
         />
       </div>
     )

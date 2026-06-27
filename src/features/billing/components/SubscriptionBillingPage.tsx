@@ -44,7 +44,7 @@ export function SubscriptionBillingPage({ tab }: { tab: BillingTabId }) {
               href={t.href}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-t-xl px-3.5 py-2 text-[12.5px] font-semibold transition-colors border-b-2",
-                active ? "border-blue-600 text-blue-700" : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50",
+                active ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50",
               )}
             >
               <t.icon className="w-3.5 h-3.5" /> {t.label}

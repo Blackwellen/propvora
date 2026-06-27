@@ -95,7 +95,7 @@ interface AddExpenseForm {
 
 const STATUS_CONFIG: Record<ExpenseStatus, { label: string; className: string }> = {
   paid: { label: "Paid", className: "bg-emerald-100 text-emerald-700" },
-  approved: { label: "Approved", className: "bg-blue-100 text-blue-700" },
+  approved: { label: "Approved", className: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   due: { label: "Due", className: "bg-red-100 text-red-700" },
   planned: { label: "Planned", className: "bg-amber-100 text-amber-700" },
   overdue: { label: "Overdue", className: "bg-red-100 text-red-700" },
@@ -222,7 +222,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-slate-100 sticky top-0 bg-white">
           <h2 className="text-lg font-semibold text-slate-900">Add Expense</h2>
-          <button onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+          <button onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
             <X className="w-4 h-4 text-slate-500" />
           </button>
         </div>
@@ -231,7 +231,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
             <div className="flex flex-col gap-1">
               <label htmlFor="exp-type" className="text-xs font-medium text-slate-600">Expense Type</label>
               <select id="exp-type" name="expense_type" value={form.expense_type} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
                 <option value="">Select type…</option>
                 {EXPENSE_TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
@@ -239,7 +239,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
             <div className="flex flex-col gap-1">
               <label htmlFor="exp-behaviour" className="text-xs font-medium text-slate-600">Cost Behaviour</label>
               <select id="exp-behaviour" name="cost_behaviour" value={form.cost_behaviour} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
                 <option value="">Select…</option>
                 <option value="Fixed">Fixed</option>
                 <option value="Variable">Variable</option>
@@ -251,7 +251,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
             <div className="flex flex-col gap-1">
               <label htmlFor="exp-supplier" className="text-xs font-medium text-slate-600">Supplier</label>
               <select id="exp-supplier" name="supplier" value={form.supplier} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
                 <option value="">Select supplier…</option>
                 {suppliers.map((s) => (
                   <option key={s.id} value={s.id}>{s.full_name || s.company_name || "Unnamed supplier"}</option>
@@ -261,7 +261,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
             <div className="flex flex-col gap-1">
               <label htmlFor="exp-property" className="text-xs font-medium text-slate-600">Property</label>
               <select id="exp-property" name="property" value={form.property} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
                 <option value="">Select property…</option>
                 {properties.map((p) => (
                   <option key={p.id} value={p.id}>{p.name || p.address_line1 || "Unnamed property"}</option>
@@ -274,18 +274,18 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
               <label htmlFor="exp-amount" className="text-xs font-medium text-slate-600">Amount (£)</label>
               <input id="exp-amount" name="amount" type="number" value={form.amount} onChange={handleChange}
                 placeholder="0.00"
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]" />
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="exp-date" className="text-xs font-medium text-slate-600">Date</label>
               <input id="exp-date" name="date" type="date" value={form.date} onChange={handleChange}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]" />
             </div>
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="exp-status" className="text-xs font-medium text-slate-600">Status</label>
             <select id="exp-status" name="status" value={form.status} onChange={handleChange}
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
               <option value="">Select status…</option>
               <option value="paid">Paid</option>
               <option value="approved">Approved</option>
@@ -297,7 +297,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
             <label htmlFor="exp-description" className="text-xs font-medium text-slate-600">Description</label>
             <input id="exp-description" name="description" type="text" value={form.description} onChange={handleChange}
               placeholder="Brief description…"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" />
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]" />
           </div>
         </div>
         {formError && <p className="text-xs text-red-500 px-6 pb-2">{formError}</p>}
@@ -305,7 +305,7 @@ function AddExpenseModal({ onClose, workspaceId }: { onClose: () => void; worksp
           <button aria-label="Close" onClick={onClose} disabled={saving} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50">
             Cancel
           </button>
-          <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm font-medium text-white bg-[#2563EB] hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-70">
+          <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm font-medium text-white bg-[var(--brand)] hover:bg-[var(--brand-strong)] rounded-lg transition-colors disabled:opacity-70">
             {saving ? "Saving…" : "Save Expense"}
           </button>
         </div>
@@ -365,7 +365,7 @@ export default function MoneyExpensesPage() {
       id: r.id,
       date: r.due_date ? new Date(r.due_date).toLocaleDateString("en-GB") : "—",
       expenseType: r.expense_type,
-      typeColor: "bg-blue-100 text-blue-700",
+      typeColor: "bg-[var(--color-brand-100)] text-[var(--brand)]",
       costBehaviour: (r.cost_behaviour === "fixed" ? "Fixed" : r.cost_behaviour === "variable" ? "Variable" : r.cost_behaviour === "capital_reno" ? "Capital" : "Variable") as CostBehaviour,
       propertyName: r.property_name ?? "—",
       propertyAddress: "—",
@@ -495,7 +495,7 @@ export default function MoneyExpensesPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#2563EB] rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[var(--brand)] rounded-lg hover:bg-[var(--brand-strong)] transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               Add Expense
@@ -540,8 +540,8 @@ export default function MoneyExpensesPage() {
             label="Planned"
             value={fmtGBP(summary?.planned ?? 0)}
             icon={<CalendarDays className="w-5 h-5" />}
-            iconBg="bg-blue-50"
-            iconColor="text-blue-600"
+            iconBg="bg-[var(--brand-soft)]"
+            iconColor="text-[var(--brand)]"
           />
           <MoneyKpiCard
             label="Fixed Costs"
@@ -585,14 +585,14 @@ export default function MoneyExpensesPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search expenses by description, supplier or property..."
-                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
                   />
                 </div>
                 <select
                   aria-label="Filter by property"
                   value={propertyFilter}
                   onChange={(e) => setPropertyFilter(e.target.value)}
-                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 max-w-[180px]"
+                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] max-w-[180px]"
                 >
                   <option value="all">All Properties</option>
                   {[...new Set(EXPENSE_ROWS_LIVE.map((r) => r.propertyName).filter((n) => n && n !== "—"))].map((n) => (
@@ -603,7 +603,7 @@ export default function MoneyExpensesPage() {
                   aria-label="Filter by expense type"
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
-                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
                 >
                   <option value="all">All Types</option>
                   {EXPENSE_TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -612,7 +612,7 @@ export default function MoneyExpensesPage() {
                   aria-label="Filter by status"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 capitalize"
+                  className="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] capitalize"
                 >
                   <option value="all">All Statuses</option>
                   {["paid", "approved", "due", "planned"].map((s) => <option key={s} value={s} className="capitalize">{s}</option>)}
@@ -629,7 +629,7 @@ export default function MoneyExpensesPage() {
                     onClick={() => setViewMode("table")}
                     aria-label="Table view"
                     aria-pressed={viewMode === "table"}
-                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
                       viewMode === "table" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                   >
                     <Table2 className="w-4 h-4" />
@@ -638,7 +638,7 @@ export default function MoneyExpensesPage() {
                     onClick={() => setViewMode("cards")}
                     aria-label="Card view"
                     aria-pressed={viewMode === "cards"}
-                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
                       viewMode === "cards" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                   >
                     <LayoutGrid className="w-4 h-4" />
@@ -647,7 +647,7 @@ export default function MoneyExpensesPage() {
                     onClick={() => setViewMode("by-property")}
                     aria-label="By property view"
                     aria-pressed={viewMode === "by-property"}
-                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                    className={cn("w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
                       viewMode === "by-property" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                   >
                     <Building className="w-4 h-4" />
@@ -777,7 +777,7 @@ export default function MoneyExpensesPage() {
                             </td>
                             <td className="p-4 text-center">
                               {row.hasReceipt ? (
-                                <Paperclip className="w-4 h-4 text-blue-400 mx-auto" />
+                                <Paperclip className="w-4 h-4 text-[var(--color-brand-400)] mx-auto" />
                               ) : (
                                 <span className="text-slate-200 text-sm">—</span>
                               )}
@@ -811,7 +811,7 @@ export default function MoneyExpensesPage() {
                   <div className="p-4 border-t border-slate-100 text-center">
                     <button
                       onClick={() => setShowAllRows(true)}
-                      className="flex items-center gap-2 text-xs font-medium text-[#2563EB] hover:underline mx-auto"
+                      className="flex items-center gap-2 text-xs font-medium text-[var(--brand)] hover:underline mx-auto"
                     >
                       Load more ↓
                     </button>
@@ -915,7 +915,7 @@ export default function MoneyExpensesPage() {
               <div className="flex flex-col gap-2.5">
                 {[
                   { label: "Total Paid", value: summary?.totalPaid ?? 0, dot: "bg-emerald-500" },
-                  { label: "Total Planned", value: summary?.planned ?? 0, dot: "bg-blue-500" },
+                  { label: "Total Planned", value: summary?.planned ?? 0, dot: "bg-[var(--brand)]" },
                   { label: "Fixed Costs", value: summary?.fixedCosts ?? 0, dot: "bg-slate-400" },
                   { label: "Capital / Reno", value: summary?.capitalReno ?? 0, dot: "bg-violet-500" },
                 ].map((row) => (

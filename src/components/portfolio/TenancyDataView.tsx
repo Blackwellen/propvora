@@ -79,7 +79,7 @@ export function TenancyDataView({ tenancies }: { tenancies: TenancyCardData[] })
       )} onClick={() => toggle(col)}>
         <span className={cn("inline-flex items-center gap-0.5", right && "justify-end")}>
           {label}
-          {active ? (sortDir === "asc" ? <ChevronUp className="w-3 h-3 text-[#2563EB]" /> : <ChevronDown className="w-3 h-3 text-[#2563EB]" />) : <ChevronUp className="w-3 h-3 text-slate-200" />}
+          {active ? (sortDir === "asc" ? <ChevronUp className="w-3 h-3 text-[var(--brand)]" /> : <ChevronDown className="w-3 h-3 text-[var(--brand)]" />) : <ChevronUp className="w-3 h-3 text-slate-200" />}
         </span>
       </th>
     )
@@ -147,7 +147,7 @@ export function TenancyDataView({ tenancies }: { tenancies: TenancyCardData[] })
                         <span className={cn("absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white", cfg.dot)} />
                       </div>
                       <Link href={`/property-manager/portfolio/tenancies/${t.id}`}
-                        className="text-[12.5px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors">
+                        className="text-[12.5px] font-semibold text-slate-900 hover:text-[var(--brand)] transition-colors">
                         {t.tenant_name ?? "Unknown"}
                       </Link>
                     </div>
@@ -205,7 +205,7 @@ export function TenancyDataView({ tenancies }: { tenancies: TenancyCardData[] })
                   </td>
                   <td className="px-4 py-3">
                     <Link href={`/property-manager/portfolio/tenancies/${t.id}`}
-                      className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg bg-slate-100 hover:bg-[#2563EB] hover:text-white flex items-center justify-center text-slate-500 transition-all">
+                      className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg bg-slate-100 hover:bg-[var(--brand)] hover:text-white flex items-center justify-center text-slate-500 transition-all">
                       <Eye className="w-3.5 h-3.5" />
                     </Link>
                   </td>

@@ -22,9 +22,9 @@ const SEVERITY_UI: Record<
   { wrap: string; icon: typeof Info; iconColor: string; title: string }
 > = {
   info: {
-    wrap: "bg-[#EFF6FF] border-[#BFDBFE]",
+    wrap: "bg-[var(--brand-soft)] border-[#BFDBFE]",
     icon: Info,
-    iconColor: "text-[#2563EB]",
+    iconColor: "text-[var(--brand)]",
     title: "text-[#1e40af]",
   },
   success: {

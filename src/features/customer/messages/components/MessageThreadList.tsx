@@ -32,7 +32,7 @@ export default function MessageThreadList({ convos, selectedId, filter, onSelect
         </div>
         <div className="flex items-center gap-1 mt-2">
           {FILTERS.map((f) => (
-            <button key={f} onClick={() => onFilterChange(f)} className={cn("rounded-full px-2.5 py-1 text-[11.5px] font-semibold inline-flex items-center gap-1", filter === f ? "bg-blue-600 text-white" : "text-slate-500 hover:bg-slate-100")}>
+            <button key={f} onClick={() => onFilterChange(f)} className={cn("rounded-full px-2.5 py-1 text-[11.5px] font-semibold inline-flex items-center gap-1", filter === f ? "bg-[var(--brand)] text-white" : "text-slate-500 hover:bg-slate-100")}>
               {f}{f === "All" && <span className="opacity-70">12</span>}{f === "Unread" && <span className="opacity-70">3</span>}{f === "Hosts" && <span className="opacity-70">6</span>}{f === "Support" && <span className="opacity-70">2</span>}
             </button>
           ))}
@@ -43,20 +43,20 @@ export default function MessageThreadList({ convos, selectedId, filter, onSelect
           const active = c.id === selectedId
           return (
             <li key={c.id}>
-              <button onClick={() => onSelect(c.id)} className={cn("w-full text-left flex gap-2.5 p-3 transition-colors", active ? "bg-blue-50/50" : "hover:bg-slate-50")}>
+              <button onClick={() => onSelect(c.id)} className={cn("w-full text-left flex gap-2.5 p-3 transition-colors", active ? "bg-[var(--brand-soft)]/50" : "hover:bg-slate-50")}>
                 <span className="w-9 h-9 rounded-full bg-slate-200 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5"><p className="text-[12.5px] font-semibold text-slate-800 truncate">{c.name}</p><StatusPill tone={ROLE_TONE[c.role]}>{c.role}</StatusPill></div>
                   <p className="text-[11.5px] font-medium text-slate-600 truncate">{c.subject}</p>
                   <p className="text-[11px] text-slate-400 truncate">{c.preview}</p>
                 </div>
-                <div className="flex flex-col items-end gap-1 shrink-0"><span className="text-[10.5px] text-slate-400">{c.time}</span>{c.unread > 0 && <span className="min-w-[16px] h-[16px] px-1 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">{c.unread}</span>}</div>
+                <div className="flex flex-col items-end gap-1 shrink-0"><span className="text-[10.5px] text-slate-400">{c.time}</span>{c.unread > 0 && <span className="min-w-[16px] h-[16px] px-1 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold flex items-center justify-center">{c.unread}</span>}</div>
               </button>
             </li>
           )
         })}
       </ul>
-      <button className="w-full py-3 text-[12px] font-semibold text-blue-600 border-t border-slate-100">View archived conversations</button>
+      <button className="w-full py-3 text-[12px] font-semibold text-[var(--brand)] border-t border-slate-100">View archived conversations</button>
     </div>
   )
 }

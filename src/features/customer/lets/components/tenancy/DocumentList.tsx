@@ -31,7 +31,7 @@ export default function DocumentList({ docs, selectedId, onSelect }: Props) {
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
           <input
             placeholder="Search documents"
-            className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-44"
+            className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)] w-44"
           />
         </div>
       </div>
@@ -55,7 +55,7 @@ export default function DocumentList({ docs, selectedId, onSelect }: Props) {
                   onClick={() => onSelect(d.id)}
                   className={cn(
                     "text-[12.5px] cursor-pointer",
-                    active ? "bg-blue-50/40 outline outline-2 -outline-offset-2 outline-blue-500" : "hover:bg-slate-50"
+                    active ? "bg-[var(--brand-soft)]/40 outline outline-2 -outline-offset-2 outline-[var(--brand)]" : "hover:bg-slate-50"
                   )}
                 >
                   <td className="py-3 pr-2">
@@ -89,7 +89,7 @@ export default function DocumentList({ docs, selectedId, onSelect }: Props) {
           <button className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center">
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <button className="w-7 h-7 rounded-lg bg-blue-600 text-white text-[12px] font-semibold">1</button>
+          <button className="w-7 h-7 rounded-lg bg-[var(--brand)] text-white text-[12px] font-semibold">1</button>
           <button className="w-7 h-7 rounded-lg border border-slate-200 text-[12px]">2</button>
           <button className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center">
             <ChevronRight className="w-4 h-4" />

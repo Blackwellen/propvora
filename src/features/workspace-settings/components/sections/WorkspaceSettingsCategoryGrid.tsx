@@ -45,10 +45,10 @@ export function WorkspaceSettingsCategoryGrid({ categories }: WorkspaceSettingsC
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center justify-between py-1.5 text-[12.5px] text-slate-600 hover:text-[#2563EB] transition-colors group"
+                  className="flex items-center justify-between py-1.5 text-[12.5px] text-slate-600 hover:text-[var(--brand)] transition-colors group"
                 >
                   {item.label}
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#2563EB] transition-colors" />
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[var(--brand)] transition-colors" />
                 </Link>
               ))}
             </div>

@@ -30,7 +30,7 @@ const toneMap: Record<
   NonNullable<StatePageProps["tone"]>,
   { bg: string; border: string; text: string }
 > = {
-  blue: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-600" },
+  blue: { bg: "bg-[var(--brand-soft)]", border: "border-[var(--color-brand-100)]", text: "text-[var(--brand)]" },
   amber: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-600" },
   rose: { bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-600" },
   slate: { bg: "bg-slate-100", border: "border-slate-200", text: "text-slate-600" },
@@ -72,7 +72,7 @@ export default function StatePage({
                 const isExternal = action.href.startsWith("http")
                 const className =
                   variant === "primary"
-                    ? "inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                    ? "inline-flex items-center justify-center rounded-xl bg-[var(--brand)] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-strong)] transition-colors"
                     : "inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
                 return isExternal ? (
                   <a key={action.href} href={action.href} className={className}>
@@ -93,7 +93,7 @@ export default function StatePage({
             Need a hand? Email{" "}
             <a
               href={`mailto:${COMPANY.emails.support}`}
-              className="text-blue-600 hover:text-blue-700 font-medium"
+              className="text-[var(--brand)] hover:text-[var(--brand)] font-medium"
             >
               {COMPANY.emails.support}
             </a>

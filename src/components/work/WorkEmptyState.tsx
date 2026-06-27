@@ -31,7 +31,7 @@ export function WorkEmptyState({
       {ctaLabel && ctaHref && (
         <Link
           href={ctaHref}
-          className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-4 py-2 text-sm font-semibold transition-colors"
+          className="inline-flex items-center gap-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-xl px-4 py-2 text-sm font-semibold transition-colors"
         >
           {ctaLabel}
         </Link>

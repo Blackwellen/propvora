@@ -53,7 +53,7 @@ export default function DisputeDetailPanel({
       <div className="p-4 space-y-5 flex-1">
         {/* identity */}
         <div className="flex items-center gap-2 flex-wrap text-xs text-slate-500">
-          <span>Booking <Link href={`/property-manager/bookings/${dispute.booking_id}`} className="text-blue-600 hover:underline">{dispute.booking_reference}</Link></span>
+          <span>Booking <Link href={`/property-manager/bookings/${dispute.booking_id}`} className="text-[var(--brand)] hover:underline">{dispute.booking_reference}</Link></span>
           {dispute.order_reference && <span>· Order {dispute.order_reference}</span>}
           <PriorityBadge priority={dispute.priority} />
         </div>
@@ -122,7 +122,7 @@ export default function DisputeDetailPanel({
           <ol className="space-y-2.5">
             {dispute.timeline.slice(-5).reverse().map((t) => (
               <li key={t.id} className="flex gap-2.5">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[var(--brand)] shrink-0" />
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-slate-800">{t.label}</p>
                   <p className="text-[11px] text-slate-400">{t.actor} · {fmtDateTime(t.at)}</p>
@@ -136,7 +136,7 @@ export default function DisputeDetailPanel({
         <div className="space-y-2 pt-1">
           <Link
             href={`${wfBase}/evidence`}
-            className="w-full flex items-center justify-center gap-1.5 bg-blue-600 text-white rounded-xl px-3 py-2 text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="w-full flex items-center justify-center gap-1.5 bg-[var(--brand)] text-white rounded-xl px-3 py-2 text-sm font-medium hover:bg-[var(--brand-strong)] transition-colors"
           >
             <Upload className="w-4 h-4" /> Submit evidence
           </Link>
@@ -158,10 +158,10 @@ export default function DisputeDetailPanel({
             <FolderOpen className="w-4 h-4" /> Open full dispute
           </Link>
           <div className="grid grid-cols-2 gap-2">
-            <Link href={`/property-manager/bookings/${dispute.booking_id}`} className="flex items-center justify-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 px-3 py-2">
+            <Link href={`/property-manager/bookings/${dispute.booking_id}`} className="flex items-center justify-center gap-1.5 text-sm text-[var(--brand)] hover:text-[var(--brand)] px-3 py-2">
               View booking <ExternalLink className="w-3.5 h-3.5" />
             </Link>
-            <button onClick={() => fire('Opening linked order…')} className="flex items-center justify-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 px-3 py-2">
+            <button onClick={() => fire('Opening linked order…')} className="flex items-center justify-center gap-1.5 text-sm text-[var(--brand)] hover:text-[var(--brand)] px-3 py-2">
               View order <ExternalLink className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -187,7 +187,7 @@ export default function DisputeDetailPanel({
         </select>
         <label className="block text-xs font-medium text-slate-600 mb-1">Message</label>
         <textarea rows={4} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm" placeholder="Type a message…" />
-        <button onClick={() => { fire('Message sent'); setDrawer(null) }} className="mt-3 inline-flex items-center gap-1.5 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700">
+        <button onClick={() => { fire('Message sent'); setDrawer(null) }} className="mt-3 inline-flex items-center gap-1.5 bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-[var(--brand-strong)]">
           <Send className="w-4 h-4" /> Send message
         </button>
       </StubDrawer>

@@ -30,14 +30,14 @@ import {
 
 const TYPE_LABEL: Record<string, string> = { mandatory: "Mandatory", additional: "Additional", selective: "Selective" }
 const TYPE_COLOR: Record<string, string> = {
-  mandatory: "bg-blue-100 text-blue-700",
+  mandatory: "bg-[var(--color-brand-100)] text-[var(--brand)]",
   additional: "bg-purple-100 text-purple-700",
   selective: "bg-emerald-100 text-emerald-700",
 }
 const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
   active: { label: "Active", cls: "bg-green-100 text-green-700 border border-green-200" },
   expired: { label: "Expired", cls: "bg-red-100 text-red-700 border border-red-200" },
-  pending: { label: "Pending", cls: "bg-blue-100 text-blue-700 border border-blue-200" },
+  pending: { label: "Pending", cls: "bg-[var(--color-brand-100)] text-[var(--brand)] border border-[var(--color-brand-100)]" },
   revoked: { label: "Revoked", cls: "bg-slate-100 text-slate-600 border border-slate-200" },
 }
 
@@ -121,7 +121,7 @@ function HmoLicencesPageInner() {
     { icon: Key, value: activeCount, label: "Active Licences", sub: "Currently valid", iconCls: "bg-green-100 text-green-600" },
     { icon: Clock, value: expiringCount, label: "Expiring in 90 Days", sub: "Renewal due soon", iconCls: "bg-orange-100 text-orange-600" },
     { icon: AlertTriangle, value: expiredCount, label: "Expired / Pending", sub: "Requires attention", iconCls: "bg-red-100 text-red-600" },
-    { icon: Building2, value: licences.length, label: "Total Licences", sub: "Across portfolio", iconCls: "bg-blue-100 text-blue-600" },
+    { icon: Building2, value: licences.length, label: "Total Licences", sub: "Across portfolio", iconCls: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   ]
 
   /* Row → card mapping for the mobile licence list (presentation only). */
@@ -182,7 +182,7 @@ function HmoLicencesPageInner() {
           </button>
           <button
             onClick={() => router.push("/property-manager/legal/hmo-licences/new")}
-            className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
+            className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Register Licence
@@ -218,7 +218,7 @@ function HmoLicencesPageInner() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search licences…"
-                  className="w-full pl-9 pr-3 py-1.5 text-[12px] border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-9 pr-3 py-1.5 text-[12px] border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
                 />
               </div>
               <span className="ml-auto text-[11px] text-slate-400">{licences.length} licence{licences.length === 1 ? "" : "s"}</span>
@@ -237,7 +237,7 @@ function HmoLicencesPageInner() {
                 </p>
                 <button
                   onClick={() => router.push("/property-manager/legal/hmo-licences/new")}
-                  className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors"
+                  className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Register First Licence
@@ -367,7 +367,7 @@ function HmoLicencesPageInner() {
             </div>
             <div className="p-4">
               <p className="text-[12px] text-slate-500 mb-2">Each licence expiry date is surfaced as a key date you can act on.</p>
-              <Link href="/property-manager/calendar" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
+              <Link href="/property-manager/calendar" className="text-[11px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium flex items-center gap-1 transition-colors">
                 Open Calendar <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>

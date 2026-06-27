@@ -35,7 +35,7 @@ export default function AiQuestionsTab({ profile }: Props) {
     : '#EF4444'
 
   const categoryColors: Record<string, string> = {
-    'Deal Viability': 'bg-blue-100 text-blue-700',
+    'Deal Viability': 'bg-[var(--color-brand-100)] text-[var(--brand)]',
     Sensitivity: 'bg-purple-100 text-purple-700',
     'Cost Planning': 'bg-teal-100 text-teal-700',
     Risk: 'bg-red-100 text-red-700',

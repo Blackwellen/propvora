@@ -114,9 +114,9 @@ export function QuoteBuilderWizard({
         <p className="text-sm font-semibold text-slate-800">{validUntil.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
       </div>
       {rec.winProbabilityPct != null && (
-        <div className="rounded-xl bg-blue-50/60 border border-blue-100 p-3">
-          <p className="text-[11px] text-blue-700 flex items-center gap-1"><Sparkles className="w-3 h-3" />Win probability</p>
-          <p className="text-lg font-bold text-blue-700">{rec.winProbabilityPct}%</p>
+        <div className="rounded-xl bg-[var(--brand-soft)]/60 border border-[var(--color-brand-100)] p-3">
+          <p className="text-[11px] text-[var(--brand)] flex items-center gap-1"><Sparkles className="w-3 h-3" />Win probability</p>
+          <p className="text-lg font-bold text-[var(--brand)]">{rec.winProbabilityPct}%</p>
         </div>
       )}
     </div>
@@ -146,7 +146,7 @@ export function QuoteBuilderWizard({
 
           <label className="block">
             <span className="text-sm font-medium text-slate-700">Net price (£) <span className="text-red-500">*</span></span>
-            <div className="mt-1.5 flex items-center rounded-xl border border-slate-200 focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-blue-100 overflow-hidden">
+            <div className="mt-1.5 flex items-center rounded-xl border border-slate-200 focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--color-brand-100)] overflow-hidden">
               <span className="px-3 text-slate-400"><PoundSterling className="w-4 h-4" /></span>
               <input
                 type="text"
@@ -162,7 +162,7 @@ export function QuoteBuilderWizard({
               <button
                 type="button"
                 onClick={() => setPounds((rec.suggestedPricePence! / 100).toFixed(2))}
-                className="mt-2 text-xs font-medium text-[#2563EB] hover:text-blue-700"
+                className="mt-2 text-xs font-medium text-[var(--brand)] hover:text-[var(--brand)]"
               >
                 Use suggested {formatPence(rec.suggestedPricePence)}
                 {rec.marginEstPct != null ? ` · ~${rec.marginEstPct}% margin` : ""}
@@ -179,7 +179,7 @@ export function QuoteBuilderWizard({
               type="checkbox"
               checked={includeVat}
               onChange={(e) => setIncludeVat(e.target.checked)}
-              className="w-5 h-5 accent-[#2563EB]"
+              className="w-5 h-5 accent-[var(--brand)]"
             />
           </label>
 
@@ -191,7 +191,7 @@ export function QuoteBuilderWizard({
                   key={d}
                   type="button"
                   onClick={() => setValidDays(d)}
-                  className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-colors ${validDays === d ? "border-[#2563EB] bg-blue-50 text-[#2563EB]" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+                  className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-colors ${validDays === d ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
                 >
                   {d} days
                 </button>
@@ -214,7 +214,7 @@ export function QuoteBuilderWizard({
               onChange={(e) => setMessage(e.target.value)}
               rows={7}
               placeholder="Describe what's included, timelines, and any assumptions…"
-              className="mt-1.5 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 resize-none"
+              className="mt-1.5 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--color-brand-100)] resize-none"
             />
           </label>
           {request.scopeBullets.length > 0 && (

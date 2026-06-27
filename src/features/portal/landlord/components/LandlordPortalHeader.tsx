@@ -32,7 +32,7 @@ export function LandlordPortalHeader({
             <Link
               key={label}
               href={segment ? `${base}/${segment}` : base}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-[#F4F8FF] hover:text-[#2563EB] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-[#F4F8FF] hover:text-[var(--brand)] transition-colors"
             >
               <Icon className="w-3.5 h-3.5" />
               {label}
@@ -40,7 +40,7 @@ export function LandlordPortalHeader({
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <span className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-xs font-bold">
+          <span className="w-8 h-8 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">
             {displayName
               .split(" ")
               .map((w) => w[0])

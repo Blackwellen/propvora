@@ -19,7 +19,7 @@ export function JobsKpiStrip({ stats }: JobsKpiStripProps) {
       {stats.map((s) => {
         const c =
           s.tone === "blue"
-            ? "text-[#2563EB]"
+            ? "text-[var(--brand)]"
             : s.tone === "amber"
               ? "text-amber-600"
               : s.tone === "red"

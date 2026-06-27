@@ -55,7 +55,7 @@ export function ActiveOrdersTab() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={Briefcase} iconBg="bg-blue-50" iconColor="text-blue-600" value={kpis.active} label="Active orders" sub="Live" subColor="text-slate-400" />
+        <KpiCard icon={Briefcase} iconBg="bg-[var(--brand-soft)]" iconColor="text-[var(--brand)]" value={kpis.active} label="Active orders" sub="Live" subColor="text-slate-400" />
         <KpiCard icon={Clock} iconBg="bg-amber-50" iconColor="text-amber-600" value={kpis.awaitingAcceptance} label="Awaiting acceptance" sub="Needs supplier" subColor="text-amber-600" />
         <KpiCard icon={Loader2} iconBg="bg-violet-50" iconColor="text-violet-600" value={kpis.inProgress} label="In progress" sub="On site / working" subColor="text-violet-600" />
         <KpiCard icon={AlertTriangle} iconBg="bg-red-50" iconColor="text-red-600" value={kpis.atRisk} label="At risk" sub={kpis.atRisk > 0 ? "Attention" : "All clear"} subColor={kpis.atRisk > 0 ? "text-red-500" : "text-emerald-600"} />
@@ -69,7 +69,7 @@ export function ActiveOrdersTab() {
             <input
               value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search orders, properties, suppliers…"
-              className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             />
           </div>
           <Select value={typeFilter} onChange={setTypeFilter} placeholder="All order types" options={ORDER_TYPES} />
@@ -109,7 +109,7 @@ export function ActiveOrdersTab() {
                   <tr><td colSpan={10} className="px-4 py-12 text-center text-sm text-slate-400">No orders match your filters.</td></tr>
                 ) : filtered.map(o => (
                   <tr key={o.id} onClick={() => setSelectedId(o.id)}
-                    className={cn("border-b border-slate-50 cursor-pointer hover:bg-slate-50", selectedId === o.id && "bg-blue-50/40")}>
+                    className={cn("border-b border-slate-50 cursor-pointer hover:bg-slate-50", selectedId === o.id && "bg-[var(--brand-soft)]/40")}>
                     <td className="px-4 py-3 font-semibold text-slate-800">{o.orderRef}</td>
                     <td className="px-4 py-3"><p className="font-medium text-slate-800">{o.propertyLabel}</p><p className="text-xs text-slate-500">{o.location}</p></td>
                     <td className="px-4 py-3 text-slate-600">{o.orderType}</td>
@@ -121,7 +121,7 @@ export function ActiveOrdersTab() {
                     <td className="px-4 py-3"><StatusBadge tone={toneForSla(o.slaStatus)}>{humanise(o.slaStatus)}</StatusBadge></td>
                     <td className="px-4 py-3 text-right">
                       <Link href={`/property-manager/work/orders/${o.orderRef}`} onClick={e => e.stopPropagation()}
-                        className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] inline-flex items-center gap-1">
+                        className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] inline-flex items-center gap-1">
                         Open <ExternalLink className="w-3 h-3" />
                       </Link>
                     </td>
@@ -188,7 +188,7 @@ function OrderDetailPanel({ order, onAction }: { order: OrderRow; onAction: (k: 
       <div className="p-5 border-b border-slate-100">
         <p className="text-[11px] uppercase tracking-wide text-slate-400 font-semibold mb-2">Supplier</p>
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-bold">{order.supplierInitials}</div>
+          <div className="w-9 h-9 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">{order.supplierInitials}</div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-slate-800">{order.supplierName}</p>
             {order.supplierRating && <p className="text-xs text-amber-600 flex items-center gap-1"><Star className="w-3 h-3 fill-amber-400 text-amber-400" />{order.supplierRating}</p>}
@@ -217,7 +217,7 @@ function OrderDetailPanel({ order, onAction }: { order: OrderRow; onAction: (k: 
           <ActionBtn icon={Flag} label="Raise dispute" onClick={() => onAction("dispute")} tone="red" />
           <ActionBtn icon={CalendarClock} label="Reschedule" onClick={() => onAction("reschedule")} />
           <ActionBtn icon={XCircle} label="Cancel" onClick={() => onAction("cancel")} tone="red" />
-          <Link href={`/property-manager/work/orders/${order.orderRef}`} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100">
+          <Link href={`/property-manager/work/orders/${order.orderRef}`} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand)] text-xs font-semibold hover:bg-[var(--color-brand-100)]">
             <ExternalLink className="w-3.5 h-3.5" /> Open order
           </Link>
         </div>

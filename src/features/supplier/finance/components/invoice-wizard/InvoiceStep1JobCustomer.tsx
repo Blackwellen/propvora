@@ -36,7 +36,7 @@ export function InvoiceStep1JobCustomer({ jobs, selectedJobId, onSelectJob }: In
               onClick={() => onSelectJob(j)}
               className={`w-full text-left rounded-xl border p-4 transition-all ${
                 active
-                  ? "border-[#2563EB] ring-2 ring-blue-100 bg-blue-50/40"
+                  ? "border-[var(--brand)] ring-2 ring-[var(--color-brand-100)] bg-[var(--brand-soft)]/40"
                   : "border-slate-200 hover:border-slate-300"
               }`}
             >
@@ -52,7 +52,7 @@ export function InvoiceStep1JobCustomer({ jobs, selectedJobId, onSelectJob }: In
                   </p>
                 </div>
                 <span className="text-sm font-semibold text-slate-700 shrink-0">{moneyPence(j.defaultPence)}</span>
-                {active && <CheckCircle2 className="w-5 h-5 text-[#2563EB] shrink-0" />}
+                {active && <CheckCircle2 className="w-5 h-5 text-[var(--brand)] shrink-0" />}
               </div>
             </button>
           )

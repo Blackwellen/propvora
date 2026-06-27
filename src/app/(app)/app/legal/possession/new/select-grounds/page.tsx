@@ -282,7 +282,7 @@ function SelectGroundsInner() {
                 type="checkbox"
                 checked={howToRent}
                 onChange={(e) => setHowToRent(e.target.checked)}
-                className="mt-0.5 accent-[#2563EB]"
+                className="mt-0.5 accent-[var(--brand)]"
               />
               <span className="text-[11px] text-slate-600">
                 I confirm the current How-to-Rent guide was served at the start of the tenancy.
@@ -324,7 +324,7 @@ function SelectGroundsInner() {
         {/* Non-E&W jurisdictions: their own notice routes. */}
         {!isEW && routesPack && (
           <div className="mb-5 space-y-3">
-            <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-3">
+            <div className="rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)]/50 p-3">
               <p className="text-[12px] text-slate-700">
                 <span className="font-semibold">{routesPack.regionName}</span> uses different possession routes from
                 England &amp; Wales. Select the applicable route — the indicative notice period feeds the panel below and
@@ -338,7 +338,7 @@ function SelectGroundsInner() {
                 <button
                   key={r.id}
                   onClick={() => setSelectedRouteId(r.id)}
-                  className={`w-full text-left p-4 rounded-xl border-2 transition-all ${active ? "border-[#2563EB] bg-blue-50" : "border-slate-200 bg-white hover:border-slate-300"}`}
+                  className={`w-full text-left p-4 rounded-xl border-2 transition-all ${active ? "border-[var(--brand)] bg-[var(--brand-soft)]" : "border-slate-200 bg-white hover:border-slate-300"}`}
                 >
                   <div className="flex items-center justify-between gap-2 flex-wrap">
                     <span className="text-[13px] font-bold text-slate-800">{r.name}</span>
@@ -386,11 +386,11 @@ function SelectGroundsInner() {
                 key={r.id}
                 onClick={() => setRoute(r.id)}
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
-                  active ? "border-[#2563EB] bg-blue-50" : "border-slate-200 bg-white hover:border-slate-300"
+                  active ? "border-[var(--brand)] bg-[var(--brand-soft)]" : "border-slate-200 bg-white hover:border-slate-300"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1.5">
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${active ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}>
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${active ? "bg-[var(--color-brand-100)] text-[var(--brand)]" : "bg-slate-100 text-slate-500"}`}>
                     <Icon className="w-4 h-4" />
                   </div>
                   <span className="text-[13px] font-bold text-slate-800">{r.title}</span>
@@ -402,9 +402,9 @@ function SelectGroundsInner() {
         </div>
 
         <div className="flex items-center gap-3 mb-4">
-          <div className="flex items-center gap-1.5 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-lg">
-            <Shield className="w-3.5 h-3.5 text-blue-600" />
-            <span className="text-[11px] font-medium text-blue-700">Reference guidance only</span>
+          <div className="flex items-center gap-1.5 bg-[var(--brand-soft)] border border-[var(--color-brand-100)] px-3 py-1.5 rounded-lg">
+            <Shield className="w-3.5 h-3.5 text-[var(--brand)]" />
+            <span className="text-[11px] font-medium text-[var(--brand)]">Reference guidance only</span>
           </div>
         </div>
 
@@ -429,11 +429,11 @@ function SelectGroundsInner() {
                   key={g.id}
                   onClick={() => toggleGround(g.id)}
                   className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
-                    isSelected ? "border-[#2563EB] bg-blue-50" : "border-slate-200 bg-white hover:border-slate-300"
+                    isSelected ? "border-[var(--brand)] bg-[var(--brand-soft)]" : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${isSelected ? "bg-[#2563EB] border-[#2563EB]" : "border-slate-300 bg-white"}`}>
+                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${isSelected ? "bg-[var(--brand)] border-[var(--brand)]" : "border-slate-300 bg-white"}`}>
                       {isSelected && <CheckCircle className="w-3 h-3 text-white" />}
                     </div>
                     <div className="flex-1">
@@ -441,7 +441,7 @@ function SelectGroundsInner() {
                         <span className="text-[13px] font-bold text-slate-800">{g.number}</span>
                         <span className="text-[12px] font-semibold text-slate-700">— {g.name}</span>
                         {g.recommended && (
-                          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-medium rounded-full">Common</span>
+                          <span className="px-2 py-0.5 bg-[var(--color-brand-100)] text-[var(--brand)] text-[10px] font-medium rounded-full">Common</span>
                         )}
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${g.type === "Mandatory" ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-600"}`}>
                           {g.type}
@@ -492,7 +492,7 @@ function SelectGroundsInner() {
                     value={arrearsAmount}
                     onChange={(e) => setArrearsAmount(e.target.value)}
                     placeholder="e.g. 2400.00"
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -508,7 +508,7 @@ function SelectGroundsInner() {
                     value={arrearsWeeks}
                     onChange={(e) => setArrearsWeeks(e.target.value)}
                     placeholder="e.g. 8"
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
                   />
                 </div>
               </div>
@@ -521,8 +521,8 @@ function SelectGroundsInner() {
         <div className="mt-5 rounded-xl border border-slate-200 bg-white overflow-hidden">
           <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">
-                <Clock className="w-3.5 h-3.5 text-blue-600" />
+              <div className="w-6 h-6 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center">
+                <Clock className="w-3.5 h-3.5 text-[var(--brand)]" />
               </div>
               <h3 className="text-[13px] font-semibold text-slate-800">Notice period</h3>
             </div>
@@ -554,7 +554,7 @@ function SelectGroundsInner() {
                     min={0}
                     value={overrideValue}
                     onChange={(e) => setOverrideValue(e.target.value)}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -567,7 +567,7 @@ function SelectGroundsInner() {
                     value={overrideReason}
                     onChange={(e) => setOverrideReason(e.target.value)}
                     placeholder="e.g. contractual 2-month notice"
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -580,7 +580,7 @@ function SelectGroundsInner() {
                     value={overrideExemption}
                     onChange={(e) => setOverrideExemption(e.target.value)}
                     placeholder="e.g. transitional, contractual"
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
                   />
                 </div>
               </div>

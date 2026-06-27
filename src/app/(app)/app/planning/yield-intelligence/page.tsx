@@ -27,7 +27,7 @@ function YieldBadge({ value }: { value: number }) {
   if (value <= 0) return <span className="text-[11px] text-slate-400">—</span>
   const cls =
     value >= 8 ? "text-emerald-700 bg-emerald-50 border-emerald-200" :
-    value >= 5 ? "text-blue-700 bg-blue-50 border-blue-200" :
+    value >= 5 ? "text-[var(--brand)] bg-[var(--brand-soft)] border-[var(--color-brand-100)]" :
     value >= 3 ? "text-amber-700 bg-amber-50 border-amber-200" :
                  "text-red-700 bg-red-50 border-red-200"
   return <span className={cn("px-2 py-0.5 rounded-full text-[11px] font-semibold border whitespace-nowrap", cls)}>{value.toFixed(1)}%</span>

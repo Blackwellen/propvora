@@ -51,7 +51,7 @@ function createProviderPin(initials: string, _color: string, vetted: boolean) {
         ${vetRing}
         <div style="
           width:44px;height:44px;
-          background:linear-gradient(135deg,#3B82F6 0%,#1D4ED8 100%);
+          background:linear-gradient(135deg,#3B82F6 0%,var(--brand-strong) 100%);
           border-radius:50%;
           display:flex;align-items:center;justify-content:center;
           color:white;font-weight:800;font-size:13px;
@@ -171,7 +171,7 @@ export default function ProvidersMapInner({
                       <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9.5px] font-bold text-emerald-700">✓ Vetted</span>
                     )}
                     {p.insured && (
-                      <span className="rounded-full bg-blue-50 px-1.5 py-0.5 text-[9.5px] font-bold text-blue-700">🛡 Insured</span>
+                      <span className="rounded-full bg-[var(--brand-soft)] px-1.5 py-0.5 text-[9.5px] font-bold text-[var(--brand)]">🛡 Insured</span>
                     )}
                   </div>
 
@@ -184,7 +184,7 @@ export default function ProvidersMapInner({
                     </a>
                     <a
                       href={`${basePath}/${p.slug}/book`}
-                      className="flex-1 rounded-lg bg-blue-600 py-1.5 text-center text-[11px] font-bold no-underline transition-colors hover:bg-blue-700"
+                      className="flex-1 rounded-lg bg-[var(--brand)] py-1.5 text-center text-[11px] font-bold no-underline transition-colors hover:bg-[var(--brand-strong)]"
                     >
                       <span className="text-white">Book →</span>
                     </a>

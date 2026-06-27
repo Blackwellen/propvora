@@ -51,7 +51,7 @@ export function WorkspacePlanDistributionPanel({ total, planMix, topByMembers, n
             {topByMembers.map((w) => (
               <li key={w.id}>
                 <Link href={`/admin/workspaces/${w.id}`} className="flex items-center justify-between gap-2 group">
-                  <span className="text-[13px] font-medium text-[#0B1B3F] group-hover:text-[#2563EB] truncate">{w.name}</span>
+                  <span className="text-[13px] font-medium text-[#0B1B3F] group-hover:text-[var(--brand)] truncate">{w.name}</span>
                   <span className="text-[12px] text-slate-500 shrink-0 inline-flex items-center gap-1">
                     <Users className="w-3.5 h-3.5 text-slate-400" />
                     {w.memberCount}

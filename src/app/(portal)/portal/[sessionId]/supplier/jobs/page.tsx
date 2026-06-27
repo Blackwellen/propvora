@@ -48,7 +48,7 @@ export default async function SupplierJobsPage({ params, searchParams }: { param
 
       <div className="flex gap-1.5 flex-wrap">
         {FILTERS.map((f) => (
-          <Link key={f.key} href={`${base}/jobs?filter=${f.key}`} className={`h-8 px-3 rounded-lg text-xs font-semibold inline-flex items-center transition-colors ${filter === f.key ? "bg-[#2563EB] text-white" : "bg-white border border-[#E2EAF6] text-slate-600 hover:bg-slate-50"}`}>{f.label}</Link>
+          <Link key={f.key} href={`${base}/jobs?filter=${f.key}`} className={`h-8 px-3 rounded-lg text-xs font-semibold inline-flex items-center transition-colors ${filter === f.key ? "bg-[var(--brand)] text-white" : "bg-white border border-[#E2EAF6] text-slate-600 hover:bg-slate-50"}`}>{f.label}</Link>
         ))}
       </div>
 
@@ -66,13 +66,13 @@ export default async function SupplierJobsPage({ params, searchParams }: { param
                   const amount = j.approved_amount ?? j.quoted_amount
                   return (
                     <tr key={j.id} className="hover:bg-[#FAFCFF]">
-                      <td className="px-4 py-3"><div className="flex items-center gap-2.5"><span className="w-8 h-8 rounded-lg bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center shrink-0"><Wrench className="w-4 h-4" /></span><div className="min-w-0"><p className="font-semibold text-[#071B4D] truncate max-w-[200px]">{j.title}</p><p className="text-[11px] text-slate-400">#{j.id.slice(0, 8).toUpperCase()}</p></div></div></td>
+                      <td className="px-4 py-3"><div className="flex items-center gap-2.5"><span className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center shrink-0"><Wrench className="w-4 h-4" /></span><div className="min-w-0"><p className="font-semibold text-[#071B4D] truncate max-w-[200px]">{j.title}</p><p className="text-[11px] text-slate-400">#{j.id.slice(0, 8).toUpperCase()}</p></div></div></td>
                       <td className="px-4 py-3 text-slate-500"><span className="flex items-center gap-1 truncate max-w-[160px]"><Building2 className="w-3.5 h-3.5 shrink-0" />{j.propertyLabel || "—"}</span></td>
                       <td className="px-4 py-3 text-slate-500">{j.scheduled_date ? formatDate(j.scheduled_date) : "TBC"}</td>
                       <td className="px-4 py-3 text-slate-500"><span className="flex items-center gap-1 truncate max-w-[120px]"><User className="w-3.5 h-3.5 shrink-0" />{j.operatorLabel || "—"}</span></td>
                       <td className="px-4 py-3 text-right font-semibold text-[#071B4D]">{amount != null ? formatMoney(amount) : "—"}</td>
                       <td className="px-4 py-3"><StatusChip tone={tone} dot>{meta.label}</StatusChip></td>
-                      <td className="px-4 py-3 text-right"><Link href={`${base}/jobs/${j.id}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-[#2563EB]">View Job <ChevronRight className="w-3.5 h-3.5" /></Link></td>
+                      <td className="px-4 py-3 text-right"><Link href={`${base}/jobs/${j.id}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-[var(--brand)]">View Job <ChevronRight className="w-3.5 h-3.5" /></Link></td>
                     </tr>
                   )
                 })}

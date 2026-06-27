@@ -64,7 +64,7 @@ export function SavedViewsMenu<TConfig extends Record<string, unknown>>({
       >
         <BookmarkPlus className="w-3.5 h-3.5" /> Saved Views
         {views.length > 0 && (
-          <span className="ml-0.5 text-[10px] font-semibold text-[#2563EB] bg-[#EFF6FF] rounded-full px-1.5 py-px">
+          <span className="ml-0.5 text-[10px] font-semibold text-[var(--brand)] bg-[var(--brand-soft)] rounded-full px-1.5 py-px">
             {views.length}
           </span>
         )}
@@ -76,7 +76,7 @@ export function SavedViewsMenu<TConfig extends Record<string, unknown>>({
             <button
               onClick={handleSave}
               disabled={!workspaceId || createView.isPending}
-              className="w-full flex items-center justify-center gap-1.5 h-8 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] disabled:opacity-50 text-white text-[12.5px] font-semibold transition-colors"
+              className="w-full flex items-center justify-center gap-1.5 h-8 rounded-lg bg-[var(--brand)] hover:bg-[var(--brand-strong)] disabled:opacity-50 text-white text-[12.5px] font-semibold transition-colors"
             >
               {createView.isPending ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -107,7 +107,7 @@ export function SavedViewsMenu<TConfig extends Record<string, unknown>>({
                     }}
                     className="flex-1 flex items-center gap-2 text-left min-w-0"
                   >
-                    <Check className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#2563EB] shrink-0" />
+                    <Check className="w-3.5 h-3.5 text-slate-300 group-hover:text-[var(--brand)] shrink-0" />
                     <span className="text-[12.5px] text-slate-700 truncate">{v.name}</span>
                   </button>
                   <button

@@ -74,7 +74,7 @@ export default function ServiceOfferCard({
             onError={() => setImgErr(true)}
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-violet-700" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--brand)] to-violet-700" />
         )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
@@ -102,7 +102,7 @@ export default function ServiceOfferCard({
             {offer.providerAvatar && !avatarErr ? (
               <Image src={offer.providerAvatar} alt={offer.providerName} fill className="object-cover" sizes="28px" onError={() => setAvatarErr(true)} />
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-blue-600 text-white text-[10px] font-bold">{offer.providerName.charAt(0)}</div>
+              <div className="absolute inset-0 flex items-center justify-center bg-[var(--brand)] text-white text-[10px] font-bold">{offer.providerName.charAt(0)}</div>
             )}
           </div>
           <span className="rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-semibold text-slate-800 backdrop-blur-sm shadow-sm max-w-[140px] truncate">
@@ -139,7 +139,7 @@ export default function ServiceOfferCard({
             {pkgs.map((pkg, i) => (
               <span
                 key={pkg.name}
-                className={`rounded-lg px-2 py-1 text-[11px] font-semibold border ${i === 1 ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-slate-200 bg-slate-50 text-slate-600'}`}
+                className={`rounded-lg px-2 py-1 text-[11px] font-semibold border ${i === 1 ? 'border-[var(--color-brand-300)] bg-[var(--brand-soft)] text-[var(--brand)]' : 'border-slate-200 bg-slate-50 text-slate-600'}`}
               >
                 {pkg.name} · {formatPence(pkg.price)}
               </span>

@@ -81,7 +81,7 @@ export function RequestOverviewTab({ request: r, isTeam }: RequestOverviewTabPro
         <SupplierCard className="p-4">
           <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2">Requester</p>
           <div className="flex items-center gap-2">
-            <span className="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+            <span className="w-9 h-9 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center">
               <Building2 className="w-4 h-4" />
             </span>
             <div className="min-w-0">

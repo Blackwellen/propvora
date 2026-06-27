@@ -89,7 +89,7 @@ export default function AcceptanceGate({
         <span
           className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border transition-colors ${
             checked
-              ? "border-blue-600 bg-blue-600 text-white"
+              ? "border-[var(--brand)] bg-[var(--brand)] text-white"
               : "border-slate-300 bg-white"
           }`}
         >
@@ -114,7 +114,7 @@ export default function AcceptanceGate({
                     href={p.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-medium text-blue-600 hover:text-blue-700"
+                    className="font-medium text-[var(--brand)] hover:text-[var(--brand)]"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {p.title}
@@ -148,7 +148,7 @@ export default function AcceptanceGate({
             type="button"
             onClick={confirm}
             disabled={!checked || saving}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-strong)] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             {saving && <Loader2 className="h-4 w-4 animate-spin" />}
             {saving ? "Saving…" : "Agree and continue"}

@@ -8,7 +8,7 @@ import type { Unit } from "@/hooks/useUnits"
 const STATUS_BADGE: Record<Unit["status"], { label: string; classes: string }> = {
   occupied:    { label: "Occupied",    classes: "bg-green-50 text-green-700 border border-green-200" },
   vacant:      { label: "Vacant",      classes: "bg-amber-50 text-amber-700 border border-amber-200" },
-  reserved:    { label: "Reserved",    classes: "bg-blue-50 text-blue-700 border border-blue-200" },
+  reserved:    { label: "Reserved",    classes: "bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]" },
   under_works: { label: "Under Works", classes: "bg-orange-50 text-orange-700 border border-orange-200" },
 }
 
@@ -32,8 +32,8 @@ export function RoomCard({ room, propertyId }: RoomCardProps) {
 
       {room.status === "occupied" ? (
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center">
-            <Users className="w-3.5 h-3.5 text-blue-600" />
+          <div className="w-7 h-7 rounded-full bg-[var(--color-brand-100)] flex items-center justify-center">
+            <Users className="w-3.5 h-3.5 text-[var(--brand)]" />
           </div>
           <span className="text-sm text-slate-700 font-medium">Tenant assigned</span>
         </div>
@@ -72,7 +72,7 @@ export function RoomCard({ room, propertyId }: RoomCardProps) {
         {room.status === "vacant" ? (
           <Link
             href={`/property-manager/portfolio/properties/${propertyId}/hmo/rooms`}
-            className="flex-1 bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg text-center transition-colors"
+            className="flex-1 bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg text-center transition-colors"
           >
             Find Tenant
           </Link>

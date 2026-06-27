@@ -125,8 +125,8 @@ export default function Step3Communication({
               className={[
                 "px-4 py-1.5 rounded-full text-sm font-medium border transition",
                 state.preferredContact === opt.value
-                  ? "bg-blue-600 border-blue-600 text-white"
-                  : "border-slate-200 text-slate-600 hover:border-blue-300",
+                  ? "bg-[var(--brand)] border-[var(--brand)] text-white"
+                  : "border-slate-200 text-slate-600 hover:border-[var(--color-brand-300)]",
               ].join(" ")}
             >
               {opt.label}

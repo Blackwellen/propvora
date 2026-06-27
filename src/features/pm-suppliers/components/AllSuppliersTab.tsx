@@ -96,7 +96,7 @@ export function AllSuppliersTab({
             <p className="text-sm text-slate-500 mb-4">Add a supplier contact or adjust your filters.</p>
             <Link
               href="/property-manager/contacts/new?type=supplier"
-              className="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold"
+              className="px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold"
             >
               Add Supplier
             </Link>
@@ -155,7 +155,7 @@ export function AllSuppliersTab({
                       <p className="text-sm text-slate-500 mb-4">Add a supplier contact or adjust your filters.</p>
                       <Link
                         href="/property-manager/contacts/new?type=supplier"
-                        className="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+                        className="px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
                       >
                         Add Supplier
                       </Link>
@@ -245,7 +245,7 @@ export function AllSuppliersTab({
         <div className="hidden md:flex items-center justify-between px-5 py-3 border-t border-slate-100">
           <p className="text-xs text-slate-500">Showing {filtered.length} of {suppliers.length} suppliers</p>
           <div className="flex items-center gap-1">
-            <button className="w-7 h-7 rounded text-[12px] font-medium bg-[#2563EB] text-white">1</button>
+            <button className="w-7 h-7 rounded text-[12px] font-medium bg-[var(--brand)] text-white">1</button>
             <button className="p-1.5 rounded hover:bg-slate-100" aria-label="Next">
               <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
             </button>

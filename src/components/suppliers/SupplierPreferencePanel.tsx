@@ -81,7 +81,7 @@ export function SupplierPreferencePanel({
         {!disabled && !editing && (
           <button
             onClick={() => setEditing(true)}
-            className="text-[12px] font-semibold text-[#2563EB] hover:underline"
+            className="text-[12px] font-semibold text-[var(--brand)] hover:underline"
           >
             Edit
           </button>
@@ -188,7 +188,7 @@ export function SupplierPreferencePanel({
           <div>
             <label className="text-[11px] text-slate-500">Reason</label>
             <textarea
-              className="w-full min-h-16 mt-1 rounded-xl border border-slate-200 px-3 py-2 text-[13px] text-slate-900 resize-y focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+              className="w-full min-h-16 mt-1 rounded-xl border border-slate-200 px-3 py-2 text-[13px] text-slate-900 resize-y focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
               placeholder="Why is this supplier preferred / blocked?"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
@@ -198,7 +198,7 @@ export function SupplierPreferencePanel({
             <label className="text-[11px] text-slate-500">Categories covered (comma-separated)</label>
             <input
               type="text"
-              className="w-full mt-1 h-9 rounded-xl border border-slate-200 px-3 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+              className="w-full mt-1 h-9 rounded-xl border border-slate-200 px-3 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
               placeholder="e.g. Plumbing, Heating, Emergency"
               value={categories}
               onChange={(e) => setCategories(e.target.value)}
@@ -208,7 +208,7 @@ export function SupplierPreferencePanel({
             <label className="text-[11px] text-slate-500">Review / expiry date</label>
             <input
               type="date"
-              className="w-full mt-1 h-9 rounded-xl border border-slate-200 px-3 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+              className="w-full mt-1 h-9 rounded-xl border border-slate-200 px-3 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
               value={reviewDate}
               onChange={(e) => setReviewDate(e.target.value)}
             />
@@ -218,7 +218,7 @@ export function SupplierPreferencePanel({
             <button
               onClick={saveDetails}
               disabled={upsert.isPending}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60"
             >
               <CheckCircle2 className="w-4 h-4" />
               {upsert.isPending ? "Saving…" : "Save details"}

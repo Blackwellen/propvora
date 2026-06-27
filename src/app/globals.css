@@ -181,6 +181,9 @@
    --brand / --accent CSS variables injected by BrandingStyle so changing the
    colour in settings re-paints the UI live.
    ============================================================ */
+/* Workspace brand font — applied to the brand-root subtree (the authed app
+   shell). Defaults to the app's sans stack, so no change until a font is set. */
+[data-brand-root] { font-family: var(--brand-font, inherit); }
 .bg-brand        { background-color: var(--brand); color: var(--on-brand); }
 .bg-brand:hover  { background-color: var(--brand-hover); }
 .bg-brand-soft   { background-color: var(--brand-soft); }

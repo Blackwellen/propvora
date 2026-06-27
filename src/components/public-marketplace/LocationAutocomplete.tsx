@@ -183,7 +183,7 @@ export function LocationAutocomplete({
               className={cn(
                 bare
                   ? "w-full text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent mt-0.5"
-                  : "h-10 w-full rounded-xl border border-slate-200 bg-white pl-3 pr-8 text-[13.5px] text-slate-700 shadow-sm transition-all focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20",
+                  : "h-10 w-full rounded-xl border border-slate-200 bg-white pl-3 pr-8 text-[13.5px] text-slate-700 shadow-sm transition-all focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20",
                 inputClassName
               )}
               aria-label={label ?? placeholder}
@@ -228,7 +228,7 @@ export function LocationAutocomplete({
                     onClick={() => handleSelect(r)}
                     className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors"
                   >
-                    <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-500" />
+                    <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--brand)]" />
                     <div className="min-w-0">
                       <p className="text-[13px] font-medium text-slate-800 truncate">
                         {formatDisplayName(r)}
@@ -270,7 +270,7 @@ export function LocationAutocomplete({
                   onClick={() => handleSelect(r)}
                   className="flex w-full items-start gap-3 px-4 py-3.5 text-left hover:bg-slate-50 transition-colors"
                 >
-                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[var(--brand)]" />
                   <div>
                     <p className="text-[14px] font-medium text-slate-800">{formatDisplayName(r)}</p>
                     <p className="text-[12px] text-slate-400 mt-0.5">{placeTypeLabel(r)}</p>

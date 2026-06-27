@@ -70,7 +70,7 @@ export default function PublicResultsToolbar({
           {location ? ` · ${location}` : ''}
         </p>
         {showSaveSearch && (
-          <button className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+          <button className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--brand)] hover:text-[var(--brand)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)]">
             <Bookmark className="h-4 w-4" />
             Save search
           </button>
@@ -112,7 +112,7 @@ export default function PublicResultsToolbar({
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setShowSort(s => !s)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            className="inline-flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)]"
             aria-expanded={showSort}
             aria-haspopup="listbox"
           >
@@ -132,7 +132,7 @@ export default function PublicResultsToolbar({
                   onClick={() => applySort(opt)}
                   className={cn(
                     'w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors',
-                    currentSort === opt ? 'font-semibold text-blue-600' : 'text-slate-700',
+                    currentSort === opt ? 'font-semibold text-[var(--brand)]' : 'text-slate-700',
                   )}
                 >
                   {opt}

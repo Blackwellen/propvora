@@ -59,7 +59,7 @@ export default function NewAccountPage() {
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="e.g. 4000"
                 className={cn(
-                  "w-full h-9 px-3 pr-9 rounded-lg border text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 transition-colors",
+                  "w-full h-9 px-3 pr-9 rounded-lg border text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 transition-colors",
                   codeValid ? "border-[#10B981]" : "border-[#E2E8F0]"
                 )}
               />
@@ -78,7 +78,7 @@ export default function NewAccountPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Rent Income"
                 className={cn(
-                  "w-full h-9 px-3 pr-9 rounded-lg border text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 transition-colors",
+                  "w-full h-9 px-3 pr-9 rounded-lg border text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 transition-colors",
                   nameValid ? "border-[#10B981]" : "border-[#E2E8F0]"
                 )}
               />
@@ -93,7 +93,7 @@ export default function NewAccountPage() {
             <select
               value={accountType}
               onChange={(e) => { setAccountType(e.target.value); setSubcategory("") }}
-              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             >
               {ACCOUNT_TYPES.map((t) => <option key={t}>{t}</option>)}
             </select>
@@ -106,7 +106,7 @@ export default function NewAccountPage() {
             <select
               value={subcategory}
               onChange={(e) => setSubcategory(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             >
               <option value="">Select subcategory...</option>
               {(SUBCATEGORIES[accountType] ?? []).map((s) => <option key={s}>{s}</option>)}
@@ -120,7 +120,7 @@ export default function NewAccountPage() {
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             >
               {CURRENCIES.map((c) => <option key={c}>{c}</option>)}
             </select>
@@ -133,7 +133,7 @@ export default function NewAccountPage() {
             <select
               value={scope}
               onChange={(e) => setScope(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             >
               {SCOPES.map((s) => <option key={s}>{s}</option>)}
             </select>
@@ -148,7 +148,7 @@ export default function NewAccountPage() {
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               maxLength={255}
-              className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 resize-none"
+              className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 resize-none"
               placeholder="Optional description for this account..."
             />
             <span className="absolute bottom-2 right-3 text-[11px] text-slate-500">{description.length}/255</span>
@@ -156,13 +156,13 @@ export default function NewAccountPage() {
         </div>
 
         <div className="mt-4 space-y-2">
-          <div className="flex items-start gap-2.5 p-3 rounded-lg bg-blue-50 border border-blue-100">
-            <Info className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
-            <p className="text-xs text-blue-700">Currency cannot be changed after the account is created.</p>
+          <div className="flex items-start gap-2.5 p-3 rounded-lg bg-[var(--brand-soft)] border border-[var(--color-brand-100)]">
+            <Info className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
+            <p className="text-xs text-[var(--brand)]">Currency cannot be changed after the account is created.</p>
           </div>
-          <div className="flex items-start gap-2.5 p-3 rounded-lg bg-blue-50 border border-blue-100">
-            <Info className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
-            <p className="text-xs text-blue-700">Scope determines which transactions can use this account.</p>
+          <div className="flex items-start gap-2.5 p-3 rounded-lg bg-[var(--brand-soft)] border border-[var(--color-brand-100)]">
+            <Info className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
+            <p className="text-xs text-[var(--brand)]">Scope determines which transactions can use this account.</p>
           </div>
         </div>
       </div>

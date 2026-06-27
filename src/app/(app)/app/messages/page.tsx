@@ -17,7 +17,7 @@ import { useSectionLink } from "@/components/sections/SectionBasePath"
 
 /* ── Avatar helpers ─────────────────────────────────────────────────────── */
 const AVATAR_BG = [
-  "bg-blue-500", "bg-emerald-500", "bg-violet-500", "bg-amber-500",
+  "bg-[var(--brand)]", "bg-emerald-500", "bg-violet-500", "bg-amber-500",
   "bg-rose-500", "bg-cyan-500", "bg-indigo-500", "bg-teal-500",
 ]
 function avatarBg(name: string): string {
@@ -41,7 +41,7 @@ function fmtTime(iso: string | null): string {
 
 const TYPE_BADGE: Record<string, string> = {
   tenant: "bg-emerald-100 text-emerald-700",
-  landlord: "bg-blue-100 text-blue-700",
+  landlord: "bg-[var(--color-brand-100)] text-[var(--brand)]",
   supplier: "bg-amber-100 text-amber-700",
   applicant: "bg-sky-100 text-sky-700",
   agent: "bg-violet-100 text-violet-700",
@@ -79,7 +79,7 @@ function ConvRow({ conv }: { conv: ConversationWithContact }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-semibold text-slate-900 truncate group-hover:text-[#2563EB] transition-colors">{name}</p>
+          <p className="text-sm font-semibold text-slate-900 truncate group-hover:text-[var(--brand)] transition-colors">{name}</p>
           <span className="text-[10px] text-slate-400 shrink-0">{fmtTime(conv.last_message_at)}</span>
         </div>
         <div className="flex items-center gap-2 mt-0.5">
@@ -91,11 +91,11 @@ function ConvRow({ conv }: { conv: ConversationWithContact }) {
       </div>
       <div className="flex items-center gap-2 shrink-0 self-center">
         {conv.unread_count > 0 && (
-          <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
+          <span className="w-5 h-5 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold flex items-center justify-center">
             {conv.unread_count}
           </span>
         )}
-        <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#2563EB]" />
+        <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[var(--brand)]" />
       </div>
     </Link>
   )
@@ -187,7 +187,7 @@ export default function MessagesInboxPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-              <KpiCard label="Conversations" value={conversations.length} icon={<MessageSquare className="w-5 h-5 text-blue-600" />} bg="bg-blue-50" />
+              <KpiCard label="Conversations" value={conversations.length} icon={<MessageSquare className="w-5 h-5 text-[var(--brand)]" />} bg="bg-[var(--brand-soft)]" />
               <KpiCard label="Unread" value={totalUnread} alert={totalUnread > 0 ? "Action needed" : undefined} icon={<AlertTriangle className="w-5 h-5 text-amber-600" />} bg="bg-amber-50" />
               <KpiCard label="Contacts in Threads" value={new Set(conversations.map((c) => c.contact?.id).filter(Boolean)).size} icon={<Users className="w-5 h-5 text-emerald-600" />} bg="bg-emerald-50" />
             </div>
@@ -202,7 +202,7 @@ export default function MessagesInboxPage() {
                   onClick={() => setFilter(key)}
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
-                    filter === key ? "bg-[#2563EB] text-white shadow-sm" : "text-slate-500 hover:text-slate-700"
+                    filter === key ? "bg-[var(--brand)] text-white shadow-sm" : "text-slate-500 hover:text-slate-700"
                   )}
                 >
                   {label}
@@ -217,10 +217,10 @@ export default function MessagesInboxPage() {
                 placeholder="Search conversations…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+                className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
               />
               {search && (
-                <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] rounded">
+                <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] rounded">
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -242,14 +242,14 @@ export default function MessagesInboxPage() {
                 <p className="text-sm text-slate-400 mt-1">
                   Conversations with your contacts will appear here.
                 </p>
-                <Link href="/property-manager/contacts/people" className="mt-3 inline-flex text-sm text-[#2563EB] hover:underline">
+                <Link href="/property-manager/contacts/people" className="mt-3 inline-flex text-sm text-[var(--brand)] hover:underline">
                   Browse contacts →
                 </Link>
               </div>
             ) : filtered.length === 0 ? (
               <div className="py-16 text-center">
                 <p className="text-sm text-slate-400">No conversations match your filters</p>
-                <button onClick={() => { setSearch(""); setFilter("all") }} className="mt-2 text-xs text-[#2563EB] hover:underline">Clear filters</button>
+                <button onClick={() => { setSearch(""); setFilter("all") }} className="mt-2 text-xs text-[var(--brand)] hover:underline">Clear filters</button>
               </div>
             ) : (
               filtered.map((conv) => <ConvRow key={conv.id} conv={conv} />)

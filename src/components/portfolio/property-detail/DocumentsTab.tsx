@@ -105,7 +105,7 @@ export function DocumentsTab() {
           <button
             onClick={() => docInputRef.current?.click()}
             disabled={uploading}
-            className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-60"
+            className="flex items-center gap-1.5 text-[13px] font-semibold bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-60"
           >
             <Upload size={13} /> {uploading ? "Uploading…" : "Upload"}
           </button>
@@ -129,7 +129,7 @@ export function DocumentsTab() {
         className={cn(
           "border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all",
           docDragOver
-            ? "border-blue-400 bg-blue-50"
+            ? "border-[var(--color-brand-400)] bg-[var(--brand-soft)]"
             : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
         )}
       >
@@ -147,7 +147,7 @@ export function DocumentsTab() {
         />
         <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
           {uploading ? (
-            <span className="w-5 h-5 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin" />
+            <span className="w-5 h-5 border-2 border-slate-300 border-t-[var(--brand)] rounded-full animate-spin" />
           ) : (
             <Upload size={22} className="text-slate-400" />
           )}
@@ -187,7 +187,7 @@ export function DocumentsTab() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2.5">
                         <FileText size={15} className="text-slate-400 flex-shrink-0" />
-                        <a href={doc.url} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline">
+                        <a href={doc.url} target="_blank" rel="noopener noreferrer" className="font-medium text-[var(--brand)] hover:underline">
                           {doc.name}
                         </a>
                       </div>

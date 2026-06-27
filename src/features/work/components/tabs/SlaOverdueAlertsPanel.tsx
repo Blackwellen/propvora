@@ -21,7 +21,7 @@ export function SlaOverdueAlertsPanel({ overdue, dueThisWeek, scheduledJobs }: S
             <p className="text-sm font-semibold text-slate-800">{overdue} Overdue</p>
             <p className="text-xs text-slate-500">Require immediate attention</p>
           </div>
-          <Link href="/property-manager/work/tasks" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
+          <Link href="/property-manager/work/tasks" className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] shrink-0">
             View →
           </Link>
         </div>
@@ -33,19 +33,19 @@ export function SlaOverdueAlertsPanel({ overdue, dueThisWeek, scheduledJobs }: S
             <p className="text-sm font-semibold text-slate-800">{dueThisWeek} Due This Week</p>
             <p className="text-xs text-slate-500">Next 7 days</p>
           </div>
-          <Link href="/property-manager/work/tasks" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
+          <Link href="/property-manager/work/tasks" className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] shrink-0">
             View →
           </Link>
         </div>
         <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-            <Calendar className="w-4 h-4 text-blue-500" />
+          <div className="w-8 h-8 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+            <Calendar className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-slate-800">{scheduledJobs} Scheduled Jobs</p>
             <p className="text-xs text-slate-500">Upcoming</p>
           </div>
-          <Link href="/property-manager/calendar" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
+          <Link href="/property-manager/calendar" className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] shrink-0">
             View →
           </Link>
         </div>

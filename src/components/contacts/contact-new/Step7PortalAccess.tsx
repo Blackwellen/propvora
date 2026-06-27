@@ -33,7 +33,7 @@ export default function Step7PortalAccess({
       />
 
       {state.portalAccessEnabled && (
-        <div className="space-y-4 rounded-xl border border-blue-100 bg-blue-50/40 p-4">
+        <div className="space-y-4 rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)]/40 p-4">
           <SelectField
             label="Link Expiry"
             value={state.portalExpiry}
@@ -58,7 +58,7 @@ export default function Step7PortalAccess({
             placeholder="contact@example.com"
           />
 
-          <div className="rounded-lg bg-white border border-blue-200 px-3 py-2.5">
+          <div className="rounded-lg bg-white border border-[var(--color-brand-100)] px-3 py-2.5">
             <p className="text-xs text-slate-400 mb-1">Preview message</p>
             <p className="text-sm text-slate-600">
               {contactName} will receive a secure link to submit quotes, upload documents and respond to job requests.

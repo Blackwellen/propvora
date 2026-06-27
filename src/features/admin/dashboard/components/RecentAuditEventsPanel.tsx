@@ -31,7 +31,7 @@ export function RecentAuditEventsPanel({ events }: Props) {
         <ol className="space-y-3">
           {events.map((ev) => (
             <li key={ev.id} className="flex gap-3">
-              <span className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-[var(--brand)] mt-1.5 shrink-0" />
               <div className="min-w-0 flex-1">
                 <p className="text-[12.5px] font-mono font-medium text-slate-700 truncate">{ev.action}</p>
                 <p className="text-[11px] text-slate-400 truncate">

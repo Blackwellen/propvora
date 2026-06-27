@@ -94,14 +94,14 @@ export default function CompletedPage() {
       {/* Right rail */}
       <aside className="space-y-5">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-          <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">Recommended for you</h3><Link href="/customer/stays" className="text-[12px] font-semibold text-blue-600">View all</Link></div>
+          <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">Recommended for you</h3><Link href="/customer/stays" className="text-[12px] font-semibold text-[var(--brand)]">View all</Link></div>
           <ul className="space-y-3">
             {RECS.map((r) => (
               <li key={r.id}><Link href={`/customer/stays/${r.id}`} className="flex gap-3 group">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={r.image} alt="" className="w-16 h-14 rounded-lg object-cover shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12.5px] font-semibold text-slate-800 truncate group-hover:text-blue-600">{r.title}</p>
+                  <p className="text-[12.5px] font-semibold text-slate-800 truncate group-hover:text-[var(--brand)]">{r.title}</p>
                   <p className="text-[11px] text-slate-400 truncate">{r.location}</p>
                   <p className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1"><Star className="w-3 h-3 fill-amber-400 text-amber-400" /> {r.rating} ({r.reviews})</p>
                 </div>
@@ -118,7 +118,7 @@ export default function CompletedPage() {
             <Safe icon={Settings2} title="Verified hosts" sub="All hosts are checked and verified" />
             <Safe icon={Headphones} title="Support when you need it" sub="Message our team any time" />
           </ul>
-          <Link href="/customer/help" className="mt-3 inline-block text-[12px] font-semibold text-blue-600">Learn more about safety →</Link>
+          <Link href="/customer/help" className="mt-3 inline-block text-[12px] font-semibold text-[var(--brand)]">Learn more about safety →</Link>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
@@ -154,7 +154,7 @@ function StatusItem({ title, sub }: { title: string; sub: string }) {
 function ActBtn({ icon: Icon, children, onClick }: { icon: typeof Download; children: React.ReactNode; onClick: () => void }) {
   return <button onClick={onClick} className="inline-flex items-center justify-center gap-2 border border-slate-200 rounded-xl py-2.5 text-[13px] font-semibold text-slate-700 hover:bg-slate-50"><Icon className="w-4 h-4" /> {children}</button>
 }
-const TONE_BG: Record<string, string> = { slate: "bg-slate-100 text-slate-500", emerald: "bg-emerald-50 text-emerald-600", violet: "bg-violet-50 text-violet-600", blue: "bg-blue-50 text-blue-600", amber: "bg-amber-50 text-amber-600", red: "bg-rose-50 text-rose-500" }
+const TONE_BG: Record<string, string> = { slate: "bg-slate-100 text-slate-500", emerald: "bg-emerald-50 text-emerald-600", violet: "bg-violet-50 text-violet-600", blue: "bg-[var(--brand-soft)] text-[var(--brand)]", amber: "bg-amber-50 text-amber-600", red: "bg-rose-50 text-rose-500" }
 function NextCard({ icon: Icon, tone, title, sub }: { icon: typeof Mail; tone: string; title: string; sub: string }) {
   return <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4"><span className={cn("w-9 h-9 rounded-xl flex items-center justify-center", TONE_BG[tone])}><Icon className="w-4 h-4" /></span><p className="text-[13px] font-semibold text-slate-800 mt-2.5">{title}</p><p className="text-[11.5px] text-slate-500 mt-1">{sub}</p></div>
 }
@@ -164,7 +164,7 @@ function ShareCard({ icon: Icon, tone, title, sub, cta, href, onClick }: { icon:
       <span className={cn("w-9 h-9 rounded-xl flex items-center justify-center", TONE_BG[tone])}><Icon className="w-4 h-4" /></span>
       <p className="text-[13px] font-semibold text-slate-800 mt-2.5">{title}</p>
       <p className="text-[11.5px] text-slate-500 mt-1">{sub}</p>
-      <span className="mt-3 inline-block text-[12.5px] font-semibold text-blue-600">{cta} →</span>
+      <span className="mt-3 inline-block text-[12.5px] font-semibold text-[var(--brand)]">{cta} →</span>
     </div>
   )
   return href ? <Link href={href}>{inner}</Link> : <button onClick={onClick} className="text-left w-full">{inner}</button>
@@ -173,5 +173,5 @@ function SumLine({ icon: Icon, l, r }: { icon: typeof Calendar; l: string; r: st
   return <div className="flex items-center justify-between"><span className="inline-flex items-center gap-2 text-[12.5px] text-slate-500"><Icon className="w-4 h-4 text-slate-400" /> {l}</span><span className="text-[12.5px] font-semibold text-slate-800">{r}</span></div>
 }
 function Safe({ icon: Icon, title, sub }: { icon: typeof Shield; title: string; sub: string }) {
-  return <li className="flex items-start gap-3"><span className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><Icon className="w-4 h-4" /></span><div className="flex-1"><p className="text-[12.5px] font-semibold text-slate-800">{title}</p><p className="text-[11px] text-slate-500">{sub}</p></div><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-1" /></li>
+  return <li className="flex items-start gap-3"><span className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center shrink-0"><Icon className="w-4 h-4" /></span><div className="flex-1"><p className="text-[12.5px] font-semibold text-slate-800">{title}</p><p className="text-[11px] text-slate-500">{sub}</p></div><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-1" /></li>
 }

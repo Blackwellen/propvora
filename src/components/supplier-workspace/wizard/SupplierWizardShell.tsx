@@ -11,7 +11,7 @@ import { MobileSheet } from "@/components/mobile"
    step body, right live-summary panel, bottom navigation) WITHOUT coupling to
    planning's state. Used by the supplier onboarding + service-creation wizards.
 
-   Light tokens only; supplier blue (#2563EB) accent instead of planning violet.
+   Light tokens only; supplier blue (var(--brand)) accent instead of planning violet.
 ─────────────────────────────────────────────────────────────────────────── */
 
 export interface WizardStepMeta {
@@ -71,7 +71,7 @@ export function SupplierWizardShell({
         <div className="flex items-center gap-3">
           <span className="text-xs font-semibold text-slate-400">Step {current + 1} of {steps.length}</span>
           {livePanel && (
-            <button onClick={() => setSummaryOpen(true)} className="xl:hidden text-xs font-semibold text-[#2563EB]">Summary</button>
+            <button onClick={() => setSummaryOpen(true)} className="xl:hidden text-xs font-semibold text-[var(--brand)]">Summary</button>
           )}
         </div>
       </header>
@@ -91,14 +91,14 @@ export function SupplierWizardShell({
                 disabled={isPending || isActive}
                 className={cn(
                   "w-full flex items-start gap-3 px-2.5 py-2.5 rounded-xl text-left transition-all mb-0.5",
-                  isActive && "bg-blue-50",
+                  isActive && "bg-[var(--brand-soft)]",
                   isComplete && "hover:bg-slate-50 cursor-pointer",
                   isPending && "cursor-default opacity-40"
                 )}
               >
                 <div className={cn(
                   "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 transition-all",
-                  isActive && "bg-[#2563EB] text-white ring-4 ring-blue-100",
+                  isActive && "bg-[var(--brand)] text-white ring-4 ring-[var(--color-brand-100)]",
                   isComplete && "bg-[#10B981] text-white",
                   isPending && "bg-slate-100 text-slate-400"
                 )}>
@@ -148,7 +148,7 @@ export function SupplierWizardShell({
           <button
             onClick={onNext}
             disabled={!canContinue}
-            className="inline-flex items-center gap-1.5 h-10 px-5 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-[#1d4ed8] disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 h-10 px-5 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-50"
           >
             {nextLabel} <ChevronRight className="w-4 h-4" />
           </button>

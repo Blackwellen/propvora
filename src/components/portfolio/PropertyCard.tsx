@@ -45,7 +45,7 @@ export interface PropertyCardData {
 const TYPE_BADGE: Record<string, { label: string; bg: string; text: string }> = {
   SA:            { label: "SA",      bg: "bg-violet-600",  text: "text-white" },
   R2R:           { label: "R2R",     bg: "bg-orange-500",  text: "text-white" },
-  HMO:           { label: "HMO",     bg: "bg-blue-600",    text: "text-white" },
+  HMO:           { label: "HMO",     bg: "bg-[var(--brand)]",    text: "text-white" },
   BTL:           { label: "BTL",     bg: "bg-emerald-600", text: "text-white" },
   "Holiday Let": { label: "Holiday", bg: "bg-cyan-600",    text: "text-white" },
   Commercial:    { label: "Comm.",   bg: "bg-slate-600",   text: "text-white" },
@@ -56,7 +56,7 @@ const TYPE_BADGE: Record<string, { label: string; bg: string; text: string }> = 
 const PROFILE_BADGE: Record<string, { label: string; bg: string; text: string }> = {
   "Serviced Accommodation": { label: "SA",      bg: "bg-violet-600",  text: "text-white" },
   "Rent-to-Rent":           { label: "R2R",     bg: "bg-orange-500",  text: "text-white" },
-  "HMO":                    { label: "HMO",     bg: "bg-blue-600",    text: "text-white" },
+  "HMO":                    { label: "HMO",     bg: "bg-[var(--brand)]",    text: "text-white" },
   "Long-Term Let":          { label: "BTL",     bg: "bg-emerald-600", text: "text-white" },
   "Student Let":            { label: "Student", bg: "bg-teal-500",    text: "text-white" },
   "Build-to-Rent":          { label: "BTR",     bg: "bg-sky-600",     text: "text-white" },
@@ -71,12 +71,12 @@ const PROFILE_BADGE: Record<string, { label: string; bg: string; text: string }>
 const STATUS_CFG: Record<string, { label: string; dot: string; text: string; bg: string }> = {
   Active:        { label: "Occupied",    dot: "bg-emerald-400", text: "text-emerald-700", bg: "bg-emerald-50/90 border border-emerald-200/60" },
   Vacant:        { label: "Vacant",      dot: "bg-amber-400",   text: "text-amber-700",   bg: "bg-amber-50/90 border border-amber-200/60" },
-  "Under Works": { label: "In Progress", dot: "bg-blue-400",    text: "text-blue-700",    bg: "bg-blue-50/90 border border-blue-200/60" },
+  "Under Works": { label: "In Progress", dot: "bg-[var(--color-brand-400)]",    text: "text-[var(--brand)]",    bg: "bg-[var(--brand-soft)]/90 border border-[var(--color-brand-100)]/60" },
   Archived:      { label: "Archived",    dot: "bg-slate-400",   text: "text-slate-600",   bg: "bg-slate-50/90 border border-slate-200/60" },
 }
 
 const TYPE_GRADIENTS: Record<string, string> = {
-  HMO:          "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
+  HMO:          "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)",
   BTL:          "linear-gradient(135deg, #059669 0%, #10B981 100%)",
   SA:           "linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)",
   R2R:          "linear-gradient(135deg, #EA580C 0%, #F97316 100%)",
@@ -234,7 +234,7 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
         {/* ── Body — compressed to claw back ~30% card height ── */}
         <div className="px-3.5 pt-1.5 pb-2 flex-1">
           {/* Name + address */}
-          <h3 className="text-[13.5px] font-bold text-slate-900 leading-snug truncate group-hover:text-[#2563EB] transition-colors">
+          <h3 className="text-[13.5px] font-bold text-slate-900 leading-snug truncate group-hover:text-[var(--brand)] transition-colors">
             {property.name}
           </h3>
           <p className="text-[11px] text-slate-500 mt-0.5 truncate">

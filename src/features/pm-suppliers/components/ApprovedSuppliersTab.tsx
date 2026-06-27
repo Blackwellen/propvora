@@ -51,7 +51,7 @@ export function ApprovedSuppliersTab({ suppliers, onTogglePreferred }: ApprovedS
         </p>
         <Link
           href="/property-manager/suppliers/directory"
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--brand)] text-white rounded-lg text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
         >
           Browse Directory
         </Link>
@@ -82,12 +82,12 @@ export function ApprovedSuppliersTab({ suppliers, onTogglePreferred }: ApprovedS
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <Link
                     href={`/property-manager/work/suppliers/${s.id}`}
-                    className="text-[13.5px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors"
+                    className="text-[13.5px] font-semibold text-slate-900 hover:text-[var(--brand)] transition-colors"
                   >
                     {s.name}
                   </Link>
-                  <BadgeCheck className="w-4 h-4 text-[#2563EB] shrink-0" />
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                  <BadgeCheck className="w-4 h-4 text-[var(--brand)] shrink-0" />
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]">
                     {s.trade}
                   </span>
                 </div>
@@ -142,7 +142,7 @@ export function ApprovedSuppliersTab({ suppliers, onTogglePreferred }: ApprovedS
         <p className="text-xs text-slate-500">{approved.length} approved supplier{approved.length === 1 ? "" : "s"}</p>
         <Link
           href="/property-manager/suppliers/directory"
-          className="flex items-center gap-1 text-[12px] text-[#2563EB] hover:underline font-medium"
+          className="flex items-center gap-1 text-[12px] text-[var(--brand)] hover:underline font-medium"
         >
           Browse directory <ChevronRight className="w-3.5 h-3.5" />
         </Link>

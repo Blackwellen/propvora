@@ -16,7 +16,7 @@ export default function ReservationJourneyCard() {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
       <div className="flex items-center gap-2 mb-5">
-        <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-bold">
+        <div className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">
           C
         </div>
         <h3 className="font-semibold text-slate-800">Reservation journey</h3>
@@ -35,7 +35,7 @@ export default function ReservationJourneyCard() {
                   <CheckCircle className="w-5 h-5 text-white" />
                 </div>
               ) : stage.status === 'current' ? (
-                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-sm ring-4 ring-blue-100">
+                <div className="w-10 h-10 rounded-full bg-[var(--brand)] flex items-center justify-center shadow-sm ring-4 ring-[var(--color-brand-100)]">
                   <Clock className="w-5 h-5 text-white" />
                 </div>
               ) : (
@@ -47,7 +47,7 @@ export default function ReservationJourneyCard() {
                 <p className={cn(
                   'text-xs font-semibold',
                   stage.status === 'completed' ? 'text-emerald-600' :
-                  stage.status === 'current' ? 'text-blue-600' :
+                  stage.status === 'current' ? 'text-[var(--brand)]' :
                   'text-slate-400'
                 )}>
                   {stage.label}
@@ -70,7 +70,7 @@ export default function ReservationJourneyCard() {
             </p>
           </div>
         </div>
-        <button className="flex items-center gap-1.5 bg-blue-600 text-white rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-blue-700 transition-colors shrink-0">
+        <button className="flex items-center gap-1.5 bg-[var(--brand)] text-white rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-[var(--brand-strong)] transition-colors shrink-0">
           <Send className="w-3 h-3" />
           Send now
         </button>

@@ -22,7 +22,7 @@ const GRID_END = 21 * 60
 const PX_PER_MIN = 0.85
 
 const KIND_STYLES: Record<ScheduleEvent["kind"], string> = {
-  job: "bg-blue-50 border-blue-300 text-blue-800",
+  job: "bg-[var(--brand-soft)] border-[var(--color-brand-300)] text-[var(--brand-strong)]",
   visit: "bg-violet-50 border-violet-300 text-violet-800",
   travel: "bg-slate-100 border-slate-300 text-slate-500",
   blocked: "bg-amber-50 border-amber-300 text-amber-800",
@@ -101,7 +101,7 @@ export function CalendarTab() {
         />
         <div className="flex items-center gap-2">
           <div className="hidden lg:flex items-center gap-3 mr-1">
-            <LegendDot color="bg-blue-400" label="Job" />
+            <LegendDot color="bg-[var(--color-brand-400)]" label="Job" />
             <LegendDot color="bg-violet-400" label="Visit" />
             <LegendDot color="bg-amber-400" label="Blocked" />
             <LegendDot color="bg-slate-300" label="Travel" />
@@ -173,7 +173,7 @@ export function CalendarTab() {
                               className={cn(
                                 "absolute left-0.5 right-0.5 rounded-md border px-1.5 py-1 text-left text-[10px] leading-tight overflow-hidden transition-shadow hover:shadow-md",
                                 KIND_STYLES[e.kind],
-                                selectedId === e.id && "ring-2 ring-blue-500",
+                                selectedId === e.id && "ring-2 ring-[var(--brand)]",
                                 e.conflict && "ring-2 ring-red-400"
                               )}
                               style={{ top, height }}
@@ -202,7 +202,7 @@ export function CalendarTab() {
               {([["agenda", "Agenda", ListChecks], ["route", "Your route", Route]] as const).map(([key, label, Icon]) => (
                 <button key={key} onClick={() => setRightTab(key)}
                   className={cn("inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 -mb-px",
-                    rightTab === key ? "text-blue-600 border-blue-600" : "text-slate-500 border-transparent hover:text-slate-700")}>
+                    rightTab === key ? "text-[var(--brand)] border-[var(--brand)]" : "text-slate-500 border-transparent hover:text-slate-700")}>
                   <Icon className="w-4 h-4" /> {label}
                 </button>
               ))}
@@ -213,7 +213,7 @@ export function CalendarTab() {
                 {agenda.map((e) => (
                   <button key={e.id} onClick={() => setSelectedId(e.id)}
                     className={cn("w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors flex items-start gap-3",
-                      selectedId === e.id && "bg-blue-50/60")}>
+                      selectedId === e.id && "bg-[var(--brand-soft)]/60")}>
                     <div className="w-10 text-center shrink-0">
                       <div className="text-[10px] font-semibold text-slate-400 uppercase">{DAYS[e.day]}</div>
                       <div className="text-xs font-bold text-slate-700">{fmtTime(e.startMinute)}</div>
@@ -235,7 +235,7 @@ export function CalendarTab() {
                 <ol className="space-y-2">
                   {agenda.filter((e) => e.day === 0 && e.address).map((e, i) => (
                     <li key={e.id} className="flex items-center gap-2 text-sm">
-                      <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                      <span className="w-5 h-5 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
                       <span className="text-slate-700 truncate">{e.address}</span>
                     </li>
                   ))}

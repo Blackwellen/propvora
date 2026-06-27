@@ -21,7 +21,7 @@ export function WizardDoneStep({ createdId, listingTitle }: WizardDoneStepProps)
       <div className="flex gap-2 mt-6">
         <Link
           href={`/property-manager/bookings/listings/${createdId}`}
-          className="inline-flex items-center gap-2 h-11 px-5 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center gap-2 h-11 px-5 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors"
         >
           Set up listing
           <ArrowRight className="w-4 h-4" />

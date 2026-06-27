@@ -39,7 +39,7 @@ export function PpmStepService({ data, onChange }: PpmStepServiceProps) {
                 className={cn(
                   "flex flex-col items-center gap-1.5 p-3 rounded-xl border text-xs font-medium transition-all",
                   data.category === cat.key
-                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
                     : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50",
                 )}
               >
@@ -79,7 +79,7 @@ export function PpmStepService({ data, onChange }: PpmStepServiceProps) {
           value={data.description}
           onChange={(e) => onChange({ description: e.target.value.slice(0, 500) })}
           rows={3}
-          className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none bg-white placeholder:text-slate-400"
+          className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] resize-none bg-white placeholder:text-slate-400"
         />
         <p className="text-[11px] text-slate-400 mt-1 text-right">{data.description.length}/500</p>
       </div>

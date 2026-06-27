@@ -32,11 +32,11 @@ const ICONS: Record<string, LucideIcon> = {
   message: MessageSquare, info: Info,
 }
 const TONES: Record<string, string> = {
-  lead: "bg-blue-50 text-blue-600", job: "bg-emerald-50 text-emerald-600",
+  lead: "bg-[var(--brand-soft)] text-[var(--brand)]", job: "bg-emerald-50 text-emerald-600",
   quote: "bg-violet-50 text-violet-600", invoice: "bg-rose-50 text-rose-600",
   payout: "bg-amber-50 text-amber-600", review: "bg-amber-50 text-amber-600",
   verification: "bg-sky-50 text-sky-600", insurance: "bg-sky-50 text-sky-600",
-  dispute: "bg-red-50 text-red-600", message: "bg-blue-50 text-blue-600",
+  dispute: "bg-red-50 text-red-600", message: "bg-[var(--brand-soft)] text-[var(--brand)]",
   info: "bg-slate-100 text-slate-500",
 }
 
@@ -100,7 +100,7 @@ export default function SupplierNotificationsPage() {
           {filtered.map((n) => {
             const Icon = ICONS[n.type] ?? Info
             const inner = (
-              <div className={cn("flex items-start gap-3 px-4 py-3.5", !n.read_at && "bg-blue-50/30")}>
+              <div className={cn("flex items-start gap-3 px-4 py-3.5", !n.read_at && "bg-[var(--brand-soft)]/30")}>
                 <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", TONES[n.type] ?? TONES.info)}>
                   <Icon className="w-4 h-4" />
                 </div>

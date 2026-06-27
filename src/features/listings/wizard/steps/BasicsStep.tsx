@@ -90,11 +90,11 @@ export function BasicsStep() {
                 className={cn(
                   "flex flex-col items-start gap-2 rounded-xl border-2 p-4 text-left transition-all",
                   active
-                    ? "border-blue-500 bg-blue-50"
+                    ? "border-[var(--brand)] bg-[var(--brand-soft)]"
                     : "border-slate-200 hover:border-slate-300",
                 )}
               >
-                <t.Icon className={cn("h-5 w-5", active ? "text-blue-600" : "text-slate-400")} />
+                <t.Icon className={cn("h-5 w-5", active ? "text-[var(--brand)]" : "text-slate-400")} />
                 <span className="text-[13px] font-bold text-slate-900">{t.label}</span>
                 <span className="text-[11px] text-slate-500">{t.desc}</span>
               </button>
@@ -137,7 +137,7 @@ export function BasicsStep() {
                     propertyLabel: opt?.label ?? "",
                   })
                 }}
-                className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[13px] font-medium text-slate-900 outline-none focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-100"
+                className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[13px] font-medium text-slate-900 outline-none focus-visible:border-[var(--color-brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-100)]"
               >
                 <option value="">Choose a property…</option>
                 {properties.data.map((p) => (
@@ -283,7 +283,7 @@ export function BasicsStep() {
                     "Lively district with cafés, transport links and green space nearby.",
                 })
               }
-              className="text-[11px] font-semibold text-blue-600 hover:underline"
+              className="text-[11px] font-semibold text-[var(--brand)] hover:underline"
             >
               Edit neighbourhood
             </button>

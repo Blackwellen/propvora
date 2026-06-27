@@ -10,6 +10,7 @@ import {
   ShieldAlert,
 } from "lucide-react"
 import { HomeKpiCard } from "./HomeKpiCard"
+import { formatCurrency } from "@/lib/utils"
 import type { HomeKpi } from "../types"
 
 interface HomeKpiRowProps {
@@ -26,8 +27,8 @@ export function HomeKpiRow({ data, loading = false }: HomeKpiRowProps) {
         trend={data.propertiesTrend !== 0 ? `${data.propertiesTrend > 0 ? "+" : ""}${data.propertiesTrend} vs last month` : undefined}
         trendUp={data.propertiesTrend >= 0}
         icon={Building2}
-        iconBg="bg-blue-50"
-        iconColor="text-blue-600"
+        iconBg="bg-[var(--brand-soft)]"
+        iconColor="text-[var(--brand)]"
         href="/property-manager/portfolio/properties"
         loading={loading}
       />
@@ -66,7 +67,7 @@ export function HomeKpiRow({ data, loading = false }: HomeKpiRowProps) {
       />
       <HomeKpiCard
         label="Rent Roll"
-        value={data.rentCollected === 0 ? "£0" : `£${data.rentCollected.toLocaleString("en-GB")}`}
+        value={formatCurrency(data.rentCollected)}
         trend={data.rentTrend !== 0 ? `${data.rentTrend > 0 ? "+" : ""}${data.rentTrend}% vs last month` : undefined}
         trendUp={data.rentTrend >= 0}
         icon={PoundSterling}

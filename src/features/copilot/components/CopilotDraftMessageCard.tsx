@@ -41,7 +41,7 @@ export default function CopilotDraftMessageCard() {
           </div>
           <button
             onClick={handleCopy}
-            className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors"
+            className="text-[11px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] flex items-center gap-1 transition-colors"
           >
             <Copy className="w-3 h-3" />
             {copied ? "Copied!" : "Copy"}
@@ -57,7 +57,7 @@ export default function CopilotDraftMessageCard() {
 
         {/* Actions */}
         <div className="flex items-center gap-2 flex-wrap">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-[11px] font-semibold hover:bg-blue-700 transition-colors">
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--brand)] text-white text-[11px] font-semibold hover:bg-[var(--brand-strong)] transition-colors">
             <Send className="w-3 h-3" />
             Send via email
           </button>

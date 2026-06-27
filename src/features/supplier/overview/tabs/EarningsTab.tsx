@@ -4,11 +4,11 @@ import { useState } from "react"
 import Link from "next/link"
 import {
   Wallet, Lock, Clock, FileText, TrendingUp, PieChart, Landmark,
-  Download, FilePlus2, ArrowRight, AlertTriangle,
+  FilePlus2, ArrowRight, AlertTriangle,
 } from "lucide-react"
 import { formatPence } from "@/lib/marketplace/money"
 import {
-  KpiRow, Panel, ScoreRing, CheckRow, ViewToggle, Pill, OverviewLink, useToast,
+  KpiRow, Panel, ScoreRing, CheckRow, ViewToggle, Pill, OverviewLink,
   OverviewSkeleton, OverviewError,
   type OverviewKpi, type Accent, type ViewOption,
 } from "../ui/primitives"
@@ -26,7 +26,6 @@ const PAYOUT_ACCENT: Record<string, Accent> = { awaiting: "amber", scheduled: "b
 
 export function EarningsTab() {
   const { data, loading, error, reload } = useEarningsData()
-  const { toast } = useToast()
   const [trend, setTrend] = useState("month")
 
   if (loading) return <OverviewSkeleton />
@@ -63,9 +62,8 @@ export function EarningsTab() {
             ) : (
               <SupplierAreaChart data={trendData} height={220} color="#2563EB" format={(v) => formatPence(v, cur)} />
             )}
-            <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+            <div className="mt-3 border-t border-slate-100 pt-3">
               <OverviewLink href="/supplier?tab=earnings" label="View full earnings report" />
-              <button onClick={() => toast("CSV export coming soon", "info")} className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-500 hover:text-slate-700"><Download className="w-3.5 h-3.5" /> Export earnings</button>
             </div>
           </Panel>
 
@@ -78,7 +76,7 @@ export function EarningsTab() {
               <span className="absolute left-[7px] top-1 bottom-1 w-px bg-slate-100" aria-hidden />
               {data.payoutTimeline.map((p) => (
                 <li key={p.id} className="relative pb-3.5 last:pb-0">
-                  <span className={`absolute -left-5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white ${p.state === "paid" ? "bg-emerald-500" : p.state === "scheduled" ? "bg-blue-500" : "bg-amber-500"}`} />
+                  <span className={`absolute -left-5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white ${p.state === "paid" ? "bg-emerald-500" : p.state === "scheduled" ? "bg-[var(--brand)]" : "bg-amber-500"}`} />
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <p className="text-sm font-semibold text-slate-800">{p.label}</p>
@@ -153,7 +151,7 @@ export function EarningsTab() {
                         <span className="text-sm font-bold text-slate-900">{formatPence(b.amountPence, b.currency)}</span>
                       </div>
                       <p className="text-[11px] text-amber-700 mt-0.5">{b.reason} · evidence {b.evidenceProvided}/{b.evidenceRequired}</p>
-                      <Link href={b.jobHref} className="mt-1.5 inline-flex items-center gap-1 text-[12px] font-semibold text-blue-600 hover:text-blue-700">Resolve now <ArrowRight className="w-3 h-3" /></Link>
+                      <Link href={b.jobHref} className="mt-1.5 inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">Resolve now <ArrowRight className="w-3 h-3" /></Link>
                     </li>
                   ))}
                 </ul>
@@ -168,17 +166,15 @@ export function EarningsTab() {
             <p className="text-[12px] font-medium text-slate-500">Available balance</p>
             <p className="text-3xl font-bold text-emerald-600 mt-0.5 leading-none">{formatPence(data.availableBalancePence, cur)}</p>
             <p className="text-[12px] text-slate-400 mt-1">Ready to be paid out</p>
-            <Link href="/supplier/payouts" className="mt-3 inline-flex items-center justify-center gap-1.5 w-full bg-[#2563EB] text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-[#1d4ed8]">
+            <Link href="/supplier/payouts" className="mt-3 inline-flex items-center justify-center gap-1.5 w-full bg-[var(--brand)] text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-[var(--brand-strong)]">
               <Wallet className="w-4 h-4" /> View payouts
             </Link>
           </Panel>
 
           <Panel title="Quick actions">
             <div className="grid grid-cols-2 gap-2.5">
-              <RailBtn label="Create invoice" icon={FilePlus2} onClick={() => toast("Invoice composer coming soon", "info")} />
-              <RailBtn label="Download statement" icon={Download} onClick={() => toast("Statement export coming soon", "info")} />
-              <RailBtn label="Export CSV" icon={Download} onClick={() => toast("CSV export coming soon", "info")} />
-              <Link href="/supplier/payouts" className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-center"><span className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center"><Wallet className="w-4 h-4 text-blue-600" /></span><span className="text-[11px] font-medium text-slate-700">View payouts</span></Link>
+              <Link href="/supplier/invoices" className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-center"><span className="w-9 h-9 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center"><FilePlus2 className="w-4 h-4 text-[var(--brand)]" /></span><span className="text-[11px] font-medium text-slate-700">Create invoice</span></Link>
+              <Link href="/supplier/payouts" className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-center"><span className="w-9 h-9 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center"><Wallet className="w-4 h-4 text-[var(--brand)]" /></span><span className="text-[11px] font-medium text-slate-700">View payouts</span></Link>
             </div>
           </Panel>
 
@@ -186,9 +182,9 @@ export function EarningsTab() {
             <p className="text-2xl font-bold text-red-600 leading-none">{formatPence(data.blockedPayouts.reduce((s, b) => s + b.amountPence, 0), cur)}</p>
             <p className="text-[12px] text-slate-400 mt-1">Across {data.blockedPayouts.length} jobs</p>
             <p className="text-[12px] text-slate-500 mt-2">We&apos;re holding payment for jobs below due to missing evidence.</p>
-            <button onClick={() => toast("Resolve blocked payouts — coming soon", "info")} className="mt-3 inline-flex items-center justify-center gap-1.5 w-full bg-white border border-slate-200 text-[#2563EB] rounded-lg px-4 py-2.5 text-[13px] font-semibold hover:bg-slate-50">
+            <Link href="/supplier/payouts" className="mt-3 inline-flex items-center justify-center gap-1.5 w-full bg-white border border-slate-200 text-[var(--brand)] rounded-lg px-4 py-2.5 text-[13px] font-semibold hover:bg-slate-50">
               Resolve blocked payouts
-            </button>
+            </Link>
           </Panel>
 
           <Panel title="Finance health" action={data.financeHealthPct > 0 ? <Pill accent={data.financeHealthPct >= 85 ? "emerald" : data.financeHealthPct >= 60 ? "blue" : "amber"}>{data.financeHealthPct >= 85 ? "Excellent" : data.financeHealthPct >= 60 ? "Strong" : "Building"}</Pill> : undefined}>
@@ -215,11 +211,3 @@ export function EarningsTab() {
   )
 }
 
-function RailBtn({ label, icon: Icon, onClick }: { label: string; icon: React.ElementType; onClick: () => void }) {
-  return (
-    <button onClick={onClick} className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-center">
-      <span className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center"><Icon className="w-4 h-4 text-blue-600" /></span>
-      <span className="text-[11px] font-medium text-slate-700">{label}</span>
-    </button>
-  )
-}

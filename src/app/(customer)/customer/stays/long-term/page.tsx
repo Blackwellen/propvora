@@ -14,7 +14,7 @@ export default async function CustomerLongTermRentalsPage() {
   return (
     <div className="space-y-5">
       {/* Hero — full shell width, mirrors the Stays page */}
-      <section className="rounded-3xl bg-gradient-to-b from-blue-50 to-white px-5 py-8 sm:px-8">
+      <section className="rounded-3xl bg-gradient-to-b from-[var(--brand-soft)] to-white px-5 py-8 sm:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-2">Long-term Rentals</h1>
@@ -38,7 +38,7 @@ export default async function CustomerLongTermRentalsPage() {
           <LayoutGrid className="h-4 w-4" />
           Compare selected
         </button>
-        <button className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+        <button className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-lg transition-colors">
           <ClipboardList className="h-4 w-4" />
           Create rental brief
         </button>

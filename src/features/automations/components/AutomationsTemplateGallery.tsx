@@ -51,7 +51,7 @@ export default function AutomationsTemplateGallery({
                   <button
                     onClick={() => onInstall(t.template_id)}
                     disabled={busy === t.template_id}
-                    className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-lg bg-[var(--brand)] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[var(--brand-strong)] disabled:opacity-50"
                   >
                     <Plus className="h-3.5 w-3.5" /> Install
                   </button>

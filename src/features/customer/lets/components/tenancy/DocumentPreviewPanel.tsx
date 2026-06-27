@@ -47,7 +47,7 @@ export default function DocumentPreviewPanel({ doc }: Props) {
       <div className="mt-3 space-y-2">
         <button
           onClick={() => toast("Downloading…", "info")}
-          className="w-full bg-[#2563EB] text-white rounded-xl py-2.5 text-[13px] font-semibold inline-flex items-center justify-center gap-1.5"
+          className="w-full bg-[var(--brand)] text-white rounded-xl py-2.5 text-[13px] font-semibold inline-flex items-center justify-center gap-1.5"
         >
           <Download className="w-4 h-4" /> Download
         </button>

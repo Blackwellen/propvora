@@ -86,8 +86,8 @@ export default function PayoutsClient({
       {!canReceivePayouts ? (
         <div className="mt-6">
           <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-slate-100 shadow-sm p-8 sm:p-10 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-7 h-7 text-[#1D4ED8]" />
+            <div className="w-14 h-14 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center mx-auto mb-4">
+              <Lock className="w-7 h-7 text-[var(--brand-strong)]" />
             </div>
             <h2 className="text-[19px] font-bold text-slate-900">Payouts &amp; escrow</h2>
             <p className="mt-2 text-[13.5px] text-slate-500 leading-relaxed max-w-md mx-auto">
@@ -108,7 +108,7 @@ export default function PayoutsClient({
             </ul>
             <a
               href="/property-manager/workspace-settings/billing"
-              className="mt-6 inline-flex items-center gap-1.5 h-11 px-6 rounded-xl bg-[#1D4ED8] text-white text-[14px] font-semibold hover:bg-[#1A45BE] transition-colors"
+              className="mt-6 inline-flex items-center gap-1.5 h-11 px-6 rounded-xl bg-[var(--brand-strong)] text-white text-[14px] font-semibold hover:bg-[#1A45BE] transition-colors"
             >
               View upgrade options <ArrowUpRight className="w-4 h-4" />
             </a>
@@ -161,9 +161,9 @@ export default function PayoutsClient({
 
           {/* Not-ready note (payments schema absent) */}
           {!ready && payouts.length === 0 && (
-            <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-blue-50 border border-blue-200">
-              <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-              <p className="text-[12.5px] text-blue-800 leading-relaxed">
+            <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)]">
+              <Info className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
+              <p className="text-[12.5px] text-[var(--brand-strong)] leading-relaxed">
                 Payments aren&apos;t fully provisioned for this workspace yet. Once guests start paying for
                 bookings, their escrow and payout activity will appear here automatically.
               </p>

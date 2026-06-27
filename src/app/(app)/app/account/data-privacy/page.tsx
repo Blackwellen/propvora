@@ -99,7 +99,7 @@ export default function DataPrivacyPage() {
       {/* Data rights */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
         <div className="flex items-center gap-2 mb-4">
-          <div style={{ color: "var(--brand)" }}><Lock className="w-4 h-4" /></div>
+          <div style={{ color: "#2563EB" }}><Lock className="w-4 h-4" /></div>
           <h3 className="text-[14px] font-bold text-slate-900">Your Data Rights</h3>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
@@ -108,9 +108,9 @@ export default function DataPrivacyPage() {
             { label: "Right to portability", desc: "Export a copy of your data" },
             { label: "Right to erasure", desc: "Request permanent deletion" },
           ].map(right => (
-            <div key={right.label} className="p-3.5 bg-blue-50 rounded-xl border border-blue-100">
-              <p className="text-[12px] font-semibold text-blue-800">{right.label}</p>
-              <p className="text-[11px] text-blue-600 mt-0.5">{right.desc}</p>
+            <div key={right.label} className="p-3.5 bg-[var(--brand-soft)] rounded-xl border border-[var(--color-brand-100)]">
+              <p className="text-[12px] font-semibold text-[var(--brand-strong)]">{right.label}</p>
+              <p className="text-[11px] text-[var(--brand)] mt-0.5">{right.desc}</p>
             </div>
           ))}
         </div>

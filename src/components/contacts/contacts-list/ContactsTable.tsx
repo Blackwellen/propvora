@@ -111,7 +111,7 @@ export function GridContactCard({ contact }: { contact: MappedContact }) {
       {contact.service_categories.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-2">
           {contact.service_categories.slice(0, 3).map(cat => (
-            <span key={cat} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-medium">
+            <span key={cat} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-[var(--brand-soft)] text-[var(--brand)] text-[10px] font-medium">
               <Wrench className="w-2.5 h-2.5" />{cat}
             </span>
           ))}
@@ -138,7 +138,7 @@ export function GridContactCard({ contact }: { contact: MappedContact }) {
           <Link href={`/property-manager/messages?contact_id=${contact.id}`} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600" title="Message">
             <MessageSquare className="w-3.5 h-3.5" />
           </Link>
-          <Link href={`/property-manager/contacts/${contact.id}`} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-[#2563EB] text-white hover:bg-[#1d4ed8] transition-colors">
+          <Link href={`/property-manager/contacts/${contact.id}`} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors">
             View <ArrowUpRight className="w-3 h-3" />
           </Link>
         </div>
@@ -154,7 +154,7 @@ export function ListContactRow({ contact }: { contact: MappedContact }) {
       <Avatar name={contact.full_name} size="sm" />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-semibold text-slate-900 group-hover:text-[#2563EB] transition-colors">{contact.full_name}</span>
+          <span className="text-sm font-semibold text-slate-900 group-hover:text-[var(--brand)] transition-colors">{contact.full_name}</span>
           <TypeBadge type={contact.contact_type} />
           {contact.city && (
             <span className="text-xs text-slate-400 flex items-center gap-0.5">
@@ -217,7 +217,7 @@ export function ContactsTable({
               <tr>
                 <td colSpan={9} className="py-20 text-center text-sm text-slate-400">
                   No contacts match your filters.{" "}
-                  <button onClick={onClearFilters} className="text-[#2563EB] hover:underline">Clear filters</button>
+                  <button onClick={onClearFilters} className="text-[var(--brand)] hover:underline">Clear filters</button>
                 </td>
               </tr>
             ) : (
@@ -237,7 +237,7 @@ export function ContactsTable({
                     {c.service_categories.length > 0 ? (
                       <div className="flex flex-wrap gap-1 max-w-[200px]">
                         {c.service_categories.slice(0, 2).map(cat => (
-                          <span key={cat} className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-medium whitespace-nowrap">{cat}</span>
+                          <span key={cat} className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-[var(--brand-soft)] text-[var(--brand)] text-[10px] font-medium whitespace-nowrap">{cat}</span>
                         ))}
                         {c.service_categories.length > 2 && (
                           <span className="text-[10px] text-slate-400">+{c.service_categories.length - 2}</span>
@@ -247,7 +247,7 @@ export function ContactsTable({
                   </td>
                   <td className="px-4 py-3 text-xs text-slate-600">
                     {c.email
-                      ? <a href={`mailto:${c.email}`} className="hover:text-[#2563EB] transition-colors truncate block max-w-[180px]">{c.email}</a>
+                      ? <a href={`mailto:${c.email}`} className="hover:text-[var(--brand)] transition-colors truncate block max-w-[180px]">{c.email}</a>
                       : <span className="text-slate-300">—</span>}
                   </td>
                   <td className="px-4 py-3 text-xs text-slate-600 whitespace-nowrap">{c.phone ?? "—"}</td>
@@ -265,7 +265,7 @@ export function ContactsTable({
                   <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{formatDate(c.updated_at)}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <Link href={`/property-manager/contacts/${c.id}`} className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-[#2563EB] transition-colors">
+                      <Link href={`/property-manager/contacts/${c.id}`} className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-[var(--brand)] transition-colors">
                         <ArrowUpRight className="w-3.5 h-3.5" />
                       </Link>
                       <ContactRowMenu contact={c} />
@@ -298,7 +298,7 @@ export function ContactsEmptyState({ onAdd, onClear, hasFilters }: { onAdd: () =
       <div className="col-span-full py-20 text-center">
         <Users className="w-10 h-10 text-slate-200 mx-auto mb-3" />
         <p className="text-sm font-medium text-slate-400">No contacts match your filters</p>
-        <button onClick={onClear} className="mt-2 text-xs text-[#2563EB] hover:underline">Clear filters</button>
+        <button onClick={onClear} className="mt-2 text-xs text-[var(--brand)] hover:underline">Clear filters</button>
       </div>
     )
   }
@@ -306,7 +306,7 @@ export function ContactsEmptyState({ onAdd, onClear, hasFilters }: { onAdd: () =
     <div className="py-20 text-center">
       <Users className="w-10 h-10 text-slate-200 mx-auto mb-3" />
       <p className="text-sm font-medium text-slate-400">No contacts yet</p>
-      <button onClick={onAdd} className="mt-2 text-xs text-[#2563EB] hover:underline">Add your first contact</button>
+      <button onClick={onAdd} className="mt-2 text-xs text-[var(--brand)] hover:underline">Add your first contact</button>
     </div>
   )
 }

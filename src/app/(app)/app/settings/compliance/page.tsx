@@ -35,8 +35,8 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 ${
-        checked ? "bg-blue-600" : "bg-slate-200"
+      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 ${
+        checked ? "bg-[var(--brand)]" : "bg-slate-200"
       }`}
     >
       <span
@@ -64,7 +64,7 @@ function Select({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="appearance-none border border-slate-200 bg-white rounded-lg px-3 py-1.5 text-sm text-slate-700 pr-7 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer w-full"
+        className="appearance-none border border-slate-200 bg-white rounded-lg px-3 py-1.5 text-sm text-slate-700 pr-7 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] cursor-pointer w-full"
       >
         {options.map((o) => (
           <option key={o} value={o}>
@@ -83,7 +83,7 @@ function NumberInput({ value, onChange, width = "w-16" }: { value: string; onCha
       type="number"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 ${width}`}
+      className={`border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] ${width}`}
     />
   )
 }
@@ -121,7 +121,7 @@ function ToggleRow({ label, checked, onChange }: { label: string; checked: boole
       <span className="text-sm text-slate-700">{label}</span>
       <div className="flex items-center gap-2">
         <Toggle checked={checked} onChange={onChange} />
-        <span className={`text-xs font-medium ${checked ? "text-blue-600" : "text-slate-400"}`}>
+        <span className={`text-xs font-medium ${checked ? "text-[var(--brand)]" : "text-slate-400"}`}>
           {checked ? "Enabled" : "Disabled"}
         </span>
       </div>
@@ -251,7 +251,7 @@ export default function ComplianceSettingsPage() {
               <div className="flex items-center gap-2 shrink-0">
                 <span className="text-xs text-slate-500">Escalate to owner:</span>
                 <Toggle checked={firstEscalate} onChange={setFirstEscalate} />
-                <span className={`text-xs font-medium ${firstEscalate ? "text-blue-600" : "text-slate-400"}`}>{firstEscalate ? "Enabled" : "Disabled"}</span>
+                <span className={`text-xs font-medium ${firstEscalate ? "text-[var(--brand)]" : "text-slate-400"}`}>{firstEscalate ? "Enabled" : "Disabled"}</span>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -262,7 +262,7 @@ export default function ComplianceSettingsPage() {
               <div className="flex items-center gap-2 shrink-0">
                 <span className="text-xs text-slate-500">Escalate to secondary:</span>
                 <Toggle checked={secondEscalate} onChange={setSecondEscalate} />
-                <span className={`text-xs font-medium ${secondEscalate ? "text-blue-600" : "text-slate-400"}`}>{secondEscalate ? "Enabled" : "Disabled"}</span>
+                <span className={`text-xs font-medium ${secondEscalate ? "text-[var(--brand)]" : "text-slate-400"}`}>{secondEscalate ? "Enabled" : "Disabled"}</span>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -315,13 +315,13 @@ export default function ComplianceSettingsPage() {
           <p className="text-[11px] text-slate-400 pt-2 border-t border-slate-50">Risk score is calculated from expiry, inspection results, incidents and document compliance.</p>
         </SettingsCard>
 
-        <SettingsCard iconBg="bg-blue-100" icon={<Tag className="w-4 h-4 text-blue-600" />} title="Compliance categories" subtitle="Manage categories used to classify compliance items.">
+        <SettingsCard iconBg="bg-[var(--color-brand-100)]" icon={<Tag className="w-4 h-4 text-[var(--brand)]" />} title="Compliance categories" subtitle="Manage categories used to classify compliance items.">
           <div className="flex flex-col gap-1">
             {[
               { name: "Fire Safety",         dot: "bg-red-500",    chip: "bg-red-100 text-red-700"     },
               { name: "Health & Safety",     dot: "bg-amber-500",  chip: "bg-amber-100 text-amber-700" },
               { name: "Electrical",          dot: "bg-yellow-500", chip: "bg-yellow-100 text-yellow-700" },
-              { name: "Building Compliance", dot: "bg-blue-500",   chip: "bg-blue-100 text-blue-700"   },
+              { name: "Building Compliance", dot: "bg-[var(--brand)]",   chip: "bg-[var(--color-brand-100)] text-[var(--brand)]"   },
               { name: "Environmental",       dot: "bg-green-500",  chip: "bg-green-100 text-green-700" },
             ].map((cat) => (
               <div key={cat.name} className="flex items-center gap-2 py-2 border-b border-slate-50 last:border-b-0 group">
@@ -334,7 +334,7 @@ export default function ComplianceSettingsPage() {
               </div>
             ))}
           </div>
-          <button className="mt-3 flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
+          <button className="mt-3 flex items-center gap-1.5 text-xs font-medium text-[var(--brand)] hover:text-[var(--brand)] transition-colors">
             <Plus className="w-3.5 h-3.5" />Add category
           </button>
         </SettingsCard>
@@ -363,7 +363,7 @@ export default function ComplianceSettingsPage() {
                   </td>
                   <td className="py-2.5">
                     <div className="flex items-center gap-1">
-                      <button className="text-slate-400 hover:text-blue-600 p-1 transition-colors"><ChevronDown className="w-3.5 h-3.5" /></button>
+                      <button className="text-slate-400 hover:text-[var(--brand)] p-1 transition-colors"><ChevronDown className="w-3.5 h-3.5" /></button>
                       <button className="text-slate-400 hover:text-red-500 p-1 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>
                   </td>
@@ -372,7 +372,7 @@ export default function ComplianceSettingsPage() {
             </tbody>
           </table>
           </div>
-          <button className="mt-3 flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
+          <button className="mt-3 flex items-center gap-1.5 text-xs font-medium text-[var(--brand)] hover:text-[var(--brand)] transition-colors">
             <Plus className="w-3.5 h-3.5" />Add document requirement
           </button>
         </SettingsCard>
@@ -406,7 +406,7 @@ export default function ComplianceSettingsPage() {
                     <td className="py-2.5">
                       <div className="flex items-center gap-2">
                         <Toggle checked={row.escalate} onChange={(v) => updateInspection(i, "escalate", v)} />
-                        <span className={`text-xs font-medium ${row.escalate ? "text-blue-600" : "text-slate-400"}`}>{row.escalate ? "Enabled" : "Disabled"}</span>
+                        <span className={`text-xs font-medium ${row.escalate ? "text-[var(--brand)]" : "text-slate-400"}`}>{row.escalate ? "Enabled" : "Disabled"}</span>
                       </div>
                     </td>
                   </tr>
@@ -414,12 +414,12 @@ export default function ComplianceSettingsPage() {
               </tbody>
             </table>
           </div>
-          <button className="mt-3 flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
+          <button className="mt-3 flex items-center gap-1.5 text-xs font-medium text-[var(--brand)] hover:text-[var(--brand)] transition-colors">
             <Plus className="w-3.5 h-3.5" />Add inspection type
           </button>
         </SettingsCard>
 
-        <SettingsCard iconBg="bg-blue-100" icon={<Truck className="w-4 h-4 text-blue-600" />} title="Supplier compliance requirements" subtitle="Set minimum compliance and documentation standards for suppliers.">
+        <SettingsCard iconBg="bg-[var(--color-brand-100)]" icon={<Truck className="w-4 h-4 text-[var(--brand)]" />} title="Supplier compliance requirements" subtitle="Set minimum compliance and documentation standards for suppliers.">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-3">
               <div>
@@ -437,7 +437,7 @@ export default function ComplianceSettingsPage() {
                 <label htmlFor="min-cover" className="text-xs font-medium text-slate-600 block mb-1">Insurance minimum cover</label>
                 <div className="flex items-center gap-1">
                   <span className="text-sm text-slate-500">£</span>
-                  <input id="min-cover" type="text" value={minCover} onChange={(e) => setMinCover(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 w-28" />
+                  <input id="min-cover" type="text" value={minCover} onChange={(e) => setMinCover(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] w-28" />
                 </div>
               </div>
             </div>
@@ -446,8 +446,8 @@ export default function ComplianceSettingsPage() {
                 <label className="text-xs font-medium text-slate-600 block mb-1">Primary documents required</label>
                 <div className="border border-slate-200 rounded-lg p-2 min-h-[60px] flex flex-wrap gap-1.5">
                   {["Public Liability Insurance", "Health & Safety Policy"].map((doc) => (
-                    <span key={doc} className="flex items-center gap-1 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
-                      {doc}<button className="text-blue-400 hover:text-blue-700 ml-0.5">×</button>
+                    <span key={doc} className="flex items-center gap-1 text-xs bg-[var(--color-brand-100)] text-[var(--brand)] px-2 py-0.5 rounded-full font-medium">
+                      {doc}<button className="text-[var(--color-brand-400)] hover:text-[var(--brand)] ml-0.5">×</button>
                     </span>
                   ))}
                 </div>
@@ -487,7 +487,7 @@ export default function ComplianceSettingsPage() {
                   {(["view", "create", "edit", "del", "approve", "export"] as const).map((key) => (
                     <td key={key} className="py-2.5 pr-2">
                       <button onClick={() => togglePerm(i, key)} className="transition-colors">
-                        {row[key] ? <CheckSquare className="w-4 h-4 text-blue-600" /> : <Square className="w-4 h-4 text-slate-300" />}
+                        {row[key] ? <CheckSquare className="w-4 h-4 text-[var(--brand)]" /> : <Square className="w-4 h-4 text-slate-300" />}
                       </button>
                     </td>
                   ))}
@@ -496,7 +496,7 @@ export default function ComplianceSettingsPage() {
             </tbody>
           </table>
           </div>
-          <button className="mt-3 flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
+          <button className="mt-3 flex items-center gap-1.5 text-xs font-medium text-[var(--brand)] hover:text-[var(--brand)] transition-colors">
             <Plus className="w-3.5 h-3.5" />Add custom role
           </button>
         </SettingsCard>
@@ -524,7 +524,7 @@ export default function ComplianceSettingsPage() {
                 <label className="text-xs font-medium text-slate-600 block mb-1">Auto purge expired evidence</label>
                 <div className="flex items-center gap-2">
                   <Toggle checked={autoPurge} onChange={setAutoPurge} />
-                  <span className={`text-xs font-medium ${autoPurge ? "text-blue-600" : "text-slate-400"}`}>{autoPurge ? "Enabled" : "Disabled"}</span>
+                  <span className={`text-xs font-medium ${autoPurge ? "text-[var(--brand)]" : "text-slate-400"}`}>{autoPurge ? "Enabled" : "Disabled"}</span>
                 </div>
               </div>
               <div>
@@ -539,7 +539,7 @@ export default function ComplianceSettingsPage() {
           <p className="text-[11px] text-slate-400 pt-3 border-t border-slate-50">Retention policies apply to expired items unless they are part of an active investigation or audit.</p>
         </SettingsCard>
 
-        <SettingsCard iconBg="bg-blue-100" icon={<Bell className="w-4 h-4 text-blue-600" />} title="Notifications" subtitle="Choose notification channels and preferences.">
+        <SettingsCard iconBg="bg-[var(--color-brand-100)]" icon={<Bell className="w-4 h-4 text-[var(--brand)]" />} title="Notifications" subtitle="Choose notification channels and preferences.">
           <div className="flex flex-col">
             <ToggleRow label="Email notifications" checked={emailNotif} onChange={setEmailNotif} />
             <ToggleRow label="In-app notifications" checked={inAppNotif} onChange={setInAppNotif} />
@@ -573,8 +573,8 @@ export default function ComplianceSettingsPage() {
               <label className="text-xs font-medium text-slate-600 block mb-1">Recipients</label>
               <div className="border border-slate-200 rounded-lg p-2 flex flex-wrap gap-1.5">
                 {["Compliance Manager", "Property Managers"].map((r) => (
-                  <span key={r} className="flex items-center gap-1 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
-                    {r}<button className="text-blue-400 hover:text-blue-700 ml-0.5">×</button>
+                  <span key={r} className="flex items-center gap-1 text-xs bg-[var(--color-brand-100)] text-[var(--brand)] px-2 py-0.5 rounded-full font-medium">
+                    {r}<button className="text-[var(--color-brand-400)] hover:text-[var(--brand)] ml-0.5">×</button>
                   </span>
                 ))}
               </div>
@@ -583,7 +583,7 @@ export default function ComplianceSettingsPage() {
               <label className="text-xs font-medium text-slate-600 block mb-1">Day &amp; time</label>
               <div className="flex items-center gap-2">
                 <Select value={reportDay} onChange={setReportDay} options={["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]} className="w-32" />
-                <input aria-label="Report time" type="time" defaultValue="09:00" className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <input aria-label="Report time" type="time" defaultValue="09:00" className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
               </div>
             </div>
           </div>
@@ -610,13 +610,13 @@ export default function ComplianceSettingsPage() {
                     </p>
                   </div>
                 </div>
-                <button className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${intg.connected ? "border border-slate-200 bg-white hover:bg-slate-50 text-slate-700" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
+                <button className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${intg.connected ? "border border-slate-200 bg-white hover:bg-slate-50 text-slate-700" : "bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white"}`}>
                   {intg.connected ? "Manage" : "Connect"}
                 </button>
               </div>
             ))}
           </div>
-          <button className="mt-2 text-xs text-blue-600 hover:underline font-medium">View all integrations</button>
+          <button className="mt-2 text-xs text-[var(--brand)] hover:underline font-medium">View all integrations</button>
         </SettingsCard>
 
       </div>

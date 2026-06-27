@@ -57,7 +57,7 @@ export function CashflowSnapshotCard({
 
       <p className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500">
         For full ledgers, journals and reports, see{" "}
-        <Link href="/property-manager/accounting" className="text-[#2563EB] font-medium hover:underline">Accounting</Link>.
+        <Link href="/property-manager/accounting" className="text-[var(--brand)] font-medium hover:underline">Accounting</Link>.
       </p>
     </div>
   )

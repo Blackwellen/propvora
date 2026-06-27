@@ -96,7 +96,7 @@ export function MoneyTabNav({ actions, counts }: MoneyTabNavProps) {
           <select
             value={activeHref}
             onChange={(e) => router.push(e.target.value)}
-            className="w-full appearance-none rounded-xl border border-slate-200 bg-white pl-3 pr-9 py-2.5 text-[13px] font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full appearance-none rounded-xl border border-slate-200 bg-white pl-3 pr-9 py-2.5 text-[13px] font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
             aria-label="Money section"
           >
             {tabs.map((tab) => {
@@ -129,7 +129,7 @@ export function MoneyTabNav({ actions, counts }: MoneyTabNavProps) {
                 className={cn(
                   "flex items-center gap-2 shrink-0 px-5 py-3.5 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all duration-150",
                   active
-                    ? "border-[#2563EB] text-[#2563EB]"
+                    ? "border-[var(--brand)] text-[var(--brand)]"
                     : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
                 )}
               >

@@ -47,7 +47,7 @@ export default async function LandlordPaymentsPage({ params }: { params: Promise
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <PortalSectionCard title="Payout method" icon={Building2}>
-          <div className="flex items-center gap-3"><span className="w-10 h-10 rounded-xl bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center"><Building2 className="w-5 h-5" /></span><div><p className="text-sm font-semibold text-[#071B4D]">Bank transfer (BACS)</p><p className="text-xs text-slate-400">Managed by {session.workspaceName}</p></div></div>
+          <div className="flex items-center gap-3"><span className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center"><Building2 className="w-5 h-5" /></span><div><p className="text-sm font-semibold text-[#071B4D]">Bank transfer (BACS)</p><p className="text-xs text-slate-400">Managed by {session.workspaceName}</p></div></div>
         </PortalSectionCard>
         <PortalSectionCard title="Next scheduled payout" icon={Wallet}>
           <div className="flex items-center justify-between"><div><p className="text-xs text-slate-400">Amount</p><p className="text-lg font-bold text-[#071B4D]">{formatMoney(netPayout)}</p></div><StatusChip tone="blue">Scheduled</StatusChip></div>
@@ -69,7 +69,7 @@ export default async function LandlordPaymentsPage({ params }: { params: Promise
                       <td className="px-4 py-3 text-slate-500 capitalize">{t.category?.replace(/_/g, " ") ?? "Rent"}</td>
                       <td className={`px-4 py-3 text-right font-semibold ${inc ? "text-emerald-600" : "text-slate-900"}`}>{inc ? "+" : "−"}{formatMoney(t.amount, t.currency ?? "GBP")}</td>
                       <td className="px-4 py-3"><StatusChip tone={inc ? "emerald" : "slate"} dot>{inc ? "Received" : "Paid"}</StatusChip></td>
-                      <td className="px-4 py-3 text-right"><Link href={`${base}/payments/${t.id}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-[#2563EB]">View <ChevronRight className="w-3.5 h-3.5" /></Link></td>
+                      <td className="px-4 py-3 text-right"><Link href={`${base}/payments/${t.id}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-[var(--brand)]">View <ChevronRight className="w-3.5 h-3.5" /></Link></td>
                     </tr>
                   )})}
                 </tbody>

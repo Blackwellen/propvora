@@ -94,7 +94,7 @@ export function TenancyListView({ tenancies }: { tenancies: TenancyCardData[] })
         <span className={cn("inline-flex items-center gap-0.5", right && "justify-end")}>
           {label}
           {active
-            ? (sortDir === "asc" ? <ChevronUp className="w-3 h-3 text-[#2563EB]" /> : <ChevronDown className="w-3 h-3 text-[#2563EB]" />)
+            ? (sortDir === "asc" ? <ChevronUp className="w-3 h-3 text-[var(--brand)]" /> : <ChevronDown className="w-3 h-3 text-[var(--brand)]" />)
             : <ChevronUp className="w-3 h-3 text-slate-200" />
           }
         </span>
@@ -177,7 +177,7 @@ export function TenancyListView({ tenancies }: { tenancies: TenancyCardData[] })
                       </div>
                       <div>
                         <Link href={`/property-manager/portfolio/tenancies/${t.id}`}
-                          className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors block">
+                          className="text-[13px] font-semibold text-slate-900 hover:text-[var(--brand)] transition-colors block">
                           {t.tenant_name ?? "Unknown"}
                         </Link>
                       </div>
@@ -246,7 +246,7 @@ export function TenancyListView({ tenancies }: { tenancies: TenancyCardData[] })
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Link href={`/property-manager/portfolio/tenancies/${t.id}`}
-                        className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-[#2563EB] hover:text-white flex items-center justify-center text-slate-500 transition-all">
+                        className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-[var(--brand)] hover:text-white flex items-center justify-center text-slate-500 transition-all">
                         <Eye className="w-3.5 h-3.5" />
                       </Link>
                       <ActionMenu

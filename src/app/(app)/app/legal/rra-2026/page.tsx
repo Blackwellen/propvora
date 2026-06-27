@@ -174,11 +174,11 @@ function Rra2026PageInner() {
       </div>
 
       {/* Major-change banner */}
-      <div className="mx-4 sm:mx-6 mt-4 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl px-5 py-4 flex items-start gap-3">
+      <div className="mx-4 sm:mx-6 mt-4 bg-gradient-to-r from-[var(--brand)] to-[var(--brand-strong)] rounded-xl px-5 py-4 flex items-start gap-3">
         <Info className="w-4 h-4 text-white shrink-0 mt-0.5" />
         <div className="flex-1">
           <p className="text-[13px] font-semibold text-white">No-fault eviction has been abolished under the Renters&apos; Rights Act 2026.</p>
-          <p className="text-[12px] text-blue-100 mt-0.5 leading-relaxed">
+          <p className="text-[12px] text-[var(--color-brand-100)] mt-0.5 leading-relaxed">
             Assured tenancies are periodic and possession is via Section 8 grounds only. The items below reference these
             changes — confirm specifics with a qualified solicitor.
           </p>
@@ -199,11 +199,11 @@ function Rra2026PageInner() {
       <div className="px-4 sm:px-6 pt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Scale className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 rounded-lg bg-[var(--color-brand-100)] flex items-center justify-center">
+              <Scale className="w-5 h-5 text-[var(--brand)]" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-blue-700">{readinessPct}%</p>
+              <p className="text-2xl font-bold text-[var(--brand)]">{readinessPct}%</p>
               <p className="text-[12px] font-medium text-slate-700">Overall Readiness</p>
             </div>
           </div>
@@ -264,7 +264,7 @@ function Rra2026PageInner() {
                                 {itemDone && <CheckCircle className="w-3 h-3 text-white" />}
                               </div>
                               <span className={`text-[12px] flex-1 ${itemDone ? "text-slate-400 line-through" : "text-slate-700"}`}>{item.label}</span>
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${item.kind === "auto" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500"}`}>
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${item.kind === "auto" ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "bg-slate-100 text-slate-500"}`}>
                                 {item.kind === "auto" ? "Live" : "Manual"}
                               </span>
                               <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${itemDone ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
@@ -301,10 +301,10 @@ function Rra2026PageInner() {
                   <Row label="Total tenancies" value={ten.total} />
                   <Row label="Periodic" value={ten.periodic} cls="bg-emerald-100 text-emerald-700" />
                   <Row label="Fixed / AST remaining" value={ten.fixed} cls={ten.fixed > 0 ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"} />
-                  <Row label="Active" value={ten.active} cls="bg-blue-100 text-blue-700" />
+                  <Row label="Active" value={ten.active} cls="bg-[var(--color-brand-100)] text-[var(--brand)]" />
                 </div>
               )}
-              <Link href="/property-manager/portfolio/tenancies" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
+              <Link href="/property-manager/portfolio/tenancies" className="text-[11px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium flex items-center gap-1 transition-colors">
                 Review Tenancies <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
@@ -322,7 +322,7 @@ function Rra2026PageInner() {
                 <Row label="Active cases" value={activeCases} />
                 <Row label="Notices served" value={noticesServed} />
               </div>
-              <Link href="/property-manager/legal/possession" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
+              <Link href="/property-manager/legal/possession" className="text-[11px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium flex items-center gap-1 transition-colors">
                 View Cases <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
@@ -338,7 +338,7 @@ function Rra2026PageInner() {
                 <Row label="Properties" value={properties.length} />
                 <Row label="With EPC on record" value={epcCoveredPropertyIds.size} cls={epcCoverageOk ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"} />
               </div>
-              <Link href="/property-manager/legal/epc-advisory" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
+              <Link href="/property-manager/legal/epc-advisory" className="text-[11px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium flex items-center gap-1 transition-colors">
                 Open EPC Advisory <ArrowRight className="w-3 h-3" />
               </Link>
             </div>

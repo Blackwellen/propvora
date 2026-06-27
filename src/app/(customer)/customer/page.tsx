@@ -237,7 +237,7 @@ export default async function CustomerHomePage() {
 
       {/* ── Travel snapshot (elegant inline figures) ─────────────────────── */}
       <div className="grid grid-cols-3 gap-3 sm:gap-4">
-        <Figure icon={CalendarCheck} tint="bg-blue-50 text-blue-600" value={String(summary.total_stays)} label="Stays booked" />
+        <Figure icon={CalendarCheck} tint="bg-[var(--brand-soft)] text-[var(--brand)]" value={String(summary.total_stays)} label="Stays booked" />
         <Figure icon={Moon} tint="bg-violet-50 text-violet-600" value={String(summary.total_nights)} label="Nights away" />
         <Figure icon={Wallet} tint="bg-emerald-50 text-emerald-600" value={moneyPence(summary.total_spend_pence, summary.currency)} label="Total spend" />
       </div>
@@ -245,7 +245,7 @@ export default async function CustomerHomePage() {
       {/* ── Two-column: upcoming + activity ──────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-4">
         <CustomerCard className="p-5 sm:p-6">
-          <SectionHead icon={CalendarCheck} iconBg="bg-blue-50" iconColor="text-blue-600" title="Upcoming stays" href="/user/bookings" />
+          <SectionHead icon={CalendarCheck} iconBg="bg-[var(--brand-soft)]" iconColor="text-[var(--brand)]" title="Upcoming stays" href="/user/bookings" />
           {upcoming.length === 0 ? (
             <CustomerEmptyState
               icon={CalendarCheck}
@@ -309,7 +309,7 @@ export default async function CustomerHomePage() {
                 <li key={n.id}>
                   <Link href={n.href ?? "/user/notifications"} className="group flex items-center gap-3 rounded-xl px-1 py-2.5 transition-colors hover:bg-slate-50">
                     <div className="relative flex shrink-0 flex-col items-center">
-                      <div className={`h-2.5 w-2.5 rounded-full ${n.severity === "warning" ? "bg-amber-400" : (n.severity as string) === "error" || n.severity === "critical" ? "bg-red-400" : "bg-blue-400"}`} />
+                      <div className={`h-2.5 w-2.5 rounded-full ${n.severity === "warning" ? "bg-amber-400" : (n.severity as string) === "error" || n.severity === "critical" ? "bg-red-400" : "bg-[var(--color-brand-400)]"}`} />
                       {i < notifications.length - 1 && <div className="absolute left-1/2 top-3 h-full w-px -translate-x-1/2 bg-slate-100" />}
                     </div>
                     <div className="min-w-0 flex-1">

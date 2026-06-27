@@ -148,7 +148,7 @@ export default function InstallPrompt() {
             </p>
           )}
           {!iosHint && (
-            <button onClick={install} className="mt-2 rounded-lg bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5">
+            <button onClick={install} className="mt-2 rounded-lg bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-xs font-semibold px-3 py-1.5">
               Install app
             </button>
           )}

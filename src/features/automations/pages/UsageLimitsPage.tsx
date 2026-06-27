@@ -57,7 +57,7 @@ export default function UsageLimitsPage() {
     { key: "concurrent", header: "Concurrent runs", render: (r) => <span className="text-slate-600">{r.concurrentRuns}</span> },
     { key: "queue", header: "Approval queue", render: (r) => <span className="text-slate-600">{r.approvalQueue}</span> },
     { key: "status", header: "Status", render: (r) => <span className={`rounded-md px-2 py-0.5 text-[11px] font-semibold ${r.status === "Warning" ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{r.status}</span> },
-    { key: "actions", header: "Actions", render: () => <button onClick={() => router.push("/property-manager/workspace/billing")} className="text-xs font-medium text-blue-600 hover:underline">Manage plan</button> },
+    { key: "actions", header: "Actions", render: () => <button onClick={() => router.push("/property-manager/workspace/billing")} className="text-xs font-medium text-[var(--brand)] hover:underline">Manage plan</button> },
   ]
 
   const actions = (
@@ -94,7 +94,7 @@ export default function UsageLimitsPage() {
             aria-controls={`usage-panel-${t.toLowerCase().replace(/[\s&]+/g, "-")}`}
             id={`usage-tab-${t.toLowerCase().replace(/[\s&]+/g, "-")}`}
             onClick={() => setActiveTab(t)}
-            className={`shrink-0 border-b-2 px-3 py-2.5 text-sm transition ${activeTab === t ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}
+            className={`shrink-0 border-b-2 px-3 py-2.5 text-sm transition ${activeTab === t ? "border-[var(--brand)] font-semibold text-[var(--brand)]" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}
           >
             {t}
           </button>
@@ -176,7 +176,7 @@ export default function UsageLimitsPage() {
                     <div className="mt-2 flex flex-wrap gap-3">
                       <Link
                         href="/property-manager/workspace-settings/automations"
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:underline"
                       >
                         Open Automation Governance →
                       </Link>
@@ -193,7 +193,7 @@ export default function UsageLimitsPage() {
 
               {/* Plan limits table */}
               <Card>
-                <CardHeader title="Plan limits & workspace quotas" action={<button onClick={() => router.push("/property-manager/workspace/billing")} className="text-xs font-medium text-blue-600 hover:underline">Manage plan</button>} />
+                <CardHeader title="Plan limits & workspace quotas" action={<button onClick={() => router.push("/property-manager/workspace/billing")} className="text-xs font-medium text-[var(--brand)] hover:underline">Manage plan</button>} />
                 {loading ? <div className="h-40 animate-pulse bg-slate-100" /> : data.quotas.length === 0 ? (
                   <div className="p-6 text-sm text-slate-400">Plan limits and workspace quotas appear here once configured for your workspace.</div>
                 ) : (
@@ -205,7 +205,7 @@ export default function UsageLimitsPage() {
             {/* Right rail */}
             <div className="space-y-4">
               <Card>
-                <CardHeader title="Cost forecast" action={<button onClick={() => router.push("/property-manager/workspace/billing")} className="text-xs font-medium text-blue-600 hover:underline">View billing</button>} />
+                <CardHeader title="Cost forecast" action={<button onClick={() => router.push("/property-manager/workspace/billing")} className="text-xs font-medium text-[var(--brand)] hover:underline">View billing</button>} />
                 <div className="p-4 text-sm text-slate-400">
                   Estimated automation spend appears here once metered usage is recorded for this billing cycle.
                 </div>
@@ -234,18 +234,18 @@ export default function UsageLimitsPage() {
       {activeTab === "Admin Controls" && (
         <div className="mt-4 space-y-5">
           {/* Banner explaining where controls live */}
-          <div className="rounded-2xl border border-blue-100 bg-blue-50 px-5 py-4 flex items-start gap-3">
-            <ShieldCheck className="h-5 w-5 shrink-0 text-blue-600 mt-0.5" />
+          <div className="rounded-2xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)] px-5 py-4 flex items-start gap-3">
+            <ShieldCheck className="h-5 w-5 shrink-0 text-[var(--brand)] mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-blue-900">Governance settings live in Workspace Settings</p>
-              <p className="mt-0.5 text-xs text-blue-700">
+              <p className="text-sm font-semibold text-[var(--brand-strong)]">Governance settings live in Workspace Settings</p>
+              <p className="mt-0.5 text-xs text-[var(--brand)]">
                 Safety policies, publish permissions, dangerous-action guardrails, and audit retention are all
                 configured in Workspace Settings → Automation Governance so they apply workspace-wide
                 and aren&apos;t lost when browsing the Automations module.
               </p>
               <Link
                 href="/property-manager/workspace-settings/automations"
-                className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:underline"
+                className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:underline"
               >
                 Open Automation Governance <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>

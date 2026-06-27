@@ -28,7 +28,7 @@ export function ListingWizardStepper({
               disabled={s.num > currentStep}
               className={cn(
                 "flex items-center gap-2 rounded-full px-2.5 py-1.5 text-[12px] font-semibold transition-colors whitespace-nowrap",
-                isActive && "bg-blue-600 text-white",
+                isActive && "bg-[var(--brand)] text-white",
                 isComplete && "text-emerald-600 hover:bg-emerald-50",
                 !isActive && !isComplete && "text-slate-400 cursor-default",
               )}

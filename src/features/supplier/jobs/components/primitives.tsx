@@ -75,7 +75,7 @@ export function CountPill({
 }) {
   const complete = total > 0 && done >= total
   const toneClass: Record<string, string> = {
-    blue: "bg-blue-50 text-blue-700 border-blue-200",
+    blue: "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",
     emerald: "bg-emerald-50 text-emerald-700 border-emerald-200",
     amber: "bg-amber-50 text-amber-700 border-amber-200",
     red: "bg-red-50 text-red-700 border-red-200",
@@ -173,7 +173,7 @@ export function EvidenceDropzone({
       onDrop={(e) => { e.preventDefault(); setDragOver(false); handle(e.dataTransfer.files) }}
       className={cn(
         "rounded-2xl border-2 border-dashed p-5 text-center transition-colors",
-        dragOver ? "border-blue-400 bg-blue-50/60" : "border-slate-300 bg-slate-50/60"
+        dragOver ? "border-[var(--color-brand-400)] bg-[var(--brand-soft)]/60" : "border-slate-300 bg-slate-50/60"
       )}
     >
       <input
@@ -185,7 +185,7 @@ export function EvidenceDropzone({
         className="hidden"
         onChange={(e) => handle(e.target.files)}
       />
-      <div className="mx-auto mb-3 w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-blue-600">
+      <div className="mx-auto mb-3 w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-[var(--brand)]">
         <UploadCloud className="w-6 h-6" />
       </div>
       <p className="text-sm font-semibold text-slate-700">Drag photos here or tap to upload</p>
@@ -193,7 +193,7 @@ export function EvidenceDropzone({
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="mt-3 inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1d4ed8] active:scale-[0.98] transition-all w-full sm:w-auto"
+        className="mt-3 inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] active:scale-[0.98] transition-all w-full sm:w-auto"
       >
         <UploadCloud className="w-4 h-4" /> Choose files
       </button>
@@ -242,7 +242,7 @@ export function StaticMap({
       </svg>
       {(pins ?? []).map((p, i) => {
         const toneClass =
-          p.tone === "emerald" ? "bg-emerald-500" : p.tone === "amber" ? "bg-amber-500" : "bg-blue-600"
+          p.tone === "emerald" ? "bg-emerald-500" : p.tone === "amber" ? "bg-amber-500" : "bg-[var(--brand)]"
         const left = 14 + ((i * 23) % 70)
         const top = 18 + ((i * 31) % 60)
         return (
@@ -367,7 +367,7 @@ export function ToastHost({ toasts }: { toasts: ToastState[] }) {
   const toneClass: Record<ToastState["tone"], string> = {
     emerald: "bg-emerald-600",
     red: "bg-red-600",
-    blue: "bg-[#2563EB]",
+    blue: "bg-[var(--brand)]",
     amber: "bg-amber-600",
   }
   return (

@@ -55,14 +55,14 @@ export default function MobileFilterSheet({
             <button
               onClick={onClear}
               disabled={activeCount === 0}
-              className="flex-1 h-12 rounded-xl border border-[#E2EAF6] text-[14px] font-semibold text-slate-600 disabled:opacity-40 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+              className="flex-1 h-12 rounded-xl border border-[#E2EAF6] text-[14px] font-semibold text-slate-600 disabled:opacity-40 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
             >
               Clear all
             </button>
           )}
           <button
             onClick={onClose}
-            className="flex-[2] h-12 rounded-xl bg-[#2563EB] text-white text-[14px] font-semibold hover:bg-[#1d4ed8] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#2563EB]"
+            className="flex-[2] h-12 rounded-xl bg-[var(--brand)] text-white text-[14px] font-semibold hover:bg-[var(--brand-strong)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--brand)]"
           >
             Show results
           </button>
@@ -84,9 +84,9 @@ export default function MobileFilterSheet({
                     onClick={() => group.onChange(opt.value)}
                     aria-pressed={active}
                     className={cn(
-                      "min-h-[40px] px-3.5 rounded-xl text-[13px] font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+                      "min-h-[40px] px-3.5 rounded-xl text-[13px] font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40",
                       active
-                        ? "bg-[#2563EB] border-[#2563EB] text-white"
+                        ? "bg-[var(--brand)] border-[var(--brand)] text-white"
                         : "bg-white border-[#E2EAF6] text-slate-600 hover:bg-slate-50"
                     )}
                   >

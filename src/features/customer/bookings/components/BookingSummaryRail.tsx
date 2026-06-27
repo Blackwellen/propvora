@@ -11,7 +11,7 @@ function RailLink({ href, icon: Icon, title, sub }: { href: string; icon: typeof
   return (
     <li>
       <Link href={href} className="flex items-center gap-3 py-2 group">
-        <span className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600 shrink-0"><Icon className="w-4 h-4" /></span>
+        <span className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-[var(--brand-soft)] group-hover:text-[var(--brand)] shrink-0"><Icon className="w-4 h-4" /></span>
         <div className="flex-1 min-w-0"><p className="text-[12.5px] font-semibold text-slate-800">{title}</p><p className="text-[11px] text-slate-500 truncate">{sub}</p></div>
         <ChevronRight className="w-4 h-4 text-slate-300 shrink-0" />
       </Link>
@@ -27,7 +27,7 @@ export default function BookingSummaryRail({ toast }: Props) {
   return (
     <aside className="space-y-5 sticky top-[84px]">
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-        <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">Booking summary</h3><Link href="/customer/bookings?view=overview" className="text-[12px] font-semibold text-blue-600">View all activity</Link></div>
+        <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">Booking summary</h3><Link href="/customer/bookings?view=overview" className="text-[12px] font-semibold text-[var(--brand)]">View all activity</Link></div>
         <ul className="space-y-2.5">
           {counts.map((c) => (
             <li key={c.l} className="flex items-center justify-between"><span className="text-[12.5px] text-slate-500">{c.l}</span><span className="text-[13px] font-bold text-slate-900">{c.v}</span></li>

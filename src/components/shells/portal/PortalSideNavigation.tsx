@@ -99,7 +99,7 @@ export default function PortalSideNavigation({
         {/* Portal/workspace info card (static — external user can't switch) */}
         {!collapsed && (
           <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-white/[0.06] border border-white/[0.10] mb-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center shrink-0 shadow-sm text-white text-[10px] font-bold">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center shrink-0 shadow-sm text-white text-[10px] font-bold">
               {BADGE[kind].slice(0, 1)}
             </div>
             <div className="flex-1 min-w-0">
@@ -116,9 +116,8 @@ export default function PortalSideNavigation({
             collapsed ? "px-2 py-2 justify-center" : "px-3 py-2.5"
           )}
         >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[12px] font-bold shrink-0 shadow-sm relative">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center text-white text-[12px] font-bold shrink-0 shadow-sm">
             {initialsOf(displayName)}
-            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#06142E]" />
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">

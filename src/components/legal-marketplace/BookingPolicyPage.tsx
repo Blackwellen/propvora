@@ -107,7 +107,7 @@ export function BookingPolicyPage({ slug }: { slug: BookingPolicySlug }) {
           Questions about this document? Contact us at{" "}
           <a
             href={`mailto:${COMPANY.emails.legal}`}
-            className="text-blue-600 hover:text-blue-700 font-medium"
+            className="text-[var(--brand)] hover:text-[var(--brand)] font-medium"
           >
             {COMPANY.emails.legal}
           </a>

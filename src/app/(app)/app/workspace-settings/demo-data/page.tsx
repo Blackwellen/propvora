@@ -336,7 +336,7 @@ export default function DemoDataPage() {
               type="checkbox"
               checked={preserveEdited}
               onChange={(e) => setPreserveEdited(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]/30"
+              className="mt-0.5 w-4 h-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]/30"
             />
             <span className="text-[12.5px] text-slate-600 leading-relaxed">
               <span className="font-semibold text-slate-800">Keep records I&apos;ve edited.</span>{" "}
@@ -352,7 +352,7 @@ export default function DemoDataPage() {
             <button
               onClick={handleSeed}
               disabled={isWorking}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {pageState === "seeding" ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />

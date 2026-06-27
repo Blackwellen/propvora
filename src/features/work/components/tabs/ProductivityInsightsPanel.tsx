@@ -26,7 +26,7 @@ export function ProductivityInsightsPanel() {
         <div>
           <div className="flex items-center justify-between mb-1">
             <p className="text-[11px] text-slate-600">On-time completion</p>
-            <span className="text-[11px] font-semibold text-[#2563EB]">78%</span>
+            <span className="text-[11px] font-semibold text-[var(--brand)]">78%</span>
           </div>
           <ResponsiveContainer width="100%" height={32}>
             <LineChart data={[{ v: 60 }, { v: 65 }, { v: 70 }, { v: 68 }, { v: 72 }, { v: 75 }, { v: 78 }]}>
@@ -35,7 +35,7 @@ export function ProductivityInsightsPanel() {
           </ResponsiveContainer>
         </div>
       </div>
-      <Link href="/property-manager/work/tasks" className="mt-3 text-[11px] text-[#2563EB] hover:underline font-medium">View full insights →</Link>
+      <Link href="/property-manager/work/tasks" className="mt-3 text-[11px] text-[var(--brand)] hover:underline font-medium">View full insights →</Link>
     </div>
   )
 }

@@ -25,7 +25,7 @@ const KIND_ICON: Record<string, LucideIcon> = {
 }
 
 const SEVERITY_STYLE: Record<string, { bg: string; color: string }> = {
-  info: { bg: "bg-blue-50", color: "text-blue-600" },
+  info: { bg: "bg-[var(--brand-soft)]", color: "text-[var(--brand)]" },
   success: { bg: "bg-emerald-50", color: "text-emerald-600" },
   warning: { bg: "bg-amber-50", color: "text-amber-600" },
   critical: { bg: "bg-red-50", color: "text-red-600" },
@@ -83,7 +83,7 @@ export default function NotificationsClient({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-semibold text-slate-800 truncate">{n.title}</p>
-                    {unreadRow && <span className="w-2 h-2 rounded-full bg-[#2563EB] shrink-0" />}
+                    {unreadRow && <span className="w-2 h-2 rounded-full bg-[var(--brand)] shrink-0" />}
                     <span className="text-[11px] text-slate-400 shrink-0 ml-auto">{timeAgo(n.created_at)}</span>
                   </div>
                   {n.body && <p className="text-[13px] text-slate-500 mt-0.5">{n.body}</p>}

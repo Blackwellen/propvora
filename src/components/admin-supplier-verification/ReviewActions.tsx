@@ -163,7 +163,7 @@ export default function ReviewActions({ verificationId, status }: Props) {
           onChange={(e) => setNote(e.target.value)}
           rows={3}
           placeholder="Recorded in the audit trail…"
-          className="w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-[13px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+          className="w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-[13px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
         />
       </div>
       {error && (
@@ -226,7 +226,7 @@ export default function ReviewActions({ verificationId, status }: Props) {
                   ? "w-4 h-4 text-[#EF4444]"
                   : meta.tone === "approve"
                     ? "w-4 h-4 text-[#059669]"
-                    : "w-4 h-4 text-[#2563EB]"
+                    : "w-4 h-4 text-[var(--brand)]"
               }
             />
             <h3 className="text-sm font-semibold text-slate-800">{meta.verb}</h3>

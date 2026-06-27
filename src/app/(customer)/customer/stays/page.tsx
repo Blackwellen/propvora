@@ -29,7 +29,7 @@ export default async function CustomerStaysPage() {
   return (
     <div className="space-y-5">
       {/* Hero — full shell width, rounded like the dashboard hero */}
-      <section className="rounded-3xl bg-gradient-to-b from-blue-50 to-white px-5 py-8 sm:px-8">
+      <section className="rounded-3xl bg-gradient-to-b from-[var(--brand-soft)] to-white px-5 py-8 sm:px-8">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-2">Find a Stay</h1>
         <p className="text-[15px] text-slate-500 mb-6 max-w-2xl">
           Verified short-lets, serviced apartments and long-stay rentals across the UK.

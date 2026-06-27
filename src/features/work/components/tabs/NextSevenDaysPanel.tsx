@@ -22,7 +22,7 @@ export function NextSevenDaysPanel({ upcomingItems }: NextSevenDaysPanelProps) {
         <h2 className="text-base font-semibold text-slate-900">Next 7 Days</h2>
         <Link
           href="/property-manager/calendar"
-          className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
+          className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] flex items-center gap-0.5"
         >
           Calendar <ChevronRight className="w-3 h-3" />
         </Link>
@@ -32,8 +32,8 @@ export function NextSevenDaysPanel({ upcomingItems }: NextSevenDaysPanelProps) {
           <p className="text-sm text-slate-400 py-4 text-center">Nothing due in the next 7 days.</p>
         ) : upcomingItems.map((item, i) => (
           <div key={i} className="flex items-center gap-2.5">
-            <div className="w-12 shrink-0 rounded-lg bg-blue-50 px-1 py-1 text-center">
-              <p className="text-[9px] font-bold text-blue-600 leading-none">{item.date}</p>
+            <div className="w-12 shrink-0 rounded-lg bg-[var(--brand-soft)] px-1 py-1 text-center">
+              <p className="text-[9px] font-bold text-[var(--brand)] leading-none">{item.date}</p>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-slate-800 truncate leading-tight">{item.title}</p>

@@ -135,14 +135,14 @@ export default function ErrorsPage() {
 
       <div className="mt-4 flex flex-wrap items-center gap-1 border-b border-slate-200">
         {TABS.map((t) => (
-          <button key={t.id} onClick={() => setTab(t.id)} className={`border-b-2 px-3.5 py-2.5 text-sm transition ${tab === t.id ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}>
+          <button key={t.id} onClick={() => setTab(t.id)} className={`border-b-2 px-3.5 py-2.5 text-sm transition ${tab === t.id ? "border-[var(--brand)] font-semibold text-[var(--brand)]" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}>
             {t.label}{t.count != null && <span className="ml-1 text-slate-400">{t.count}</span>}
           </button>
         ))}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <input placeholder="Search…" className="w-44 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none" />
+        <input placeholder="Search…" className="w-44 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-[var(--color-brand-400)] focus:outline-none" />
         {["Critical", "Active", "Resolved", "Needs config", "External integration", "More filters"].map((f) => (
           <span key={f} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">{f}</span>
         ))}
@@ -205,7 +205,7 @@ export default function ErrorsPage() {
                   </div>
                   <div className="rounded-xl border border-slate-200 p-3">
                     <div className="text-[11px] font-semibold uppercase text-slate-400">Run logs</div>
-                    <button onClick={() => router.push("/property-manager/automations/runs-logs")} className="mt-1 text-xs font-semibold text-blue-600 hover:underline">View step logs for the affected run</button>
+                    <button onClick={() => router.push("/property-manager/automations/runs-logs")} className="mt-1 text-xs font-semibold text-[var(--brand)] hover:underline">View step logs for the affected run</button>
                   </div>
                 </>
               ) : (
@@ -223,7 +223,7 @@ export default function ErrorsPage() {
                 <div className="text-[11px] font-semibold uppercase text-slate-400">Linked automation</div>
                 <div className="mt-1 flex items-center justify-between">
                   <span className="text-slate-700">{active.automation} <span className="text-slate-400">{active.automationRef}</span></span>
-                  <button onClick={() => router.push("/property-manager/automations/my-automations")} className="text-xs font-semibold text-blue-600 hover:underline">View automation</button>
+                  <button onClick={() => router.push("/property-manager/automations/my-automations")} className="text-xs font-semibold text-[var(--brand)] hover:underline">View automation</button>
                 </div>
               </div>
             </div>

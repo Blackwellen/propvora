@@ -213,7 +213,7 @@ export default function IntegrationsPage() {
       {/* Stats strip */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         {[
-          { label: "Available", value: availableCount.toString(), colour: "text-[#2563EB]" },
+          { label: "Available", value: availableCount.toString(), colour: "text-[var(--brand)]" },
           { label: "Connected", value: connectedCount.toString(), colour: "text-emerald-600" },
           { label: "Coming soon", value: INTEGRATIONS.filter((i) => i.comingSoon).length.toString(), colour: "text-slate-400" },
         ].map((stat) => (
@@ -310,7 +310,7 @@ export default function IntegrationsPage() {
                     ) : (
                       <a
                         href={int.configHref ?? "/property-manager/workspace-settings/addons"}
-                        className="w-full py-2 rounded-xl border border-[#2563EB] text-[#2563EB] text-[12.5px] font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center gap-1.5"
+                        className="w-full py-2 rounded-xl border border-[var(--brand)] text-[var(--brand)] text-[12.5px] font-semibold hover:bg-[var(--brand-soft)] transition-colors flex items-center justify-center gap-1.5"
                       >
                         Set up
                       </a>
@@ -328,7 +328,7 @@ export default function IntegrationsPage() {
         <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
         <p className="text-[12.5px] text-slate-500">
           Integration credentials are stored encrypted and are never exposed after saving. Contact{" "}
-          <a href="mailto:hello@propvora.com" className="text-[#2563EB] hover:underline">hello@propvora.com</a>{" "}
+          <a href="mailto:hello@propvora.com" className="text-[var(--brand)] hover:underline">hello@propvora.com</a>{" "}
           if you need help connecting a service not listed here.
         </p>
       </div>

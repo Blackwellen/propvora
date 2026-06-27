@@ -91,7 +91,7 @@ function KpiCard({ label, value, chip, trend, loading }: KpiProps) {
 // ── Scenario type presentation ────────────────────────────────────────────────
 
 const TYPE_STYLE: Record<string, { accentColor: string; accentBg: string; accentText: string; accentBorder: string; accentBar: string; badge: string }> = {
-  base:         { accentColor: "#2563EB", accentBg: "bg-blue-50",    accentText: "text-blue-700",    accentBorder: "border-blue-200",    accentBar: "bg-blue-500",    badge: "Most likely outcome" },
+  base:         { accentColor: "#2563EB", accentBg: "bg-[var(--brand-soft)]",    accentText: "text-[var(--brand)]",    accentBorder: "border-[var(--color-brand-100)]",    accentBar: "bg-[var(--brand)]",    badge: "Most likely outcome" },
   optimistic:   { accentColor: "#10B981", accentBg: "bg-emerald-50", accentText: "text-emerald-700", accentBorder: "border-emerald-200", accentBar: "bg-emerald-500", badge: "Best case" },
   pessimistic:  { accentColor: "#F59E0B", accentBg: "bg-amber-50",   accentText: "text-amber-700",   accentBorder: "border-amber-200",   accentBar: "bg-amber-400",   badge: "Prudent assumptions" },
   conservative: { accentColor: "#F59E0B", accentBg: "bg-amber-50",   accentText: "text-amber-700",   accentBorder: "border-amber-200",   accentBar: "bg-amber-400",   badge: "Prudent assumptions" },

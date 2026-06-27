@@ -156,8 +156,8 @@ export default function ComplianceReportsPage() {
         name: "Supplier Compliance Report",
         description: "Supplier document validity, insurance and accreditation status.",
         icon: <Users className="w-7 h-7" />,
-        iconBg: "bg-blue-100",
-        iconColor: "text-blue-600",
+        iconBg: "bg-[var(--color-brand-100)]",
+        iconColor: "text-[var(--brand)]",
         count: supplierDocs.length,
         countLabel: "documents",
         generate: () =>
@@ -178,8 +178,8 @@ export default function ComplianceReportsPage() {
         name: "Certificate Register",
         description: "Full certificate register with issue, expiry and risk levels.",
         icon: <FolderOpen className="w-7 h-7" />,
-        iconBg: "bg-blue-50",
-        iconColor: "text-blue-700",
+        iconBg: "bg-[var(--brand-soft)]",
+        iconColor: "text-[var(--brand)]",
         count: certs.length,
         countLabel: "certificates",
         generate: () =>
@@ -220,7 +220,7 @@ export default function ComplianceReportsPage() {
           <>
             <button
               onClick={() => reports[0]?.generate()}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              className="flex items-center gap-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
             >
               <Download className="w-4 h-4" />
               Export overview
@@ -238,7 +238,7 @@ export default function ComplianceReportsPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
-        <ComplianceKpiCard label="Available reports" value={kpis.reports} subtitle="Live generators" icon={FileText} iconBg="bg-blue-100" iconColor="text-blue-600" />
+        <ComplianceKpiCard label="Available reports" value={kpis.reports} subtitle="Live generators" icon={FileText} iconBg="bg-[var(--color-brand-100)]" iconColor="text-[var(--brand)]" />
         <ComplianceKpiCard label="Records tracked" value={kpis.tracked} subtitle="Items + certificates" icon={BarChart2} iconBg="bg-violet-100" iconColor="text-violet-600" />
         <ComplianceKpiCard label="Expiring soon" value={kpis.expiring} subtitle="Within 30 days" icon={Calendar} iconBg="bg-amber-100" iconColor="text-amber-600" />
         <ComplianceKpiCard label="Overdue" value={kpis.overdue} subtitle="Need attention" trendPositive={kpis.overdue === 0} icon={AlertTriangle} iconBg="bg-red-100" iconColor="text-red-600" />
@@ -265,7 +265,7 @@ export default function ComplianceReportsPage() {
                 <button
                   onClick={card.generate}
                   disabled={card.count === 0}
-                  className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-40"
+                  className="flex items-center gap-1.5 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-40"
                 >
                   <Download className="w-3 h-3" />
                   Export CSV

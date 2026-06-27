@@ -35,7 +35,7 @@ function CopyField({ label, value }: { label: string; value: string | null }) {
       <div><p className="text-[11px] text-slate-400 mb-0.5">{label}</p><p className="text-sm font-bold text-[#071B4D] tracking-wide">{value}</p></div>
       <button
         onClick={() => { navigator.clipboard.writeText(value).catch(() => {}); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
-        className="w-8 h-8 rounded-lg bg-white border border-[#E2EAF6] flex items-center justify-center text-slate-400 hover:text-[#2563EB] hover:border-[#2563EB] transition-colors"
+        className="w-8 h-8 rounded-lg bg-white border border-[#E2EAF6] flex items-center justify-center text-slate-400 hover:text-[var(--brand)] hover:border-[var(--brand)] transition-colors"
         aria-label={`Copy ${label}`}
       >
         {copied ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
@@ -76,7 +76,7 @@ export default function TenantPaymentModal({ rentPcm, sessionId, bankDetails, on
                 className={cn(
                   "flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-t-lg border border-b-0 transition-colors",
                   tab === t
-                    ? "bg-white text-[#2563EB] border-[#E2EAF6]"
+                    ? "bg-white text-[var(--brand)] border-[#E2EAF6]"
                     : "bg-transparent text-slate-400 border-transparent hover:text-slate-600"
                 )}
               >
@@ -92,9 +92,9 @@ export default function TenantPaymentModal({ rentPcm, sessionId, bankDetails, on
           {/* Bank transfer tab */}
           {tab === "bank" && hasBankDetails && (
             <div className="space-y-4">
-              <div className="rounded-xl bg-blue-50 border border-blue-100 px-4 py-3">
+              <div className="rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)] px-4 py-3">
                 <p className="text-sm font-semibold text-[#1E3A8A] mb-0.5">Pay by standing order or bank transfer</p>
-                <p className="text-xs text-blue-700">Transfer your rent directly to the account below. Use your name and tenancy reference so your payment is matched correctly.</p>
+                <p className="text-xs text-[var(--brand)]">Transfer your rent directly to the account below. Use your name and tenancy reference so your payment is matched correctly.</p>
               </div>
               <div className="space-y-2.5">
                 {bankDetails?.accountName && (
@@ -120,13 +120,13 @@ export default function TenantPaymentModal({ rentPcm, sessionId, bankDetails, on
                 <div className="flex flex-col items-center gap-3 py-6 text-center">
                   <span className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center"><CheckCircle2 className="w-7 h-7 text-emerald-600" /></span>
                   <div><p className="text-base font-bold text-[#071B4D]">Payment submitted</p><p className="text-sm text-slate-500 mt-1">Your manager will confirm once funds clear.</p></div>
-                  <button onClick={onClose} className="h-10 px-6 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1D4ED8] transition-colors">Done</button>
+                  <button onClick={onClose} className="h-10 px-6 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors">Done</button>
                 </div>
               ) : (
                 <>
-                  <div className="rounded-xl bg-blue-50 border border-blue-100 px-4 py-3">
+                  <div className="rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)] px-4 py-3">
                     <p className="text-sm font-semibold text-[#1E3A8A] mb-0.5">Pay securely by card</p>
-                    <p className="text-xs text-blue-700">Your payment is encrypted and processed by Stripe. Card details are never stored on Propvora.</p>
+                    <p className="text-xs text-[var(--brand)]">Your payment is encrypted and processed by Stripe. Card details are never stored on Propvora.</p>
                   </div>
                   <PaymentForm
                     bookingRef={sessionId}

@@ -44,7 +44,7 @@ function ToggleRow({
         className={cn(
           "w-10 h-6 rounded-full transition-colors shrink-0 relative",
           disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
-          enabled ? "bg-[#2563EB]" : "bg-slate-200"
+          enabled ? "bg-[var(--brand)]" : "bg-slate-200"
         )}
       >
         <span className={cn(
@@ -178,7 +178,7 @@ export default function AIPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-70"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
               {saving ? "Saving…" : saved ? "Saved!" : "Save changes"}

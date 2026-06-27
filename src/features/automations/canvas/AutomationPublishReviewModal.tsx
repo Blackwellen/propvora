@@ -70,8 +70,8 @@ export function AutomationPublishReviewModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-blue-100">
-              <SendHorizonal className="h-4.5 w-4.5 text-blue-600" />
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--color-brand-100)]">
+              <SendHorizonal className="h-4.5 w-4.5 text-[var(--brand)]" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">Publish for review</h2>
@@ -143,9 +143,9 @@ export function AutomationPublishReviewModal({
             </div>
 
             {/* Review-first notice */}
-            <div className="mx-5 mb-4 flex items-start gap-2.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-3">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
-              <p className="text-[11px] text-blue-700 leading-relaxed">
+            <div className="mx-5 mb-4 flex items-start gap-2.5 rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)] px-3 py-3">
+              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--brand)]" />
+              <p className="text-[11px] text-[var(--brand)] leading-relaxed">
                 Submitting for review creates a pending approval record. This automation will not activate until an authorised reviewer approves it. Nothing runs automatically.
               </p>
             </div>
@@ -167,7 +167,7 @@ export function AutomationPublishReviewModal({
               <button
                 onClick={handlePublish}
                 disabled={publishing || !allPass}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-60 transition"
+                className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[var(--brand-strong)] disabled:opacity-60 transition"
               >
                 {publishing ? (
                   <><Loader2 className="h-4 w-4 animate-spin" /> Publishing…</>

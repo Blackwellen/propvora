@@ -139,10 +139,10 @@ export default function ChangeRequestWizard({
                   type="button"
                   onClick={() => setType(t.key)}
                   className={`flex flex-col items-start gap-2 p-4 rounded-2xl border text-left transition-all ${
-                    active ? "border-[#2563EB] bg-blue-50 ring-2 ring-[#2563EB]/20" : "border-slate-200 bg-white hover:border-slate-300"
+                    active ? "border-[var(--brand)] bg-[var(--brand-soft)] ring-2 ring-[var(--brand)]/20" : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
                 >
-                  <span className={`w-9 h-9 rounded-xl flex items-center justify-center ${active ? "bg-[#2563EB] text-white" : "bg-slate-100 text-slate-500"}`}>
+                  <span className={`w-9 h-9 rounded-xl flex items-center justify-center ${active ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-500"}`}>
                     <Icon className="w-4.5 h-4.5" />
                   </span>
                   <span className="text-[13px] font-semibold text-slate-800">{t.label}</span>

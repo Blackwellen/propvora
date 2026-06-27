@@ -288,7 +288,7 @@ export default function Step07Forecast() {
             </div>
             <span className="text-[12.5px] text-slate-600">Show cumulative</span>
           </label>
-          <select aria-label="Chart time period" className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
+          <select aria-label="Chart time period" className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]">
             <option>Monthly view</option>
             <option>Quarterly view</option>
             <option>Annual view</option>

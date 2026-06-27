@@ -39,7 +39,7 @@ export function CompareModal({ items, onClose, onRemove }: { items: SavedFavouri
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/50" onClick={onClose}>
       <div className="w-full max-w-3xl max-h-[88vh] overflow-auto bg-white rounded-2xl shadow-xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 sticky top-0 bg-white">
-          <h2 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2"><BedDouble className="w-4 h-4 text-blue-600" /> Compare {items.length} properties</h2>
+          <h2 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2"><BedDouble className="w-4 h-4 text-[var(--brand)]" /> Compare {items.length} properties</h2>
           <button onClick={onClose} aria-label="Close" className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-4 h-4" /></button>
         </div>
 
@@ -71,7 +71,7 @@ export function CompareModal({ items, onClose, onRemove }: { items: SavedFavouri
             <div className="grid gap-3 py-3 items-center" style={{ gridTemplateColumns: `120px repeat(${items.length}, minmax(0,1fr))` }}>
               <span className="text-slate-400 font-medium text-[12.5px]" />
               {items.map((i) => (
-                <Link key={i.id} href={i.href ?? "#"} className="inline-flex items-center justify-center bg-[#2563EB] text-white rounded-lg py-1.5 text-[12px] font-semibold hover:bg-[#1d4ed8]">View</Link>
+                <Link key={i.id} href={i.href ?? "#"} className="inline-flex items-center justify-center bg-[var(--brand)] text-white rounded-lg py-1.5 text-[12px] font-semibold hover:bg-[var(--brand-strong)]">View</Link>
               ))}
             </div>
           </div>

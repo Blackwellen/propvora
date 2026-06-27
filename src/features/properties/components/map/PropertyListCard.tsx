@@ -48,7 +48,7 @@ export function PropertyListCard({ property, isSelected, onClick }: PropertyList
       onClick={() => onClick(property.id)}
       className={cn(
         "w-full text-left px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors",
-        isSelected && "bg-blue-50",
+        isSelected && "bg-[var(--brand-soft)]",
       )}
     >
       <div className="flex items-start justify-between gap-2">

@@ -25,7 +25,7 @@ export default function PriceBreakdown({
   if (loading) {
     return (
       <div className="flex items-center gap-2 py-3 text-[13px] text-slate-500">
-        <Loader2 className="w-4 h-4 animate-spin text-[#1D4ED8]" />
+        <Loader2 className="w-4 h-4 animate-spin text-[var(--brand-strong)]" />
         Updating price…
       </div>
     )

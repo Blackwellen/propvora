@@ -40,7 +40,7 @@ export default function TenancyProfile({ t }: { t: Tenancy }) {
 
   return (
     <div className="space-y-5">
-      <Link href="/customer/lets?tab=tenancy" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue-600 hover:text-blue-700"><ArrowLeft className="w-4 h-4" /> Back to tenancies</Link>
+      <Link href="/customer/lets?tab=tenancy" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]"><ArrowLeft className="w-4 h-4" /> Back to tenancies</Link>
 
       {/* Hero */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
@@ -59,7 +59,7 @@ export default function TenancyProfile({ t }: { t: Tenancy }) {
 
       {/* Internal tabs */}
       <div className="flex items-center gap-1 border-b border-slate-200 overflow-x-auto">
-        {TABS.map((x) => <button key={x.id} onClick={() => setTab(x.id)} className={cn("px-3.5 py-2.5 text-[13px] font-semibold border-b-2 -mb-px whitespace-nowrap", x.id === tab ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800")}>{x.label}</button>)}
+        {TABS.map((x) => <button key={x.id} onClick={() => setTab(x.id)} className={cn("px-3.5 py-2.5 text-[13px] font-semibold border-b-2 -mb-px whitespace-nowrap", x.id === tab ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-500 hover:text-slate-800")}>{x.label}</button>)}
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-5 items-start">
@@ -67,17 +67,17 @@ export default function TenancyProfile({ t }: { t: Tenancy }) {
           {tab === "setup" && (
             <>
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                <div className="flex items-center justify-between mb-2"><h3 className="text-[14px] font-bold text-slate-900">Onboarding progress</h3><span className="text-[12px] font-semibold text-blue-600">{done}/{SETUP_TASKS.length} complete</span></div>
-                <div className="h-2 rounded-full bg-slate-100 overflow-hidden"><div className="h-full bg-blue-600 rounded-full" style={{ width: `${(done / SETUP_TASKS.length) * 100}%` }} /></div>
+                <div className="flex items-center justify-between mb-2"><h3 className="text-[14px] font-bold text-slate-900">Onboarding progress</h3><span className="text-[12px] font-semibold text-[var(--brand)]">{done}/{SETUP_TASKS.length} complete</span></div>
+                <div className="h-2 rounded-full bg-slate-100 overflow-hidden"><div className="h-full bg-[var(--brand)] rounded-full" style={{ width: `${(done / SETUP_TASKS.length) * 100}%` }} /></div>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
                   {SETUP_TASKS.map((s) => <li key={s.label} className="flex items-center gap-2 text-[12.5px]">{s.done ? <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> : <Circle className="w-4 h-4 text-slate-300 shrink-0" />}<span className={s.done ? "text-slate-500 line-through" : "text-slate-700"}>{s.label}</span></li>)}
                 </ul>
-                <Link href={`${base}/setup`} className="mt-4 inline-flex items-center gap-1.5 bg-[#2563EB] text-white rounded-xl px-3.5 py-2 text-[12.5px] font-semibold">Continue setup <ChevronRight className="w-4 h-4" /></Link>
+                <Link href={`${base}/setup`} className="mt-4 inline-flex items-center gap-1.5 bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-[12.5px] font-semibold">Continue setup <ChevronRight className="w-4 h-4" /></Link>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Card title="Landlord / Agent" icon={UserCheck}><div className="flex items-center gap-3"><span className="w-10 h-10 rounded-full bg-slate-200 shrink-0" /><div><p className="text-[12.5px] font-semibold text-slate-800">{t.landlord}</p><p className="text-[11px] text-slate-400">Managing agent · Propvora Lettings</p></div></div><button onClick={() => toast("Messaging…", "info")} className="mt-2 text-[12px] font-semibold text-blue-600">Message letting team</button></Card>
+                <Card title="Landlord / Agent" icon={UserCheck}><div className="flex items-center gap-3"><span className="w-10 h-10 rounded-full bg-slate-200 shrink-0" /><div><p className="text-[12.5px] font-semibold text-slate-800">{t.landlord}</p><p className="text-[11px] text-slate-400">Managing agent · Propvora Lettings</p></div></div><button onClick={() => toast("Messaging…", "info")} className="mt-2 text-[12px] font-semibold text-[var(--brand)]">Message letting team</button></Card>
                 <Card title="Occupants" icon={Users}><p className="text-[12.5px] text-slate-700">You <span className="text-[10.5px] text-slate-400">(lead tenant)</span></p><p className="text-[11.5px] text-slate-400 mt-1">Household details from your profile</p></Card>
-                <Card title="Tenancy agreement" icon={FileText}><div className="flex items-center justify-between"><p className="text-[12px] text-slate-600">AST · 12 months</p><StatusPill tone="emerald">Signed</StatusPill></div><Link href={`${base}/documents`} className="mt-2 inline-block text-[12px] font-semibold text-blue-600">View agreement →</Link></Card>
+                <Card title="Tenancy agreement" icon={FileText}><div className="flex items-center justify-between"><p className="text-[12px] text-slate-600">AST · 12 months</p><StatusPill tone="emerald">Signed</StatusPill></div><Link href={`${base}/documents`} className="mt-2 inline-block text-[12px] font-semibold text-[var(--brand)]">View agreement →</Link></Card>
                 <Card title="Deposit protection" icon={ShieldCheck}><div className="flex items-center justify-between"><p className="text-[12px] text-slate-600">{formatPence(t.depositPence, "GBP")}</p><StatusPill tone="amber">Pending</StatusPill></div><p className="text-[11px] text-slate-400 mt-1">DPS · protection in progress</p></Card>
               </div>
             </>
@@ -125,7 +125,7 @@ function Card({ title, icon: Icon, children }: { title: string; icon: typeof Key
   return <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4"><p className="text-[13px] font-bold text-slate-900 mb-2.5 flex items-center gap-1.5"><Icon className="w-4 h-4 text-slate-400" /> {title}</p>{children}</div>
 }
 function LinkPanel({ icon: Icon, title, sub, href, cta }: { icon: typeof FileText; title: string; sub: string; href: string; cta: string }) {
-  return <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 text-center"><span className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto"><Icon className="w-6 h-6" /></span><p className="text-[15px] font-bold text-slate-900 mt-3">{title}</p><p className="text-[12.5px] text-slate-500 mt-1">{sub}</p><Link href={href} className="mt-4 inline-flex items-center gap-1.5 bg-[#2563EB] text-white rounded-xl px-4 py-2 text-[13px] font-semibold">{cta} <ExternalLink className="w-4 h-4" /></Link></div>
+  return <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 text-center"><span className="w-12 h-12 rounded-2xl bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center mx-auto"><Icon className="w-6 h-6" /></span><p className="text-[15px] font-bold text-slate-900 mt-3">{title}</p><p className="text-[12.5px] text-slate-500 mt-1">{sub}</p><Link href={href} className="mt-4 inline-flex items-center gap-1.5 bg-[var(--brand)] text-white rounded-xl px-4 py-2 text-[13px] font-semibold">{cta} <ExternalLink className="w-4 h-4" /></Link></div>
 }
 function Inline({ icon: Icon, title, rows, toast, extra }: { icon: typeof Key; title: string; rows: string[][]; toast: (m: string, k?: "success" | "info" | "warning" | "error") => void; extra?: string }) {
   return (
@@ -134,13 +134,13 @@ function Inline({ icon: Icon, title, rows, toast, extra }: { icon: typeof Key; t
       <div className="divide-y divide-slate-50">
         {rows.map((r) => <div key={r[0]} className="flex items-center justify-between py-2.5"><div><p className="text-[12.5px] font-semibold text-slate-800">{r[0]}</p><p className="text-[11px] text-slate-400">{r[1]}</p></div><StatusPill tone={r[2] === "Completed" || r[2] === "Complete" || r[2] === "Verified" ? "emerald" : r[2] === "Scheduled" || r[2] === "Upcoming" ? "blue" : r[2] === "Awaiting" ? "amber" : "slate"}>{r[2]}</StatusPill></div>)}
       </div>
-      {extra === "renewal" && <div className="flex gap-2 mt-3"><button onClick={() => toast("Renewal request — coming soon", "info")} className="bg-[#2563EB] text-white rounded-xl px-3.5 py-2 text-[12.5px] font-semibold">Renew tenancy</button><button onClick={() => toast("Give notice — coming soon", "info")} className="border border-slate-200 rounded-xl px-3.5 py-2 text-[12.5px] font-semibold text-slate-700">Give notice</button></div>}
+      {extra === "renewal" && <div className="flex gap-2 mt-3"><button onClick={() => toast("Renewal request — coming soon", "info")} className="bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-[12.5px] font-semibold">Renew tenancy</button><button onClick={() => toast("Give notice — coming soon", "info")} className="border border-slate-200 rounded-xl px-3.5 py-2 text-[12.5px] font-semibold text-slate-700">Give notice</button></div>}
     </div>
   )
 }
 function QA({ icon: Icon, label, href, onClick }: { icon: typeof Key; label: string; href?: string; onClick?: () => void }) {
   const cls = "w-full flex items-center gap-2.5 py-2 group"
-  const inner = <><span className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600 shrink-0"><Icon className="w-4 h-4" /></span><span className="flex-1 text-left text-[12.5px] font-medium text-slate-700">{label}</span><ChevronRight className="w-4 h-4 text-slate-300" /></>
+  const inner = <><span className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-[var(--brand-soft)] group-hover:text-[var(--brand)] shrink-0"><Icon className="w-4 h-4" /></span><span className="flex-1 text-left text-[12.5px] font-medium text-slate-700">{label}</span><ChevronRight className="w-4 h-4 text-slate-300" /></>
   return href ? <Link href={href} className={cls}>{inner}</Link> : <button onClick={onClick} className={cls}>{inner}</button>
 }
 function Row({ l, r }: { l: string; r: string }) {

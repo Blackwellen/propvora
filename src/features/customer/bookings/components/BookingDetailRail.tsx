@@ -5,7 +5,7 @@ import { MessageSquare, Download, PencilLine, Flag, Shield, CheckCircle2, HelpCi
 import { formatPence } from "@/lib/marketplace/money"
 import type { Booking } from "../data/bookings"
 
-const ACT_TONE: Record<string, string> = { emerald: "bg-emerald-100 text-emerald-600", amber: "bg-amber-100 text-amber-600", blue: "bg-blue-100 text-blue-600", violet: "bg-violet-100 text-violet-600" }
+const ACT_TONE: Record<string, string> = { emerald: "bg-emerald-100 text-emerald-600", amber: "bg-amber-100 text-amber-600", blue: "bg-[var(--color-brand-100)] text-[var(--brand)]", violet: "bg-violet-100 text-violet-600" }
 
 function Act({ tone, title, sub, when, last }: { tone: string; title: string; sub: string; when: string; last?: boolean }) {
   return (
@@ -17,7 +17,7 @@ function Act({ tone, title, sub, when, last }: { tone: string; title: string; su
   )
 }
 function NeedLink({ icon: Icon, title, sub, href }: { icon: typeof HelpCircle; title: string; sub: string; href: string }) {
-  return <Link href={href} className="flex items-center gap-2.5 py-2 group"><span className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600 shrink-0"><Icon className="w-4 h-4" /></span><div className="flex-1 min-w-0"><p className="text-[12px] font-semibold text-slate-800">{title}</p><p className="text-[10.5px] text-slate-500 truncate">{sub}</p></div><ChevronRight className="w-4 h-4 text-slate-300 shrink-0" /></Link>
+  return <Link href={href} className="flex items-center gap-2.5 py-2 group"><span className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-[var(--brand-soft)] group-hover:text-[var(--brand)] shrink-0"><Icon className="w-4 h-4" /></span><div className="flex-1 min-w-0"><p className="text-[12px] font-semibold text-slate-800">{title}</p><p className="text-[10.5px] text-slate-500 truncate">{sub}</p></div><ChevronRight className="w-4 h-4 text-slate-300 shrink-0" /></Link>
 }
 interface Props { b: Booking }
 

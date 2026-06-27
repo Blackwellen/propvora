@@ -136,7 +136,7 @@ export function OverviewTabContent({
             <div>
               <div className="flex items-center gap-2">
                 <p className="text-[14px] font-bold text-slate-900">{supplier.name}</p>
-                <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-semibold rounded-full border border-blue-200">Primary</span>
+                <span className="px-1.5 py-0.5 bg-[var(--brand-soft)] text-[var(--brand)] text-[10px] font-semibold rounded-full border border-[var(--color-brand-100)]">Primary</span>
               </div>
               <p className="text-[12px] text-slate-500">{supplier.trade}</p>
             </div>
@@ -144,7 +144,7 @@ export function OverviewTabContent({
           {supplier.email && (
             <div className="flex items-center gap-2.5 mb-2.5">
               <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-              <a href={`mailto:${supplier.email}`} className="text-[12.5px] text-[#2563EB] hover:underline truncate">{supplier.email}</a>
+              <a href={`mailto:${supplier.email}`} className="text-[12.5px] text-[var(--brand)] hover:underline truncate">{supplier.email}</a>
             </div>
           )}
           {supplier.phone && (
@@ -211,7 +211,7 @@ export function statusColor(status: string) {
       return "bg-emerald-50 text-emerald-700 border-emerald-100"
     case "in_progress":
     case "scheduled":
-      return "bg-blue-50 text-blue-700 border-blue-100"
+      return "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]"
     case "closed":
     case "invoiced":
       return "bg-slate-100 text-slate-500 border-slate-200"
@@ -229,7 +229,7 @@ export function JobsTabContent({ supplier, jobs, compact }: { supplier: Supplier
         </h3>
         <Link
           href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
-          className="flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:underline"
+          className="flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:underline"
         >
           <Plus className="w-3 h-3" /> New Job
         </Link>
@@ -243,7 +243,7 @@ export function JobsTabContent({ supplier, jobs, compact }: { supplier: Supplier
           <p className="text-[12.5px] text-slate-500 mb-4">Assign this supplier to a job to start tracking work.</p>
           <Link
             href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
-            className="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+            className="px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
           >
             Assign to Job
           </Link>
@@ -266,7 +266,7 @@ export function JobsTabContent({ supplier, jobs, compact }: { supplier: Supplier
                   className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
                 >
                   <td className="px-4 py-3">
-                    <Link href={`/property-manager/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[#2563EB]">
+                    <Link href={`/property-manager/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[var(--brand)]">
                       {j.title}
                     </Link>
                     {j.reference && <p className="text-[11px] text-slate-400">{j.reference}</p>}
@@ -321,7 +321,7 @@ export function MoneyTabContent({ supplier, jobs, mode }: { supplier: SupplierVi
           {[
             { label: title, value: String(rows.length), color: "text-slate-900" },
             { label: "Total Value", value: `£${total.toLocaleString()}`, color: "text-emerald-600" },
-            { label: "Average", value: `£${avg.toLocaleString()}`, color: "text-[#2563EB]" },
+            { label: "Average", value: `£${avg.toLocaleString()}`, color: "text-[var(--brand)]" },
           ].map((k) => (
             <div key={k.label} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
               <p className="text-[11px] font-medium text-slate-500">{k.label}</p>
@@ -334,7 +334,7 @@ export function MoneyTabContent({ supplier, jobs, mode }: { supplier: SupplierVi
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {React.createElement(titleIcon, { className: "w-4 h-4 text-[#2563EB]" })}
+            {React.createElement(titleIcon, { className: "w-4 h-4 text-[var(--brand)]" })}
             <h3 className="text-sm font-semibold text-slate-900">
               {title} <span className="text-slate-400 font-normal ml-1">({rows.length})</span>
             </h3>
@@ -368,7 +368,7 @@ export function MoneyTabContent({ supplier, jobs, mode }: { supplier: SupplierVi
                 return (
                   <tr key={j.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
                     <td className="px-4 py-3">
-                      <Link href={`/property-manager/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[#2563EB]">{j.title}</Link>
+                      <Link href={`/property-manager/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[var(--brand)]">{j.title}</Link>
                       {j.reference && <p className="text-[11px] text-slate-400">{j.reference}</p>}
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell">
@@ -421,7 +421,7 @@ export function DocumentsTabContent({
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
       <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
-          <FileCheck2 className="w-4 h-4 text-[#2563EB]" />
+          <FileCheck2 className="w-4 h-4 text-[var(--brand)]" />
           <h3 className="text-sm font-semibold text-slate-900">
             {title} <span className="text-slate-400 font-normal ml-1">({filtered.length})</span>
           </h3>
@@ -456,9 +456,9 @@ export function DocumentsTabContent({
           {filtered.map((d) => {
             const exp = docExpiryState(d.expiry_date)
             return (
-              <div key={d.id} className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3.5 hover:border-[#2563EB]/40 hover:shadow-sm transition-all">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-                  <FileText className="w-5 h-5 text-[#2563EB]" />
+              <div key={d.id} className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3.5 hover:border-[var(--brand)]/40 hover:shadow-sm transition-all">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand-soft)] to-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 text-[var(--brand)]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
@@ -507,7 +507,7 @@ export function ActivityTabContent({ workspaceId, supplierId }: { workspaceId: s
         <div className="relative px-5 py-4 pl-8 before:absolute before:left-[22px] before:top-5 before:bottom-5 before:w-0.5 before:bg-slate-100">
           {events.map((ev) => (
             <div key={ev.id} className="relative mb-4 last:mb-0">
-              <div className="absolute -left-[18px] w-3 h-3 rounded-full bg-[#2563EB] border-2 border-white mt-1" />
+              <div className="absolute -left-[18px] w-3 h-3 rounded-full bg-[var(--brand)] border-2 border-white mt-1" />
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="text-[13px] font-semibold text-slate-800">{ev.title}</p>
@@ -536,11 +536,11 @@ export function PerformanceTabContent({ jobs }: { jobs: Job[] }) {
   const avgJobValue = total > 0 ? Math.round((jobs.reduce((s, j) => s + Number(j.approved_amount ?? j.quoted_amount ?? 0), 0)) / total) : 0
 
   const stats: { label: string; value: string; icon: React.ElementType; bg: string; color: string }[] = [
-    { label: "Total Jobs", value: String(total), icon: LayoutGrid, bg: "bg-blue-50", color: "text-blue-600" },
+    { label: "Total Jobs", value: String(total), icon: LayoutGrid, bg: "bg-[var(--brand-soft)]", color: "text-[var(--brand)]" },
     { label: "Completed", value: String(completed), icon: CheckCircle, bg: "bg-emerald-50", color: "text-emerald-600" },
     { label: "Active", value: String(active), icon: Briefcase, bg: "bg-amber-50", color: "text-amber-600" },
     { label: "Total Quoted", value: `£${totalQuoted.toLocaleString()}`, icon: FileText, bg: "bg-violet-50", color: "text-violet-600" },
-    { label: "Total Invoiced", value: `£${totalInvoiced.toLocaleString()}`, icon: Receipt, bg: "bg-blue-50", color: "text-blue-600" },
+    { label: "Total Invoiced", value: `£${totalInvoiced.toLocaleString()}`, icon: Receipt, bg: "bg-[var(--brand-soft)]", color: "text-[var(--brand)]" },
     { label: "Avg Job Value", value: total > 0 ? `£${avgJobValue.toLocaleString()}` : "—", icon: TrendingUp, bg: "bg-emerald-50", color: "text-emerald-600" },
   ]
 
@@ -551,7 +551,7 @@ export function PerformanceTabContent({ jobs }: { jobs: Job[] }) {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
       <div className="flex items-center gap-2 mb-4">
-        <TrendingUp className="w-4 h-4 text-[#2563EB]" />
+        <TrendingUp className="w-4 h-4 text-[var(--brand)]" />
         <h3 className="text-sm font-semibold text-slate-900">Performance Summary</h3>
       </div>
       {total === 0 ? (
@@ -691,10 +691,10 @@ export function ComplianceSummaryCard({
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-[#2563EB]" />
+          <ShieldCheck className="w-4 h-4 text-[var(--brand)]" />
           <h3 className="text-sm font-semibold text-slate-900">Compliance Certificates</h3>
         </div>
-        <button onClick={onViewCompliance} className="text-[12px] text-[#2563EB] hover:underline">View all</button>
+        <button onClick={onViewCompliance} className="text-[12px] text-[var(--brand)] hover:underline">View all</button>
       </div>
 
       {isLoading ? (

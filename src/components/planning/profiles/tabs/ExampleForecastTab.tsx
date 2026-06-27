@@ -65,28 +65,28 @@ function InterestReliefPanel() {
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <label className="flex flex-col gap-1 col-span-2 lg:col-span-1">
           <span className="text-xs font-semibold text-slate-600">Jurisdiction</span>
-          <select value={country} onChange={(e) => setCountry(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <select value={country} onChange={(e) => setCountry(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
             {RELIEF_COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
           </select>
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-xs font-semibold text-slate-600">Holding</span>
-          <select value={structure} onChange={(e) => setStructure(e.target.value as 'personal' | 'corporate')} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <select value={structure} onChange={(e) => setStructure(e.target.value as 'personal' | 'corporate')} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
             <option value="personal">Personal</option>
             <option value="corporate">Company</option>
           </select>
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-xs font-semibold text-slate-600">Profit (pre-interest)</span>
-          <input type="number" value={profit} onChange={(e) => setProfit(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="number" value={profit} onChange={(e) => setProfit(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-xs font-semibold text-slate-600">Mortgage interest</span>
-          <input type="number" value={interest} onChange={(e) => setInterest(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="number" value={interest} onChange={(e) => setInterest(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-xs font-semibold text-slate-600">Marginal rate %</span>
-          <input type="number" value={rate} onChange={(e) => setRate(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="number" value={rate} onChange={(e) => setRate(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
         </label>
       </div>
 
@@ -143,22 +143,22 @@ function DisposalTaxPanel() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <label className="flex flex-col gap-1">
           <span className="text-xs font-semibold text-slate-600">Jurisdiction</span>
-          <select value={country} onChange={(e) => setCountry(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <select value={country} onChange={(e) => setCountry(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
             {RELIEF_COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
           </select>
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-xs font-semibold text-slate-600">Expected gain</span>
-          <input type="number" value={gain} onChange={(e) => setGain(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="number" value={gain} onChange={(e) => setGain(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-xs font-semibold text-slate-600">Holding years</span>
-          <input type="number" value={holdingYears} onChange={(e) => setHoldingYears(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="number" value={holdingYears} onChange={(e) => setHoldingYears(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
         </label>
         <div className="flex flex-col gap-1.5 justify-end text-xs text-slate-600">
-          <label className="flex items-center gap-2"><input type="checkbox" checked={mainResidence} onChange={(e) => setMainResidence(e.target.checked)} className="accent-blue-600" /> Main residence</label>
-          <label className="flex items-center gap-2"><input type="checkbox" checked={nonResident} onChange={(e) => setNonResident(e.target.checked)} className="accent-blue-600" /> Non-resident</label>
-          <label className="flex items-center gap-2"><input type="checkbox" checked={higherRate} onChange={(e) => setHigherRate(e.target.checked)} className="accent-blue-600" /> Higher-rate taxpayer</label>
+          <label className="flex items-center gap-2"><input type="checkbox" checked={mainResidence} onChange={(e) => setMainResidence(e.target.checked)} className="accent-[var(--brand)]" /> Main residence</label>
+          <label className="flex items-center gap-2"><input type="checkbox" checked={nonResident} onChange={(e) => setNonResident(e.target.checked)} className="accent-[var(--brand)]" /> Non-resident</label>
+          <label className="flex items-center gap-2"><input type="checkbox" checked={higherRate} onChange={(e) => setHigherRate(e.target.checked)} className="accent-[var(--brand)]" /> Higher-rate taxpayer</label>
         </div>
       </div>
       <div className="mt-5 flex flex-wrap items-end gap-6 rounded-xl bg-slate-50 border border-slate-100 p-4">

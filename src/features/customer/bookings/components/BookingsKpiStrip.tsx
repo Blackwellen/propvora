@@ -28,11 +28,11 @@ export default function BookingsKpiStrip({ bookings }: { bookings: Booking[] }) 
     : "—"
 
   const kpis = [
-    { id: "all", label: "All bookings", value: String(bookings.length), sub: "Total bookings", Icon: Calendar, bg: "bg-blue-50 text-blue-600" },
+    { id: "all", label: "All bookings", value: String(bookings.length), sub: "Total bookings", Icon: Calendar, bg: "bg-[var(--brand-soft)] text-[var(--brand)]" },
     { id: "upcoming", label: "Upcoming", value: String(upcoming.length), sub: "Next 6 months", Icon: CalendarClock, bg: "bg-violet-50 text-violet-600" },
     { id: "current", label: "Current stays", value: String(current.length), sub: "Right now", Icon: MessagesSquare, bg: "bg-violet-50 text-violet-600" },
     { id: "completed", label: "Completed", value: String(completed.length), sub: "All time", Icon: CheckCircle2, bg: "bg-emerald-50 text-emerald-600" },
-    { id: "spend", label: "Total spent", value: totalPence > 0 ? `£${(totalPence / 100).toLocaleString("en-GB", { minimumFractionDigits: 0 })}` : "£0", sub: "All time", Icon: PoundSterling, bg: "bg-blue-50 text-blue-600" },
+    { id: "spend", label: "Total spent", value: totalPence > 0 ? `£${(totalPence / 100).toLocaleString("en-GB", { minimumFractionDigits: 0 })}` : "£0", sub: "All time", Icon: PoundSterling, bg: "bg-[var(--brand-soft)] text-[var(--brand)]" },
     { id: "rating", label: "Avg. rating", value: avgRating, sub: "Across rated stays", Icon: Star, bg: "bg-amber-50 text-amber-600" },
   ]
 

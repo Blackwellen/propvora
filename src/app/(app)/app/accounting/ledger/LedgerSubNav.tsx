@@ -30,7 +30,7 @@ export function LedgerSubNav() {
             className={cn(
               "flex items-center gap-2 px-4 py-3 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all",
               active
-                ? "border-[#2563EB] text-[#2563EB]"
+                ? "border-[var(--brand)] text-[var(--brand)]"
                 : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
             )}
           >

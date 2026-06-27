@@ -119,14 +119,14 @@ const STATUS_FILTERS: ProspectStatus[] = [
 const sourceColor: Record<string, string> = {
   Rightmove: "bg-red-50 text-red-700 border-red-200",
   Zoopla:    "bg-purple-50 text-purple-700 border-purple-200",
-  Direct:    "bg-blue-50 text-blue-700 border-blue-200",
+  Direct:    "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",
   Referral:  "bg-green-50 text-green-700 border-green-200",
   OTM:       "bg-orange-50 text-orange-700 border-orange-200",
 }
 
 const columnHeaderBg: Record<string, string> = {
   slate:  "bg-slate-50 text-slate-700 border-slate-200",
-  blue:   "bg-blue-50 text-blue-700 border-blue-200",
+  blue:   "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",
   indigo: "bg-indigo-50 text-indigo-700 border-indigo-200",
   purple: "bg-purple-50 text-purple-700 border-purple-200",
   amber:  "bg-amber-50 text-amber-700 border-amber-200",
@@ -135,7 +135,7 @@ const columnHeaderBg: Record<string, string> = {
 }
 
 const avatarColors = [
-  "bg-blue-100 text-blue-700",
+  "bg-[var(--color-brand-100)] text-[var(--brand)]",
   "bg-green-100 text-green-700",
   "bg-purple-100 text-purple-700",
   "bg-amber-100 text-amber-700",
@@ -166,7 +166,7 @@ export default function ProspectsPage() {
       )
     },
     badge: (p) => (
-      <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
+      <span className="bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)] px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
         {p.status}
       </span>
     ),
@@ -204,20 +204,20 @@ export default function ProspectsPage() {
             <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
               <button
                 onClick={() => setView("kanban")}
-                className={cn("px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 transition-colors", view === "kanban" ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-slate-50")}
+                className={cn("px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 transition-colors", view === "kanban" ? "bg-[var(--brand)] text-white" : "text-slate-600 hover:bg-slate-50")}
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
                 Kanban
               </button>
               <button
                 onClick={() => setView("table")}
-                className={cn("px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 transition-colors", view === "table" ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-slate-50")}
+                className={cn("px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 transition-colors", view === "table" ? "bg-[var(--brand)] text-white" : "text-slate-600 hover:bg-slate-50")}
               >
                 <List className="w-3.5 h-3.5" />
                 Table
               </button>
             </div>
-            <button onClick={() => router.push("/property-manager/contacts/new")} className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+            <button onClick={() => router.push("/property-manager/contacts/new")} className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
               <Plus className="w-3.5 h-3.5" />
               Add Prospect
             </button>
@@ -228,7 +228,7 @@ export default function ProspectsPage() {
         <div className="flex items-center gap-2 mt-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <button
             onClick={() => setStatusFilter("All")}
-            className={cn("text-xs font-medium px-3 py-1 rounded-full border whitespace-nowrap transition-colors", statusFilter === "All" ? "bg-blue-600 text-white border-blue-600" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
+            className={cn("text-xs font-medium px-3 py-1 rounded-full border whitespace-nowrap transition-colors", statusFilter === "All" ? "bg-[var(--brand)] text-white border-[var(--brand)]" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
           >
             All ({prospects.length})
           </button>
@@ -238,7 +238,7 @@ export default function ProspectsPage() {
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
-                className={cn("text-xs font-medium px-3 py-1 rounded-full border whitespace-nowrap transition-colors", statusFilter === s ? "bg-blue-600 text-white border-blue-600" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
+                className={cn("text-xs font-medium px-3 py-1 rounded-full border whitespace-nowrap transition-colors", statusFilter === s ? "bg-[var(--brand)] text-white border-[var(--brand)]" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
               >
                 {s} ({count})
               </button>
@@ -251,7 +251,7 @@ export default function ProspectsPage() {
       <div className="md:hidden flex items-center gap-2 overflow-x-auto px-4 pt-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <button
           onClick={() => setStatusFilter("All")}
-          className={cn("text-xs font-medium px-3 py-1.5 rounded-full border whitespace-nowrap shrink-0 transition-colors", statusFilter === "All" ? "bg-blue-600 text-white border-blue-600" : "border-slate-200 text-slate-600")}
+          className={cn("text-xs font-medium px-3 py-1.5 rounded-full border whitespace-nowrap shrink-0 transition-colors", statusFilter === "All" ? "bg-[var(--brand)] text-white border-[var(--brand)]" : "border-slate-200 text-slate-600")}
         >
           All ({prospects.length})
         </button>
@@ -261,7 +261,7 @@ export default function ProspectsPage() {
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={cn("text-xs font-medium px-3 py-1.5 rounded-full border whitespace-nowrap shrink-0 transition-colors", statusFilter === s ? "bg-blue-600 text-white border-blue-600" : "border-slate-200 text-slate-600")}
+              className={cn("text-xs font-medium px-3 py-1.5 rounded-full border whitespace-nowrap shrink-0 transition-colors", statusFilter === s ? "bg-[var(--brand)] text-white border-[var(--brand)]" : "border-slate-200 text-slate-600")}
             >
               {s} ({count})
             </button>
@@ -373,7 +373,7 @@ export default function ProspectsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
+                      <span className="bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)] px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
                         {p.status}
                       </span>
                     </td>

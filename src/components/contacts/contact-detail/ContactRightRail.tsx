@@ -56,9 +56,9 @@ export function RightRail({ contact }: { contact: ContactDetail }) {
   return (
     <div className="space-y-4">
       {/* Next Best Action */}
-      <SectionCard className="p-4 border-l-4 border-l-blue-500">
+      <SectionCard className="p-4 border-l-4 border-l-[var(--brand)]">
         <div className="flex items-start gap-2 mb-3">
-          <div style={{ color: "var(--brand)" }}><Zap className="w-4 h-4 mt-0.5" /></div>
+          <div style={{ color: "#2563EB" }}><Zap className="w-4 h-4 mt-0.5" /></div>
           <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Next Best Action</p>
         </div>
         <p className="text-sm text-slate-700 mb-3">{nba.label}</p>
@@ -75,8 +75,8 @@ export function RightRail({ contact }: { contact: ContactDetail }) {
             const Icon = l.icon
             return (
               <Link key={l.label} href={l.href}
-                className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 text-sm text-slate-700 hover:text-blue-600 transition-colors group">
-                <Icon className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-500" />
+                className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 text-sm text-slate-700 hover:text-[var(--brand)] transition-colors group">
+                <Icon className="w-3.5 h-3.5 text-slate-400 group-hover:text-[var(--brand)]" />
                 {l.label}
               </Link>
             )

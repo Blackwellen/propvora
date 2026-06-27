@@ -33,7 +33,7 @@ export default function LevelLadder({ level }: { level: SupplierVerificationLeve
               >
                 L{s} · {LEVEL_LABELS[s]}
                 {current && (
-                  <span className="ml-2 rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-semibold text-[#2563EB] align-middle">
+                  <span className="ml-2 rounded-full bg-[var(--brand-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--brand)] align-middle">
                     current
                   </span>
                 )}

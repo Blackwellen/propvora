@@ -46,7 +46,7 @@ export function VerificationQueuePanel({ verifications }: Props) {
               </div>
               <Link
                 href={`/admin/supplier-verification?workspace=${v.workspaceId}`}
-                className="text-[12px] font-semibold text-[#2563EB] hover:underline shrink-0"
+                className="text-[12px] font-semibold text-[var(--brand)] hover:underline shrink-0"
               >
                 Review
               </Link>

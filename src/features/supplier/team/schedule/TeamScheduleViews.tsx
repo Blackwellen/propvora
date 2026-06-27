@@ -88,13 +88,13 @@ export function TeamEmergencyRota() {
             {ROTA_SHIFTS.length === 0 && <p className="text-sm text-slate-400 py-4 text-center">No on-call rota set up yet.</p>}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2 min-w-[640px] lg:min-w-0">
               {ROTA_SHIFTS.map((s) => (
-                <button key={s.id} onClick={() => setSelId(s.id)} className={cn("text-left rounded-xl border p-2.5 transition-all", selected?.id === s.id ? "border-[#2563EB] ring-2 ring-blue-100" : "border-slate-200 hover:border-slate-300", s.gap && "bg-red-50/40")}>
+                <button key={s.id} onClick={() => setSelId(s.id)} className={cn("text-left rounded-xl border p-2.5 transition-all", selected?.id === s.id ? "border-[var(--brand)] ring-2 ring-[var(--color-brand-100)]" : "border-slate-200 hover:border-slate-300", s.gap && "bg-red-50/40")}>
                   <div className="flex items-center justify-between"><span className="text-[11px] font-bold text-slate-500">{s.day}</span>{s.premium && <Zap className="w-3 h-3 text-amber-500" />}</div>
                   {s.gap ? (
                     <p className="text-[11px] font-semibold text-red-600 mt-1.5 flex items-center gap-1"><AlertTriangle className="w-3 h-3" />Gap</p>
                   ) : (
                     <>
-                      <div className="flex items-center gap-1.5 mt-1.5"><span className="w-5 h-5 rounded-full bg-blue-100 text-[9px] font-semibold text-blue-700 flex items-center justify-center">{s.onCallInitials}</span><span className="text-[11px] font-medium text-slate-700 truncate">{s.onCall.split(" ")[0]}</span></div>
+                      <div className="flex items-center gap-1.5 mt-1.5"><span className="w-5 h-5 rounded-full bg-[var(--color-brand-100)] text-[9px] font-semibold text-[var(--brand)] flex items-center justify-center">{s.onCallInitials}</span><span className="text-[11px] font-medium text-slate-700 truncate">{s.onCall.split(" ")[0]}</span></div>
                       <p className="text-[10px] text-slate-400 mt-1">{s.backup ? `Backup: ${s.backup.split(" ")[0]}` : "No backup"}</p>
                       {s.fatigueRisk && <p className="text-[10px] text-amber-600 mt-0.5 flex items-center gap-0.5"><ShieldAlert className="w-2.5 h-2.5" />Fatigue</p>}
                     </>
@@ -161,7 +161,7 @@ export function TeamEmergencyRota() {
 }
 
 function Mini({ label, value, tone }: { label: string; value: string; tone: "blue" | "emerald" | "red" | "slate" }) {
-  const c = tone === "blue" ? "text-[#2563EB]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : "text-slate-900"
+  const c = tone === "blue" ? "text-[var(--brand)]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : "text-slate-900"
   return <SupplierCard className="p-3.5"><span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span><p className={cn("text-lg font-bold mt-1", c)}>{value}</p></SupplierCard>
 }
 function Row({ k, v }: { k: string; v: string }) {

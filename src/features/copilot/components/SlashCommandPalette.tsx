@@ -169,14 +169,14 @@ export default function SlashCommandPalette({
               onClick={() => setActiveCategory(cat.label)}
               className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
                 activeCategory === cat.label
-                  ? "bg-blue-600 text-white"
+                  ? "bg-[var(--brand)] text-white"
                   : "text-slate-600 hover:bg-white hover:shadow-sm"
               }`}
             >
               <span className="truncate">{cat.label}</span>
               <span
                 className={`text-[10px] ml-1 shrink-0 ${
-                  activeCategory === cat.label ? "text-blue-100" : "text-slate-400"
+                  activeCategory === cat.label ? "text-[var(--color-brand-100)]" : "text-slate-400"
                 }`}
               >
                 {cat.count}
@@ -185,14 +185,14 @@ export default function SlashCommandPalette({
           ))}
           {/* Context card */}
           <div className="mt-auto pt-2 border-t border-slate-200">
-            <div className="rounded-xl bg-blue-50 border border-blue-100 p-2">
-              <p className="text-[9px] font-bold text-blue-600 uppercase tracking-wide">Context</p>
-              <p className="text-[10px] text-blue-800 mt-0.5 leading-tight">{context.section}</p>
+            <div className="rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)] p-2">
+              <p className="text-[9px] font-bold text-[var(--brand)] uppercase tracking-wide">Context</p>
+              <p className="text-[10px] text-[var(--brand-strong)] mt-0.5 leading-tight">{context.section}</p>
               {context.tab && (
-                <p className="text-[10px] text-blue-600 leading-tight">{context.tab}</p>
+                <p className="text-[10px] text-[var(--brand)] leading-tight">{context.tab}</p>
               )}
               {context.entity && (
-                <p className="text-[10px] text-blue-500 leading-tight truncate">{context.entity}</p>
+                <p className="text-[10px] text-[var(--brand)] leading-tight truncate">{context.entity}</p>
               )}
             </div>
           </div>
@@ -232,12 +232,12 @@ export default function SlashCommandPalette({
                       onClick={() => onSelect(cmd.slug)}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all ${
                         globalIndex === selectedIndex
-                          ? "bg-blue-50 border border-blue-100"
+                          ? "bg-[var(--brand-soft)] border border-[var(--color-brand-100)]"
                           : "hover:bg-slate-50"
                       }`}
                     >
                       <div>
-                        <p className="text-[11.5px] font-semibold text-blue-700">{cmd.label}</p>
+                        <p className="text-[11.5px] font-semibold text-[var(--brand)]">{cmd.label}</p>
                         <p className="text-[10px] text-slate-500">{cmd.description}</p>
                       </div>
                       {cmd.shortcut ? (

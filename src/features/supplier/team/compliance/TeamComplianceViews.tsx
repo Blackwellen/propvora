@@ -15,7 +15,7 @@ import { SupplierCard, SupplierButton, SupplierBanner, SupplierStatusBadge } fro
 import { shortDate, daysUntil } from "@/components/supplier-workspace/format"
 
 function Mini({ label, value, tone = "slate" }: { label: string; value: string; tone?: "blue" | "emerald" | "red" | "amber" | "slate" }) {
-  const c = tone === "blue" ? "text-[#2563EB]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : tone === "amber" ? "text-amber-600" : "text-slate-900"
+  const c = tone === "blue" ? "text-[var(--brand)]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : tone === "amber" ? "text-amber-600" : "text-slate-900"
   return <SupplierCard className="p-3.5"><span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span><p className={cn("text-lg font-bold mt-1", c)}>{value}</p></SupplierCard>
 }
 /* ── 21. Expiry tracker ─────────────────────────────────────────────────────── */
@@ -90,7 +90,7 @@ export function TeamAccreditations() {
                   <div className="flex items-center justify-between gap-2"><p className="text-sm font-semibold text-slate-900">{a.name}</p><SupplierStatusBadge tone={a.status === "verified" ? "emerald" : a.status === "expired" ? "red" : "amber"}>{a.status === "verified" ? "Verified" : a.status === "expired" ? "Expired" : "Pending"}</SupplierStatusBadge></div>
                   <p className="text-xs text-slate-400">{a.body} · {a.linkedServices} services · exp {shortDate(a.expiresAt)}</p>
                   <div className="flex items-center gap-3 mt-2">
-                    {a.publicBadge && <span className="text-[11px] font-semibold text-blue-600 inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3" />Public badge</span>}
+                    {a.publicBadge && <span className="text-[11px] font-semibold text-[var(--brand)] inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3" />Public badge</span>}
                     <button onClick={() => setToast(`Opening ${a.name}…`)} className="text-[11px] font-semibold text-slate-500 hover:text-slate-700 inline-flex items-center gap-0.5">Manage <ChevronRight className="w-3 h-3" /></button>
                   </div>
                 </div>
@@ -128,7 +128,7 @@ export function TeamChecks() {
               <thead><tr className="text-left text-xs text-slate-500 border-b border-slate-100 bg-slate-50/60"><th className="px-4 py-3 font-semibold">Worker</th><th className="px-4 py-3 font-semibold text-center">Gas Safe</th><th className="px-4 py-3 font-semibold text-center">DBS</th><th className="px-4 py-3 font-semibold text-center">RTW</th><th className="px-4 py-3 font-semibold text-center">Training</th><th className="px-4 py-3 font-semibold">Status</th></tr></thead>
               <tbody className="divide-y divide-slate-50">
                 {CHECKS.map((c) => (
-                  <tr key={c.id} onClick={() => setSel(c)} className={cn("hover:bg-slate-50/60 cursor-pointer", sel?.id === c.id && "bg-blue-50/40")}>
+                  <tr key={c.id} onClick={() => setSel(c)} className={cn("hover:bg-slate-50/60 cursor-pointer", sel?.id === c.id && "bg-[var(--brand-soft)]/40")}>
                     <td className="px-4 py-3"><span className="inline-flex items-center gap-2"><span className="w-7 h-7 rounded-full bg-slate-100 text-[10px] font-semibold text-slate-600 flex items-center justify-center">{c.initials}</span><span><p className="font-semibold text-slate-800">{c.name}</p><p className="text-[11px] text-slate-400">{c.trade}</p></span></span></td>
                     <td className="px-4 py-3 text-center"><Cell ok={c.gasSafe} /></td>
                     <td className="px-4 py-3 text-center"><Cell ok={c.dbs} /></td>

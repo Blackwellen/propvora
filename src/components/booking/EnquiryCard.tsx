@@ -148,7 +148,7 @@ export default function EnquiryCard({
               min={todayIso}
               value={moveIn}
               onChange={(e) => setMoveIn(e.target.value)}
-              className="w-full h-10 pl-9 pr-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+              className="w-full h-10 pl-9 pr-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             />
           </div>
         </Field>
@@ -191,7 +191,7 @@ export default function EnquiryCard({
           type="button"
           onClick={submit}
           disabled={busy}
-          className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 disabled:opacity-60"
+          className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-60"
         >
           {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           {busy ? "Sending…" : ctaLabel}
@@ -202,7 +202,7 @@ export default function EnquiryCard({
 }
 
 const inputCls =
-  "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+  "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

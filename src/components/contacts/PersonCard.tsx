@@ -144,7 +144,7 @@ export default function PersonCard({ contact, onClick, onMenuClick }: PersonCard
             </span>
           )}
           {contact.follow_up && (
-            <span className="inline-flex items-center rounded-full bg-blue-100 text-blue-700 text-[10px] font-medium px-2 py-0.5">
+            <span className="inline-flex items-center rounded-full bg-[var(--color-brand-100)] text-[var(--brand)] text-[10px] font-medium px-2 py-0.5">
               Follow-up
             </span>
           )}

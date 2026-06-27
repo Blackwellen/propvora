@@ -156,7 +156,7 @@ export function OverviewTab({
               </div>
             )}
             {dragOver && (
-              <div className="absolute inset-0 bg-blue-600/30 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl border-2 border-blue-400 border-dashed">
+              <div className="absolute inset-0 bg-[var(--brand)]/30 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl border-2 border-[var(--color-brand-400)] border-dashed">
                 <div className="text-center text-white">
                   <Upload size={32} className="mx-auto mb-2" />
                   <p className="text-[14px] font-semibold">Drop to upload cover</p>
@@ -173,7 +173,7 @@ export function OverviewTab({
             <SectionHeader
               title="Compliance Snapshot"
               action={
-                <button onClick={() => onGoTab("compliance")} className="text-[11px] text-blue-600 font-medium hover:underline flex items-center gap-0.5">
+                <button onClick={() => onGoTab("compliance")} className="text-[11px] text-[var(--brand)] font-medium hover:underline flex items-center gap-0.5">
                   View <ArrowUpRight size={11} />
                 </button>
               }
@@ -223,7 +223,7 @@ export function OverviewTab({
             <SectionHeader
               title="Recent Activity"
               action={
-                <button onClick={() => onGoTab("activity")} className="text-[11px] text-blue-600 font-medium hover:underline flex items-center gap-0.5">
+                <button onClick={() => onGoTab("activity")} className="text-[11px] text-[var(--brand)] font-medium hover:underline flex items-center gap-0.5">
                   View all <ArrowUpRight size={11} />
                 </button>
               }
@@ -237,7 +237,7 @@ export function OverviewTab({
               <div className="space-y-2.5 max-h-[240px] overflow-y-auto pr-1">
                 {activity.map((item) => (
                   <div key={item.id} className="flex gap-2.5">
-                    <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 bg-blue-500" />
+                    <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 bg-[var(--brand)]" />
                     <div>
                       <p className="text-[12px] text-slate-700 leading-snug">{item.description ?? item.action ?? "Activity"}</p>
                       <p className="text-[11px] text-slate-500 mt-0.5">{fmtDate(item.created_at)}</p>
@@ -443,7 +443,7 @@ export function OverviewTab({
             <SectionHeader
               title="Financial Summary"
               action={
-                <Link href="/property-manager/money" className="text-[12px] text-blue-600 font-medium hover:underline flex items-center gap-1">
+                <Link href="/property-manager/money" className="text-[12px] text-[var(--brand)] font-medium hover:underline flex items-center gap-1">
                   Open Money <ArrowUpRight size={12} />
                 </Link>
               }

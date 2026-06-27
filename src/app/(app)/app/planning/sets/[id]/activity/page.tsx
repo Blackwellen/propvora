@@ -36,7 +36,7 @@ function getActionTypeCfg(actionType: string): ActionTypeCfg {
   switch (actionType) {
     case "plan_updated":
     case "plan_update":
-      return { label: "Plan updated", icon: <Settings className="w-3.5 h-3.5" />, chipCls: "bg-blue-100 text-blue-700", filterKey: "Updates" }
+      return { label: "Plan updated", icon: <Settings className="w-3.5 h-3.5" />, chipCls: "bg-[var(--color-brand-100)] text-[var(--brand)]", filterKey: "Updates" }
     case "comment_added":
     case "comment":
       return { label: "Comment added", icon: <MessageSquare className="w-3.5 h-3.5" />, chipCls: "bg-violet-100 text-violet-700", filterKey: "Comments" }
@@ -67,7 +67,7 @@ function Avatar({ name }: { name: string }) {
   const initials = parts.length >= 2
     ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
     : name.slice(0, 2).toUpperCase()
-  const colors = ["bg-violet-500", "bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-red-400", "bg-indigo-500"]
+  const colors = ["bg-violet-500", "bg-[var(--brand)]", "bg-emerald-500", "bg-amber-500", "bg-red-400", "bg-indigo-500"]
   const color = colors[name.charCodeAt(0) % colors.length]
   return (
     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0 ${color}`}>

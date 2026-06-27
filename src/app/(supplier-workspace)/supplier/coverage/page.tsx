@@ -84,16 +84,16 @@ export default function SupplierCoveragePage() {
 
       <Link
         href="/supplier/zones"
-        className="flex items-center gap-3 rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-3 hover:border-blue-300 transition-colors group"
+        className="flex items-center gap-3 rounded-2xl border border-[var(--color-brand-100)] bg-gradient-to-r from-[var(--brand-soft)] to-sky-50 px-4 py-3 hover:border-[var(--color-brand-300)] transition-colors group"
       >
         <span className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
-          <Hexagon className="w-5 h-5 text-blue-600" />
+          <Hexagon className="w-5 h-5 text-[var(--brand)]" />
         </span>
         <span className="flex-1 min-w-0">
           <span className="block text-[14px] font-semibold text-slate-900">Service zones (new)</span>
           <span className="block text-[12.5px] text-slate-600">Draw named zones on a map and assign teams — richer than flat coverage areas.</span>
         </span>
-        <span className="text-[13px] font-semibold text-blue-600 group-hover:translate-x-0.5 transition-transform">Open →</span>
+        <span className="text-[13px] font-semibold text-[var(--brand)] group-hover:translate-x-0.5 transition-transform">Open →</span>
       </Link>
 
       {cov.loading ? (

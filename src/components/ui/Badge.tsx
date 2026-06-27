@@ -8,7 +8,7 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:   "bg-slate-100 text-slate-700",
-        primary:   "bg-[#EFF6FF] text-[#2563EB]",
+        primary:   "bg-[var(--brand-soft)] text-[var(--brand)]",
         success:   "bg-[#ECFDF5] text-[#059669]",
         warning:   "bg-[#FFFBEB] text-[#d97706]",
         danger:    "bg-[#FEF2F2] text-[#dc2626]",
@@ -43,7 +43,7 @@ export interface BadgeProps
 export function Badge({ className, variant, size, dot, children, ...props }: BadgeProps) {
   const dotColour: Record<string, string> = {
     default: "bg-slate-400",
-    primary: "bg-[#2563EB]",
+    primary: "bg-[var(--brand)]",
     success: "bg-[#10B981]",
     warning: "bg-[#F59E0B]",
     danger:  "bg-[#EF4444]",

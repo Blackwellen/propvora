@@ -19,7 +19,7 @@ export default function WizardProgressRail({ steps, currentStep, app }: Props) {
               {i < currentStep ? (
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
               ) : i === currentStep ? (
-                <Circle className="w-4 h-4 text-blue-500 shrink-0 fill-blue-100" />
+                <Circle className="w-4 h-4 text-[var(--brand)] shrink-0 fill-[var(--color-brand-100)]" />
               ) : (
                 <Circle className="w-4 h-4 text-slate-300 shrink-0" />
               )}

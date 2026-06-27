@@ -74,7 +74,7 @@ export default function MobileTopBar({
           <Link
             href={backHref}
             aria-label="Go back"
-            className="w-11 h-11 -ml-1 rounded-xl flex items-center justify-center text-[#071B4D] hover:bg-[#F0F7FF] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 shrink-0"
+            className="w-11 h-11 -ml-1 rounded-xl flex items-center justify-center text-[#071B4D] hover:bg-[#F0F7FF] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 shrink-0"
           >
             <ChevronLeft className="w-5 h-5" />
           </Link>
@@ -82,7 +82,7 @@ export default function MobileTopBar({
           <button
             onClick={() => router.back()}
             aria-label="Go back"
-            className="w-11 h-11 -ml-1 rounded-xl flex items-center justify-center text-[#071B4D] hover:bg-[#F0F7FF] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 shrink-0"
+            className="w-11 h-11 -ml-1 rounded-xl flex items-center justify-center text-[#071B4D] hover:bg-[#F0F7FF] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 shrink-0"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -99,7 +99,7 @@ export default function MobileTopBar({
           <Link
             href={primaryAction.href}
             aria-label={primaryAction.label}
-            className="w-11 h-11 rounded-xl flex items-center justify-center bg-[#2563EB] text-white shadow-[0_4px_14px_rgba(37,99,235,0.30)] hover:bg-[#1d4ed8] active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#2563EB] motion-reduce:active:scale-100 shrink-0"
+            className="w-11 h-11 rounded-xl flex items-center justify-center bg-[var(--brand)] text-white shadow-[0_4px_14px_rgba(37,99,235,0.30)] hover:bg-[var(--brand-strong)] active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--brand)] motion-reduce:active:scale-100 shrink-0"
           >
             {PrimaryIcon && <PrimaryIcon className="w-5 h-5" />}
           </Link>
@@ -107,7 +107,7 @@ export default function MobileTopBar({
           <button
             onClick={primaryAction.onClick}
             aria-label={primaryAction.label}
-            className="w-11 h-11 rounded-xl flex items-center justify-center bg-[#2563EB] text-white shadow-[0_4px_14px_rgba(37,99,235,0.30)] hover:bg-[#1d4ed8] active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#2563EB] motion-reduce:active:scale-100 shrink-0"
+            className="w-11 h-11 rounded-xl flex items-center justify-center bg-[var(--brand)] text-white shadow-[0_4px_14px_rgba(37,99,235,0.30)] hover:bg-[var(--brand-strong)] active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--brand)] motion-reduce:active:scale-100 shrink-0"
           >
             {PrimaryIcon && <PrimaryIcon className="w-5 h-5" />}
           </button>
@@ -120,7 +120,7 @@ export default function MobileTopBar({
           aria-label="More actions"
           aria-haspopup="dialog"
           aria-expanded={overflowOpen}
-          className="w-11 h-11 rounded-xl flex items-center justify-center bg-white border border-[#E2EAF6] text-[#071B4D] hover:bg-[#F0F7FF] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 shrink-0"
+          className="w-11 h-11 rounded-xl flex items-center justify-center bg-white border border-[#E2EAF6] text-[#071B4D] hover:bg-[#F0F7FF] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 shrink-0"
         >
           <MoreHorizontal className="w-5 h-5" />
         </button>

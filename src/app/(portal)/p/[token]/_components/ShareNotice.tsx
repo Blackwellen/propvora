@@ -26,7 +26,7 @@ export function ShareNotice({
       ? "bg-[#FEF2F2] text-[#dc2626]"
       : tone === "warning"
         ? "bg-[#FFFBEB] text-[#d97706]"
-        : "bg-[#EFF6FF] text-[#2563EB]"
+        : "bg-[var(--brand-soft)] text-[var(--brand)]"
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6">

@@ -38,7 +38,7 @@ export function ContactsFilterBar({
             onClick={() => setActiveView(key)}
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
-              activeView === key ? "bg-[#2563EB] text-white shadow-sm" : "text-slate-500 hover:text-slate-700"
+              activeView === key ? "bg-[var(--brand)] text-white shadow-sm" : "text-slate-500 hover:text-slate-700"
             )}
           >
             <Icon className="w-3.5 h-3.5" />
@@ -57,7 +57,7 @@ export function ContactsFilterBar({
             onClick={() => setActiveType(chip.key)}
             className={cn(
               "px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
-              activeType === chip.key ? "bg-[#2563EB] text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              activeType === chip.key ? "bg-[var(--brand)] text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             )}
           >
             {chip.label}
@@ -74,8 +74,8 @@ export function ContactsFilterBar({
             value={serviceCategory}
             onChange={e => setServiceCategory(e.target.value)}
             className={cn(
-              "h-8 pl-8 pr-7 rounded-lg text-xs bg-white border text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all cursor-pointer appearance-none",
-              serviceCategory !== "all" ? "border-[#2563EB]" : "border-slate-200"
+              "h-8 pl-8 pr-7 rounded-lg text-xs bg-white border text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all cursor-pointer appearance-none",
+              serviceCategory !== "all" ? "border-[var(--brand)]" : "border-slate-200"
             )}
           >
             <option value="all">All services</option>
@@ -94,13 +94,13 @@ export function ContactsFilterBar({
           placeholder="Search contacts…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full h-8 pl-8 pr-8 rounded-lg text-xs bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+          className="w-full h-8 pl-8 pr-8 rounded-lg text-xs bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
         />
         {search && (
           <button
             onClick={() => setSearch("")}
             aria-label="Clear search"
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 rounded"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 rounded"
           >
             <X className="w-3.5 h-3.5" />
           </button>

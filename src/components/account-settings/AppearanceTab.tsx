@@ -19,13 +19,13 @@ function ShellStyleMiniPreview({ style: _style }: { style: ShellStyle }) {
         className="absolute left-0 top-0 bottom-0 w-[30px] flex flex-col"
         style={{ background: "var(--bg-surface)", borderRight: "1px solid var(--color-border)" }}
       >
-        <div className="w-3 h-1.5 rounded mx-auto mt-2 mb-2" style={{ background: "var(--brand)" }} />
+        <div className="w-3 h-1.5 rounded mx-auto mt-2 mb-2" style={{ background: "#2563EB" }} />
         {[true, false, false, false].map((active, i) => (
           <div
             key={i}
             className="mx-1.5 mb-1 h-2 rounded-sm"
             style={{
-              background: active ? "var(--brand-soft)" : "transparent",
+              background: active ? "#EFF6FF" : "transparent",
               border: active ? "none" : "1px solid var(--color-border)",
             }}
           />
@@ -36,7 +36,7 @@ function ShellStyleMiniPreview({ style: _style }: { style: ShellStyle }) {
         style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--color-border)" }}
       >
         <div className="flex-1 h-1.5 rounded-full" style={{ background: "var(--color-border)" }} />
-        <div className="w-5 h-3.5 rounded-md" style={{ background: "var(--brand)" }} />
+        <div className="w-5 h-3.5 rounded-md" style={{ background: "#2563EB" }} />
         <div className="w-3 h-3 rounded-full" style={{ background: "var(--color-border)" }} />
       </div>
       <div className="absolute left-[30px] right-0 top-[18px] bottom-0 p-2 flex flex-col gap-1.5">
@@ -73,12 +73,12 @@ function LayoutModeCard({
       className={cn(
         "relative flex flex-col gap-3 p-4 rounded-2xl border-2 transition-all duration-150 text-left w-full",
         selected
-          ? "border-blue-600 bg-blue-50"
+          ? "border-[var(--brand)] bg-[var(--brand-soft)]"
           : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
       )}
     >
       {selected && (
-        <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center">
+        <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[var(--brand)] flex items-center justify-center">
           <Check className="w-3 h-3 text-white" />
         </div>
       )}
@@ -98,8 +98,8 @@ function LayoutModeCard({
       </div>
       <div className="flex items-start gap-2">
         {isSideTop
-          ? <PanelLeftOpen className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
-          : <LayoutTemplate className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+          ? <PanelLeftOpen className="w-4 h-4 text-[var(--brand)] mt-0.5 shrink-0" />
+          : <LayoutTemplate className="w-4 h-4 text-[var(--brand)] mt-0.5 shrink-0" />
         }
         <div>
           <p className="text-sm font-semibold text-slate-900">
@@ -150,12 +150,12 @@ export default function AppearanceTab() {
               className={cn(
                 "relative flex flex-col gap-3 p-4 rounded-2xl border-2 transition-all duration-150 text-left",
                 prefs.shell_style === key
-                  ? "border-blue-600 bg-blue-50"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)]"
                   : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
               )}
             >
               {prefs.shell_style === key && (
-                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center">
+                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[var(--brand)] flex items-center justify-center">
                   <Check className="w-3 h-3 text-white" />
                 </div>
               )}
@@ -163,7 +163,7 @@ export default function AppearanceTab() {
                 <span
                   className={cn(
                     "w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center",
-                    prefs.shell_style === key ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600"
+                    prefs.shell_style === key ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-600"
                   )}
                 >
                   {meta.number}

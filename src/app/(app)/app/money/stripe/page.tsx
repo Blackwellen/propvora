@@ -36,7 +36,7 @@ const FEATURES = [
     title: "Invoice Payment Links",
     description: "Send invoices with an embedded pay button so tenants and clients can pay instantly online.",
     colour: "#2563EB",
-    bg: "bg-blue-50",
+    bg: "bg-[var(--brand-soft)]",
   },
   {
     icon: CreditCard,
@@ -138,8 +138,8 @@ export default function StripePage() {
 
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 shadow-lg shadow-blue-500/20"
-                style={{ backgroundColor: "var(--brand)" }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 shadow-lg shadow-[var(--brand)]/20"
+                style={{ backgroundColor: "#2563EB" }}
               >
                 <CreditCard className="w-4 h-4" />
                 Connect Stripe Account
@@ -163,10 +163,10 @@ export default function StripePage() {
                 className="flex items-center gap-1 focus:outline-none"
               >
                 {testMode
-                  ? <div style={{ color: "var(--brand)" }}><ToggleRight className="w-8 h-8" /></div>
+                  ? <div style={{ color: "#2563EB" }}><ToggleRight className="w-8 h-8" /></div>
                   : <ToggleLeft className="w-8 h-8 text-slate-400" />}
               </button>
-              <span className={cn("text-sm font-medium", testMode ? "text-blue-600" : "text-slate-400")}>
+              <span className={cn("text-sm font-medium", testMode ? "text-[var(--brand)]" : "text-slate-400")}>
                 {testMode ? "Enabled" : "Disabled"}
               </span>
             </div>
@@ -283,10 +283,10 @@ export default function StripePage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <h2 className="text-sm font-semibold text-slate-800 mb-3">Test Mode vs Live Mode</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className={cn("rounded-xl p-4 border", testMode ? "border-blue-200 bg-blue-50" : "border-slate-200 bg-slate-50")}>
+              <div className={cn("rounded-xl p-4 border", testMode ? "border-[var(--color-brand-100)] bg-[var(--brand-soft)]" : "border-slate-200 bg-slate-50")}>
                 <p className="text-sm font-semibold text-slate-800 mb-1">Test Mode</p>
                 <p className="text-xs text-slate-500">Use Stripe test cards. No real money moves. Safe for development and demos.</p>
-                {testMode && <span className="inline-block mt-2 text-[11px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-semibold">Active</span>}
+                {testMode && <span className="inline-block mt-2 text-[11px] bg-[var(--brand)] text-white px-2 py-0.5 rounded-full font-semibold">Active</span>}
               </div>
               <div className={cn("rounded-xl p-4 border", !testMode ? "border-emerald-200 bg-emerald-50" : "border-slate-200 bg-slate-50")}>
                 <p className="text-sm font-semibold text-slate-800 mb-1">Live Mode</p>
@@ -317,7 +317,7 @@ export default function StripePage() {
                   <div className="flex-1">
                     <p className={cn("text-xs font-medium", s.done ? "text-slate-400 line-through" : "text-slate-700")}>{s.label}</p>
                     {s.link && !s.done && (
-                      <a href={s.link} target="_blank" rel="noreferrer" className="text-[11px] text-blue-600 hover:underline flex items-center gap-1 mt-0.5">
+                      <a href={s.link} target="_blank" rel="noreferrer" className="text-[11px] text-[var(--brand)] hover:underline flex items-center gap-1 mt-0.5">
                         View docs <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
@@ -337,7 +337,7 @@ export default function StripePage() {
               href="https://stripe.com/gb/pricing"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
+              className="inline-flex items-center gap-1 text-xs text-[var(--brand)] hover:underline"
             >
               Full pricing details <ExternalLink className="w-3 h-3" />
             </a>

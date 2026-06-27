@@ -35,7 +35,7 @@ export default function BookingDetailPage({ b }: { b: Booking }) {
 
   return (
     <div className="space-y-5">
-      <Link href="/customer/bookings" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue-600 hover:text-blue-700"><ArrowLeft className="w-4 h-4" /> Back to bookings</Link>
+      <Link href="/customer/bookings" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]"><ArrowLeft className="w-4 h-4" /> Back to bookings</Link>
 
       {/* Header */}
       <div>
@@ -46,7 +46,7 @@ export default function BookingDetailPage({ b }: { b: Booking }) {
       {/* Tabs */}
       <div className="flex items-center gap-1 border-b border-slate-200 overflow-x-auto">
         {TABS.map((t) => (
-          <button key={t} onClick={() => setTab(t)} className={cn("px-3.5 py-2.5 text-[13.5px] font-semibold border-b-2 -mb-px whitespace-nowrap flex items-center gap-1.5", t === tab ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800")}>
+          <button key={t} onClick={() => setTab(t)} className={cn("px-3.5 py-2.5 text-[13.5px] font-semibold border-b-2 -mb-px whitespace-nowrap flex items-center gap-1.5", t === tab ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-500 hover:text-slate-800")}>
             {t}{t === "Messages" && <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold flex items-center justify-center">2</span>}
           </button>
         ))}
@@ -62,11 +62,11 @@ export default function BookingDetailPage({ b }: { b: Booking }) {
             <Card title="Guest details" icon={Users}>
               <p className="text-[12.5px] font-semibold text-slate-800 flex items-center gap-1.5">You <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /></p>
               <p className="text-[11.5px] text-slate-400">See your profile for contact details</p>
-              <Link href={`/customer/bookings/${b.id}/modify`} className="mt-2 inline-block text-[12px] font-semibold text-blue-600">Manage guests</Link>
+              <Link href={`/customer/bookings/${b.id}/modify`} className="mt-2 inline-block text-[12px] font-semibold text-[var(--brand)]">Manage guests</Link>
             </Card>
             <Card title="Check-in instructions" icon={KeyRound}>
               <p className="text-[11.5px] text-slate-500">Your host will share check-in details (arrival time, key collection and parking) before your stay.</p>
-              <Link href="/customer/messages" className="mt-1 inline-block text-[12px] font-semibold text-blue-600">Message host →</Link>
+              <Link href="/customer/messages" className="mt-1 inline-block text-[12px] font-semibold text-[var(--brand)]">Message host →</Link>
             </Card>
             <Card title="House rules" icon={Shield}>
               {["No smoking", "No pets", "No parties or events", "Quiet hours: 22:00 – 08:00", "Maximum 2 guests"].map((r) => (
@@ -84,14 +84,14 @@ export default function BookingDetailPage({ b }: { b: Booking }) {
             </Card>
             <Card title="Important documents" icon={FileText}>
               <p className="text-[11.5px] text-slate-400 py-1">Documents your host shares for this stay (house manual, Wi-Fi, local guide) will appear here.</p>
-              <a href={`/api/customer/bookings/${b.id}/receipt`} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1.5 text-[12px] font-semibold text-blue-600"><Download className="w-3.5 h-3.5" /> Download booking receipt</a>
+              <a href={`/api/customer/bookings/${b.id}/receipt`} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[var(--brand)]"><Download className="w-3.5 h-3.5" /> Download booking receipt</a>
             </Card>
             <Card title="Receipt summary" icon={FileText}>
               {b.perNightPence ? <Tiny l={`Subtotal (${b.nights ?? 1} night${(b.nights ?? 1) === 1 ? "" : "s"})`} r={formatPence(b.perNightPence * (b.nights ?? 1), "GBP")} /> : null}
               {b.cleaningPence ? <Tiny l="Cleaning fee" r={formatPence(b.cleaningPence, "GBP")} /> : null}
               {b.servicePence ? <Tiny l="Service fee" r={formatPence(b.servicePence, "GBP")} /> : null}
               <div className="flex items-center justify-between pt-1.5 mt-1.5 border-t border-slate-100"><span className="text-[12.5px] font-semibold text-slate-700">Total paid</span><span className="text-[13px] font-bold text-slate-900">{formatPence(b.totalPence, "GBP")}</span></div>
-              <a href={`/api/customer/bookings/${b.id}/receipt`} target="_blank" rel="noopener noreferrer" className="mt-1.5 inline-flex items-center gap-1.5 text-[12px] font-semibold text-blue-600"><Download className="w-3.5 h-3.5" /> Download receipt (PDF)</a>
+              <a href={`/api/customer/bookings/${b.id}/receipt`} target="_blank" rel="noopener noreferrer" className="mt-1.5 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[var(--brand)]"><Download className="w-3.5 h-3.5" /> Download receipt (PDF)</a>
             </Card>
           </div>
 

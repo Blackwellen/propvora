@@ -26,7 +26,7 @@ export function JobAuditTab({ events, loading }: JobAuditTabProps) {
           {events.map((e, i) => (
             <li key={e.id ?? i} className="flex gap-3">
               <div className="flex flex-col items-center">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB] mt-1.5" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--brand)] mt-1.5" />
                 {i < events.length - 1 && <span className="flex-1 w-px bg-slate-200 my-1" />}
               </div>
               <div className="flex-1 min-w-0 pb-1">

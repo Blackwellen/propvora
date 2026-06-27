@@ -16,7 +16,7 @@ function Field({ label, defaultValue, onChange }: { label: string; defaultValue:
   return <div><label className="block text-[11.5px] font-medium text-slate-500 mb-1">{label}</label><input defaultValue={defaultValue} onChange={onChange} className={customerInputClass} /></div>
 }
 function AddBtn({ label, onClick }: { label: string; onClick: () => void }) {
-  return <button onClick={onClick} className="inline-flex items-center gap-1 text-[12px] font-semibold text-blue-600"><Plus className="w-3.5 h-3.5" /> {label}</button>
+  return <button onClick={onClick} className="inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)]"><Plus className="w-3.5 h-3.5" /> {label}</button>
 }
 function AddrRow({ label, value, primary }: { label: string; value: string; primary?: boolean }) {
   return <div className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0"><span className="w-9 h-9 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center shrink-0"><MapPin className="w-4 h-4" /></span><div className="flex-1 min-w-0"><p className="text-[12.5px] font-semibold text-slate-800">{label} {primary && <StatusPill tone="blue">Primary</StatusPill>}</p><p className="text-[11.5px] text-slate-400 truncate">{value}</p></div></div>
@@ -28,7 +28,7 @@ export default function ProfileSection({ onDirty }: Props) {
     <>
       <Panel title="Profile information">
         <div className="flex items-center gap-4 mb-4">
-          <span className="relative w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center text-white text-[18px] font-bold">
+          <span className="relative w-16 h-16 rounded-full bg-gradient-to-br from-[var(--brand)] to-sky-400 flex items-center justify-center text-white text-[18px] font-bold">
             <button onClick={() => toast("Upload avatar (upload-only) — coming soon", "info")} className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 shadow-sm"><Camera className="w-3.5 h-3.5" /></button>
           </span>
           <div><p className="text-[14px] font-semibold text-slate-800">Your Profile</p><p className="text-[12px] text-slate-400">Customer · Verified</p></div>

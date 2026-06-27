@@ -64,7 +64,7 @@ export default function LongTermRentalMapInner({
               <div className="p-2">
                 <p className="font-semibold text-slate-900 text-sm line-clamp-1">{rental.title}</p>
                 <p className="text-xs text-slate-500">{rental.location}</p>
-                <p className="font-bold text-blue-600 mt-1">
+                <p className="font-bold text-[var(--brand)] mt-1">
                   £{Math.round(rental.monthlyRentPence / 100).toLocaleString('en-GB')}/mo
                 </p>
                 <p className="text-xs text-slate-400">
@@ -72,7 +72,7 @@ export default function LongTermRentalMapInner({
                 </p>
                 <a
                   href={`${basePath}/${rental.slug}`}
-                  className="block mt-2 text-center text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 py-1.5 rounded-lg"
+                  className="block mt-2 text-center text-xs font-semibold text-white bg-[var(--brand)] hover:bg-[var(--brand-strong)] py-1.5 rounded-lg"
                 >
                   View details
                 </a>

@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 const STATUS_STYLE: Record<string, { label: string; cls: string }> = {
   enabled: { label: "Enabled", cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
   reviewed: { label: "Reviewed", cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  beta: { label: "Beta", cls: "bg-blue-50 text-blue-700 border-blue-200" },
+  beta: { label: "Beta", cls: "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]" },
   research_only: { label: "Research only", cls: "bg-amber-50 text-amber-700 border-amber-200" },
   generic_only: { label: "Generic only", cls: "bg-slate-50 text-slate-600 border-slate-200" },
   disabled: { label: "Disabled", cls: "bg-slate-100 text-slate-500 border-slate-200" },

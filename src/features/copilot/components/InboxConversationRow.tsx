@@ -24,7 +24,7 @@ function PriorityBadge({ priority }: { priority: ConversationContact["priority"]
 
 function StatusBadge({ status }: { status: ConversationContact["status"] }) {
   const styles = {
-    Open: "border-blue-300 text-blue-600",
+    Open: "border-[var(--color-brand-300)] text-[var(--brand)]",
     Waiting: "border-amber-300 text-amber-600",
     Closed: "border-slate-300 text-slate-500",
   }
@@ -47,7 +47,7 @@ function TypeBadge({ type }: { type: ConversationContact["type"] }) {
     tenant: "bg-violet-100 text-violet-700",
     landlord: "bg-emerald-100 text-emerald-700",
     supplier: "bg-orange-100 text-orange-700",
-    business: "bg-blue-100 text-blue-700",
+    business: "bg-[var(--color-brand-100)] text-[var(--brand)]",
     team: "bg-slate-100 text-slate-600",
   }
   return (
@@ -72,7 +72,7 @@ export default function InboxConversationRow({
       <div className="relative shrink-0 mt-0.5">
         {conversation.isUnread && (
           <span
-            className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500"
+            className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[var(--brand)]"
             aria-label="Unread"
           />
         )}

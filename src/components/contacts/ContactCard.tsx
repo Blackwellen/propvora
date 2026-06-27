@@ -32,7 +32,7 @@ export interface Contact {
 
 const TYPE_COLOURS: Record<ContactType, string> = {
   tenant:    "bg-emerald-100 text-emerald-700",
-  landlord:  "bg-blue-100 text-blue-700",
+  landlord:  "bg-[var(--color-brand-100)] text-[var(--brand)]",
   supplier:  "bg-amber-100 text-amber-700",
   agent:     "bg-violet-100 text-violet-700",
   applicant: "bg-sky-100 text-sky-700",
@@ -40,7 +40,7 @@ const TYPE_COLOURS: Record<ContactType, string> = {
 }
 
 const AVATAR_COLOURS = [
-  "bg-blue-500", "bg-emerald-500", "bg-violet-500", "bg-amber-500",
+  "bg-[var(--brand)]", "bg-emerald-500", "bg-violet-500", "bg-amber-500",
   "bg-rose-500", "bg-cyan-500", "bg-fuchsia-500", "bg-teal-500",
 ]
 
@@ -85,7 +85,7 @@ export function ContactCard({ contact, onMessage, onCall, onEdit }: ContactCardP
           <div className="flex items-center gap-2 flex-wrap">
             <Link
               href={`/property-manager/contacts/${contact.id}`}
-              className="text-sm font-semibold text-slate-900 hover:text-blue-600 transition-colors truncate"
+              className="text-sm font-semibold text-slate-900 hover:text-[var(--brand)] transition-colors truncate"
             >
               {contact.full_name}
             </Link>

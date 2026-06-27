@@ -98,7 +98,7 @@ function LegalJurisdictionPanel({
           <div className="px-6 pb-5 pt-1 flex flex-wrap items-center gap-2.5">
             <Link
               href="/property-manager/compliance"
-              className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-[12px] font-medium px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition-colors"
+              className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-[12px] font-medium px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition-colors"
             >
               <FileText className="w-3.5 h-3.5" />
               Record-keeping in Compliance
@@ -141,7 +141,7 @@ function LegalJurisdictionPanel({
             ))}
           </div>
           <div className="px-5 py-2.5 border-t border-slate-100">
-            <Link href="/property-manager/settings/legal" className="text-[11.5px] text-blue-600 hover:text-blue-800 font-medium">
+            <Link href="/property-manager/settings/legal" className="text-[11.5px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium">
               Edit legal guidance →
             </Link>
           </div>

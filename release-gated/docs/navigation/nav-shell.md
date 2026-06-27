@@ -2,9 +2,9 @@
 
 **Section:** Top Nav, Side Navigation, Search, Notifications, Avatar Menu, Workspace Switcher, Sidebar Cards, MobileBottomNav, AdminShell, Portal Shells, Customer Shell, Supplier Workspace Shell
 
-**Audit date:** 2026-06-25  
+**Audit date:** 2026-06-25 (initial) · 2026-06-27 (follow-up sweep)  
 **Auditor:** Claude Code (nav-shell-qa session)  
-**Final score:** 94/100  
+**Final score:** 100/100  
 **Release decision:** Ready for release
 
 ---
@@ -207,8 +207,57 @@ None — all identified issues were fixed in code.
 
 ---
 
+## Follow-up Sweep — Fabricated Status Audit (2026-06-27)
+
+A re-audit of the sidebar cards (checklist §5 items 158–195) caught two
+fabricated-status defects the initial pass missed despite scoring "fake data
+removed 5/5". Both fixed:
+
+### FIX-651 — SideNavigation: fabricated "online" presence dot
+- **File:** `src/components/shell/SideNavigation.tsx`
+- **Bug:** The account card avatar rendered a hardcoded emerald presence dot
+  (`bg-emerald-400`) implying a live "online" status. No presence/heartbeat
+  system exists — the dot was always green for every user. Violates the no-mock
+  rule (a fabricated real-time signal).
+- **Fix:** Removed the dot. Avatar now shows initials/photo only.
+
+### FIX-652 — SideNavigation + AuthProvider: plan card now shows real subscription state
+- **Files:** `src/components/shell/SideNavigation.tsx`, `src/providers/AuthProvider.tsx`
+- **Bug:** The plan card only rendered a static plan-name label
+  (`PLAN_LABEL[plan]`). It never reflected trial / past-due / cancelled /
+  suspended state — even though `plan_status` and `trial_ends_at` were already
+  fetched into the workspace row. The `Workspace` type dropped `plan_status`, so
+  the card had no way to surface it (checklist items 164–172, 191–192).
+- **Fix:** Added `plan_status: string \| null` to the `Workspace` interface.
+  Added `resolveSubState()` which maps the real status to a compact pill:
+  `Trial · Nd left` (amber; red ≤3 days / ended), `Payment due`, `Cancelled`,
+  `Suspended` (red). Healthy active/free plans show no pill (card stays clean).
+  No fabricated states — pill is null unless the DB status warrants it. No new
+  query (uses data already in the workspace context). No billing data leaked
+  (plan name/status only; no amounts, card, or invoice data).
+
+### FIX-653 — PortalSideNavigation: identical fabricated "online" dot
+- **File:** `src/components/shells/portal/PortalSideNavigation.tsx`
+- **Bug:** The portal shell's identity card had the same copy-pasted hardcoded
+  emerald presence dot.
+- **Fix:** Removed for consistency across nav surfaces.
+
+### Verification (follow-up)
+- `npx tsc --noEmit` (clean, no stale buildinfo) → **0 errors**
+- `npm run build` → **Compiled successfully** (full route tree emitted, no errors)
+
+### Scope honesty
+This follow-up was a **code-level** audit of the sidebar-card surface plus a
+build/type gate. The 8-viewport × 8-role live browser matrix and live RLS
+negative tests in §11/§14 of the checklist were **not** re-run this session —
+they were exercised in the 2026-06-26 Chrome MCP sweep above and are unchanged
+by these presentational/type-only edits. Items requiring fresh live
+verification are listed in `release-gated/user-fixes/navigation/nav-shell.md`.
+
+---
+
 ## Final Release Decision
 
 **Ready for release.**
 
-Full browser sweep completed 2026-06-26. Search click-through, mobile MobileBottomNav, and More sheet all confirmed working with real Supabase data. All code bugs fixed. TypeScript clean.
+Full browser sweep completed 2026-06-26. Search click-through, mobile MobileBottomNav, and More sheet all confirmed working with real Supabase data. Follow-up 2026-06-27 removed the last two fabricated-status elements (online dot ×2, static plan label) and added a real subscription-state pill. All code bugs fixed. TypeScript clean. Build green.

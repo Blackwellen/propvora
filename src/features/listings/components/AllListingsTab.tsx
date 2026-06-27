@@ -18,7 +18,7 @@ export function AllListingsTab({ listings, onNew }: AllListingsTabProps) {
         action={
           <button
             onClick={onNew}
-            className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700"
+            className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)]"
           >
             <Plus className="w-4 h-4" />
             Create your first listing

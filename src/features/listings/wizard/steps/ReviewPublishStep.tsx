@@ -247,7 +247,7 @@ export function ReviewPublishStep() {
             </div>
           )}
         </div>
-        <button type="button" className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-blue-600 hover:underline">
+        <button type="button" className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[var(--brand)] hover:underline">
           <Eye className="h-3.5 w-3.5" /> View full preview
         </button>
       </Card>

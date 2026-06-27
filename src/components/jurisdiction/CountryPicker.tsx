@@ -53,7 +53,7 @@ export function CountryPicker({
         aria-expanded={open}
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] text-slate-800 hover:border-slate-300 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/20 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] text-slate-800 hover:border-slate-300 focus:outline-none focus:border-[var(--brand)] focus:ring-1 focus:ring-[var(--brand)]/20 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
       >
         <span className="flex items-center gap-2 min-w-0">
           <Globe className="w-4 h-4 text-slate-400 shrink-0" aria-hidden />
@@ -99,7 +99,7 @@ export function CountryPicker({
                       }}
                       className={[
                         "w-full flex items-center justify-between gap-2 px-3.5 py-2 text-[13px] transition-colors",
-                        active ? "bg-[#EFF6FF] text-[#2563EB]" : "text-slate-700 hover:bg-slate-50",
+                        active ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "text-slate-700 hover:bg-slate-50",
                       ].join(" ")}
                     >
                       <span className="flex items-center gap-2 min-w-0">

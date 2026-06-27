@@ -100,7 +100,7 @@ export function SupplierCard({
       className={cn(
         "absolute top-2.5 right-2.5 z-10 inline-flex items-center justify-center w-7 h-7 rounded-lg border transition-all shadow-sm",
         selected
-          ? "bg-[#2563EB] border-[#2563EB] text-white"
+          ? "bg-[var(--brand)] border-[var(--brand)] text-white"
           : "bg-white/95 border-slate-200 text-slate-400 hover:text-slate-600"
       )}
     >
@@ -114,7 +114,7 @@ export function SupplierCard({
         {CompareToggle}
         <Link href={HREF(s.id)} className="block group">
           <article className="flex gap-4 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.09)] hover:-translate-y-0.5 transition-all duration-200">
-            <div className="relative w-28 h-28 shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-[#1D4ED8] to-[#2563EB]">
+            <div className="relative w-28 h-28 shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-[var(--brand-strong)] to-[var(--brand)]">
               {showImage ? (
                 <Image src={s.thumbnailUrl!} alt={s.title} fill className="object-cover" sizes="112px" onError={() => setImgError(true)} />
               ) : (
@@ -125,9 +125,9 @@ export function SupplierCard({
             </div>
             <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-start gap-2">
-                <h3 className="text-[15px] font-bold text-slate-900 leading-snug line-clamp-1 group-hover:text-[#2563EB] transition-colors">{s.title}</h3>
+                <h3 className="text-[15px] font-bold text-slate-900 leading-snug line-clamp-1 group-hover:text-[var(--brand)] transition-colors">{s.title}</h3>
                 {(s.verificationStatus === "verified" || s.verificationStatus === "approved") && (
-                  <BadgeCheck className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" aria-label="Verified" />
+                  <BadgeCheck className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" aria-label="Verified" />
                 )}
               </div>
               <SupplierMetaRow s={s} respond={respond} />
@@ -154,7 +154,7 @@ export function SupplierCard({
       {CompareToggle}
       <Link href={HREF(s.id)} className="block group h-full">
         <article className="relative bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-200 flex flex-col h-full">
-          <div className="relative h-36 overflow-hidden bg-gradient-to-br from-[#1D4ED8] to-[#2563EB]">
+          <div className="relative h-36 overflow-hidden bg-gradient-to-br from-[var(--brand-strong)] to-[var(--brand)]">
             {showImage ? (
               <Image src={s.thumbnailUrl!} alt={s.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width:768px) 100vw, 360px" onError={() => setImgError(true)} />
             ) : (
@@ -165,7 +165,7 @@ export function SupplierCard({
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5">
               {(s.verificationStatus === "verified" || s.verificationStatus === "approved") && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-bold text-[#2563EB] shadow-sm"><BadgeCheck className="w-3 h-3" /> Verified</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-bold text-[var(--brand)] shadow-sm"><BadgeCheck className="w-3 h-3" /> Verified</span>
               )}
               {s.acceptsEmergency && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-red-600/95 px-2 py-0.5 text-[10.5px] font-bold text-white shadow-sm"><Zap className="w-3 h-3" /> Emergency</span>
@@ -177,7 +177,7 @@ export function SupplierCard({
           </div>
 
           <div className="px-3.5 pt-2.5 pb-3 flex flex-col flex-1">
-            <h3 className="text-[14px] font-bold text-slate-900 leading-snug line-clamp-1 group-hover:text-[#2563EB] transition-colors">{s.title}</h3>
+            <h3 className="text-[14px] font-bold text-slate-900 leading-snug line-clamp-1 group-hover:text-[var(--brand)] transition-colors">{s.title}</h3>
             <SupplierMetaRow s={s} respond={respond} />
 
             {s.trades.length > 0 && (

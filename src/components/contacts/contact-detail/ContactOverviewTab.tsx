@@ -80,7 +80,7 @@ export function LandlordOverviewTab({ contact }: { contact: ContactDetail }) {
         {[
           { label:"Properties",   value: contact.linked_properties,           colour:"text-slate-900" },
           { label:"Tenancies",    value: contact.active_tenancies,            colour:"text-emerald-600" },
-          { label:"Planning Sets",value: contact.planning_sets?.length ?? 0,  colour:"text-blue-600" },
+          { label:"Planning Sets",value: contact.planning_sets?.length ?? 0,  colour:"text-[var(--brand)]" },
           { label:"Offers",       value: contact.landlord_offers?.length ?? 0,colour:"text-violet-600" },
         ].map(k => (
           <SectionCard key={k.label} className="p-4">
@@ -95,8 +95,8 @@ export function LandlordOverviewTab({ contact }: { contact: ContactDetail }) {
           <div className="grid sm:grid-cols-2 gap-3">
             {contact.properties?.map((prop, i) => (
               <SectionCard key={i} className="p-3 flex items-center gap-3 hover:shadow-sm transition-all cursor-pointer">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                  <Building2 className="w-4 h-4 text-blue-600" />
+                <div className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                  <Building2 className="w-4 h-4 text-[var(--brand)]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-900 truncate">{prop}</p>
@@ -121,7 +121,7 @@ export function SupplierOverviewTab({ contact }: { contact: ContactDetail }) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { label:"Jobs Completed",  value: sup.jobs_completed,                            colour:"text-emerald-600" },
-            { label:"Avg Response",    value: `${sup.average_response_time}h`,               colour:"text-blue-600" },
+            { label:"Avg Response",    value: `${sup.average_response_time}h`,               colour:"text-[var(--brand)]" },
             { label:"Invoices Paid",   value: (contact.invoices ?? []).filter(i => i.status === "paid").length, colour:"text-slate-900" },
             { label:"Internal Rating", value: `${sup.internal_rating}/5`,                    colour:"text-amber-600" },
           ].map(k => (

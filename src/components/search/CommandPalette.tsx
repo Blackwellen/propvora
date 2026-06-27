@@ -264,7 +264,7 @@ export default function CommandPalette() {
                       selected={active === i}
                       onMouseEnter={() => setActive(i)}
                       onClick={() => go({ kind: "command", cmd })}
-                      icon={<span className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center"><Plus className="w-4 h-4 text-blue-600" /></span>}
+                      icon={<span className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center"><Plus className="w-4 h-4 text-[var(--brand)]" /></span>}
                       title={cmd.label}
                       subtitle={cmd.hint}
                       trailing={<ArrowRight className="w-3.5 h-3.5 text-slate-300" />}

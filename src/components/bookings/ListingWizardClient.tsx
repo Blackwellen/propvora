@@ -298,7 +298,7 @@ export function ListingWizardClient({
                   onClick={() => setActive(s.key)}
                   className={cn(
                     "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium whitespace-nowrap transition-colors shrink-0 lg:w-full",
-                    isActive ? "bg-[#2563EB] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                    isActive ? "bg-[var(--brand)] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                   )}
                 >
                   <span className="shrink-0">
@@ -350,7 +350,7 @@ export function ListingWizardClient({
                           onClick={() => setBookingMode(m)}
                           className={cn(
                             "flex-1 h-10 rounded-xl text-sm font-medium capitalize transition-colors",
-                            bookingMode === m ? "bg-[#2563EB] text-white" : "bg-white text-slate-600 border border-slate-200"
+                            bookingMode === m ? "bg-[var(--brand)] text-white" : "bg-white text-slate-600 border border-slate-200"
                           )}
                         >
                           {m}
@@ -396,7 +396,7 @@ export function ListingWizardClient({
                           onClick={() => toggleAmenity(a)}
                           className={cn(
                             "h-9 px-3 rounded-lg text-[13px] font-medium capitalize transition-colors",
-                            on ? "bg-[#2563EB] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                            on ? "bg-[var(--brand)] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                           )}
                         >
                           {a.replace(/_/g, " ")}
@@ -488,7 +488,7 @@ export function ListingWizardClient({
                   <button
                     onClick={openAvailability}
                     disabled={pending}
-                    className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 disabled:opacity-60"
+                    className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-60"
                   >
                     <CalendarRange className="w-4 h-4" />
                     Open next 180 days
@@ -545,7 +545,7 @@ export function ListingWizardClient({
 }
 
 const inputCls =
-  "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+  "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
 
 function Section({ title, desc, children }: { title: string; desc: string; children: React.ReactNode }) {
   return (

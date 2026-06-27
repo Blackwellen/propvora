@@ -254,7 +254,7 @@ export default function RolesPage() {
             className={cn(
               "shrink-0 px-4 min-h-[44px] rounded-xl text-[12.5px] font-semibold transition-all",
               selectedRole === role
-                ? "bg-[#2563EB] text-white"
+                ? "bg-[var(--brand)] text-white"
                 : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
             )}
           >
@@ -268,8 +268,8 @@ export default function RolesPage() {
 
       {/* Owner notice */}
       {selectedRole === "Owner" && (
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-4">
-          <p className="text-[13px] text-blue-800 font-medium">
+        <div className="bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-2xl p-4 mb-4">
+          <p className="text-[13px] text-[var(--brand-strong)] font-medium">
             Owner role has full access to all features. Permissions cannot be modified.
           </p>
         </div>
@@ -320,7 +320,7 @@ export default function RolesPage() {
                               className={cn(
                                 "w-5 h-5 rounded-md border-2 flex items-center justify-center mx-auto transition-all",
                                 enabled
-                                  ? "bg-[#2563EB] border-[#2563EB]"
+                                  ? "bg-[var(--brand)] border-[var(--brand)]"
                                   : "border-slate-300 hover:border-slate-400",
                                 selectedRole === "Owner" && "cursor-not-allowed opacity-75"
                               )}
@@ -367,7 +367,7 @@ export default function RolesPage() {
           <button
             onClick={handleSave}
             disabled={saving || selectedRole === "Owner"}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-70"
           >
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin" />

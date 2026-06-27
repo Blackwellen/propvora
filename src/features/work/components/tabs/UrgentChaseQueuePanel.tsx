@@ -55,7 +55,7 @@ export function UrgentChaseQueuePanel({ chaseItems }: UrgentChaseQueuePanelProps
             </div>
             <Link
               href="/property-manager/work/tasks"
-              className="shrink-0 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+              className="shrink-0 flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
             >
               Chase <ChevronRight className="w-3 h-3" />
             </Link>

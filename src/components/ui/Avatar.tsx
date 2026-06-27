@@ -15,7 +15,7 @@ const avatarSizes = {
 }
 
 const avatarColours = [
-  "bg-[#2563EB] text-white",
+  "bg-[var(--brand)] text-white",
   "bg-[#7C3AED] text-white",
   "bg-[#10B981] text-white",
   "bg-[#F59E0B] text-white",

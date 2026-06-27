@@ -214,7 +214,7 @@ export default function SupplierJobEvidencePage() {
           <SupplierCard className="p-4 flex items-start gap-2 text-xs text-slate-400">
             <Lock className="w-3.5 h-3.5 mt-0.5 shrink-0" />
             Evidence is private to you until the operator approves it. Once you&apos;ve captured your photos,
-            continue to <Link href={`/supplier/jobs/${id}/sign-off`} className="text-blue-600 font-semibold">sign-off</Link>.
+            continue to <Link href={`/supplier/jobs/${id}/sign-off`} className="text-[var(--brand)] font-semibold">sign-off</Link>.
           </SupplierCard>
         </div>
       )}

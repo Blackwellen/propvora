@@ -21,7 +21,7 @@ export function HmoLicencePanel({ totalRooms }: HmoLicencePanelProps) {
           <span className="text-xs font-semibold text-slate-800">{totalRooms || "—"}</span>
         </div>
         <div className="pt-2 border-t border-slate-100">
-          <button className="text-xs text-blue-600 hover:underline font-medium">
+          <button className="text-xs text-[var(--brand)] hover:underline font-medium">
             View Licence Document →
           </button>
         </div>

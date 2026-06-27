@@ -34,7 +34,7 @@ const PAGE_SIZE = 30
 
 /* ── Presentation helpers ───────────────────────────────────────────────── */
 const SEVERITY_STYLE: Record<string, { bg: string; color: string; ring: string }> = {
-  info:    { bg: "bg-blue-50",    color: "text-blue-600",    ring: "ring-blue-100" },
+  info:    { bg: "bg-[var(--brand-soft)]",    color: "text-[var(--brand)]",    ring: "ring-[var(--color-brand-100)]" },
   success: { bg: "bg-emerald-50", color: "text-emerald-600", ring: "ring-emerald-100" },
   warning: { bg: "bg-amber-50",   color: "text-amber-600",   ring: "ring-amber-100" },
   danger:  { bg: "bg-red-50",     color: "text-red-600",     ring: "ring-red-100" },
@@ -132,22 +132,22 @@ function NotifRow({ n, onActivate }: { n: NotificationRow; onActivate: (n: Notif
           <p className={cn("text-[13.5px] leading-snug truncate", unread ? "font-bold text-slate-900" : "font-semibold text-slate-700")}>
             {n.title}
           </p>
-          {unread && <span className="w-2 h-2 rounded-full bg-[#2563EB] shrink-0" />}
+          {unread && <span className="w-2 h-2 rounded-full bg-[var(--brand)] shrink-0" />}
           <span className="text-[11px] text-slate-400 shrink-0 ml-auto">{relativeTime(n.created_at)}</span>
         </div>
         {n.body && <p className="text-[12.5px] text-slate-500 leading-snug mt-0.5 line-clamp-2">{n.body}</p>}
       </div>
       {href && (
-        <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#2563EB] shrink-0 self-center transition-colors" />
+        <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[var(--brand)] shrink-0 self-center transition-colors" />
       )}
     </div>
   )
   return href ? (
-    <Link href={href} onClick={() => onActivate(n)} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 rounded-xl">
+    <Link href={href} onClick={() => onActivate(n)} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 rounded-xl">
       {body}
     </Link>
   ) : (
-    <button type="button" onClick={() => onActivate(n)} className="block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 rounded-xl">
+    <button type="button" onClick={() => onActivate(n)} className="block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 rounded-xl">
       {body}
     </button>
   )
@@ -401,7 +401,7 @@ export default function NotificationsFeedPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-              <KpiCard label="Total notifications" value={rows.length} icon={<Bell className="w-5 h-5 text-blue-600" />} bg="bg-blue-50" />
+              <KpiCard label="Total notifications" value={rows.length} icon={<Bell className="w-5 h-5 text-[var(--brand)]" />} bg="bg-[var(--brand-soft)]" />
               <KpiCard label="Unread" value={unreadCount} alert={unreadCount > 0 ? "Needs attention" : undefined} icon={<AlertTriangle className="w-5 h-5 text-amber-600" />} bg="bg-amber-50" />
               <KpiCard label="Categories" value={kindOptions.length} icon={<Inbox className="w-5 h-5 text-emerald-600" />} bg="bg-emerald-50" />
             </div>
@@ -417,7 +417,7 @@ export default function NotificationsFeedPage() {
                     onClick={() => setTab(key)}
                     className={cn(
                       "px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
-                      tab === key ? "bg-[#2563EB] text-white shadow-sm" : "text-slate-500 hover:text-slate-700",
+                      tab === key ? "bg-[var(--brand)] text-white shadow-sm" : "text-slate-500 hover:text-slate-700",
                     )}
                   >
                     {label}{key === "unread" && unreadCount > 0 ? ` (${unreadCount})` : ""}
@@ -431,7 +431,7 @@ export default function NotificationsFeedPage() {
                     aria-label="Filter by category"
                     value={kind}
                     onChange={(e) => setKind(e.target.value)}
-                    className="appearance-none h-9 pl-3 pr-8 rounded-lg text-xs font-medium bg-white border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all cursor-pointer"
+                    className="appearance-none h-9 pl-3 pr-8 rounded-lg text-xs font-medium bg-white border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all cursor-pointer"
                   >
                     <option value="all">All categories</option>
                     {kindOptions.map((k) => (
@@ -468,7 +468,7 @@ export default function NotificationsFeedPage() {
                   <p className="text-sm text-slate-400 mt-1">
                     Alerts about tasks, compliance, payments and messages will appear here.
                   </p>
-                  <Link href={sectionLink("/property-manager/messages")} className="mt-3 inline-flex text-sm text-[#2563EB] hover:underline">
+                  <Link href={sectionLink("/property-manager/messages")} className="mt-3 inline-flex text-sm text-[var(--brand)] hover:underline">
                     Go to Messages →
                   </Link>
                 </div>
@@ -476,7 +476,7 @@ export default function NotificationsFeedPage() {
                 <div className="py-16 text-center">
                   <BellOff className="w-7 h-7 text-slate-300 mx-auto mb-2" />
                   <p className="text-sm text-slate-400">No notifications match your filters</p>
-                  <button onClick={() => { setTab("all"); setKind("all") }} className="mt-2 text-xs text-[#2563EB] hover:underline">Clear filters</button>
+                  <button onClick={() => { setTab("all"); setKind("all") }} className="mt-2 text-xs text-[var(--brand)] hover:underline">Clear filters</button>
                 </div>
               ) : (
                 <div>

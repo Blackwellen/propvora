@@ -25,7 +25,7 @@ function buildPopupHtml(p: MapProperty): string {
 
   return `
     <div style="font-family:system-ui,sans-serif;width:240px;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.12);">
-      <div style="position:relative;height:110px;overflow:hidden;background:${p.coverImage ? '#f1f5f9' : (p.type === 'HMO' ? 'linear-gradient(135deg,#1D4ED8 0%,#2563EB 100%)' : p.type === 'BTL' ? 'linear-gradient(135deg,#059669 0%,#10B981 100%)' : p.type === 'SA' ? 'linear-gradient(135deg,#7C3AED 0%,#8B5CF6 100%)' : p.type === 'R2R' ? 'linear-gradient(135deg,#EA580C 0%,#F97316 100%)' : p.type === 'Student' ? 'linear-gradient(135deg,#0891B2 0%,#0EA5E9 100%)' : p.type === 'Co-Living' ? 'linear-gradient(135deg,#DB2777 0%,#EC4899 100%)' : 'linear-gradient(135deg,#475569 0%,#64748B 100%)')};">
+      <div style="position:relative;height:110px;overflow:hidden;background:${p.coverImage ? '#f1f5f9' : (p.type === 'HMO' ? 'linear-gradient(135deg,var(--brand-strong) 0%,var(--brand) 100%)' : p.type === 'BTL' ? 'linear-gradient(135deg,#059669 0%,#10B981 100%)' : p.type === 'SA' ? 'linear-gradient(135deg,#7C3AED 0%,#8B5CF6 100%)' : p.type === 'R2R' ? 'linear-gradient(135deg,#EA580C 0%,#F97316 100%)' : p.type === 'Student' ? 'linear-gradient(135deg,#0891B2 0%,#0EA5E9 100%)' : p.type === 'Co-Living' ? 'linear-gradient(135deg,#DB2777 0%,#EC4899 100%)' : 'linear-gradient(135deg,#475569 0%,#64748B 100%)')};">
         ${p.coverImage ? `<img src="${p.coverImage}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;" />` : ""}
         <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55),transparent)"></div>
         <div style="position:absolute;bottom:8px;left:10px;right:10px;">

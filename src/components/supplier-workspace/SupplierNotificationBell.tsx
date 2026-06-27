@@ -28,11 +28,11 @@ const ICONS: Record<string, LucideIcon> = {
 }
 
 const TONES: Record<string, string> = {
-  lead: "bg-blue-50 text-blue-600", job: "bg-emerald-50 text-emerald-600",
+  lead: "bg-[var(--brand-soft)] text-[var(--brand)]", job: "bg-emerald-50 text-emerald-600",
   quote: "bg-violet-50 text-violet-600", invoice: "bg-rose-50 text-rose-600",
   payout: "bg-amber-50 text-amber-600", review: "bg-amber-50 text-amber-600",
   verification: "bg-sky-50 text-sky-600", insurance: "bg-sky-50 text-sky-600",
-  dispute: "bg-red-50 text-red-600", message: "bg-blue-50 text-blue-600",
+  dispute: "bg-red-50 text-red-600", message: "bg-[var(--brand-soft)] text-[var(--brand)]",
   info: "bg-slate-100 text-slate-500",
 }
 
@@ -80,7 +80,7 @@ export default function SupplierNotificationBell() {
         onClick={() => setOpen((o) => !o)}
         aria-label="Notifications"
         aria-expanded={open}
-        className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+        className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
       >
         <Bell className="w-5 h-5" />
         {unread > 0 && (
@@ -95,7 +95,7 @@ export default function SupplierNotificationBell() {
           <div className="flex items-center justify-between px-4 h-12 border-b border-slate-100">
             <p className="text-sm font-semibold text-slate-900">Notifications</p>
             {unread > 0 && (
-              <button onClick={markAll} className="text-[12px] font-semibold text-[#2563EB] hover:text-[#1d4ed8]">
+              <button onClick={markAll} className="text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]">
                 Mark all read
               </button>
             )}
@@ -120,7 +120,7 @@ export default function SupplierNotificationBell() {
                         {n.body && <p className="text-xs text-slate-500 line-clamp-2 mt-0.5">{n.body}</p>}
                         <p className="text-[11px] text-slate-400 mt-1">{timeAgo(n.created_at)}</p>
                       </div>
-                      {!n.read_at && <span className="w-2 h-2 rounded-full bg-[#2563EB] shrink-0 mt-1.5" />}
+                      {!n.read_at && <span className="w-2 h-2 rounded-full bg-[var(--brand)] shrink-0 mt-1.5" />}
                     </div>
                   )
                   return (
@@ -137,7 +137,7 @@ export default function SupplierNotificationBell() {
             )}
           </div>
           <div className="px-4 h-11 border-t border-slate-100 flex items-center">
-            <Link href="/supplier/notifications" onClick={() => setOpen(false)} className="text-[13px] font-semibold text-[#2563EB] hover:text-[#1d4ed8]">
+            <Link href="/supplier/notifications" onClick={() => setOpen(false)} className="text-[13px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]">
               View all notifications →
             </Link>
           </div>

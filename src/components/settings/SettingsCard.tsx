@@ -137,8 +137,8 @@ export function SettingsToggle({
         onClick={() => !locked && onChange(!enabled)}
         disabled={locked}
         className={cn(
-          "relative w-10 h-6 rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-1",
-          enabled && !locked ? "bg-[#2563EB]" : "bg-slate-200",
+          "relative w-10 h-6 rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1",
+          enabled && !locked ? "bg-[var(--brand)]" : "bg-slate-200",
           locked && "cursor-not-allowed opacity-50"
         )}
       >
@@ -196,7 +196,7 @@ export function SettingsSaveBar({
               type="button"
               onClick={onSave}
               disabled={saving}
-              className="px-5 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold transition-colors disabled:opacity-60 flex items-center gap-2"
+              className="px-5 py-2 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-[13px] font-semibold transition-colors disabled:opacity-60 flex items-center gap-2"
             >
               {saving && (
                 <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />

@@ -80,7 +80,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           </Card>
           <Card title="Supplier">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-9 h-9 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-bold">{order.supplierInitials}</div>
+              <div className="w-9 h-9 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">{order.supplierInitials}</div>
               <div>
                 <p className="text-sm font-semibold text-slate-800">{order.supplierName}</p>
                 {order.supplierRating && <p className="text-xs text-amber-600 flex items-center gap-1"><Star className="w-3 h-3 fill-amber-400 text-amber-400" />{order.supplierRating}</p>}
@@ -102,7 +102,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           <div className="space-y-3">
             {milestones.map(m => (
               <div key={m.id} className="flex items-center gap-3">
-                {m.status === "done" ? <CheckCircle2 className="w-5 h-5 text-emerald-500" /> : m.status === "in_progress" ? <Clock className="w-5 h-5 text-blue-500" /> : <div className="w-5 h-5 rounded-full border-2 border-slate-200" />}
+                {m.status === "done" ? <CheckCircle2 className="w-5 h-5 text-emerald-500" /> : m.status === "in_progress" ? <Clock className="w-5 h-5 text-[var(--brand)]" /> : <div className="w-5 h-5 rounded-full border-2 border-slate-200" />}
                 <div className="flex-1"><p className="text-sm font-medium text-slate-800">{m.label}</p>{m.due && <p className="text-xs text-slate-500">Due {new Date(m.due).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>}</div>
                 {m.amountPence ? <span className="text-sm font-semibold text-slate-700">{formatPence(m.amountPence)}</span> : null}
               </div>
@@ -114,7 +114,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
       {tab === "evidence" && (
         <Card title="Evidence">
           {evidenceMissing ? (
-            <div className="flex flex-col items-center py-8 text-center"><ImageIcon className="w-8 h-8 text-slate-200 mb-2" /><p className="text-sm text-slate-500">No evidence submitted yet.</p><button onClick={() => showToast("Evidence requested")} className="mt-3 text-xs font-semibold text-[#2563EB]">Request evidence</button></div>
+            <div className="flex flex-col items-center py-8 text-center"><ImageIcon className="w-8 h-8 text-slate-200 mb-2" /><p className="text-sm text-slate-500">No evidence submitted yet.</p><button onClick={() => showToast("Evidence requested")} className="mt-3 text-xs font-semibold text-[var(--brand)]">Request evidence</button></div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {attachments.map(a => (
@@ -149,7 +149,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           <Card title="Activity timeline">
             <div className="flex flex-col divide-y divide-slate-100">
               {activity.map(a => (
-                <div key={a.id} className="py-2.5 flex items-start gap-3"><div className="w-2 h-2 rounded-full bg-blue-400 mt-1.5" /><div><p className="text-sm text-slate-700">{a.text}</p><p className="text-xs text-slate-400">{a.actor} · {a.at}</p></div></div>
+                <div key={a.id} className="py-2.5 flex items-start gap-3"><div className="w-2 h-2 rounded-full bg-[var(--color-brand-400)] mt-1.5" /><div><p className="text-sm text-slate-700">{a.text}</p><p className="text-xs text-slate-400">{a.actor} · {a.at}</p></div></div>
               ))}
             </div>
           </Card>
@@ -158,8 +158,8 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
 
       {tab === "notes" && (
         <Card title="Notes">
-          <textarea rows={5} placeholder="Add an internal note…" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
-          <button onClick={() => showToast("Note saved")} className="mt-3 px-3.5 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-sm font-semibold">Save note</button>
+          <textarea rows={5} placeholder="Add an internal note…" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)] resize-none" />
+          <button onClick={() => showToast("Note saved")} className="mt-3 px-3.5 py-2 rounded-lg bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-sm font-semibold">Save note</button>
         </Card>
       )}
 

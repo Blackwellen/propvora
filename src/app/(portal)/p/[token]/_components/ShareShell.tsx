@@ -57,7 +57,7 @@ export function ShareShell({
               {grant.capabilities.map((c) => (
                 <span
                   key={c}
-                  className="inline-flex items-center rounded-full bg-blue-50 text-blue-700 px-2.5 py-0.5 text-[11px] font-semibold"
+                  className="inline-flex items-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)] px-2.5 py-0.5 text-[11px] font-semibold"
                 >
                   {CAP_LABELS[c] ?? c}
                 </span>

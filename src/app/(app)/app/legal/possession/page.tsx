@@ -30,7 +30,7 @@ import {
 
 /* ─── Status config (configurable labels, not legal truth) ───────── */
 const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
-  gathering_evidence: { label: "Gathering Evidence", cls: "bg-blue-100 text-blue-700 border border-blue-200" },
+  gathering_evidence: { label: "Gathering Evidence", cls: "bg-[var(--color-brand-100)] text-[var(--brand)] border border-[var(--color-brand-100)]" },
   notice_draft:       { label: "Drafting Notice",    cls: "bg-slate-100 text-slate-700 border border-slate-200" },
   notice_served:      { label: "Notice Served",      cls: "bg-amber-100 text-amber-700 border border-amber-200" },
   notice_expired:     { label: "Notice Expired",     cls: "bg-orange-100 text-orange-700 border border-orange-200" },
@@ -119,7 +119,7 @@ export default function PossessionPage() {
   ).length
 
   const KPIS = [
-    { icon: Scale,       value: activeCount,    label: "Active Cases",        sub: "In progress",       iconCls: "bg-blue-100 text-blue-600" },
+    { icon: Scale,       value: activeCount,    label: "Active Cases",        sub: "In progress",       iconCls: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
     { icon: FileText,    value: noticesServed,  label: "Notices Served",      sub: "All time",          iconCls: "bg-orange-100 text-orange-600" },
     { icon: Gavel,       value: courtCount,     label: "At Court",            sub: "Applied / scheduled", iconCls: "bg-red-100 text-red-600" },
     { icon: CheckCircle, value: resolvedCount,  label: "Resolved",            sub: "Across all grounds", iconCls: "bg-emerald-100 text-emerald-600" },
@@ -153,8 +153,8 @@ export default function PossessionPage() {
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
-            <Scale className="w-5 h-5 text-blue-600" />
+          <div className="w-9 h-9 rounded-lg bg-[var(--color-brand-100)] flex items-center justify-center shrink-0">
+            <Scale className="w-5 h-5 text-[var(--brand)]" />
           </div>
           <div className="min-w-0">
             <h1 className="text-[15px] font-semibold text-slate-900">Possession Cases</h1>
@@ -174,7 +174,7 @@ export default function PossessionPage() {
           </button>
           <Link
             href="/property-manager/legal/possession/new/select-tenancy"
-            className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
+            className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             New Case
@@ -229,7 +229,7 @@ export default function PossessionPage() {
                 </p>
                 <Link
                   href="/property-manager/legal/possession/new/select-tenancy"
-                  className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors"
+                  className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Start First Case
@@ -375,8 +375,8 @@ export default function PossessionPage() {
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <Rocket className="w-3.5 h-3.5 text-blue-600" />
+                <div className="w-7 h-7 rounded-lg bg-[var(--color-brand-100)] flex items-center justify-center">
+                  <Rocket className="w-3.5 h-3.5 text-[var(--brand)]" />
                 </div>
                 <div>
                   <h3 className="text-[13px] font-semibold text-slate-800">Start a New Case</h3>
@@ -388,7 +388,7 @@ export default function PossessionPage() {
               <ol className="space-y-2 mb-4">
                 {WIZARD_STEPS.map((step, i) => (
                   <li key={i} className="flex items-start gap-2.5">
-                    <span className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-[10px] font-bold text-blue-600 shrink-0 mt-0.5">
+                    <span className="w-5 h-5 rounded-full bg-[var(--brand-soft)] border border-[var(--color-brand-100)] flex items-center justify-center text-[10px] font-bold text-[var(--brand)] shrink-0 mt-0.5">
                       {i + 1}
                     </span>
                     <span className="text-[12px] text-slate-600 leading-tight">{step}</span>
@@ -397,7 +397,7 @@ export default function PossessionPage() {
               </ol>
               <Link
                 href="/property-manager/legal/possession/new/select-tenancy"
-                className="w-full bg-[#2563EB] text-white hover:bg-[#1d4ed8] text-xs font-medium px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors"
+                className="w-full bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors"
               >
                 Start Possession Wizard
               </Link>

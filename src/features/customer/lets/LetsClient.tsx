@@ -39,14 +39,14 @@ export default function LetsClient({ initialTab = "search" }: { initialTab?: str
           <p className="text-[13.5px] text-slate-500 mt-1">Browse long-term rentals and manage your letting journey — viewings, applications, offers and tenancy.</p>
         </div>
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 flex items-center gap-3 max-w-sm">
-          <span className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><Headset className="w-5 h-5" /></span>
+          <span className="w-10 h-10 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center shrink-0"><Headset className="w-5 h-5" /></span>
           <div className="min-w-0"><p className="text-[12px] font-semibold text-slate-700">Need help finding the right home?</p><p className="text-[11px] text-slate-400">Book a call with our lettings team.</p></div>
           <button onClick={() => toast("Booking consultation…", "info")} className="bg-[#0D1B2A] text-white rounded-xl px-3 py-2 text-[11.5px] font-semibold shrink-0">Book a free consultation</button>
         </div>
       </div>
 
       <div className="flex items-center gap-1 border-b border-slate-200 overflow-x-auto">
-        {TABS.map((t) => <button key={t.id} onClick={() => changeTab(t.id)} className={cn("px-4 py-2.5 text-[13.5px] font-semibold border-b-2 -mb-px whitespace-nowrap", t.id === tab ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800")}>{t.label}</button>)}
+        {TABS.map((t) => <button key={t.id} onClick={() => changeTab(t.id)} className={cn("px-4 py-2.5 text-[13.5px] font-semibold border-b-2 -mb-px whitespace-nowrap", t.id === tab ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-500 hover:text-slate-800")}>{t.label}</button>)}
       </div>
 
       {tab === "search" && <LetsSearch />}

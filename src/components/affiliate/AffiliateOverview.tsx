@@ -104,7 +104,7 @@ function SubNetworkMiniPanel({ subs, basePath }: { subs: SubAffiliateRow[]; base
         <CardTitle className="flex items-center gap-2">
           <Network className="w-4 h-4 text-violet-500" /> Your affiliate network
         </CardTitle>
-        <Link href={`${basePath}/network`} className="text-xs text-[#2563EB] hover:underline flex items-center gap-1">
+        <Link href={`${basePath}/network`} className="text-xs text-[var(--brand)] hover:underline flex items-center gap-1">
           Full network <ChevronRight className="w-3 h-3" />
         </Link>
       </CardHeader>
@@ -114,7 +114,7 @@ function SubNetworkMiniPanel({ subs, basePath }: { subs: SubAffiliateRow[]; base
             <Network className="w-6 h-6 text-slate-300 mx-auto" />
             <p className="text-xs text-slate-400">
               No sub-affiliates yet. Share your{" "}
-              <Link href={`${basePath}/links`} className="text-[#2563EB] hover:underline">recruit link</Link>{" "}
+              <Link href={`${basePath}/links`} className="text-[var(--brand)] hover:underline">recruit link</Link>{" "}
               to start building your network.
             </p>
           </div>
@@ -142,7 +142,7 @@ function SubNetworkMiniPanel({ subs, basePath }: { subs: SubAffiliateRow[]; base
               ))}
             </div>
             {subs.length > 3 && (
-              <Link href={`${basePath}/network`} className="block text-xs text-center text-[#2563EB] hover:underline pt-1">
+              <Link href={`${basePath}/network`} className="block text-xs text-center text-[var(--brand)] hover:underline pt-1">
                 View all {subs.length} →
               </Link>
             )}
@@ -264,7 +264,7 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
           </div>
           <h1 className="text-2xl font-bold text-slate-900">Refer &amp; earn with Propvora</h1>
           <p className="text-sm text-slate-600 max-w-md mx-auto">
-            Enrol your workspace in one click. Earn <strong className="text-[#2563EB]">10% recurring
+            Enrol your workspace in one click. Earn <strong className="text-[var(--brand)]">10% recurring
             commission for 6 months</strong> on every paying customer you refer, plus network earn-through
             and cash milestone bonuses.
           </p>
@@ -294,7 +294,7 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
               <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
               <p className="text-sm text-slate-600">
                 By enrolling you agree to the{" "}
-                <Link href="/affiliate-programme/terms" className="text-[#2563EB] hover:underline" target="_blank">
+                <Link href="/affiliate-programme/terms" className="text-[var(--brand)] hover:underline" target="_blank">
                   Affiliate Terms
                 </Link>
                 . Self-referrals and referrals of existing customers are not eligible for commission.
@@ -305,7 +305,7 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
             </Button>
             <p className="text-xs text-slate-400 text-center">
               Not a customer yet? Apply via the{" "}
-              <Link href="/affiliate-programme/apply" className="text-[#2563EB] hover:underline">
+              <Link href="/affiliate-programme/apply" className="text-[var(--brand)] hover:underline">
                 public partner programme
               </Link>
               .
@@ -381,7 +381,7 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
               <div>
                 <p className="text-xs text-slate-400 mb-1">Standard link</p>
                 <div className="bg-slate-50 rounded-lg p-2.5 break-all">
-                  <p className="text-xs font-mono text-[#2563EB]">{affiliateLink || "—"}</p>
+                  <p className="text-xs font-mono text-[var(--brand)]">{affiliateLink || "—"}</p>
                 </div>
               </div>
               {/* Discount link */}
@@ -442,7 +442,7 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
           <Card>
             <CardHeader>
               <CardTitle>Earnings Overview</CardTitle>
-              <Link href={`${basePath}/earnings`} className="text-xs text-[#2563EB] hover:underline flex items-center gap-1">
+              <Link href={`${basePath}/earnings`} className="text-xs text-[var(--brand)] hover:underline flex items-center gap-1">
                 Full details <ChevronRight className="w-3 h-3" />
               </Link>
             </CardHeader>
@@ -454,7 +454,7 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
                 </div>
                 <div className="text-center p-3 rounded-lg bg-slate-50">
                   <p className="text-xs text-slate-400">Direct cleared</p>
-                  <p className="text-lg font-bold text-[#2563EB]">{formatPence(affiliate.cleared_pence ?? 0)}</p>
+                  <p className="text-lg font-bold text-[var(--brand)]">{formatPence(affiliate.cleared_pence ?? 0)}</p>
                 </div>
                 <div className="text-center p-3 rounded-lg bg-slate-50">
                   <p className="text-xs text-slate-400">Network earned</p>
@@ -478,7 +478,7 @@ export function AffiliateOverview({ basePath }: { basePath: string }) {
           <Card>
             <CardHeader>
               <CardTitle>Recent Referrals</CardTitle>
-              <Link href={`${basePath}/referrals`} className="text-xs text-[#2563EB] hover:underline">View all</Link>
+              <Link href={`${basePath}/referrals`} className="text-xs text-[var(--brand)] hover:underline">View all</Link>
             </CardHeader>
             <CardContent>
               {recent.length === 0 ? (

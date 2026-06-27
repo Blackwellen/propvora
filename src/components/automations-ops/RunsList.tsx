@@ -108,7 +108,7 @@ export default function RunsList() {
             onClick={() => setStatus(f.id)}
             className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
               status === f.id
-                ? "border-blue-200 bg-blue-50 text-blue-700"
+                ? "border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand)]"
                 : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
             }`}
           >

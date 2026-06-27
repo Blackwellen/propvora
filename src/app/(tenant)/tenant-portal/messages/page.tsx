@@ -156,7 +156,7 @@ export default function TenantMessagesPage() {
                   onClick={() => setActiveId(c.id)}
                   className={cn(
                     "w-full text-left px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors",
-                    activeId === c.id && "bg-[#EFF6FF]"
+                    activeId === c.id && "bg-[var(--brand-soft)]"
                   )}
                 >
                   <p className="text-sm font-medium text-slate-900 truncate">{c.subject || "Conversation"}</p>
@@ -189,7 +189,7 @@ export default function TenantMessagesPage() {
                       <div key={m.id} className={cn("flex", fromTenant ? "justify-end" : "justify-start")}>
                         <div className={cn(
                           "max-w-[80%] rounded-2xl px-3.5 py-2",
-                          fromTenant ? "bg-[#2563EB] text-white" : "bg-white border border-slate-200 text-slate-800"
+                          fromTenant ? "bg-[var(--brand)] text-white" : "bg-white border border-slate-200 text-slate-800"
                         )}>
                           {!fromTenant && m.sender_name && (
                             <p className="text-[10px] font-semibold text-slate-500 mb-0.5">{m.sender_name}</p>
@@ -209,7 +209,7 @@ export default function TenantMessagesPage() {
               {activeConv && (
                 <div className="border-t border-slate-200 p-3 flex items-end gap-2 shrink-0 bg-white">
                   <textarea
-                    className="flex-1 h-10 max-h-28 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 resize-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+                    className="flex-1 h-10 max-h-28 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 resize-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
                     placeholder="Type a message..."
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}

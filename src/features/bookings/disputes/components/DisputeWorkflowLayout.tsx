@@ -98,7 +98,7 @@ export default function DisputeWorkflowLayout({
                 <span className="truncate">{dispute.property_name}</span>
               </div>
               <div className="mt-3 space-y-1.5 text-sm">
-                <Row label="Booking" value={<Link href={`/property-manager/bookings/${dispute.booking_id}`} className="text-blue-600 hover:underline">{dispute.booking_reference}</Link>} />
+                <Row label="Booking" value={<Link href={`/property-manager/bookings/${dispute.booking_id}`} className="text-[var(--brand)] hover:underline">{dispute.booking_reference}</Link>} />
                 <Row label="Order" value={dispute.order_reference ?? '—'} />
                 <Row label="Currency" value={dispute.currency} />
                 {dispute.sla_due && <Row label="SLA due" value={fmtDateTime(dispute.sla_due)} />}
@@ -114,7 +114,7 @@ export default function DisputeWorkflowLayout({
               <ol className="space-y-3">
                 {dispute.timeline.slice().reverse().map((t) => (
                   <li key={t.id} className="flex gap-2.5">
-                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[var(--brand)] shrink-0" />
                     <div className="min-w-0">
                       <p className="text-xs font-medium text-slate-800">{t.label}</p>
                       {t.detail && <p className="text-[11px] text-slate-500">{t.detail}</p>}

@@ -283,7 +283,7 @@ export default function DocumentsPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-[#2563EB] transition-colors" title="Download">
+                            <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-[var(--brand)] transition-colors" title="Download">
                               <Download className="w-3.5 h-3.5" />
                             </button>
                             <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-[#7C3AED] transition-colors" title="Preview">

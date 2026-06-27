@@ -89,7 +89,7 @@ function RangeControl({
         <div className="absolute top-1/2 left-0 right-0 h-1 -translate-y-1/2 rounded-full bg-slate-200" />
         {/* selected range */}
         <div
-          className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-blue-600"
+          className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-[var(--brand)]"
           style={{ left: `${pct(lo)}%`, right: `${100 - pct(hi)}%` }}
         />
         <input
@@ -152,7 +152,7 @@ function MultiControl({
             <span>{opt.label}</span>
             <span className={cn(
               'flex h-5 w-5 items-center justify-center rounded-md border transition-colors',
-              on ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300',
+              on ? 'border-[var(--brand)] bg-[var(--brand)] text-white' : 'border-slate-300',
             )}>
               {on && <Check className="h-3.5 w-3.5" />}
             </span>
@@ -288,7 +288,7 @@ export default function FilterBar({ filters, value, onChange, sort, resultCount,
       <span className="flex shrink-0 items-center gap-1.5 text-[13px] font-medium text-slate-400">
         <SlidersHorizontal className="h-4 w-4" />
         {activeCount > 0 && (
-          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-[11px] font-bold text-white">{activeCount}</span>
+          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--brand)] px-1 text-[11px] font-bold text-white">{activeCount}</span>
         )}
       </span>
 
@@ -304,7 +304,7 @@ export default function FilterBar({ filters, value, onChange, sort, resultCount,
             aria-pressed={active}
             aria-expanded={openId === def.id}
             className={cn(
-              'shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13.5px] font-medium transition-colors whitespace-nowrap focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600',
+              'shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13.5px] font-medium transition-colors whitespace-nowrap focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)]',
               def.kind === 'toggle' && def.danger
                 ? active ? 'border-red-600 bg-red-600 text-white' : 'border-red-200 text-red-600 hover:bg-red-50'
                 : active
@@ -313,7 +313,7 @@ export default function FilterBar({ filters, value, onChange, sort, resultCount,
             )}
           >
             {def.label}
-            {summary && <span className={cn('rounded-full px-1.5 text-[11px] font-bold', active ? 'bg-white/20' : 'bg-blue-50 text-blue-700')}>{summary}</span>}
+            {summary && <span className={cn('rounded-full px-1.5 text-[11px] font-bold', active ? 'bg-white/20' : 'bg-[var(--brand-soft)] text-[var(--brand)]')}>{summary}</span>}
             {def.kind !== 'toggle' && <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', openId === def.id && 'rotate-180')} />}
           </button>
         )
@@ -335,7 +335,7 @@ export default function FilterBar({ filters, value, onChange, sort, resultCount,
       {activeCount > 0 && (
         <button
           onClick={clearAll}
-          className={cn('shrink-0 inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[13px] font-medium text-blue-600 hover:bg-blue-50 whitespace-nowrap', sort ? '' : 'ml-auto')}
+          className={cn('shrink-0 inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[13px] font-medium text-[var(--brand)] hover:bg-[var(--brand-soft)] whitespace-nowrap', sort ? '' : 'ml-auto')}
         >
           <X className="h-3.5 w-3.5" /> Clear all
         </button>
@@ -348,7 +348,7 @@ export default function FilterBar({ filters, value, onChange, sort, resultCount,
           footer={
             <>
               <button onClick={() => clearOne(openDef.id)} className="text-[13px] font-medium text-slate-500 hover:text-slate-700">Reset</button>
-              <button onClick={() => applyDraft(openDef.id)} className="rounded-lg bg-blue-600 px-4 py-1.5 text-[13px] font-semibold text-white hover:bg-blue-700">Apply</button>
+              <button onClick={() => applyDraft(openDef.id)} className="rounded-lg bg-[var(--brand)] px-4 py-1.5 text-[13px] font-semibold text-white hover:bg-[var(--brand-strong)]">Apply</button>
             </>
           }
         >

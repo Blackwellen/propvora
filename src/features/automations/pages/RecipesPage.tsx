@@ -75,11 +75,11 @@ export default function RecipesPage() {
   )
 
   const badgeColor: Record<string, string> = {
-    "Most popular": "bg-blue-50 text-blue-700",
+    "Most popular": "bg-[var(--brand-soft)] text-[var(--brand)]",
     "High impact": "bg-violet-50 text-violet-700",
     "Time saver": "bg-emerald-50 text-emerald-700",
     "Risk reducer": "bg-amber-50 text-amber-700",
-    New: "bg-blue-50 text-blue-700",
+    New: "bg-[var(--brand-soft)] text-[var(--brand)]",
     Popular: "bg-emerald-50 text-emerald-700",
   }
 
@@ -96,7 +96,7 @@ export default function RecipesPage() {
           <button
             key={c}
             onClick={() => setCategory(c)}
-            className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${category === c ? "border-blue-200 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
+            className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${category === c ? "border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
           >
             {c}
           </button>
@@ -109,13 +109,13 @@ export default function RecipesPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search recipes…"
-          className="w-48 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+          className="w-48 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-[var(--color-brand-400)] focus:outline-none"
         />
         {["Trigger", "Module", "Use case", "Complexity"].map((f) => (
           <span key={f} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">{f}: All</span>
         ))}
         <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700"><AutomationsReviewFirstBadge /></span>
-        <button onClick={() => setOnlyFav((v) => !v)} className={`rounded-lg border px-3 py-2 text-sm ${onlyFav ? "border-blue-200 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-600"}`}>Only my favourites</button>
+        <button onClick={() => setOnlyFav((v) => !v)} className={`rounded-lg border px-3 py-2 text-sm ${onlyFav ? "border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 bg-white text-slate-600"}`}>Only my favourites</button>
         <span className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">Sort by Popularity</span>
         <div className="ml-auto flex items-center rounded-lg border border-slate-200 bg-white p-0.5">
           <button onClick={() => setView("grid")} className={`grid h-7 w-7 place-items-center rounded ${view === "grid" ? "bg-slate-100 text-slate-800" : "text-slate-400"}`}><LayoutGrid className="h-4 w-4" /></button>

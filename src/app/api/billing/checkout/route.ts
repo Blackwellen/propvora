@@ -107,8 +107,8 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `${appUrl}/app/workspace-settings/billing?checkout=success`,
-      cancel_url: `${appUrl}/app/workspace-settings/billing?checkout=cancelled`,
+      success_url: `${appUrl}/property-manager/workspace/billing/renewals?checkout=success`,
+      cancel_url: `${appUrl}/property-manager/workspace/billing/checkout?checkout=cancelled`,
       subscription_data: {
         trial_period_days: 7,
         metadata: {

@@ -62,7 +62,7 @@ function InputField({
         placeholder={placeholder}
         disabled={disabled}
         className={cn(
-          "w-full px-3.5 py-2.5 rounded-xl border text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all",
+          "w-full px-3.5 py-2.5 rounded-xl border text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[var(--brand)] transition-all",
           disabled ? "border-slate-100 bg-slate-50 text-slate-400 cursor-not-allowed" : "border-slate-200"
         )}
       />
@@ -97,7 +97,7 @@ function ToggleRow({
         className={cn(
           "w-10 h-6 rounded-full transition-colors shrink-0 relative",
           disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
-          enabled ? "bg-[#2563EB]" : "bg-slate-200"
+          enabled ? "bg-[var(--brand)]" : "bg-slate-200"
         )}
       >
         <span className={cn(
@@ -256,7 +256,7 @@ export default function WhiteLabelPage() {
       </div>
 
       {/* Info */}
-      <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[12.5px] text-blue-700">
+      <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)] px-4 py-3 text-[12.5px] text-[var(--brand)]">
         <Info className="w-4 h-4 mt-0.5 shrink-0" />
         White-label branding is active on your plan. Changes apply across the app, portals, emails and documents.
       </div>
@@ -367,7 +367,7 @@ export default function WhiteLabelPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-70"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
               {saving ? "Saving…" : saved ? "Saved!" : "Save changes"}

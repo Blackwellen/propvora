@@ -46,7 +46,7 @@ export default function CountryTabs({
             className={[
               "shrink-0 px-4 py-3 text-[13.5px] font-[600] border-b-2 transition-colors whitespace-nowrap",
               resolvedActive === tab.key
-                ? "border-blue-600 text-blue-700"
+                ? "border-[var(--brand)] text-[var(--brand)]"
                 : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300",
             ].join(" ")}
             aria-selected={resolvedActive === tab.key}

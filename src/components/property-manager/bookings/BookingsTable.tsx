@@ -84,7 +84,7 @@ export default function BookingsTable({ bookings, selectedId, onSelect, totalCou
                   onClick={() => onSelect(booking.id)}
                   className={cn(
                     'cursor-pointer hover:bg-slate-50 transition-colors',
-                    isSelected && 'bg-sky-50 border-l-2 border-l-blue-600'
+                    isSelected && 'bg-sky-50 border-l-2 border-l-[var(--brand)]'
                   )}
                 >
                   <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
@@ -100,7 +100,7 @@ export default function BookingsTable({ bookings, selectedId, onSelect, totalCou
                       <div>
                         <p className="text-sm font-semibold text-slate-900">{booking.guest_name}</p>
                         <p className="text-xs text-slate-400">{booking.booking_reference}</p>
-                        <span className="inline-block mt-0.5 bg-blue-50 text-blue-700 text-[10px] px-1.5 py-0.5 rounded-full">
+                        <span className="inline-block mt-0.5 bg-[var(--brand-soft)] text-[var(--brand)] text-[10px] px-1.5 py-0.5 rounded-full">
                           {booking.booking_type === 'long_term' ? 'Long-term' : 'Short stay'}
                         </span>
                       </div>
@@ -130,7 +130,7 @@ export default function BookingsTable({ bookings, selectedId, onSelect, totalCou
                         'text-xs mt-0.5',
                         booking.status === 'checked_in' ? 'text-emerald-600' :
                         booking.status === 'pending' ? 'text-amber-600' :
-                        'text-blue-600'
+                        'text-[var(--brand)]'
                       )}>
                         {booking.status_note}
                       </p>
@@ -149,7 +149,7 @@ export default function BookingsTable({ bookings, selectedId, onSelect, totalCou
                     <p className={cn(
                       'text-xs',
                       booking.payment_status === 'paid' ? 'text-emerald-600' :
-                      booking.payment_status === 'monthly' ? 'text-blue-600' :
+                      booking.payment_status === 'monthly' ? 'text-[var(--brand)]' :
                       'text-slate-400'
                     )}>
                       {booking.payment_status === 'paid' ? 'Paid' :
@@ -188,11 +188,11 @@ export default function BookingsTable({ bookings, selectedId, onSelect, totalCou
       <div className="flex items-center justify-between px-4 py-3.5 border-t border-slate-100">
         <p className="text-sm text-slate-500">Showing 1 to {bookings.length} of {displayTotal} bookings</p>
         <div className="flex items-center gap-1">
-          <button className="w-8 h-8 rounded-lg text-sm font-medium bg-blue-600 text-white">
+          <button className="w-8 h-8 rounded-lg text-sm font-medium bg-[var(--brand)] text-white">
             1
           </button>
         </div>
-        <select className="border border-slate-200 rounded-xl px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select className="border border-slate-200 rounded-xl px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
           <option>10 / page</option>
           <option>25 / page</option>
           <option>50 / page</option>

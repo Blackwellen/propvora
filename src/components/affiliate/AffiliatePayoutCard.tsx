@@ -76,9 +76,9 @@ export default function AffiliatePayoutCard() {
               <button
                 type="button"
                 onClick={() => setMethod("stripe")}
-                className={`flex items-start gap-2.5 rounded-xl border p-3 text-left transition ${method === "stripe" ? "border-[#2563EB] bg-blue-50/40" : "border-slate-200 hover:bg-slate-50"}`}
+                className={`flex items-start gap-2.5 rounded-xl border p-3 text-left transition ${method === "stripe" ? "border-[var(--brand)] bg-[var(--brand-soft)]/40" : "border-slate-200 hover:bg-slate-50"}`}
               >
-                <Wallet className={`mt-0.5 h-5 w-5 shrink-0 ${method === "stripe" ? "text-[#2563EB]" : "text-slate-400"}`} />
+                <Wallet className={`mt-0.5 h-5 w-5 shrink-0 ${method === "stripe" ? "text-[var(--brand)]" : "text-slate-400"}`} />
                 <div>
                   <p className="text-[13.5px] font-semibold text-slate-900">Stripe payouts <span className="ml-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-600">Recommended</span></p>
                   <p className="text-[12px] text-slate-500">Automated, paid in your local currency. Set up once.</p>
@@ -87,9 +87,9 @@ export default function AffiliatePayoutCard() {
               <button
                 type="button"
                 onClick={() => setMethod("manual")}
-                className={`flex items-start gap-2.5 rounded-xl border p-3 text-left transition ${method === "manual" ? "border-[#2563EB] bg-blue-50/40" : "border-slate-200 hover:bg-slate-50"}`}
+                className={`flex items-start gap-2.5 rounded-xl border p-3 text-left transition ${method === "manual" ? "border-[var(--brand)] bg-[var(--brand-soft)]/40" : "border-slate-200 hover:bg-slate-50"}`}
               >
-                <Landmark className={`mt-0.5 h-5 w-5 shrink-0 ${method === "manual" ? "text-[#2563EB]" : "text-slate-400"}`} />
+                <Landmark className={`mt-0.5 h-5 w-5 shrink-0 ${method === "manual" ? "text-[var(--brand)]" : "text-slate-400"}`} />
                 <div>
                   <p className="text-[13.5px] font-semibold text-slate-900">Manual bank transfer</p>
                   <p className="text-[12px] text-slate-500">We collect your bank details securely at payout time.</p>
@@ -108,14 +108,14 @@ export default function AffiliatePayoutCard() {
                     <div className="flex items-center gap-2 text-[13px] font-semibold text-amber-700">
                       <AlertTriangle className="h-4 w-4" /> Stripe onboarding started but not finished.
                     </div>
-                    <button onClick={connect} disabled={busy} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#2563EB] px-3.5 text-[13px] font-semibold text-white hover:bg-[#1d4ed8] disabled:opacity-60">
+                    <button onClick={connect} disabled={busy} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[var(--brand)] px-3.5 text-[13px] font-semibold text-white hover:bg-[var(--brand-strong)] disabled:opacity-60">
                       {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />} Finish Stripe setup
                     </button>
                   </div>
                 ) : (
                   <div className="space-y-2.5">
                     <p className="text-[12.5px] text-slate-600">Connect a Stripe account to receive automated payouts. Stripe verifies your identity and pays you in your local currency — Propvora never holds or sees your bank details.</p>
-                    <button onClick={connect} disabled={busy} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#2563EB] px-3.5 text-[13px] font-semibold text-white hover:bg-[#1d4ed8] disabled:opacity-60">
+                    <button onClick={connect} disabled={busy} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[var(--brand)] px-3.5 text-[13px] font-semibold text-white hover:bg-[var(--brand-strong)] disabled:opacity-60">
                       {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />} Set up Stripe payouts
                     </button>
                   </div>

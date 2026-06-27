@@ -168,7 +168,7 @@ export default function ActivityPage() {
                         <div className="flex-1 min-w-0">
                           <p className="text-[13px] font-semibold text-slate-800">{item.title}</p>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[11.5px] text-[#2563EB] font-medium truncate">{item.setTitle}</span>
+                            <span className="text-[11.5px] text-[var(--brand)] font-medium truncate">{item.setTitle}</span>
                             <ProfileTag profileKey={item.profile} size="sm" />
                           </div>
                         </div>

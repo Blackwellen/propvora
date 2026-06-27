@@ -34,7 +34,7 @@ export function InvoiceWizardStepper({ steps, currentStep, onStepClick }: Invoic
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all text-sm",
                 isActive
-                  ? "bg-blue-50 text-blue-700 font-semibold"
+                  ? "bg-[var(--brand-soft)] text-[var(--brand)] font-semibold"
                   : isDone
                   ? "text-emerald-700 hover:bg-emerald-50"
                   : "text-slate-500 hover:bg-slate-50"
@@ -44,7 +44,7 @@ export function InvoiceWizardStepper({ steps, currentStep, onStepClick }: Invoic
                 className={cn(
                   "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
                   isActive
-                    ? "bg-blue-600 text-white"
+                    ? "bg-[var(--brand)] text-white"
                     : isDone
                     ? "bg-emerald-500 text-white"
                     : "bg-slate-100 text-slate-400"

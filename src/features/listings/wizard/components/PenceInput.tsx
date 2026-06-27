@@ -15,7 +15,7 @@ export function PenceInput({
   const symbol = currency === "GBP" ? "£" : currency === "EUR" ? "€" : currency === "USD" ? "$" : ""
   const major = (pence / 100).toFixed(2)
   return (
-    <div className="flex h-10 items-center rounded-xl border border-slate-200 bg-white px-3 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100">
+    <div className="flex h-10 items-center rounded-xl border border-slate-200 bg-white px-3 focus-within:border-[var(--color-brand-400)] focus-within:ring-2 focus-within:ring-[var(--color-brand-100)]">
       <span className="mr-1 text-[13px] font-semibold text-slate-400">{symbol}</span>
       <input
         type="number"

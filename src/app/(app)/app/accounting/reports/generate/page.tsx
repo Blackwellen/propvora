@@ -72,14 +72,14 @@ export default function ReportGeneratePage() {
                 onClick={() => toggleReport(r.id)}
                 className={cn(
                   "flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all",
-                  selected ? "border-[#2563EB] bg-blue-50/30" : "border-[#E2E8F0] hover:border-slate-300"
+                  selected ? "border-[var(--brand)] bg-[var(--brand-soft)]/30" : "border-[#E2E8F0] hover:border-slate-300"
                 )}
               >
                 {selected
-                  ? <CheckSquare className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
+                  ? <CheckSquare className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
                   : <Square className="w-4 h-4 text-slate-300 shrink-0 mt-0.5" />}
                 <div>
-                  <p className={cn("text-sm font-semibold", selected ? "text-[#2563EB]" : "text-slate-800")}>{r.name}</p>
+                  <p className={cn("text-sm font-semibold", selected ? "text-[var(--brand)]" : "text-slate-800")}>{r.name}</p>
                   <p className="text-xs text-slate-500 mt-0.5">{r.desc}</p>
                   <span className="text-[10px] font-semibold text-slate-500 mt-1 block">{r.category}</span>
                 </div>
@@ -92,7 +92,7 @@ export default function ReportGeneratePage() {
           <div className="flex gap-2">
             <button
               onClick={() => setSelectedReports(new Set(ALL_REPORTS.map((r) => r.id)))}
-              className="text-xs font-medium text-[#2563EB] hover:text-[#1d4ed8]"
+              className="text-xs font-medium text-[var(--brand)] hover:text-[var(--brand-strong)]"
             >
               Select all
             </button>
@@ -119,7 +119,7 @@ export default function ReportGeneratePage() {
             <select
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             >
               <option>Q1 2026 (Apr – Jun)</option>
               <option>Q4 2025 (Jan – Mar)</option>
@@ -128,13 +128,13 @@ export default function ReportGeneratePage() {
           </div>
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Currency</label>
-            <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+            <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30">
               <option>GBP – British Pound</option>
             </select>
           </div>
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Property Scope</label>
-            <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+            <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30">
               <option>All Portfolios</option>
             </select>
           </div>
@@ -147,7 +147,7 @@ export default function ReportGeneratePage() {
                   onClick={() => setFormat(f)}
                   className={cn(
                     "flex-1 h-9 rounded-lg text-sm font-semibold transition-all",
-                    format === f ? "bg-[#2563EB] text-white" : "border border-[#E2E8F0] text-slate-600 hover:bg-slate-50"
+                    format === f ? "bg-[var(--brand)] text-white" : "border border-[#E2E8F0] text-slate-600 hover:bg-slate-50"
                   )}
                 >
                   {f}
@@ -168,7 +168,7 @@ export default function ReportGeneratePage() {
                 type="checkbox"
                 checked={opt.value}
                 onChange={(e) => opt.set(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]"
+                className="w-4 h-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]"
               />
               <span className="text-sm text-slate-700">{opt.label}</span>
             </label>
@@ -191,15 +191,15 @@ export default function ReportGeneratePage() {
               onChange={(e) => setRecipientInput(e.target.value)}
               onKeyDown={addRecipient}
               placeholder="email@example.com — press Enter to add"
-              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             />
           </div>
           {recipients.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {recipients.map((r) => (
-                <span key={r} className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-[#2563EB] text-xs font-medium">
+                <span key={r} className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] text-xs font-medium">
                   {r}
-                  <button onClick={() => setRecipients(recipients.filter((x) => x !== r))} className="hover:text-[#1d4ed8]">×</button>
+                  <button onClick={() => setRecipients(recipients.filter((x) => x !== r))} className="hover:text-[var(--brand-strong)]">×</button>
                 </span>
               ))}
             </div>
@@ -209,13 +209,13 @@ export default function ReportGeneratePage() {
               type="checkbox"
               checked={scheduleRepeat}
               onChange={(e) => setScheduleRepeat(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]"
+              className="w-4 h-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]"
             />
             <span className="text-sm text-slate-700">Schedule as a recurring report</span>
           </label>
           {scheduleRepeat && (
             <div className="flex gap-3 pl-7">
-              <select className="h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+              <select className="h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30">
                 <option>Monthly</option>
                 <option>Quarterly</option>
                 <option>Weekly</option>
@@ -236,7 +236,7 @@ export default function ReportGeneratePage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Selected Reports ({selectedReports.size})</p>
             <div className="flex flex-wrap gap-2">
               {ALL_REPORTS.filter((r) => selectedReports.has(r.id)).map((r) => (
-                <span key={r.id} className="px-2.5 py-1 rounded-lg bg-blue-50 text-[#2563EB] text-xs font-semibold">{r.name}</span>
+                <span key={r.id} className="px-2.5 py-1 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] text-xs font-semibold">{r.name}</span>
               ))}
             </div>
           </div>
@@ -253,7 +253,7 @@ export default function ReportGeneratePage() {
             ))}
           </div>
           {notice && (
-            <div className="px-3.5 py-2.5 rounded-lg bg-blue-50 border border-blue-100 text-xs text-blue-700">{notice}</div>
+            <div className="px-3.5 py-2.5 rounded-lg bg-[var(--brand-soft)] border border-[var(--color-brand-100)] text-xs text-[var(--brand)]">{notice}</div>
           )}
           <div className="flex gap-4">
             <Button

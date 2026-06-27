@@ -30,7 +30,7 @@ function TextInput({ className, ...props }: React.InputHTMLAttributes<HTMLInputE
       {...props}
       className={cn(
         "w-full h-10 px-3 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400",
-        "focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] bg-white transition-all",
+        "focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] bg-white transition-all",
         className,
       )}
     />
@@ -46,9 +46,9 @@ export function EditStepFinancials({ register, errors }: EditStepFinancialsProps
           <TextInput {...register("target_rent")} type="number" min={0} className="pl-7" placeholder="2850" />
         </div>
       </Field>
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <p className="text-sm font-semibold text-blue-800 mb-1">Tip: Operation profile affects metrics</p>
-        <p className="text-xs text-blue-600">
+      <div className="bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-xl p-4">
+        <p className="text-sm font-semibold text-[var(--brand-strong)] mb-1">Tip: Operation profile affects metrics</p>
+        <p className="text-xs text-[var(--brand)]">
           Rent-to-Rent properties will show landlord cost vs achievable rent. HMOs show per-room rent.
           Set your target here for the gross rent roll.
         </p>

@@ -74,13 +74,13 @@ export default function PublicFilterChips({ chips, onChipToggle, onClear }: Publ
             onClick={() => toggle(chip.id)}
             aria-pressed={isActive}
             className={cn(
-              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600',
+              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)]',
               chip.danger
                 ? isActive
                   ? 'bg-red-600 border-red-600 text-white'
                   : 'border-red-200 text-red-600 hover:bg-red-50'
                 : isActive
-                ? 'bg-blue-600 border-blue-600 text-white'
+                ? 'bg-[var(--brand)] border-[var(--brand)] text-white'
                 : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50',
             )}
           >

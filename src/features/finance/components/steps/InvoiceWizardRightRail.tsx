@@ -40,7 +40,7 @@ export function InvoiceWizardRightRail({
         <div className="space-y-1.5 text-sm">
           <div className="flex justify-between">
             <span className="text-xs text-slate-500">Invoice #</span>
-            <span className="font-mono text-xs font-semibold text-blue-600">{invoiceNumber}</span>
+            <span className="font-mono text-xs font-semibold text-[var(--brand)]">{invoiceNumber}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-xs text-slate-500">Recipient</span>

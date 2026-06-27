@@ -196,10 +196,10 @@ export default function ReportIssueWizard({
                   type="button"
                   onClick={() => setCategory(c.key)}
                   className={`flex flex-col items-start gap-2 p-4 rounded-2xl border text-left transition-all ${
-                    active ? "border-[#2563EB] bg-blue-50 ring-2 ring-[#2563EB]/20" : "border-slate-200 bg-white hover:border-slate-300"
+                    active ? "border-[var(--brand)] bg-[var(--brand-soft)] ring-2 ring-[var(--brand)]/20" : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
                 >
-                  <span className={`w-9 h-9 rounded-xl flex items-center justify-center ${active ? "bg-[#2563EB] text-white" : "bg-slate-100 text-slate-500"}`}>
+                  <span className={`w-9 h-9 rounded-xl flex items-center justify-center ${active ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-500"}`}>
                     <Icon className="w-4.5 h-4.5" />
                   </span>
                   <span className="text-[13px] font-semibold text-slate-800">{c.label}</span>
@@ -260,7 +260,7 @@ export default function ReportIssueWizard({
                   <button
                     type="button"
                     onClick={() => fileRef.current?.click()}
-                    className="flex items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 hover:border-[#2563EB] hover:text-[#2563EB] transition-colors"
+                    className="flex items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 hover:border-[var(--brand)] hover:text-[var(--brand)] transition-colors"
                   >
                     <Camera className="w-4 h-4" />
                     {photos.length === 0 ? "Add photos" : "Add more"}
@@ -285,14 +285,14 @@ export default function ReportIssueWizard({
                   type="button"
                   onClick={() => setSeverity(s.key)}
                   className={`w-full flex items-center justify-between gap-3 p-4 rounded-2xl border text-left transition-all ${
-                    active ? "border-[#2563EB] bg-blue-50 ring-2 ring-[#2563EB]/20" : "border-slate-200 bg-white hover:border-slate-300"
+                    active ? "border-[var(--brand)] bg-[var(--brand-soft)] ring-2 ring-[var(--brand)]/20" : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
                 >
                   <span>
                     <span className="block text-[14px] font-semibold text-slate-800">{s.label}</span>
                     <span className="block text-[12px] text-slate-500">{s.hint}</span>
                   </span>
-                  <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${active ? "border-[#2563EB] bg-[#2563EB]" : "border-slate-300"}`}>
+                  <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${active ? "border-[var(--brand)] bg-[var(--brand)]" : "border-slate-300"}`}>
                     {active && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
                   </span>
                 </button>

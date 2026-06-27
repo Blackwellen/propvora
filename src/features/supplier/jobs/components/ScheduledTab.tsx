@@ -121,7 +121,7 @@ export function ScheduledTab({ jobs }: { jobs: SupplierJob[] }) {
                   <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1.5">{shortDate(day)}</p>
                   <div className="space-y-1.5">
                     {jobs.filter((j) => dayKey(j.appointmentAt) === day).map((j) => (
-                      <button key={j.id} onClick={() => setSelectedId(j.id)} className={cn("flex items-center gap-2 w-full text-left rounded-lg border px-3 py-2 hover:bg-slate-50", selected?.id === j.id ? "border-blue-300 bg-blue-50/40" : "border-slate-200")}>
+                      <button key={j.id} onClick={() => setSelectedId(j.id)} className={cn("flex items-center gap-2 w-full text-left rounded-lg border px-3 py-2 hover:bg-slate-50", selected?.id === j.id ? "border-[var(--color-brand-300)] bg-[var(--brand-soft)]/40" : "border-slate-200")}>
                         <span className="text-xs font-semibold text-slate-700 w-12">{timeOf(j.appointmentAt)}</span>
                         <span className="text-sm text-slate-800 flex-1 truncate">{j.title}</span>
                         <SupplierStatusBadge tone={j.appointmentConfirmed ? "emerald" : "amber"}>{j.appointmentConfirmed ? "Confirmed" : "Unconfirmed"}</SupplierStatusBadge>
@@ -141,7 +141,7 @@ export function ScheduledTab({ jobs }: { jobs: SupplierJob[] }) {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {jobs.map((j) => (
-                    <tr key={j.id} onClick={() => setSelectedId(j.id)} className={cn("cursor-pointer hover:bg-slate-50/60", selected?.id === j.id ? "bg-blue-50/40" : "")}>
+                    <tr key={j.id} onClick={() => setSelectedId(j.id)} className={cn("cursor-pointer hover:bg-slate-50/60", selected?.id === j.id ? "bg-[var(--brand-soft)]/40" : "")}>
                       <Td>
                         <p className="font-semibold text-slate-800">{shortDate(j.appointmentAt)} · {timeOf(j.appointmentAt)}</p>
                         <p className="text-xs text-slate-400">{j.address.line1}, {j.address.postcode}</p>
@@ -161,7 +161,7 @@ export function ScheduledTab({ jobs }: { jobs: SupplierJob[] }) {
             <div className="space-y-2">
               {jobs.map((j) => (
                 <button key={j.id} onClick={() => setSelectedId(j.id)} className="text-left w-full">
-                  <SupplierCard className={cn("p-4 transition-all hover:shadow-md", selected?.id === j.id ? "ring-2 ring-blue-500/40" : "")}>
+                  <SupplierCard className={cn("p-4 transition-all hover:shadow-md", selected?.id === j.id ? "ring-2 ring-[var(--brand)]/40" : "")}>
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">{j.title}</p>
@@ -224,7 +224,7 @@ export function ScheduledTab({ jobs }: { jobs: SupplierJob[] }) {
             </PanelSection>
 
             <PanelSection title="Route optimisation" action={<KeyRound className="w-3.5 h-3.5 text-slate-300" />}>
-              <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-3">
+              <div className="rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)]/50 p-3">
                 <p className="text-xs text-slate-600">Reorder today's stops to cut travel time.</p>
                 <SupplierButton size="sm" variant="outline" className="w-full mt-2" onClick={() => push("blue", "Route reordered — est. 22 mins saved. (TODO: persist)")}>
                   <ArrowUpDown className="w-3.5 h-3.5" /> Optimise route

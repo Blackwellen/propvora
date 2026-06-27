@@ -100,9 +100,9 @@ const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
   maintenance:          { label: "Maintenance",     cls: "bg-amber-100 text-amber-700" },
   cleaning:             { label: "Cleaning",        cls: "bg-amber-100 text-amber-700" },
   emergency_contractor: { label: "Emergency",       cls: "bg-red-100 text-red-700" },
-  landlord:             { label: "Landlord",        cls: "bg-blue-100 text-blue-700" },
+  landlord:             { label: "Landlord",        cls: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   agent:                { label: "Agent",           cls: "bg-violet-100 text-violet-700" },
-  legal:                { label: "Legal",           cls: "bg-blue-100 text-blue-700" },
+  legal:                { label: "Legal",           cls: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   accountant:           { label: "Accountant",      cls: "bg-emerald-100 text-emerald-700" },
   insurer:              { label: "Insurer",         cls: "bg-red-100 text-red-700" },
   investor:             { label: "Investor",        cls: "bg-violet-100 text-violet-700" },
@@ -118,7 +118,7 @@ const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
 /* HELPERS                                                              */
 /* ================================================================== */
 
-const AVATAR_BG = ["bg-blue-500","bg-emerald-500","bg-violet-500","bg-amber-500","bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500"]
+const AVATAR_BG = ["bg-[var(--brand)]","bg-emerald-500","bg-violet-500","bg-amber-500","bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500"]
 
 function avatarBg(name: string): string {
   let h = 0
@@ -186,7 +186,7 @@ function OrgListRow({ contact }: { contact: Contact }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-semibold text-slate-900 group-hover:text-[#2563EB] transition-colors">{displayName}</span>
+          <span className="text-sm font-semibold text-slate-900 group-hover:text-[var(--brand)] transition-colors">{displayName}</span>
           <TypeBadge type={contact.contact_type} />
           {contact.city && (
             <span className="hidden sm:flex items-center gap-0.5 text-xs text-slate-400">
@@ -296,7 +296,7 @@ function Pagination({ total, page, onPage }: { total: number; page: number; onPa
               onClick={() => onPage(p)}
               className={cn(
                 "w-8 h-8 rounded-lg text-xs font-medium transition-colors",
-                p === page ? "bg-[#2563EB] text-white" : "border border-slate-200 bg-white hover:bg-slate-50 text-slate-600"
+                p === page ? "bg-[var(--brand)] text-white" : "border border-slate-200 bg-white hover:bg-slate-50 text-slate-600"
               )}
             >
               {p}
@@ -460,7 +460,7 @@ export default function OrganisationsPage() {
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-[#2563EB] text-white hover:bg-[#1d4ed8] transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
           >
             <UserPlus className="w-4 h-4" />
             Add Organisation
@@ -501,9 +501,9 @@ export default function OrganisationsPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-              <KpiCard icon={Building2}   label="Total Orgs"      value={kpiData.total}         iconColour="#2563EB" bg="bg-blue-50"    />
+              <KpiCard icon={Building2}   label="Total Orgs"      value={kpiData.total}         iconColour="#2563EB" bg="bg-[var(--brand-soft)]"    />
               <KpiCard icon={Wrench}      label="Suppliers"       value={kpiData.suppliers}     iconColour="#F59E0B" bg="bg-amber-50"   />
-              <KpiCard icon={Home}        label="Landlords"       value={kpiData.landlords}     iconColour="#2563EB" bg="bg-blue-50"    />
+              <KpiCard icon={Home}        label="Landlords"       value={kpiData.landlords}     iconColour="#2563EB" bg="bg-[var(--brand-soft)]"    />
               <KpiCard icon={Users}       label="Agents"          value={kpiData.agents}        iconColour="#7C3AED" bg="bg-violet-50"  />
               <KpiCard icon={Briefcase}   label="Professionals"   value={kpiData.professionals} iconColour="#0EA5E9" bg="bg-sky-50"     />
               <KpiCard icon={TrendingUp}  label="Investors"       value={kpiData.investors}     iconColour="#10B981" bg="bg-emerald-50" />
@@ -524,10 +524,10 @@ export default function OrganisationsPage() {
                 placeholder="Search organisationsâ€¦"
                 value={searchQuery}
                 onChange={e => handleSearch(e.target.value)}
-                className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+                className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
               />
               {searchQuery && (
-                <button onClick={() => handleSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 rounded">
+                <button onClick={() => handleSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 rounded">
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -542,7 +542,7 @@ export default function OrganisationsPage() {
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap",
                     activeFilter === tab.key
-                      ? "bg-[#2563EB] text-white shadow-sm"
+                      ? "bg-[var(--brand)] text-white shadow-sm"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   )}
                 >
@@ -558,7 +558,7 @@ export default function OrganisationsPage() {
                   aria-label="Sort organisations"
                   value={sortBy}
                   onChange={e => setSortBy(e.target.value as SortKey)}
-                  className="h-9 pl-3 pr-7 rounded-lg border border-slate-200 text-xs text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] cursor-pointer appearance-none"
+                  className="h-9 pl-3 pr-7 rounded-lg border border-slate-200 text-xs text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] cursor-pointer appearance-none"
                 >
                   <option value="recent">Recently updated</option>
                   <option value="name">Name Aâ€“Z</option>
@@ -573,7 +573,7 @@ export default function OrganisationsPage() {
                   onClick={() => setViewMode("cards")}
                   aria-label="Card view"
                   aria-pressed={viewMode === "cards"}
-                  className={cn("p-1.5 rounded-md transition-colors", viewMode === "cards" ? "bg-white text-[#2563EB] shadow-sm" : "text-slate-400 hover:text-slate-600")}
+                  className={cn("p-1.5 rounded-md transition-colors", viewMode === "cards" ? "bg-white text-[var(--brand)] shadow-sm" : "text-slate-400 hover:text-slate-600")}
                 >
                   <LayoutGrid className="w-3.5 h-3.5" />
                 </button>
@@ -581,7 +581,7 @@ export default function OrganisationsPage() {
                   onClick={() => setViewMode("list")}
                   aria-label="List view"
                   aria-pressed={viewMode === "list"}
-                  className={cn("p-1.5 rounded-md transition-colors", viewMode === "list" ? "bg-white text-[#2563EB] shadow-sm" : "text-slate-400 hover:text-slate-600")}
+                  className={cn("p-1.5 rounded-md transition-colors", viewMode === "list" ? "bg-white text-[var(--brand)] shadow-sm" : "text-slate-400 hover:text-slate-600")}
                 >
                   <List className="w-3.5 h-3.5" />
                 </button>
@@ -616,7 +616,7 @@ export default function OrganisationsPage() {
                   <p className="text-sm text-slate-400 mt-1">Try adjusting your search or filters</p>
                   <button
                     onClick={() => { setActiveFilter("all"); setSearchQuery("") }}
-                    className="mt-3 text-sm text-[#2563EB] hover:underline"
+                    className="mt-3 text-sm text-[var(--brand)] hover:underline"
                   >
                     Clear filters
                   </button>
@@ -675,7 +675,7 @@ export default function OrganisationsPage() {
                 <div className="py-20 text-center">
                   <Building2 className="w-10 h-10 text-slate-200 mx-auto mb-3" />
                   <p className="text-sm font-medium text-slate-400">No organisations match your filters</p>
-                  <button onClick={() => { setActiveFilter("all"); setSearchQuery("") }} className="mt-2 text-xs text-[#2563EB] hover:underline">Clear filters</button>
+                  <button onClick={() => { setActiveFilter("all"); setSearchQuery("") }} className="mt-2 text-xs text-[var(--brand)] hover:underline">Clear filters</button>
                 </div>
               ) : (
                 paginated.map(c => <OrgListRow key={c.id} contact={c} />)

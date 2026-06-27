@@ -15,7 +15,7 @@ export const CONTACT_TYPE_OPTIONS: {
   colour: string
 }[] = [
   { value: "tenant",         label: "Tenant",               icon: UserCheck,  desc: "Renting a property from you",             colour: "border-emerald-200 bg-emerald-50 text-emerald-700" },
-  { value: "landlord",       label: "Landlord",             icon: Home,       desc: "Property owner you manage for",            colour: "border-blue-200 bg-blue-50 text-blue-700" },
+  { value: "landlord",       label: "Landlord",             icon: Home,       desc: "Property owner you manage for",            colour: "border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand)]" },
   { value: "supplier",       label: "Supplier / Contractor",icon: Wrench,     desc: "Tradesperson, contractor or vendor",       colour: "border-amber-200 bg-amber-50 text-amber-700" },
   { value: "agent",          label: "Agent",                icon: Users,      desc: "Letting or estate agent",                  colour: "border-violet-200 bg-violet-50 text-violet-700" },
   { value: "applicant",      label: "Applicant",            icon: UserPlus,   desc: "Prospective tenant or enquiry",            colour: "border-sky-200 bg-sky-50 text-sky-700" },

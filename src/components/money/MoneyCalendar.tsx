@@ -78,7 +78,7 @@ export function MoneyCalendar({
   const toneAccent = {
     emerald: "text-emerald-700 bg-emerald-50 border-emerald-100",
     rose: "text-rose-700 bg-rose-50 border-rose-100",
-    blue: "text-blue-700 bg-blue-50 border-blue-100",
+    blue: "text-[var(--brand)] bg-[var(--brand-soft)] border-[var(--color-brand-100)]",
   }[tone]
 
   const monthTotal = useMemo(() => {
@@ -108,20 +108,20 @@ export function MoneyCalendar({
         <div className="flex items-center gap-1">
           <button
             onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}
-            className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+            className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
             aria-label="Previous month"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => setMonth(new Date())}
-            className="h-7 px-2.5 rounded-lg border border-slate-200 text-[11.5px] font-medium text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+            className="h-7 px-2.5 rounded-lg border border-slate-200 text-[11.5px] font-medium text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
           >
             Today
           </button>
           <button
             onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}
-            className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+            className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
             aria-label="Next month"
           >
             <ChevronRight className="w-4 h-4" />
@@ -149,7 +149,7 @@ export function MoneyCalendar({
               className={cn(
                 "min-h-[64px] rounded-lg border p-1.5 flex flex-col",
                 inMonth ? "border-slate-100 bg-white" : "border-transparent bg-slate-50/50",
-                isToday && "ring-1 ring-[#2563EB]/40"
+                isToday && "ring-1 ring-[var(--brand)]/40"
               )}
             >
               <span className={cn("text-[11px] font-medium", inMonth ? "text-slate-500" : "text-slate-300")}>

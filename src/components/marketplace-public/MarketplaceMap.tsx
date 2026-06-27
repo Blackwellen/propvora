@@ -141,7 +141,7 @@ export default function MarketplaceMap({
             const lng = arr.reduce((s, l) => s + (l.longitude as number), 0) / arr.length
             const icon = L.divIcon({
               className: "",
-              html: `<span style="display:grid;place-items:center;width:38px;height:38px;border-radius:9999px;background:#2563EB;color:#fff;font:700 13px system-ui;box-shadow:0 3px 10px rgba(0,0,0,.28);border:2px solid #fff">${arr.length}</span>`,
+              html: `<span style="display:grid;place-items:center;width:38px;height:38px;border-radius:9999px;background:var(--brand);color:#fff;font:700 13px system-ui;box-shadow:0 3px 10px rgba(0,0,0,.28);border:2px solid #fff">${arr.length}</span>`,
               iconSize: [38, 38],
               iconAnchor: [19, 19],
             })

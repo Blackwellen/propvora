@@ -38,7 +38,7 @@ export function HomePortfolioSnapshotCard({ properties }: HomePortfolioSnapshotC
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="text-[13px] font-semibold text-slate-900">Portfolio snapshot</h3>
-        <Link href="/property-manager/portfolio/properties" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/portfolio/properties" className="text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
           View all →
         </Link>
       </div>
@@ -54,7 +54,7 @@ export function HomePortfolioSnapshotCard({ properties }: HomePortfolioSnapshotC
           </div>
           <Link
             href="/property-manager/portfolio/properties/new"
-            className="text-[12px] font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+            className="text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
           >
             Add first property →
           </Link>

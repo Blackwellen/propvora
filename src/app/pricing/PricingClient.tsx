@@ -10,14 +10,14 @@ import PlanCards from "@/components/marketing/pricing/PlanCards"
 import FeatureComparisonTable from "@/components/marketing/pricing/FeatureComparisonTable"
 import PricingFAQ from "@/components/marketing/pricing/PricingFAQ"
 import type { BillingCycle } from "@/components/marketing/pricing/PricingToggle"
-import { getReleasedOperatorAddons, gbp } from "@/lib/billing/plans"
+import { gbp, type AddonDef } from "@/lib/billing/plans"
 import { useT } from "@/components/i18n/LocaleProvider"
 
-// Operator add-ons, sourced from the canonical catalog (names/prices all from
-// src/lib/billing). No prices are duplicated/invented here.
-const operatorAddons = getReleasedOperatorAddons("V1.5")
-
-export default function PricingClient() {
+// Operator add-ons are resolved server-side (release-stage + feature-flag aware)
+// and passed in, so roadmap add-ons stay hidden until their flag ships. Prices
+// all come from the canonical catalog in src/lib/billing — none invented here.
+export default function PricingClient({ addons }: { addons: AddonDef[] }) {
+  const operatorAddons = addons
   const [billing, setBilling] = useState<BillingCycle>("monthly")
   const tFn = useT()
   const tr = (k: string) => tFn(`marketing.${k}`)
@@ -58,7 +58,6 @@ export default function PricingClient() {
                   <p className="text-slate-500 text-xs leading-relaxed">{addon.description}</p>
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {addon.eligibility && <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold text-slate-600">{addon.eligibility}</span>}
-                    {addon.releaseStage !== "V1" && <span className="rounded-full bg-blue-50 px-2 py-1 text-[10px] font-bold text-blue-700">{addon.releaseStage}</span>}
                   </div>
                 </div>
               ))}

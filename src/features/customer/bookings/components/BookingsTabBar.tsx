@@ -23,7 +23,7 @@ interface Props {
 
 function TabBtn({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button onClick={onClick} className={cn("px-3.5 py-2.5 text-[13.5px] font-semibold border-b-2 -mb-px transition-colors", active ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800")}>
+    <button onClick={onClick} className={cn("px-3.5 py-2.5 text-[13.5px] font-semibold border-b-2 -mb-px transition-colors", active ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-500 hover:text-slate-800")}>
       {children}
     </button>
   )

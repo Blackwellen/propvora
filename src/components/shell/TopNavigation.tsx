@@ -52,6 +52,8 @@ interface TopNavigationProps {
   base?: string
   /** If provided, renders an "Ask AI" Copilot button in the right action group. */
   onOpenCopilot?: () => void
+  /** Guided-walkthroughs kill-switch (default ON). When false the tour launcher is hidden. */
+  guidedHelp?: boolean
 }
 
 export function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationProps) {
@@ -214,16 +216,16 @@ export function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationP
                           disabled={isSwitching}
                           className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 transition-colors text-left disabled:opacity-60"
                         >
-                          <div className="w-7 h-7 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
-                            <GroupIcon className="w-3.5 h-3.5 text-[#2563EB]" />
+                          <div className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                            <GroupIcon className="w-3.5 h-3.5 text-[var(--brand)]" />
                           </div>
-                          <span className={`flex-1 text-[13px] truncate ${isActive ? "font-semibold text-[#2563EB]" : "text-slate-700"}`}>
+                          <span className={`flex-1 text-[13px] truncate ${isActive ? "font-semibold text-[var(--brand)]" : "text-slate-700"}`}>
                             {ws.name}
                           </span>
                           {isSwitching ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
                           ) : isActive ? (
-                            <Check className="w-3.5 h-3.5 text-[#2563EB]" />
+                            <Check className="w-3.5 h-3.5 text-[var(--brand)]" />
                           ) : null}
                         </button>
                       )
@@ -259,9 +261,9 @@ export function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationP
         aria-label="Switch workspace"
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex items-center gap-2 h-10 px-3.5 rounded-xl bg-[#F8FBFF] border border-[#DDE8F7] text-[13px] font-semibold text-[#071B4D] hover:bg-[#EBF2FF] hover:border-[#B9D2F3] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+        className="flex items-center gap-2 h-10 px-3.5 rounded-xl bg-[#F8FBFF] border border-[#DDE8F7] text-[13px] font-semibold text-[#071B4D] hover:bg-[#EBF2FF] hover:border-[#B9D2F3] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
       >
-        <Building2 className="w-4 h-4 text-[#2563EB] shrink-0" />
+        <Building2 className="w-4 h-4 text-[var(--brand)] shrink-0" />
         <span className="max-w-[96px] sm:max-w-[160px] truncate">{activeName ?? "Your workspace"}</span>
         <ChevronDown className={`w-3.5 h-3.5 text-[#94A3B8] transition-transform shrink-0 ${open ? "rotate-180" : ""}`} />
       </button>
@@ -270,7 +272,7 @@ export function WorkspaceSwitcher({ workspaceName, workspaceId }: TopNavigationP
   )
 }
 
-export default function TopNavigation({ workspaceName, workspaceId, base = "/property-manager", onOpenCopilot }: TopNavigationProps) {
+export default function TopNavigation({ workspaceName, workspaceId, base = "/property-manager", onOpenCopilot, guidedHelp = true }: TopNavigationProps) {
   const router = useRouter()
   return (
     <header
@@ -301,13 +303,13 @@ export default function TopNavigation({ workspaceName, workspaceId, base = "/pro
 
         <NotificationBell />
 
-        <TutorialLauncher placement="topnav" />
+        {guidedHelp && <TutorialLauncher placement="topnav" />}
 
         {/* Calendar shortcut — hidden on phones to save width */}
         <button
           onClick={() => router.push(`${base}/calendar`)}
           aria-label="Open calendar"
-          className="hidden sm:flex w-[44px] h-[44px] rounded-2xl bg-white border border-[#E2EAF6] items-center justify-center hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+          className="hidden sm:flex w-[44px] h-[44px] rounded-2xl bg-white border border-[#E2EAF6] items-center justify-center hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
         >
           <CalendarIcon className="w-5 h-5 text-[#071B4D]" />
         </button>
@@ -318,7 +320,7 @@ export default function TopNavigation({ workspaceName, workspaceId, base = "/pro
           <button
             onClick={onOpenCopilot}
             aria-label="Open AI Copilot"
-            className="hidden sm:flex items-center gap-1.5 px-3 h-[44px] rounded-2xl bg-blue-50 text-blue-700 hover:bg-blue-100 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 shrink-0"
+            className="hidden sm:flex items-center gap-1.5 px-3 h-[44px] rounded-2xl bg-[var(--brand-soft)] text-[var(--brand)] hover:bg-[var(--color-brand-100)] text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 shrink-0"
           >
             <Sparkles className="w-4 h-4" />
             <span>Ask AI</span>

@@ -66,7 +66,7 @@ function ReviewCard({
         </div>
         <button
           onClick={onEdit}
-          className="flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:text-blue-700 shrink-0 ml-2"
+          className="flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)] shrink-0 ml-2"
         >
           <Edit2 className="w-3 h-3" />
           Edit
@@ -647,7 +647,7 @@ export default function Step09ReviewCreate() {
             </ReviewCard>
 
             {/* 12: AI Review Summary */}
-            <div className="bg-gradient-to-br from-violet-50 to-blue-50 rounded-2xl border border-violet-200/60 p-5">
+            <div className="bg-gradient-to-br from-violet-50 to-[var(--brand-soft)] rounded-2xl border border-violet-200/60 p-5">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-[#7C3AED] flex items-center justify-center shrink-0">
@@ -664,7 +664,7 @@ export default function Step09ReviewCreate() {
                 </div>
                 <button
                   onClick={() => setStep(8)}
-                  className="flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:text-blue-700"
+                  className="flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]"
                 >
                   <Edit2 className="w-3 h-3" />
                   Edit
@@ -874,7 +874,7 @@ export default function Step09ReviewCreate() {
               disabled={isCreating || !canCreate}
               className="w-full flex flex-col items-center justify-center gap-1 h-14 rounded-2xl text-white font-bold transition-all hover:opacity-90 disabled:opacity-60"
               style={{
-                background: "linear-gradient(135deg, #7C3AED, #2563EB)",
+                background: "linear-gradient(135deg, #7C3AED, var(--brand))",
                 boxShadow: "0 8px 24px rgba(124,58,237,0.35)",
               }}
             >
@@ -916,7 +916,7 @@ export default function Step09ReviewCreate() {
             disabled={isCreating || !canCreate}
             className="flex items-center gap-2 h-10 px-6 rounded-xl text-white text-[13.5px] font-bold hover:opacity-90 transition-all disabled:opacity-60"
             style={{
-              background: "linear-gradient(135deg, #7C3AED, #2563EB)",
+              background: "linear-gradient(135deg, #7C3AED, var(--brand))",
               boxShadow: "0 4px 12px rgba(124,58,237,0.3)",
             }}
           >

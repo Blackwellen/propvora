@@ -120,10 +120,10 @@ export default function CalendarGanttPage() {
         <span className="text-[13px] font-medium text-slate-500 mr-1">View:</span>
         <CalendarViewsSwitcher />
         <div className="ml-auto flex items-center gap-2">
-          <button onClick={prevMonth} aria-label="Previous month" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"><ChevronLeft className="w-4 h-4" /></button>
-          <button onClick={goToday} className="text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-medium">This month</button>
-          <button onClick={nextMonth} aria-label="Next month" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"><ChevronRight className="w-4 h-4" /></button>
-          <Link href={sectionLink("/property-manager/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold">
+          <button onClick={prevMonth} aria-label="Previous month" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"><ChevronLeft className="w-4 h-4" /></button>
+          <button onClick={goToday} className="text-[12px] px-3 py-1.5 rounded-md bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] font-medium">This month</button>
+          <button onClick={nextMonth} aria-label="Next month" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"><ChevronRight className="w-4 h-4" /></button>
+          <Link href={sectionLink("/property-manager/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] font-semibold">
             <Plus className="w-3.5 h-3.5" />New Event
           </Link>
         </div>
@@ -153,7 +153,7 @@ export default function CalendarGanttPage() {
                   <span key={d} className="absolute top-1/2 -translate-y-1/2 text-[10px] text-slate-400" style={{ left: `${dayPct(d)}%` }}>{d}</span>
                 ))}
                 {todayDay > 0 && (
-                  <span className="absolute top-0 bottom-0 w-px bg-blue-400" style={{ left: `${dayPct(todayDay)}%` }} />
+                  <span className="absolute top-0 bottom-0 w-px bg-[var(--color-brand-400)]" style={{ left: `${dayPct(todayDay)}%` }} />
                 )}
               </div>
             </div>
@@ -167,7 +167,7 @@ export default function CalendarGanttPage() {
                 </div>
                 <div className="flex-1 relative h-12">
                   {/* today line */}
-                  {todayDay > 0 && <span className="absolute top-0 bottom-0 w-px bg-blue-200" style={{ left: `${dayPct(todayDay)}%` }} />}
+                  {todayDay > 0 && <span className="absolute top-0 bottom-0 w-px bg-[var(--color-brand-100)]" style={{ left: `${dayPct(todayDay)}%` }} />}
                   {row.items.map((it) => {
                     const d = new Date(it.start)
                     const left = dayPct(d.getDate())

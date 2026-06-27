@@ -24,7 +24,7 @@ type Tab = "trip" | "pay" | "checkin" | "issue" | "review"
 
 const STATUS_TONE: Record<string, { label: string; cls: string }> = {
   hold: { label: "On hold", cls: "bg-amber-50 text-amber-700" },
-  pending_payment: { label: "Awaiting payment", cls: "bg-blue-50 text-blue-700" },
+  pending_payment: { label: "Awaiting payment", cls: "bg-[var(--brand-soft)] text-[var(--brand)]" },
   confirmed: { label: "Confirmed", cls: "bg-emerald-50 text-emerald-700" },
   checked_in: { label: "Checked in", cls: "bg-emerald-50 text-emerald-700" },
   checked_out: { label: "Checked out", cls: "bg-slate-100 text-slate-600" },
@@ -96,8 +96,8 @@ export default function GuestPortal({
     return (
       <div className="mx-auto max-w-md px-4 sm:px-6 py-12 sm:py-16">
         <div className="rounded-2xl border border-[#E2EAF6] bg-white shadow-[0_4px_24px_rgba(15,23,42,0.06)] p-7">
-          <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-4">
-            <KeyRound className="w-6 h-6 text-[#1D4ED8]" />
+          <div className="w-12 h-12 rounded-full bg-[var(--brand-soft)] flex items-center justify-center mb-4">
+            <KeyRound className="w-6 h-6 text-[var(--brand-strong)]" />
           </div>
           <h1 className="text-[19px] font-bold text-[#0B1B3F]">Manage your booking</h1>
           <p className="mt-1.5 text-[13px] text-slate-500 leading-relaxed">
@@ -110,7 +110,7 @@ export default function GuestPortal({
                 value={ref}
                 onChange={(e) => setRef(e.target.value.toUpperCase())}
                 placeholder="PV-XXXXXXXX"
-                className="w-full rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15"
+                className="w-full rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[var(--brand-strong)] focus:ring-2 focus:ring-[var(--brand)]/15"
               />
             </div>
             <div>
@@ -120,7 +120,7 @@ export default function GuestPortal({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15"
+                className="w-full rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[var(--brand-strong)] focus:ring-2 focus:ring-[var(--brand)]/15"
               />
             </div>
             {gateError && (
@@ -131,7 +131,7 @@ export default function GuestPortal({
             <button
               type="submit"
               disabled={loading || ref.trim().length < 3 || !email.trim()}
-              className="w-full h-11 rounded-xl bg-[#1D4ED8] text-white text-[14px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full h-11 rounded-xl bg-[var(--brand-strong)] text-white text-[14px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Find my booking"}
             </button>
@@ -196,7 +196,7 @@ export default function GuestPortal({
                 className={cn(
                   "shrink-0 px-3.5 py-3 text-[13px] font-semibold inline-flex items-center gap-1.5 border-b-2 -mb-px transition-colors",
                   tab === t.key
-                    ? "border-[#1D4ED8] text-[#1D4ED8]"
+                    ? "border-[var(--brand-strong)] text-[var(--brand-strong)]"
                     : "border-transparent text-slate-500 hover:text-slate-700"
                 )}
               >
@@ -306,7 +306,7 @@ function PayTab({ trip, canPay }: { trip: GuestTrip; canPay: boolean }) {
       ) : canPay ? (
         <Link
           href={`/stay/${encodeURIComponent(trip.listingSlug ?? trip.listingId ?? "")}/pay?ref=${encodeURIComponent(trip.bookingId)}&hrid=${encodeURIComponent(trip.bookingRef)}`}
-          className="w-full h-11 rounded-xl bg-[#1D4ED8] text-white text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#1A45BE]"
+          className="w-full h-11 rounded-xl bg-[var(--brand-strong)] text-white text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#1A45BE]"
         >
           <Lock className="w-4 h-4" /> Pay securely now
         </Link>
@@ -388,7 +388,7 @@ function CheckinTab({
       {/* Keyless access code — safe-release gated server-side */}
       <div className="mt-4 rounded-xl border border-[#EEF3FB] bg-[#F7F9FC] px-4 py-3.5">
         <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#0B1B3F] mb-1.5">
-          <KeyRound className="w-4 h-4 text-[#1D4ED8]" /> Door access code
+          <KeyRound className="w-4 h-4 text-[var(--brand-strong)]" /> Door access code
         </p>
         {code ? (
           <div>
@@ -411,7 +411,7 @@ function CheckinTab({
               type="button"
               onClick={revealCode}
               disabled={revealing}
-              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[13px] font-semibold bg-[#2563EB] text-white hover:bg-blue-700 disabled:opacity-60"
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[13px] font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-60"
             >
               {revealing ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
               {revealing ? "Checking…" : "Reveal my access code"}
@@ -480,7 +480,7 @@ function IssueTab({ creds }: { creds: { token?: string } | { ref?: string; email
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full h-11 rounded-xl border border-[#D6E0F0] px-3 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15 bg-white"
+            className="w-full h-11 rounded-xl border border-[#D6E0F0] px-3 text-[14px] outline-none focus:border-[var(--brand-strong)] focus:ring-2 focus:ring-[var(--brand)]/15 bg-white"
           >
             {ISSUE_CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -494,7 +494,7 @@ function IssueTab({ creds }: { creds: { token?: string } | { ref?: string; email
           <select
             value={severity}
             onChange={(e) => setSeverity(e.target.value as "low" | "normal" | "urgent")}
-            className="w-full h-11 rounded-xl border border-[#D6E0F0] px-3 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15 bg-white"
+            className="w-full h-11 rounded-xl border border-[#D6E0F0] px-3 text-[14px] outline-none focus:border-[var(--brand-strong)] focus:ring-2 focus:ring-[var(--brand)]/15 bg-white"
           >
             <option value="low">Low</option>
             <option value="normal">Normal</option>
@@ -508,7 +508,7 @@ function IssueTab({ creds }: { creds: { token?: string } | { ref?: string; email
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           placeholder="Brief summary"
-          className="w-full rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15"
+          className="w-full rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[var(--brand-strong)] focus:ring-2 focus:ring-[var(--brand)]/15"
         />
       </div>
       <div>
@@ -517,14 +517,14 @@ function IssueTab({ creds }: { creds: { token?: string } | { ref?: string; email
           value={detail}
           onChange={(e) => setDetail(e.target.value)}
           placeholder="What's happening?"
-          className="w-full min-h-[90px] rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15 resize-y"
+          className="w-full min-h-[90px] rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[var(--brand-strong)] focus:ring-2 focus:ring-[var(--brand)]/15 resize-y"
         />
       </div>
       {error && <p className="text-[12.5px] text-red-600">{error}</p>}
       <button
         type="submit"
         disabled={busy || subject.trim().length < 2}
-        className="w-full h-11 rounded-xl bg-[#1D4ED8] text-white text-[14px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full h-11 rounded-xl bg-[var(--brand-strong)] text-white text-[14px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 flex items-center justify-center gap-2"
       >
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send report"}
       </button>
@@ -615,7 +615,7 @@ function ReviewTab({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Sum up your stay"
-          className="w-full rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15"
+          className="w-full rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[var(--brand-strong)] focus:ring-2 focus:ring-[var(--brand)]/15"
         />
       </div>
       <div>
@@ -624,14 +624,14 @@ function ReviewTab({
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="What was great? What could be better?"
-          className="w-full min-h-[90px] rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/15 resize-y"
+          className="w-full min-h-[90px] rounded-xl border border-[#D6E0F0] px-3.5 py-2.5 text-[14px] outline-none focus:border-[var(--brand-strong)] focus:ring-2 focus:ring-[var(--brand)]/15 resize-y"
         />
       </div>
       {error && <p className="text-[12.5px] text-red-600">{error}</p>}
       <button
         type="submit"
         disabled={busy || rating < 1}
-        className="w-full h-11 rounded-xl bg-[#1D4ED8] text-white text-[14px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full h-11 rounded-xl bg-[var(--brand-strong)] text-white text-[14px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 flex items-center justify-center gap-2"
       >
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit review"}
       </button>

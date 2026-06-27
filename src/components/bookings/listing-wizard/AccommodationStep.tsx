@@ -38,11 +38,11 @@ import { saveAccommodation, saveAmenitySelection, saveKeylessLock } from "./acti
    ONLY the field sets that category needs (short-stay vs long-let vs shared
    room), plus the catalogue-driven amenities picker and — for families that use
    self-check-in — the keyless lock config. Real persistence per sub-save.
-   Styling matches the planning-set wizard (blue #2563EB primary, slate fields).
+   Styling matches the planning-set wizard (blue var(--brand) primary, slate fields).
 ─────────────────────────────────────────────────────────────────────────── */
 
 const inputCls =
-  "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+  "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
 
 interface Props {
   listingId: string
@@ -198,10 +198,10 @@ export function AccommodationStep({
                 }}
                 className={cn(
                   "text-left rounded-xl border p-3 transition-colors",
-                  on ? "border-[#2563EB] bg-blue-50/60 ring-1 ring-[#2563EB]/30" : "border-slate-200 bg-white hover:bg-slate-50"
+                  on ? "border-[var(--brand)] bg-[var(--brand-soft)]/60 ring-1 ring-[var(--brand)]/30" : "border-slate-200 bg-white hover:bg-slate-50"
                 )}
               >
-                <p className={cn("text-[13.5px] font-semibold", on ? "text-[#1D4ED8]" : "text-slate-800")}>
+                <p className={cn("text-[13.5px] font-semibold", on ? "text-[var(--brand-strong)]" : "text-slate-800")}>
                   {c.label}
                 </p>
                 <p className="text-[11.5px] text-slate-500 mt-0.5 leading-snug">{c.description}</p>
@@ -220,7 +220,7 @@ export function AccommodationStep({
                 className={cn(
                   "h-9 px-3 rounded-lg text-[13px] font-medium transition-colors",
                   letType === t.value
-                    ? "bg-[#2563EB] text-white"
+                    ? "bg-[var(--brand)] text-white"
                     : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                 )}
               >
@@ -461,7 +461,7 @@ export function AccommodationStep({
                     className={cn(
                       "flex-1 h-10 rounded-xl text-sm font-medium transition-colors",
                       details.ensuite === o.v
-                        ? "bg-[#2563EB] text-white"
+                        ? "bg-[var(--brand)] text-white"
                         : "bg-white text-slate-600 border border-slate-200"
                     )}
                   >
@@ -516,7 +516,7 @@ export function AccommodationStep({
                         onClick={() => toggleAmenity(a.slug)}
                         className={cn(
                           "h-9 px-3 rounded-lg text-[13px] font-medium transition-colors",
-                          on ? "bg-[#2563EB] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                          on ? "bg-[var(--brand)] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                         )}
                       >
                         {a.label}
@@ -594,7 +594,7 @@ export function AccommodationStep({
 function Header({ icon: Icon, title, desc }: { icon: React.ElementType; title: string; desc: string }) {
   return (
     <div className="flex items-start gap-2.5">
-      <span className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#2563EB] shrink-0">
+      <span className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] shrink-0">
         <Icon className="h-4 w-4" />
       </span>
       <div>

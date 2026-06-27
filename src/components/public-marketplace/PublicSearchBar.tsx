@@ -93,7 +93,7 @@ export default function PublicSearchBar({ variant, onSearch }: PublicSearchBarPr
             type="date"
             value={value}
             onChange={e => onChange(e.target.value)}
-            className="pl-6 w-full text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent cursor-pointer focus:text-blue-600"
+            className="pl-6 w-full text-sm text-slate-700 placeholder-slate-400 outline-none bg-transparent cursor-pointer focus:text-[var(--brand)]"
           />
         </div>
       </div>
@@ -172,7 +172,7 @@ export default function PublicSearchBar({ variant, onSearch }: PublicSearchBarPr
         <div className="px-2 py-2">
           <button
             onClick={handleSearch}
-            className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm rounded-xl transition-colors whitespace-nowrap focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-[var(--brand)] hover:bg-[var(--brand-strong)] active:bg-[var(--brand-strong)] text-white font-semibold text-sm rounded-xl transition-colors whitespace-nowrap focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)]"
           >
             <Search className="h-4 w-4" />
             Search

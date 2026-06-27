@@ -57,7 +57,7 @@ export default function NlComposer({ workspaceId, onDraft }: Props) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
       <div className="flex items-center gap-2">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 text-white"><Wand2 className="h-4 w-4" /></span>
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-[var(--brand)] to-violet-500 text-white"><Wand2 className="h-4 w-4" /></span>
         <div>
           <h2 className="text-sm font-semibold text-slate-900">Describe it in plain English</h2>
           <p className="text-xs text-slate-500">The assistant proposes a draft you review and edit — it never saves or runs anything.</p>
@@ -70,7 +70,7 @@ export default function NlComposer({ workspaceId, onDraft }: Props) {
         onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") generate() }}
         rows={3}
         placeholder="e.g. When a compliance certificate is due within 30 days, create a task to book the renewal."
-        className="mt-4 w-full resize-y rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+        className="mt-4 w-full resize-y rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-800 outline-none focus:border-[var(--color-brand-400)] focus:bg-white focus:ring-2 focus:ring-[var(--color-brand-100)]"
       />
 
       <div className="mt-2 flex flex-wrap gap-1.5">
@@ -87,7 +87,7 @@ export default function NlComposer({ workspaceId, onDraft }: Props) {
       </div>
 
       {error && (
-        <div className={`mt-3 flex items-start gap-2 rounded-lg border px-3 py-2.5 text-xs ${upgrade ? "border-blue-200 bg-blue-50 text-blue-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
+        <div className={`mt-3 flex items-start gap-2 rounded-lg border px-3 py-2.5 text-xs ${upgrade ? "border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand-strong)]" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{error}</span>
         </div>
@@ -105,7 +105,7 @@ export default function NlComposer({ workspaceId, onDraft }: Props) {
         <button
           onClick={generate}
           disabled={!prompt.trim() || loading}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-blue-700 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-[var(--brand-strong)] disabled:opacity-50"
         >
           {loading ? "Drafting…" : "Draft automation"} <ArrowRight className="h-4 w-4" />
         </button>

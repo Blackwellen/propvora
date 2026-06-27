@@ -18,7 +18,7 @@ export function UnitTenancyTab({ unitId, tenancy, tenant }: { unitId: string; te
           <p className="text-[14px] font-semibold text-slate-600">No tenancy for this unit</p>
           <p className="text-[12px] text-slate-500 mt-1">Create a tenancy to track the tenant, rent and deposit.</p>
         </div>
-        <Link href={`/property-manager/portfolio/tenancies/new?unitId=${unitId}`} className="flex items-center gap-1.5 text-[13px] font-semibold text-white bg-blue-600 rounded-xl px-4 py-2 hover:bg-blue-700 transition-colors">
+        <Link href={`/property-manager/portfolio/tenancies/new?unitId=${unitId}`} className="flex items-center gap-1.5 text-[13px] font-semibold text-white bg-[var(--brand)] rounded-xl px-4 py-2 hover:bg-[var(--brand-strong)] transition-colors">
           <Plus className="w-4 h-4" /> New Tenancy
         </Link>
       </div>
@@ -35,7 +35,7 @@ export function UnitTenancyTab({ unitId, tenancy, tenant }: { unitId: string; te
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[14px] font-bold text-slate-900">Tenancy Overview</h3>
-            <Link href={`/property-manager/portfolio/tenancies/${tenancy.id}`} className="flex items-center gap-1.5 text-[12px] text-blue-600 font-semibold hover:underline border border-blue-200 rounded-lg px-3 py-1.5 hover:bg-blue-50 transition-colors">
+            <Link href={`/property-manager/portfolio/tenancies/${tenancy.id}`} className="flex items-center gap-1.5 text-[12px] text-[var(--brand)] font-semibold hover:underline border border-[var(--color-brand-100)] rounded-lg px-3 py-1.5 hover:bg-[var(--brand-soft)] transition-colors">
               <ArrowUpRight className="w-3 h-3" /> Open
             </Link>
           </div>
@@ -43,7 +43,7 @@ export function UnitTenancyTab({ unitId, tenancy, tenant }: { unitId: string; te
             <div>
               <div className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-1">Tenant</div>
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-[10px]">{tenant ? avatarInitials(tenant.full_name) : "—"}</div>
+                <div className="w-6 h-6 rounded-full bg-[var(--color-brand-100)] flex items-center justify-center text-[var(--brand)] font-bold text-[10px]">{tenant ? avatarInitials(tenant.full_name) : "—"}</div>
                 <span className="text-[13px] font-semibold text-slate-800">{tenant?.full_name ?? "Unassigned"}</span>
               </div>
             </div>
@@ -101,7 +101,7 @@ export function UnitTenancyTab({ unitId, tenancy, tenant }: { unitId: string; te
           {tenant ? (
             <div className="space-y-3">
               {tenant.phone && (
-                <a href={`tel:${tenant.phone}`} className="flex items-center gap-2 hover:text-blue-600">
+                <a href={`tel:${tenant.phone}`} className="flex items-center gap-2 hover:text-[var(--brand)]">
                   <Phone className="w-4 h-4 text-slate-400" />
                   <div>
                     <div className="text-[12px] font-semibold text-slate-800">{tenant.phone}</div>
@@ -110,7 +110,7 @@ export function UnitTenancyTab({ unitId, tenancy, tenant }: { unitId: string; te
                 </a>
               )}
               {tenant.email && (
-                <a href={`mailto:${tenant.email}`} className="flex items-center gap-2 hover:text-blue-600">
+                <a href={`mailto:${tenant.email}`} className="flex items-center gap-2 hover:text-[var(--brand)]">
                   <Mail className="w-4 h-4 text-slate-400" />
                   <div>
                     <div className="text-[12px] font-semibold text-slate-800">{tenant.email}</div>
@@ -128,13 +128,13 @@ export function UnitTenancyTab({ unitId, tenancy, tenant }: { unitId: string; te
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
           <h3 className="text-[13px] font-bold text-slate-900 mb-3">Tenancy Actions</h3>
           <div className="space-y-2">
-            <Link href={`/property-manager/portfolio/tenancies/${tenancy.id}`} className="block text-left text-[12px] text-slate-700 font-medium px-3 py-2 rounded-xl border border-slate-200 hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+            <Link href={`/property-manager/portfolio/tenancies/${tenancy.id}`} className="block text-left text-[12px] text-slate-700 font-medium px-3 py-2 rounded-xl border border-slate-200 hover:border-[var(--color-brand-100)] hover:text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors">
               Manage tenancy
             </Link>
-            <Link href={`/property-manager/portfolio/tenancies/${tenancy.id}?tab=deposit`} className="block text-left text-[12px] text-slate-700 font-medium px-3 py-2 rounded-xl border border-slate-200 hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+            <Link href={`/property-manager/portfolio/tenancies/${tenancy.id}?tab=deposit`} className="block text-left text-[12px] text-slate-700 font-medium px-3 py-2 rounded-xl border border-slate-200 hover:border-[var(--color-brand-100)] hover:text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors">
               Deposit & release
             </Link>
-            <Link href={`/property-manager/portfolio/tenancies/${tenancy.id}?tab=payments`} className="block text-left text-[12px] text-blue-600 font-semibold px-3 py-2 rounded-xl border border-blue-200 hover:bg-blue-50 flex items-center gap-1 transition-colors">
+            <Link href={`/property-manager/portfolio/tenancies/${tenancy.id}?tab=payments`} className="block text-left text-[12px] text-[var(--brand)] font-semibold px-3 py-2 rounded-xl border border-[var(--color-brand-100)] hover:bg-[var(--brand-soft)] flex items-center gap-1 transition-colors">
               View payments <ArrowUpRight className="w-3 h-3" />
             </Link>
           </div>

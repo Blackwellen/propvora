@@ -157,7 +157,7 @@ export function EditPen({ onClick }: { onClick?: () => void }) {
     <button
       onClick={onClick}
       aria-label="Edit field"
-      className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity p-1 rounded hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+      className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity p-1 rounded hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
     >
       <Edit2 className="w-3.5 h-3.5 text-slate-400" />
     </button>

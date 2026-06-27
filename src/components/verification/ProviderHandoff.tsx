@@ -106,7 +106,7 @@ export function ProviderHandoff({
         disabled={busy}
         className={cn(
           "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white transition-colors min-h-[48px]",
-          "bg-[#2563EB] hover:bg-[#1d4ed8] disabled:opacity-60 disabled:cursor-wait",
+          "bg-[var(--brand)] hover:bg-[var(--brand-strong)] disabled:opacity-60 disabled:cursor-wait",
           fullWidth && "w-full"
         )}
       >

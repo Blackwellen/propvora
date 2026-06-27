@@ -35,7 +35,7 @@ function EmptyRules({ onNew }: { onNew: () => void }) {
       </p>
       <button
         onClick={onNew}
-        className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-3.5 py-2 text-sm font-medium text-white hover:bg-[var(--brand-strong)]"
       >
         <Plus className="h-4 w-4" /> New automation
       </button>

@@ -52,7 +52,7 @@ export function SubscriptionsTable({ rows, allCount }: Props) {
             {rows.map((s) => (
               <tr key={s.id} className="hover:bg-[#FAFCFF]">
                 <td className="px-4 py-2.5">
-                  <Link href={`/admin/workspaces/${s.workspaceId}`} className="flex items-center gap-1.5 text-[13px] font-semibold text-[#0B1B3F] hover:text-[#2563EB]">
+                  <Link href={`/admin/workspaces/${s.workspaceId}`} className="flex items-center gap-1.5 text-[13px] font-semibold text-[#0B1B3F] hover:text-[var(--brand)]">
                     <Building2 className="w-3.5 h-3.5 text-slate-400" />{s.workspaceName}
                   </Link>
                 </td>

@@ -296,7 +296,7 @@ export default function StayBookingCard({
                 key={s}
                 className={cn(
                   "h-1.5 rounded-full transition-all",
-                  i === stepIndex ? "w-5 bg-[#1D4ED8]" : i < stepIndex ? "w-1.5 bg-[#1D4ED8]" : "w-1.5 bg-slate-200"
+                  i === stepIndex ? "w-5 bg-[var(--brand-strong)]" : i < stepIndex ? "w-1.5 bg-[var(--brand-strong)]" : "w-1.5 bg-slate-200"
                 )}
               />
             ))}
@@ -315,10 +315,10 @@ export default function StayBookingCard({
                   onClick={() => isMobile && setDateSheetOpen(true)}
                   className={cn(
                     "w-full text-left rounded-xl border border-[#D6E0F0] px-3.5 py-3 flex items-center gap-3 transition-colors",
-                    isMobile && "hover:border-[#1D4ED8] active:bg-blue-50"
+                    isMobile && "hover:border-[var(--brand-strong)] active:bg-[var(--brand-soft)]"
                   )}
                 >
-                  <CalendarDays className="w-5 h-5 text-[#1D4ED8] shrink-0" />
+                  <CalendarDays className="w-5 h-5 text-[var(--brand-strong)] shrink-0" />
                   <span className="flex-1 min-w-0">
                     {datesChosen ? (
                       <span className="block text-[13.5px] font-semibold text-[#0B1B3F] truncate">
@@ -363,7 +363,7 @@ export default function StayBookingCard({
               <div className="rounded-xl bg-[#F7F9FC] border border-[#EEF3FB] px-4 py-3.5">
                 {quoteLoading ? (
                   <div className="flex items-center gap-2 py-1 text-[13px] text-slate-500">
-                    <Loader2 className="w-4 h-4 animate-spin text-[#1D4ED8]" /> Updating price…
+                    <Loader2 className="w-4 h-4 animate-spin text-[var(--brand-strong)]" /> Updating price…
                   </div>
                 ) : breakdown ? (
                   breakdown
@@ -381,7 +381,7 @@ export default function StayBookingCard({
                 type="button"
                 disabled={!quoteReady || quoteLoading}
                 onClick={() => setStep("details")}
-                className="w-full h-12 rounded-xl bg-[#1D4ED8] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-xl bg-[var(--brand-strong)] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
               >
                 Continue to guest details
               </button>
@@ -456,7 +456,7 @@ export default function StayBookingCard({
                   type="button"
                   disabled={!detailsValid}
                   onClick={() => setStep("review")}
-                  className="flex-1 h-12 rounded-xl bg-[#1D4ED8] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 transition-colors"
+                  className="flex-1 h-12 rounded-xl bg-[var(--brand-strong)] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 transition-colors"
                 >
                   Review & confirm
                 </button>
@@ -532,7 +532,7 @@ export default function StayBookingCard({
                   type="button"
                   disabled={!allAccepted || submitting || !quoteReady}
                   onClick={handleReserve}
-                  className="flex-1 h-12 rounded-xl bg-[#1D4ED8] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 h-12 rounded-xl bg-[var(--brand-strong)] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <>
@@ -568,7 +568,7 @@ export default function StayBookingCard({
               type="button"
               onClick={() => setDateSheetOpen(false)}
               disabled={!datesChosen}
-              className="w-full h-12 rounded-xl bg-[#1D4ED8] text-white text-[14.5px] font-semibold disabled:opacity-50"
+              className="w-full h-12 rounded-xl bg-[var(--brand-strong)] text-white text-[14.5px] font-semibold disabled:opacity-50"
             >
               {datesChosen ? `Confirm ${nights} night${nights === 1 ? "" : "s"}` : "Select your dates"}
             </button>
@@ -603,7 +603,7 @@ export default function StayBookingCard({
           outline: none;
         }
         :global(.cf-input:focus) {
-          border-color: #1d4ed8;
+          border-color: var(--brand-strong);
           box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
       `}</style>
@@ -696,7 +696,7 @@ function PolicyModal({ policy, onClose }: { policy: BookingPolicyMeta; onClose: 
           <button
             type="button"
             onClick={onClose}
-            className="w-full h-10 rounded-xl bg-[#1D4ED8] text-white text-[13.5px] font-semibold hover:bg-[#1A45BE] transition-colors"
+            className="w-full h-10 rounded-xl bg-[var(--brand-strong)] text-white text-[13.5px] font-semibold hover:bg-[#1A45BE] transition-colors"
           >
             Close
           </button>
@@ -735,7 +735,7 @@ function AcceptBox({
           <span
             className={cn(
               "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors",
-              checked ? "bg-[#1D4ED8] border-[#1D4ED8]" : "border-slate-300 group-hover:border-slate-400"
+              checked ? "bg-[var(--brand-strong)] border-[var(--brand-strong)]" : "border-slate-300 group-hover:border-slate-400"
             )}
           >
             {checked && <Check className="w-3.5 h-3.5 text-white" />}
@@ -752,7 +752,7 @@ function AcceptBox({
                   e.stopPropagation()
                   setShowPolicy(true)
                 }}
-                className="text-[#1D4ED8] underline underline-offset-2 hover:text-[#1A45BE] transition-colors font-medium"
+                className="text-[var(--brand-strong)] underline underline-offset-2 hover:text-[#1A45BE] transition-colors font-medium"
               >
                 View policy
               </button>

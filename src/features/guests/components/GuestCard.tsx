@@ -20,7 +20,7 @@ export interface GuestCardData {
 }
 
 const TYPE_TONE: Record<GuestType, string> = {
-  "Short stay": "bg-blue-50 text-blue-700 border-blue-200",
+  "Short stay": "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",
   "Long-term":  "bg-emerald-50 text-emerald-700 border-emerald-200",
   Mixed:        "bg-violet-50 text-violet-700 border-violet-200",
 }
@@ -94,7 +94,7 @@ export function GuestCard({ guest: g }: GuestCardProps) {
       <td className="px-4 py-3 text-right">
         <Link
           href="/property-manager/bookings"
-          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
+          className="inline-flex items-center gap-1 text-xs font-medium text-[var(--brand)] hover:text-[var(--brand)]"
         >
           Bookings <ArrowUpRight className="w-3.5 h-3.5" />
         </Link>

@@ -121,7 +121,7 @@ export default function DisputeDetailClient({
                 key={t}
                 onClick={() => setTab(t)}
                 className={`px-4 py-3 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-colors ${
-                  tab === t ? "border-[#2563EB] text-[#2563EB]" : "border-transparent text-slate-500 hover:text-slate-700"
+                  tab === t ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-500 hover:text-slate-700"
                 }`}
               >
                 {t}
@@ -197,7 +197,7 @@ export default function DisputeDetailClient({
                 min={0}
                 step="0.01"
                 placeholder="0.00"
-                className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
               />
             </div>
             <div>
@@ -206,7 +206,7 @@ export default function DisputeDetailClient({
                 value={resolution}
                 onChange={(e) => setResolution(e.target.value)}
                 placeholder="e.g. Refunded in full"
-                className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
               />
             </div>
           </div>
@@ -218,7 +218,7 @@ export default function DisputeDetailClient({
                 disabled={busy !== null}
                 className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 text-left ${
                   a.tone === "primary"
-                    ? "bg-[#2563EB] text-white hover:bg-[#1d4ed8]"
+                    ? "bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)]"
                     : a.tone === "danger"
                     ? "bg-red-50 text-red-700 hover:bg-red-100"
                     : "bg-slate-50 text-slate-700 hover:bg-slate-100"
@@ -249,7 +249,7 @@ function ActionList({ actions }: { actions: DisputeActionRow[] }) {
     <ol className="flex flex-col gap-3">
       {actions.map((a) => (
         <li key={a.id} className="flex items-start gap-3">
-          <div className="w-2 h-2 rounded-full bg-[#2563EB] mt-1.5 shrink-0" />
+          <div className="w-2 h-2 rounded-full bg-[var(--brand)] mt-1.5 shrink-0" />
           <div className="flex-1">
             <p className="text-sm font-medium text-slate-800 capitalize">{a.action.replace(/_/g, " ")}</p>
             {a.detail && <p className="text-xs text-slate-500">{a.detail}</p>}

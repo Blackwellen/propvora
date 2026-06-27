@@ -160,7 +160,7 @@ export default function LongTermRentalCard({
             </div>
 
             <div className="mt-2 text-right">
-              <span className="text-xs font-semibold text-blue-600 group-hover:text-blue-700">
+              <span className="text-xs font-semibold text-[var(--brand)] group-hover:text-[var(--brand)]">
                 View details →
               </span>
             </div>

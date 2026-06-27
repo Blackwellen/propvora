@@ -139,7 +139,7 @@ function NoticePreviewInner() {
             <p className="text-white font-bold text-[15px] uppercase tracking-widest">
               {isS21 ? "Section 21 — Draft Summary" : "Section 8 — Draft Summary"}
             </p>
-            <p className="text-blue-200 text-[12px] mt-1">
+            <p className="text-[var(--color-brand-100)] text-[12px] mt-1">
               {isS21 ? "Notice Seeking Possession — no-fault (review only)" : "Notice Seeking Possession (review only)"}
             </p>
           </div>

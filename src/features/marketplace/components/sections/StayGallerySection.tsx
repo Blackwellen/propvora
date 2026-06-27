@@ -26,7 +26,7 @@ export default function StayGallerySection({ images, title, instantBook, intent 
     suppliers: "linear-gradient(135deg, #EA580C 0%, #F97316 100%)",
     emergency: "linear-gradient(135deg, #B91C1C 0%, #EF4444 100%)",
     services: "linear-gradient(135deg, #6D28D9 0%, #8B5CF6 100%)",
-    all: "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
+    all: "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)",
   }
 
   return (
@@ -52,7 +52,7 @@ export default function StayGallerySection({ images, title, instantBook, intent 
           </div>
         )}
         {instantBook && (
-          <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-[#2563EB] shadow-sm">
+          <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-[var(--brand)] shadow-sm">
             <Zap className="w-3 h-3" /> Instant book
           </span>
         )}
@@ -66,7 +66,7 @@ export default function StayGallerySection({ images, title, instantBook, intent 
               onClick={() => setActive(i)}
               className={cn(
                 "relative w-20 h-16 shrink-0 rounded-xl overflow-hidden border-2 transition-all",
-                i === active ? "border-[#2563EB]" : "border-transparent opacity-70 hover:opacity-100"
+                i === active ? "border-[var(--brand)]" : "border-transparent opacity-70 hover:opacity-100"
               )}
               aria-label={`View image ${i + 1}`}
             >

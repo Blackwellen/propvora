@@ -74,8 +74,8 @@ export default async function LandlordMaintenanceDetail({ params }: { params: Pr
         <div className="flex items-center gap-1">
           {STEPS.map((s, i) => { const reached = idx >= i; return (
             <div key={s} className="flex items-center gap-1 flex-1 min-w-0">
-              <div className="flex flex-col items-center gap-1 shrink-0"><span className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${reached ? "bg-[#2563EB] text-white" : "bg-slate-100 text-slate-400"}`}>{reached ? <CheckCircle2 className="w-4 h-4" /> : i + 1}</span><span className={`text-[10px] font-semibold text-center ${reached ? "text-[#071B4D]" : "text-slate-400"}`}>{s}</span></div>
-              {i < STEPS.length - 1 && <span className={`flex-1 h-0.5 ${idx > i ? "bg-[#2563EB]" : "bg-slate-200"}`} />}
+              <div className="flex flex-col items-center gap-1 shrink-0"><span className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${reached ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-400"}`}>{reached ? <CheckCircle2 className="w-4 h-4" /> : i + 1}</span><span className={`text-[10px] font-semibold text-center ${reached ? "text-[#071B4D]" : "text-slate-400"}`}>{s}</span></div>
+              {i < STEPS.length - 1 && <span className={`flex-1 h-0.5 ${idx > i ? "bg-[var(--brand)]" : "bg-slate-200"}`} />}
             </div>
           )})}
         </div>
@@ -91,7 +91,7 @@ export default async function LandlordMaintenanceDetail({ params }: { params: Pr
             </PortalSectionCard>
           )}
           <PortalSectionCard title="Activity & updates" icon={ClipboardList}>
-            <ol className="space-y-3"><li className="flex gap-3"><span className="w-2 h-2 rounded-full bg-[#2563EB] mt-1.5 shrink-0" /><div><p className="text-sm text-slate-700">Request raised</p><p className="text-[11px] text-slate-400">{formatDate(job.created_at)}</p></div></li></ol>
+            <ol className="space-y-3"><li className="flex gap-3"><span className="w-2 h-2 rounded-full bg-[var(--brand)] mt-1.5 shrink-0" /><div><p className="text-sm text-slate-700">Request raised</p><p className="text-[11px] text-slate-400">{formatDate(job.created_at)}</p></div></li></ol>
           </PortalSectionCard>
           <PortalSectionCard title="Attachments & photos" icon={Images}><PortalEmptyState icon={Images} title="No photos yet" /></PortalSectionCard>
         </div>

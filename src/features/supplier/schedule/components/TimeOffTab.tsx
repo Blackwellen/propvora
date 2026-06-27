@@ -16,7 +16,7 @@ import { shortDate } from "@/components/supplier-workspace/format"
 import { useScheduleToast, ViewToggle, LegendDot } from "./shared"
 
 const REASON_STYLE: Record<TimeOffReason, { dot: string; tone: "emerald" | "amber" | "sky" | "violet" | "slate" | "blue" }> = {
-  annual_leave: { dot: "bg-blue-400", tone: "blue" },
+  annual_leave: { dot: "bg-[var(--color-brand-400)]", tone: "blue" },
   pm_off: { dot: "bg-violet-400", tone: "violet" },
   personal: { dot: "bg-amber-400", tone: "amber" },
   training: { dot: "bg-emerald-400", tone: "emerald" },
@@ -121,7 +121,7 @@ export function TimeOffTab() {
                   {monthCells.map((c, i) => (
                     <div key={i} className={cn("aspect-square rounded-md border p-1 text-[10px]",
                       c.inMonth ? "border-slate-100" : "border-transparent text-slate-300")}>
-                      <span className={cn(c.isToday && "font-bold text-blue-600")}>{c.day}</span>
+                      <span className={cn(c.isToday && "font-bold text-[var(--brand)]")}>{c.day}</span>
                       {c.reason && <div className={cn("mt-0.5 h-1.5 rounded-full", REASON_STYLE[c.reason].dot)} />}
                     </div>
                   ))}
@@ -258,7 +258,7 @@ function ToggleRow({ label, desc, value, onChange }: { label: string; desc: stri
         <p className="text-xs text-slate-400">{desc}</p>
       </div>
       <button onClick={onChange} role="switch" aria-checked={value}
-        className={cn("relative w-10 h-6 rounded-full transition-colors shrink-0", value ? "bg-blue-600" : "bg-slate-200")}>
+        className={cn("relative w-10 h-6 rounded-full transition-colors shrink-0", value ? "bg-[var(--brand)]" : "bg-slate-200")}>
         <span className={cn("absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform", value && "translate-x-4")} />
       </button>
     </div>

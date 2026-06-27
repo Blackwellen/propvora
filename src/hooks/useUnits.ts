@@ -18,6 +18,7 @@ export interface Unit {
   // App vocabulary. Mapped to the live `units.status` CHECK
   // (available|occupied|maintenance|offline) at the adapter boundary.
   status: 'occupied' | 'vacant' | 'under_works' | 'reserved'
+  cover_image_url: string | null
   is_demo: boolean
   created_at: string
   updated_at: string
@@ -87,6 +88,7 @@ function fromDb(r: Record<string, unknown>): Unit {
     target_rent: g('rent_amount') ?? null,
     notes: g('notes') ?? null,
     status: STATUS_FROM_DB[dbStatus] ?? 'vacant',
+    cover_image_url: g('cover_image_url') ?? null,
     is_demo: false,
     created_at: g('created_at'),
     updated_at: g('updated_at'),

@@ -18,7 +18,7 @@ export function AiSuggestionsPanel() {
           </span>
           <h3 className="text-sm font-semibold text-slate-900">AI Suggestions</h3>
         </div>
-        <Link href="/property-manager/work/tasks" className="text-[11px] text-[#2563EB] hover:underline">View all →</Link>
+        <Link href="/property-manager/work/tasks" className="text-[11px] text-[var(--brand)] hover:underline">View all →</Link>
       </div>
       <div className="space-y-3">
         {suggestions.map((s, i) => (

@@ -15,7 +15,7 @@ type StatusVariant =
 
 const VARIANT_STYLES: Record<StatusVariant, { label: string; cls: string }> = {
   notice_served:       { label: "Notice Served",       cls: "bg-amber-100 text-amber-700 border border-amber-200" },
-  gathering_evidence:  { label: "Gathering Evidence",  cls: "bg-blue-100 text-blue-700 border border-blue-200" },
+  gathering_evidence:  { label: "Gathering Evidence",  cls: "bg-[var(--color-brand-100)] text-[var(--brand)] border border-[var(--color-brand-100)]" },
   court_applied:       { label: "Court Applied",       cls: "bg-red-100 text-red-700 border border-red-200" },
   possession_granted:  { label: "Possession Granted",  cls: "bg-purple-100 text-purple-700 border border-purple-200" },
   resolved:            { label: "Resolved",            cls: "bg-emerald-100 text-emerald-700 border border-emerald-200" },
@@ -23,7 +23,7 @@ const VARIANT_STYLES: Record<StatusVariant, { label: string; cls: string }> = {
   active:              { label: "Active",              cls: "bg-green-100 text-green-700 border border-green-200" },
   expiring:            { label: "Expiring Soon",       cls: "bg-amber-100 text-amber-700 border border-amber-200" },
   expired:             { label: "Expired",             cls: "bg-red-100 text-red-700 border border-red-200" },
-  pending:             { label: "Pending",             cls: "bg-blue-100 text-blue-700 border border-blue-200" },
+  pending:             { label: "Pending",             cls: "bg-[var(--color-brand-100)] text-[var(--brand)] border border-[var(--color-brand-100)]" },
 }
 
 interface LegalStatusBadgeProps {

@@ -37,7 +37,7 @@ function statusClasses(status: CalendarItem["status"]): string {
 
 function TimelineDot({ section, source, isOverdue }: { section: TimeSection; source: CalendarSource; isOverdue: boolean }) {
   if (section === "past") return <div className="w-3 h-3 rounded-full bg-slate-300 ring-2 ring-white shrink-0" />
-  if (section === "today") return <div className="w-3.5 h-3.5 rounded-full bg-blue-500 ring-2 ring-white shrink-0 shadow-sm" />
+  if (section === "today") return <div className="w-3.5 h-3.5 rounded-full bg-[var(--brand)] ring-2 ring-white shrink-0 shadow-sm" />
   if (isOverdue) return <div className="w-3 h-3 rounded-full bg-red-500 ring-2 ring-white shrink-0" />
   return <div className={cn("w-3 h-3 rounded-full ring-2 ring-white shrink-0", SOURCE_META[source].dot)} />
 }
@@ -46,7 +46,7 @@ function SectionSeparator({ label, accent, pill }: { label: string; accent: stri
   return (
     <div className={cn("flex items-center gap-3 py-3 px-4 rounded-lg mb-2", accent)}>
       <span className="text-xs font-bold uppercase tracking-widest">{label}</span>
-      {pill && <span className="text-[11px] font-semibold bg-blue-600 text-white px-2 py-0.5 rounded-full">{pill}</span>}
+      {pill && <span className="text-[11px] font-semibold bg-[var(--brand)] text-white px-2 py-0.5 rounded-full">{pill}</span>}
       <div className="flex-1 h-px bg-current opacity-20" />
     </div>
   )
@@ -73,7 +73,7 @@ function TimelineEventRow({ item, section }: { item: CalendarItem; section: Time
           className={cn(
             "flex items-start gap-3 p-3 rounded-lg border transition-all hover:shadow-sm",
             isPast && "opacity-70",
-            isOverdue ? "border-red-200 bg-red-50/30" : isToday ? "border-blue-100 bg-blue-50/20" : "border-slate-100 bg-white",
+            isOverdue ? "border-red-200 bg-red-50/30" : isToday ? "border-[var(--color-brand-100)] bg-[var(--brand-soft)]/20" : "border-slate-100 bg-white",
             "hover:border-slate-200"
           )}
         >
@@ -193,8 +193,8 @@ export default function TimelinePage() {
                   )}
                   {today.length > 0 && (
                     <div className="mb-2">
-                      <SectionSeparator label={`Today — ${todayLabel}`} accent="text-blue-600" pill="Today" />
-                      <div className="border-l-2 border-blue-500 pl-1 ml-[9px] rounded">
+                      <SectionSeparator label={`Today — ${todayLabel}`} accent="text-[var(--brand)]" pill="Today" />
+                      <div className="border-l-2 border-[var(--brand)] pl-1 ml-[9px] rounded">
                         {today.map((item) => <TimelineEventRow key={item.key} item={item} section="today" />)}
                       </div>
                     </div>
@@ -271,7 +271,7 @@ export default function TimelinePage() {
                     <Link key={item.key} href={item.href} className="flex items-center gap-3 group">
                       <div className={cn("w-2 h-2 rounded-full shrink-0", SOURCE_META[item.source].dot)} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-700 truncate group-hover:text-blue-700">{item.title}</p>
+                        <p className="text-sm font-medium text-slate-700 truncate group-hover:text-[var(--brand)]">{item.title}</p>
                         <p className="text-xs text-slate-400">{item.sourceLabel}</p>
                       </div>
                       <span className="shrink-0 text-xs font-medium text-slate-500 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-full whitespace-nowrap">

@@ -121,7 +121,7 @@ export default function InspectionsPage() {
           <p className="text-sm text-slate-500 mt-1">Schedule, track and manage property inspections.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => router.push("/property-manager/compliance/inspections/new")} className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+          <button onClick={() => router.push("/property-manager/compliance/inspections/new")} className="inline-flex items-center gap-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <CalendarDays className="w-4 h-4" />
             Schedule inspection
           </button>
@@ -154,8 +154,8 @@ export default function InspectionsPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
-        <ComplianceKpiCard label="Total Scheduled" value={isLoading ? "—" : kpis.total} subtitle="All inspections" icon={CalendarDays} iconBg="bg-blue-50" iconColor="text-blue-600" />
-        <ComplianceKpiCard label="Upcoming" value={isLoading ? "—" : kpis.upcoming} subtitle="Awaiting inspection" icon={CalendarClock} iconBg="bg-blue-50" iconColor="text-blue-600" />
+        <ComplianceKpiCard label="Total Scheduled" value={isLoading ? "—" : kpis.total} subtitle="All inspections" icon={CalendarDays} iconBg="bg-[var(--brand-soft)]" iconColor="text-[var(--brand)]" />
+        <ComplianceKpiCard label="Upcoming" value={isLoading ? "—" : kpis.upcoming} subtitle="Awaiting inspection" icon={CalendarClock} iconBg="bg-[var(--brand-soft)]" iconColor="text-[var(--brand)]" />
         <ComplianceKpiCard label="Overdue" value={isLoading ? "—" : kpis.overdue} subtitle="Require action" icon={AlertTriangle} iconBg="bg-red-50" iconColor="text-red-600" />
         <ComplianceKpiCard label="Completed" value={isLoading ? "—" : kpis.completed} subtitle="Finished" icon={CheckCircle} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
         <ComplianceKpiCard label="Pass Rate" value={isLoading ? "—" : kpis.passRate == null ? "—" : `${kpis.passRate}%`} subtitle="Of completed" icon={XCircle} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
@@ -170,10 +170,10 @@ export default function InspectionsPage() {
             placeholder="Search inspections..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-56"
+            className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)] w-56"
           />
         </div>
-        <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
+        <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]">
           {STATUS_FILTERS.map((s) => (
             <option key={s} value={s}>{s ? humaniseType(s) : "All statuses"}</option>
           ))}
@@ -195,7 +195,7 @@ export default function InspectionsPage() {
               <p className="text-sm font-medium text-slate-700">{inspections.length === 0 ? "No inspections scheduled" : "No inspections match your filters"}</p>
               <p className="text-xs text-slate-400 mt-1 mb-4">{inspections.length === 0 ? "Schedule your first inspection to start tracking." : "Try adjusting your search or filters."}</p>
               {inspections.length === 0 && (
-                <button onClick={() => router.push("/property-manager/compliance/inspections/new")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
+                <button onClick={() => router.push("/property-manager/compliance/inspections/new")} className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-[var(--brand-strong)]">
                   <Plus className="w-3.5 h-3.5" /> Schedule inspection
                 </button>
               )}

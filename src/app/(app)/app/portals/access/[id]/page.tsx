@@ -77,7 +77,7 @@ export default function PortalGrantDetailPage() {
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-lg font-bold shrink-0">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center text-white text-lg font-bold shrink-0">
                 {(grant.contact?.full_name ?? "?").slice(0, 2).toUpperCase()}
               </div>
               <div>
@@ -165,7 +165,7 @@ export default function PortalGrantDetailPage() {
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <KeyRound className="w-4 h-4 text-blue-600" />
+                  <KeyRound className="w-4 h-4 text-[var(--brand)]" />
                   <h3 className="text-sm font-bold text-slate-900">Magic-link token</h3>
                 </div>
                 <span className={cn("inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold", tokenMeta.cls)}>
@@ -196,8 +196,8 @@ export default function PortalGrantDetailPage() {
               <h3 className="text-sm font-bold text-slate-900 mb-4">Portal activity</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                    <Upload className="w-4 h-4 text-blue-600" />
+                  <div className="w-9 h-9 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                    <Upload className="w-4 h-4 text-[var(--brand)]" />
                   </div>
                   <div>
                     <p className="text-lg font-bold text-slate-900 tabular-nums">
@@ -245,7 +245,7 @@ export default function PortalGrantDetailPage() {
 
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
-                <ShieldCheck className="w-4 h-4 text-blue-600" />
+                <ShieldCheck className="w-4 h-4 text-[var(--brand)]" />
                 <h3 className="text-sm font-bold text-slate-900">Security</h3>
               </div>
               <ul className="space-y-1.5 text-[11px] text-slate-500 leading-relaxed">

@@ -53,7 +53,7 @@ function SelectField({
         value={value}
         disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/20 transition-all disabled:opacity-60"
+        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[var(--brand)] focus:ring-1 focus:ring-[var(--brand)]/20 transition-all disabled:opacity-60"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -210,9 +210,9 @@ export default function PreferencesPage() {
         </SectionCard>
 
         {/* Note about jurisdiction */}
-        <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
-          <Globe className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
-          <p className="text-[12px] text-blue-700 leading-relaxed">
+        <div className="flex items-start gap-3 bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-xl px-4 py-3">
+          <Globe className="w-4 h-4 text-[var(--brand)] mt-0.5 shrink-0" />
+          <p className="text-[12px] text-[var(--brand)] leading-relaxed">
             To change your workspace country, legal jurisdiction, tax regime or VAT settings, go to{" "}
             <a href="/property-manager/workspace-settings/jurisdiction" className="underline font-medium">
               Settings → Jurisdiction
@@ -229,7 +229,7 @@ export default function PreferencesPage() {
             className={cn(
               "inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all",
               isDirty && !isPending
-                ? "bg-[#2563EB] text-white hover:bg-blue-700"
+                ? "bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)]"
                 : "bg-slate-100 text-slate-400 cursor-not-allowed"
             )}
           >

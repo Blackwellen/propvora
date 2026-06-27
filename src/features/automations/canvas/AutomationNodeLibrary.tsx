@@ -61,7 +61,7 @@ const GROUP_BG: Partial<Record<AutomationNodeGroup, string>> = {
   Delay: "bg-sky-100 text-sky-700",
   Lookup: "bg-cyan-100 text-cyan-700",
   AI: "bg-violet-100 text-violet-700",
-  Action: "bg-blue-100 text-blue-700",
+  Action: "bg-[var(--color-brand-100)] text-[var(--brand)]",
   Communication: "bg-indigo-100 text-indigo-700",
   Payment: "bg-red-100 text-red-700",
   Approval: "bg-violet-100 text-violet-700",
@@ -150,7 +150,7 @@ export function AutomationNodeLibrary({ onAddNode }: Props) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search nodes…"
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-3 text-xs text-slate-800 placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition"
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-3 text-xs text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-brand-400)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)] transition"
           />
         </div>
         {/* Category pills */}
@@ -162,7 +162,7 @@ export function AutomationNodeLibrary({ onAddNode }: Props) {
               className={[
                 "rounded-full px-2 py-0.5 text-[10px] font-semibold transition",
                 filter === pill.id
-                  ? "bg-blue-600 text-white"
+                  ? "bg-[var(--brand)] text-white"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200",
               ].join(" ")}
             >
@@ -178,7 +178,7 @@ export function AutomationNodeLibrary({ onAddNode }: Props) {
           <div className="flex flex-col items-center gap-2 py-10 text-center">
             <Search className="h-8 w-8 text-slate-300" />
             <p className="text-sm font-medium text-slate-400">No nodes found</p>
-            <button onClick={() => setSearch("")} className="text-xs text-blue-500 underline">Clear search</button>
+            <button onClick={() => setSearch("")} className="text-xs text-[var(--brand)] underline">Clear search</button>
           </div>
         )}
 
@@ -245,11 +245,11 @@ function NodeItem({
       onClick={onAdd}
       title={`Add ${def.label}`}
       className={[
-        "group flex w-full cursor-pointer items-start gap-2 border-b border-slate-50 px-3 py-2 text-left transition hover:bg-blue-50 last:border-b-0",
+        "group flex w-full cursor-pointer items-start gap-2 border-b border-slate-50 px-3 py-2 text-left transition hover:bg-[var(--brand-soft)] last:border-b-0",
         riskColor,
       ].join(" ")}
     >
-      <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded text-slate-300 group-hover:bg-blue-100 group-hover:text-blue-600 transition">
+      <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded text-slate-300 group-hover:bg-[var(--color-brand-100)] group-hover:text-[var(--brand)] transition">
         <Plus className="h-3 w-3" />
       </span>
       <div className="min-w-0 flex-1">

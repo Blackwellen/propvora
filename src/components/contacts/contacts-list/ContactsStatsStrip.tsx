@@ -36,12 +36,12 @@ export function ContactsStatsStrip({ contacts, isLoading }: { contacts: MappedCo
   const followUpCount  = contacts.filter(c => c.tags.includes("follow_up")).length
 
   const cards = [
-    { icon: Users,     label: "Total Contacts", value: contacts.length,    iconColour: "#2563EB", bg: "bg-blue-50",    subtitle: undefined },
+    { icon: Users,     label: "Total Contacts", value: contacts.length,    iconColour: "#2563EB", bg: "bg-[var(--brand-soft)]",    subtitle: undefined },
     { icon: UserCheck, label: "Active Tenants",  value: tenantCount,        iconColour: "#10B981", bg: "bg-emerald-50", subtitle: undefined },
     { icon: UserPlus,  label: "Applicants",      value: applicantCount,     iconColour: "#0EA5E9", bg: "bg-sky-50",     subtitle: undefined },
     { icon: Wrench,    label: "Suppliers",        value: supplierCount,      iconColour: "#F59E0B", bg: "bg-amber-50",
       subtitle: preferredCount > 0 ? <span className="text-[10px] font-medium text-amber-600">{preferredCount} preferred</span> : undefined },
-    { icon: Home,      label: "Landlords",        value: landlordCount,      iconColour: "#2563EB", bg: "bg-blue-50",    subtitle: undefined },
+    { icon: Home,      label: "Landlords",        value: landlordCount,      iconColour: "#2563EB", bg: "bg-[var(--brand-soft)]",    subtitle: undefined },
     { icon: Clock,     label: "Follow-ups",       value: followUpCount,      iconColour: "#EF4444", bg: "bg-red-50",
       subtitle: followUpCount > 0 ? <span className="text-[10px] font-medium text-red-500">needs action</span> : undefined },
     { icon: Globe,     label: "Portal Users",     value: contacts.filter(c => c.tags.includes("portal_access")).length, iconColour: "#8B5CF6", bg: "bg-violet-50",

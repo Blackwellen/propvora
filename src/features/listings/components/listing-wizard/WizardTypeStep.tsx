@@ -27,14 +27,14 @@ export function WizardTypeStep({ value, onChange }: WizardTypeStepProps) {
           className={cn(
             "text-left p-4 rounded-xl border transition-colors",
             value === t.value
-              ? "border-[#2563EB] bg-blue-50/50"
+              ? "border-[var(--brand)] bg-[var(--brand-soft)]/50"
               : "border-slate-200 bg-white hover:bg-slate-50"
           )}
         >
           <p
             className={cn(
               "text-sm font-semibold",
-              value === t.value ? "text-[#2563EB]" : "text-slate-800"
+              value === t.value ? "text-[var(--brand)]" : "text-slate-800"
             )}
           >
             {t.label}

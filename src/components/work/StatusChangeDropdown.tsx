@@ -5,7 +5,7 @@ import { ChevronDown, Check } from "lucide-react"
 
 const TASK_STATUSES = [
   { value: "todo",        label: "To Do",       color: "bg-slate-100 text-slate-700" },
-  { value: "in_progress", label: "In Progress", color: "bg-blue-100 text-blue-700" },
+  { value: "in_progress", label: "In Progress", color: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   { value: "blocked",     label: "Blocked",     color: "bg-red-100 text-red-700" },
   { value: "done",        label: "Done",        color: "bg-emerald-100 text-emerald-700" },
   { value: "cancelled",   label: "Cancelled",   color: "bg-slate-100 text-slate-500" },
@@ -14,13 +14,13 @@ const TASK_STATUSES = [
 const JOB_STATUSES = [
   { value: "new",                 label: "New",               color: "bg-slate-100 text-slate-700" },
   { value: "scoped",              label: "Scoped",            color: "bg-slate-100 text-slate-700" },
-  { value: "supplier_requested",  label: "Supplier Requested",color: "bg-blue-100 text-blue-700" },
+  { value: "supplier_requested",  label: "Supplier Requested",color: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   { value: "quote_received",      label: "Quote Received",    color: "bg-sky-100 text-sky-700" },
   { value: "approved",            label: "Approved",          color: "bg-violet-100 text-violet-700" },
   { value: "scheduled",           label: "Scheduled",         color: "bg-sky-100 text-sky-700" },
   { value: "in_progress",         label: "In Progress",       color: "bg-amber-100 text-amber-700" },
   { value: "complete",            label: "Complete",          color: "bg-emerald-100 text-emerald-700" },
-  { value: "invoiced",            label: "Invoiced",          color: "bg-blue-100 text-blue-700" },
+  { value: "invoiced",            label: "Invoiced",          color: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   { value: "closed",              label: "Closed",            color: "bg-slate-100 text-slate-500" },
   { value: "disputed",            label: "Disputed",          color: "bg-red-100 text-red-700" },
 ]
@@ -80,7 +80,7 @@ export function StatusChangeDropdown({
                 />
                 {s.label}
                 {s.value === currentStatus && (
-                  <Check className="w-3 h-3 text-[#2563EB] ml-auto" />
+                  <Check className="w-3 h-3 text-[var(--brand)] ml-auto" />
                 )}
               </button>
             ))}

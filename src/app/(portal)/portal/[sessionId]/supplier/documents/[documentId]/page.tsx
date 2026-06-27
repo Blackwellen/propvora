@@ -51,14 +51,14 @@ export default async function SupplierDocumentDetail({ params }: { params: Promi
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#EEF3FB] bg-[#FAFCFF]">
               <span className="text-xs font-semibold text-slate-500">Preview · Page 1</span>
               <div className="flex items-center gap-1">
-                {d.file_path && <a href={d.file_path} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg text-slate-400 hover:text-[#2563EB] hover:bg-[#EFF6FF]" title="Open fullscreen"><Maximize2 className="w-4 h-4" /></a>}
-                {d.file_path && <a href={d.file_path} download className="p-1.5 rounded-lg text-slate-400 hover:text-[#2563EB] hover:bg-[#EFF6FF]" title="Download"><Download className="w-4 h-4" /></a>}
+                {d.file_path && <a href={d.file_path} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg text-slate-400 hover:text-[var(--brand)] hover:bg-[var(--brand-soft)]" title="Open fullscreen"><Maximize2 className="w-4 h-4" /></a>}
+                {d.file_path && <a href={d.file_path} download className="p-1.5 rounded-lg text-slate-400 hover:text-[var(--brand)] hover:bg-[var(--brand-soft)]" title="Download"><Download className="w-4 h-4" /></a>}
               </div>
             </div>
             <div className="aspect-[3/4] max-h-[560px] bg-slate-50 flex flex-col items-center justify-center text-slate-300 m-4 rounded-xl border border-[#EEF3FB]">
               <FileText className="w-14 h-14" />
               <p className="text-sm text-slate-400 mt-3">{d.name}</p>
-              {d.file_path && <a href={d.file_path} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 h-9 px-4 rounded-xl bg-[#2563EB] text-white text-sm font-semibold"><Download className="w-4 h-4" /> Open document</a>}
+              {d.file_path && <a href={d.file_path} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 h-9 px-4 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold"><Download className="w-4 h-4" /> Open document</a>}
             </div>
           </PortalCard>
         </div>
@@ -77,7 +77,7 @@ export default async function SupplierDocumentDetail({ params }: { params: Promi
             <p className="text-sm text-slate-600">Associated with your assigned work.</p>
           </PortalSectionCard>
           <PortalSectionCard title="Activity / versions" icon={History}>
-            <ol className="space-y-2.5"><li className="flex gap-3"><span className="w-2 h-2 rounded-full bg-[#2563EB] mt-1.5 shrink-0" /><div><p className="text-sm text-slate-700">Document shared</p><p className="text-[11px] text-slate-400">{formatDate(d.created_at)}</p></div></li></ol>
+            <ol className="space-y-2.5"><li className="flex gap-3"><span className="w-2 h-2 rounded-full bg-[var(--brand)] mt-1.5 shrink-0" /><div><p className="text-sm text-slate-700">Document shared</p><p className="text-[11px] text-slate-400">{formatDate(d.created_at)}</p></div></li></ol>
           </PortalSectionCard>
           <PortalSectionCard title="Quick actions" icon={RefreshCw}>
             <div className="space-y-1.5">

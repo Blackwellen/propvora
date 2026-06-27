@@ -62,7 +62,7 @@ export default function UnitsListPage() {
       unit_name: u.unit_name,
       unit_type: u.unit_type, floor: u.floor, bedrooms: u.bedrooms,
       floor_area_sqm: u.floor_area_sqm, target_rent: u.target_rent, status: u.status,
-      coverImageUrl: coverUrls.get(u.id) ?? undefined,
+      coverImageUrl: coverUrls.get(u.id) ?? u.cover_image_url ?? undefined,
     }))
   }, [rawUnits, rawProps, isLive, coverUrls])
 
@@ -178,7 +178,7 @@ export default function UnitsListPage() {
             placeholder="Search units..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-            className="w-full h-9 pl-9 pr-4 rounded-xl text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all shadow-sm"
+            className="w-full h-9 pl-9 pr-4 rounded-xl text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all shadow-sm"
           />
         </div>
 
@@ -187,7 +187,7 @@ export default function UnitsListPage() {
           {STATUSES.map(({ value, label }) => (
             <button key={value} onClick={() => { setFilterStatus(value); setPage(1) }}
               className={cn("px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all",
-                filterStatus === value ? "bg-[#2563EB] border-[#2563EB] text-white" : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 shadow-sm")}
+                filterStatus === value ? "bg-[var(--brand)] border-[var(--brand)] text-white" : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 shadow-sm")}
             >{label}</button>
           ))}
         </div>
@@ -235,7 +235,7 @@ export default function UnitsListPage() {
           <div className="flex items-center gap-1.5">
             <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}><ChevronLeft className="w-4 h-4" /></Button>
             {Array.from({ length: totalPages }).map((_, i) => (
-              <button key={i} onClick={() => setPage(i + 1)} className={cn("w-8 h-8 rounded-lg text-sm font-semibold", page === i + 1 ? "bg-[#2563EB] text-white" : "text-slate-500 hover:bg-slate-100")}>{i + 1}</button>
+              <button key={i} onClick={() => setPage(i + 1)} className={cn("w-8 h-8 rounded-lg text-sm font-semibold", page === i + 1 ? "bg-[var(--brand)] text-white" : "text-slate-500 hover:bg-slate-100")}>{i + 1}</button>
             ))}
             <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}><ChevronRight className="w-4 h-4" /></Button>
           </div>

@@ -10,7 +10,7 @@ const ACTIVITY_ICON: Record<ActivityItem["icon"], typeof Calendar> = {
 }
 const ACTIVITY_BG: Record<ActivityItem["accent"], string> = {
   emerald: "bg-emerald-50 text-emerald-600", violet: "bg-violet-50 text-violet-600",
-  amber: "bg-amber-50 text-amber-600", blue: "bg-blue-50 text-blue-600",
+  amber: "bg-amber-50 text-amber-600", blue: "bg-[var(--brand-soft)] text-[var(--brand)]",
 }
 
 function Card({ children }: { children: React.ReactNode }) {
@@ -20,7 +20,7 @@ function CardHead({ title, href, linkLabel }: { title: string; href: string; lin
   return (
     <div className="flex items-center justify-between mb-3">
       <h3 className="text-[15px] font-bold text-slate-900">{title}</h3>
-      <Link href={href} className="text-[12.5px] font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1">
+      <Link href={href} className="text-[12.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand)] inline-flex items-center gap-1">
         {linkLabel} <ArrowRight className="w-3.5 h-3.5" />
       </Link>
     </div>

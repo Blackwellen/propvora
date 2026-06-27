@@ -64,7 +64,7 @@ export default function ProfileTabs({ profile, activeTab }: ProfileTabsProps) {
               className={cn(
                 "relative flex items-center gap-2 px-4 py-3.5 text-sm font-medium whitespace-nowrap",
                 "transition-all duration-150 shrink-0 border-b-2",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)]",
                 isActive
                   ? "border-b-transparent text-white"
                   : "border-b-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"

@@ -39,7 +39,7 @@ function OrdersInner() {
           subtitle="Manage supplier orders, compare quotes, hold funds in escrow and close out completed work."
           actions={
             <>
-              <Link href="/property-manager/work/orders?tab=quotes" className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors">
+              <Link href="/property-manager/work/orders?tab=quotes" className="inline-flex items-center gap-1.5 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors">
                 <Plus className="w-4 h-4" /> Create RFQ
               </Link>
               {escrowEnabled && (

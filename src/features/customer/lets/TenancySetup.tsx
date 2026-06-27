@@ -26,7 +26,7 @@ export default function TenancySetup({ t }: { t: Tenancy }) {
 
   return (
     <div className="space-y-5">
-      <Link href={`/customer/lets/tenancies/${t.id}`} className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue-600 hover:text-blue-700">
+      <Link href={`/customer/lets/tenancies/${t.id}`} className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">
         <ArrowLeft className="w-4 h-4" /> Back to tenancy
       </Link>
       <div className="flex items-center justify-between gap-3">
@@ -51,10 +51,10 @@ export default function TenancySetup({ t }: { t: Tenancy }) {
                 {i < STEPS.length - 1 && (
                   <span className={cn("absolute top-5 left-1/2 w-full h-0.5", s.state === "done" ? "bg-emerald-400" : "bg-slate-200")} />
                 )}
-                <span className={cn("w-10 h-10 rounded-full flex items-center justify-center z-10", s.state === "done" ? "bg-emerald-500 text-white" : s.state === "current" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400")}>
+                <span className={cn("w-10 h-10 rounded-full flex items-center justify-center z-10", s.state === "done" ? "bg-emerald-500 text-white" : s.state === "current" ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-400")}>
                   <Icon className="w-4 h-4" />
                 </span>
-                <p className={cn("text-[11.5px] font-semibold mt-2", s.state === "current" ? "text-blue-600" : s.state === "done" ? "text-slate-700" : "text-slate-400")}>
+                <p className={cn("text-[11.5px] font-semibold mt-2", s.state === "current" ? "text-[var(--brand)]" : s.state === "done" ? "text-slate-700" : "text-slate-400")}>
                   {s.label}
                 </p>
               </li>

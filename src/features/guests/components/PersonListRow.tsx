@@ -10,7 +10,7 @@ import { ConfirmDialog } from "@/components/portfolio/ConfirmDialog"
 import { useUpdateContact, useDeleteContact } from "@/hooks/useContacts"
 import type { Contact } from "@/types/database"
 
-const AVATAR_BG = ["bg-blue-500","bg-emerald-500","bg-violet-500","bg-amber-500","bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500"]
+const AVATAR_BG = ["bg-[var(--brand)]","bg-emerald-500","bg-violet-500","bg-amber-500","bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500"]
 
 function avatarBg(name: string): string {
   let h = 0
@@ -38,7 +38,7 @@ const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
   tenant:              { label: "Tenant",       cls: "bg-emerald-100 text-emerald-700" },
   post_tenant:         { label: "Past Tenant",  cls: "bg-slate-100 text-slate-600" },
   applicant:           { label: "Applicant",    cls: "bg-sky-100 text-sky-700" },
-  landlord:            { label: "Landlord",     cls: "bg-blue-100 text-blue-700" },
+  landlord:            { label: "Landlord",     cls: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   guarantor:           { label: "Guarantor",    cls: "bg-violet-100 text-violet-700" },
   local_authority:     { label: "Local Auth",   cls: "bg-teal-100 text-teal-700" },
   housing_association: { label: "Housing Assoc",cls: "bg-teal-100 text-teal-700" },
@@ -77,7 +77,7 @@ export function PersonListRow({ contact }: PersonListRowProps) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-semibold text-slate-900 group-hover:text-[#2563EB] transition-colors">{contact.full_name}</span>
+          <span className="text-sm font-semibold text-slate-900 group-hover:text-[var(--brand)] transition-colors">{contact.full_name}</span>
           <TypeBadge type={contact.contact_type} />
           {contact.city && (
             <span className="hidden sm:flex items-center gap-0.5 text-xs text-slate-400">

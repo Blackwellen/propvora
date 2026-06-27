@@ -17,7 +17,7 @@ export function JobQuoteTab({ job }: JobQuoteTabProps) {
           This job originated from quote{" "}
           <span className="font-mono text-slate-700">{job.quote_id.slice(0, 8)}</span>. The agreed amount and terms
           live on the quote record. See{" "}
-          <Link href="/supplier/quotes" className="font-semibold text-[#2563EB]">
+          <Link href="/supplier/quotes" className="font-semibold text-[var(--brand)]">
             Quotes
           </Link>
           .

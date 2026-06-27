@@ -86,7 +86,7 @@ export default function CreateUserWizard() {
             <div className="flex gap-2">
               {(["invite", "password"] as const).map((m) => (
                 <button key={m} type="button" onClick={() => setMode(m)}
-                  className={`flex-1 h-9 rounded-lg border text-[12.5px] font-semibold transition-colors ${mode === m ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]" : "border-[#E2E8F0] text-slate-600 hover:bg-slate-50"}`}>
+                  className={`flex-1 h-9 rounded-lg border text-[12.5px] font-semibold transition-colors ${mode === m ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-[#E2E8F0] text-slate-600 hover:bg-slate-50"}`}>
                   {m === "invite" ? "Send invite email" : "Set password"}
                 </button>
               ))}
@@ -132,7 +132,7 @@ export default function CreateUserWizard() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4fd7] transition-colors shadow-sm"
+        className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[#1d4fd7] transition-colors shadow-sm"
       >
         <UserPlus className="w-4 h-4" /> New User
       </button>

@@ -172,7 +172,7 @@ export function BookingCheckout({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={prop.image_url} alt="" className="h-24 w-32 shrink-0 rounded-xl object-cover" />
           ) : (
-            <div className="flex h-24 w-32 shrink-0 items-center justify-center rounded-xl bg-[#EFF5FF] text-[#2563EB]">
+            <div className="flex h-24 w-32 shrink-0 items-center justify-center rounded-xl bg-[#EFF5FF] text-[var(--brand)]">
               <MapPin className="h-6 w-6" />
             </div>
           )}
@@ -234,7 +234,7 @@ export function BookingCheckout({
           <Field label="Promo code" htmlFor="bk-promo">
             <div className="flex gap-2">
               <TextInput id="bk-promo" value={promo} onChange={(e) => setPromo(e.target.value)} placeholder="WELCOME10" />
-              <button type="button" onClick={applyPromo} className="inline-flex h-[42px] items-center gap-1.5 rounded-xl border border-[#D8E1F0] bg-white px-4 text-[13px] font-semibold text-[#2563EB] hover:bg-[#EFF5FF]">
+              <button type="button" onClick={applyPromo} className="inline-flex h-[42px] items-center gap-1.5 rounded-xl border border-[#D8E1F0] bg-white px-4 text-[13px] font-semibold text-[var(--brand)] hover:bg-[#EFF5FF]">
                 <Tag className="h-3.5 w-3.5" /> Apply
               </button>
             </div>

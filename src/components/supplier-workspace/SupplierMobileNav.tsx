@@ -37,14 +37,14 @@ function BottomTab({ dest, active }: { dest: SupplierNavItem; active: boolean })
       href={dest.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex flex-col items-center justify-center gap-0.5 min-h-[56px] py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563EB]/40 motion-reduce:transition-none",
-        active ? "text-[#2563EB]" : "text-slate-500 hover:text-slate-700"
+        "flex flex-col items-center justify-center gap-0.5 min-h-[56px] py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)]/40 motion-reduce:transition-none",
+        active ? "text-[var(--brand)]" : "text-slate-500 hover:text-slate-700"
       )}
     >
       <span
         className={cn(
           "w-9 h-7 rounded-lg flex items-center justify-center transition-colors",
-          active ? "bg-[#EFF6FF]" : "bg-transparent"
+          active ? "bg-[var(--brand-soft)]" : "bg-transparent"
         )}
       >
         <Icon className="w-[19px] h-[19px]" strokeWidth={active ? 2.4 : 2} />
@@ -83,14 +83,14 @@ export default function SupplierMobileBottomNav() {
               aria-expanded={moreOpen}
               aria-current={moreActive ? "page" : undefined}
               className={cn(
-                "w-full flex flex-col items-center justify-center gap-0.5 min-h-[56px] py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563EB]/40 motion-reduce:transition-none",
-                moreActive ? "text-[#2563EB]" : "text-slate-500 hover:text-slate-700"
+                "w-full flex flex-col items-center justify-center gap-0.5 min-h-[56px] py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)]/40 motion-reduce:transition-none",
+                moreActive ? "text-[var(--brand)]" : "text-slate-500 hover:text-slate-700"
               )}
             >
               <span
                 className={cn(
                   "w-9 h-7 rounded-lg flex items-center justify-center transition-colors",
-                  moreActive ? "bg-[#EFF6FF]" : "bg-transparent"
+                  moreActive ? "bg-[var(--brand-soft)]" : "bg-transparent"
                 )}
               >
                 <MoreHorizontal className="w-[19px] h-[19px]" strokeWidth={moreActive ? 2.4 : 2} />
@@ -116,9 +116,9 @@ export default function SupplierMobileBottomNav() {
                   aria-current={active ? "page" : undefined}
                   onClick={() => setMoreOpen(false)}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+                    "flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40",
                     active
-                      ? "bg-[#EFF6FF] border-[#BFD8FB] text-[#2563EB]"
+                      ? "bg-[var(--brand-soft)] border-[#BFD8FB] text-[var(--brand)]"
                       : "bg-white border-[#E8EEF8] text-slate-600 active:bg-slate-50"
                   )}
                 >
@@ -136,9 +136,9 @@ export default function SupplierMobileBottomNav() {
               href="/supplier/help"
               onClick={() => setMoreOpen(false)}
               className={cn(
-                "flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+                "flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40",
                 isSupplierNavActive(pathname, "/supplier/help")
-                  ? "bg-[#EFF6FF] border-[#BFD8FB] text-[#2563EB]"
+                  ? "bg-[var(--brand-soft)] border-[#BFD8FB] text-[var(--brand)]"
                   : "bg-white border-[#E8EEF8] text-slate-600 active:bg-slate-50"
               )}
             >

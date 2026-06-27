@@ -29,7 +29,7 @@ export function InvoicePaymentsTab({ approvedAt, paidAt, payoutId }: InvoicePaym
       {payoutId ? (
         <Link
           href={`/supplier/payouts/${payoutId}`}
-          className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-600"
+          className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand)]"
         >
           View linked payout
         </Link>

@@ -82,7 +82,7 @@ export default function MobileCanvasEditor({ workspaceId, definitionId, initialG
           <Plus className="h-4 w-4" /> Add node
         </button>
         <button onClick={() => persist(false)} disabled={saving} className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 disabled:opacity-50"><Save className="h-4 w-4" /></button>
-        <button onClick={() => persist(true)} disabled={saving} className="rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-medium text-white disabled:opacity-50"><CheckCircle2 className="h-4 w-4" /></button>
+        <button onClick={() => persist(true)} disabled={saving} className="rounded-xl bg-[var(--brand)] px-3 py-2.5 text-sm font-medium text-white disabled:opacity-50"><CheckCircle2 className="h-4 w-4" /></button>
       </div>
 
       {toast && (

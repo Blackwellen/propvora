@@ -188,6 +188,8 @@ export const NAV_FLAG_KEYS: V2FlagKey[] = [
   "planningEnabled",
   "legalSection",
   "affiliateEnabled",
+  "helpCentre",
+  "guidedHelp",
 ]
 
 /**

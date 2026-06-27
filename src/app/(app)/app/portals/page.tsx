@@ -48,7 +48,7 @@ export default function PortalsOverviewPage() {
   const KPI_CARDS = [
     { label: "Active grants", value: kpis.active, icon: KeyRound, tint: "text-emerald-600", bg: "bg-emerald-50" },
     { label: "Expiring (7d)", value: kpis.expiring, icon: Clock, tint: "text-amber-600", bg: "bg-amber-50" },
-    { label: "Recipient uploads", value: uploadsCount, icon: Upload, tint: "text-blue-600", bg: "bg-blue-50" },
+    { label: "Recipient uploads", value: uploadsCount, icon: Upload, tint: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]" },
     { label: "Revoked", value: kpis.revoked, icon: XCircle, tint: "text-red-500", bg: "bg-red-50" },
   ]
 
@@ -61,7 +61,7 @@ export default function PortalsOverviewPage() {
           actions={
             <button
               onClick={() => setShowGrant(true)}
-              className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-sm font-semibold px-3.5 py-2 rounded-xl transition-colors shadow-sm shrink-0"
+              className="inline-flex items-center gap-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-sm font-semibold px-3.5 py-2 rounded-xl transition-colors shadow-sm shrink-0"
             >
               <Plus className="w-4 h-4" />
               Grant portal access
@@ -95,7 +95,7 @@ export default function PortalsOverviewPage() {
           <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
               <h3 className="text-sm font-bold text-slate-900">Recent portal grants</h3>
-              <Link href="/property-manager/portals/access" className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1">
+              <Link href="/property-manager/portals/access" className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand)] inline-flex items-center gap-1">
                 View all <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -129,7 +129,7 @@ export default function PortalsOverviewPage() {
                 </p>
                 <button
                   onClick={() => setShowGrant(true)}
-                  className="mt-4 inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs font-medium px-3.5 py-2 rounded-lg transition-colors"
+                  className="mt-4 inline-flex items-center gap-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-xs font-medium px-3.5 py-2 rounded-lg transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" /> Grant portal access
                 </button>
@@ -144,7 +144,7 @@ export default function PortalsOverviewPage() {
                       href={`/property-manager/portals/access/${g.id}`}
                       className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50/60 transition-colors"
                     >
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
                         {(g.contact?.full_name ?? "?").slice(0, 2).toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -167,13 +167,13 @@ export default function PortalsOverviewPage() {
           <div className="space-y-4">
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
-                <Users className="w-4 h-4 text-blue-600" />
+                <Users className="w-4 h-4 text-[var(--brand)]" />
                 <h3 className="text-sm font-bold text-slate-900">Quick actions</h3>
               </div>
               <div className="space-y-2">
                 <button
                   onClick={() => setShowGrant(true)}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#2563EB] text-white text-sm font-medium px-4 py-2.5 hover:bg-[#1d4ed8] transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--brand)] text-white text-sm font-medium px-4 py-2.5 hover:bg-[var(--brand-strong)] transition-colors"
                 >
                   <Plus className="w-4 h-4" /> Grant portal access
                 </button>
@@ -202,7 +202,7 @@ export default function PortalsOverviewPage() {
 
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
-                <ShieldCheck className="w-4 h-4 text-blue-600" />
+                <ShieldCheck className="w-4 h-4 text-[var(--brand)]" />
                 <h3 className="text-sm font-bold text-slate-900">Secure by design</h3>
               </div>
               <ul className="space-y-1.5 text-[11px] text-slate-500 leading-relaxed">

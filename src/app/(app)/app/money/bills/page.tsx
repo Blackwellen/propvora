@@ -84,12 +84,13 @@ type ViewTab = "bills" | "supplier_payments"
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatCurrency(amount: number): string {
-  const abs = Math.abs(amount)
-  const prefix = amount < 0 ? "-£" : "£"
-  return `${prefix}${abs.toLocaleString("en-GB", {
+  // Intl currency style emits the locale-correct negative form ("-£1,234.00").
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: "GBP",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })}`
+  }).format(amount)
 }
 
 const _gbp0 = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 })
@@ -100,7 +101,7 @@ function billStatusConfig(status: BillStatus): { label: string; className: strin
     case "overdue":   return { label: "Overdue",   className: "bg-red-100 text-red-700" }
     case "due_today": return { label: "Due Today", className: "bg-amber-100 text-amber-700" }
     case "approved":  return { label: "Approved",  className: "bg-emerald-100 text-emerald-700" }
-    case "scheduled": return { label: "Scheduled", className: "bg-blue-100 text-blue-700" }
+    case "scheduled": return { label: "Scheduled", className: "bg-[var(--color-brand-100)] text-[var(--brand)]" }
     case "paid":      return { label: "Paid",      className: "bg-emerald-50 text-emerald-600" }
   }
 }
@@ -114,7 +115,7 @@ function paymentStatusConfig(status: PaymentStatus): { label: string; className:
 }
 
 function billTypeBadge(type: BillType): string {
-  return type === "Invoice" ? "bg-blue-100 text-blue-700" : "bg-violet-100 text-violet-700"
+  return type === "Invoice" ? "bg-[var(--color-brand-100)] text-[var(--brand)]" : "bg-violet-100 text-violet-700"
 }
 
 // ─── Add Bill Modal ───────────────────────────────────────────────────────────
@@ -183,7 +184,7 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
               <select
                 value={supplier}
                 onChange={(e) => setSupplier(e.target.value)}
-                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
               >
                 <option value="">Select supplier…</option>
                 {suppliers.map((s) => (
@@ -196,7 +197,7 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
               <select
                 value={property}
                 onChange={(e) => setProperty(e.target.value)}
-                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
               >
                 <option value="">Select property…</option>
                 {properties.map((p) => (
@@ -214,7 +215,7 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
                 placeholder="e.g. INV-24568"
                 value={billNumber}
                 onChange={(e) => setBillNumber(e.target.value)}
-                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -224,7 +225,7 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
                 placeholder="e.g. PO-1289"
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
-                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
               />
             </div>
           </div>
@@ -239,7 +240,7 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
                 placeholder="0.00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -248,7 +249,7 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
               />
             </div>
           </div>
@@ -260,7 +261,7 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-              className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-slate-300"
+              className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)] placeholder:text-slate-300"
             />
           </div>
 
@@ -278,7 +279,7 @@ function AddBillModal({ onClose, workspaceId, onSaved }: { onClose: () => void; 
             <button
               onClick={handleSave}
               disabled={saving}
-              className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-60"
+              className="px-5 py-2 text-sm font-semibold text-white bg-[var(--brand)] rounded-xl hover:bg-[var(--brand-strong)] transition-colors shadow-sm disabled:opacity-60"
             >
               {saving ? "Saving…" : "Save Bill"}
             </button>
@@ -583,7 +584,7 @@ export default function BillsPage() {
             <>
               <button
                 onClick={() => setShowAddModal(true)}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[var(--brand)] rounded-xl hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
               >
                 <Plus className="w-4 h-4" />
                 Add Bill
@@ -618,7 +619,7 @@ export default function BillsPage() {
           <div className="sticky top-3 z-30">
             <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white shadow-lg px-4 py-3">
               <div className="flex items-center gap-2.5 pr-3 mr-1 border-r border-slate-100">
-                <span className="inline-flex items-center justify-center min-w-[1.75rem] h-7 px-2 rounded-full bg-blue-600 text-white text-xs font-bold tabular-nums">
+                <span className="inline-flex items-center justify-center min-w-[1.75rem] h-7 px-2 rounded-full bg-[var(--brand)] text-white text-xs font-bold tabular-nums">
                   {selectedIds.size}
                 </span>
                 <span className="text-sm font-medium text-slate-600">
@@ -637,7 +638,7 @@ export default function BillsPage() {
                 <button
                   onClick={bulkApprove}
                   disabled={bulkBusy}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-60"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-[var(--brand)] bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-lg hover:bg-[var(--color-brand-100)] transition-colors disabled:opacity-60"
                 >
                   {bulkBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCheck className="w-3.5 h-3.5" />}
                   Approve
@@ -676,8 +677,8 @@ export default function BillsPage() {
             value={liveSummary?.approvedToPay ?? 0}
             subtitle="bills"
             icon={<CheckSquare className="w-5 h-5" />}
-            iconBg="bg-blue-50"
-            iconColor="text-blue-600"
+            iconBg="bg-[var(--brand-soft)]"
+            iconColor="text-[var(--brand)]"
           />
           <MoneyKpiCard
             label="Overdue"
@@ -748,7 +749,7 @@ export default function BillsPage() {
                 placeholder="Search bills by supplier, bill #, reference..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-slate-400"
+                className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--brand)] placeholder:text-slate-400"
               />
             </div>
 
@@ -768,13 +769,13 @@ export default function BillsPage() {
                   {f} <ChevronDown className="w-3 h-3 opacity-60" />
                 </button>
               ))}
-              <button className="text-[12px] font-medium text-blue-600 hover:text-blue-800 px-2 transition-colors">
+              <button className="text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] px-2 transition-colors">
                 Clear all
               </button>
               <button className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:border-slate-300 ml-auto">
                 Saved Views <ChevronDown className="w-3 h-3 opacity-60" />
               </button>
-              <button aria-label="Configure columns" className="p-1.5 text-slate-500 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+              <button aria-label="Configure columns" className="p-1.5 text-slate-500 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
                 <Columns3 className="w-4 h-4" />
               </button>
             </div>
@@ -789,10 +790,10 @@ export default function BillsPage() {
                     filteredBills.length > 0
                   }
                   onChange={toggleAll}
-                  className="w-4 h-4 rounded border-slate-300 text-blue-600"
+                  className="w-4 h-4 rounded border-slate-300 text-[var(--brand)]"
                 />
                 <span>{selectedIds.size} selected</span>
-                <button className="text-blue-600 font-medium hover:underline">
+                <button className="text-[var(--brand)] font-medium hover:underline">
                   Select all {filteredBills.length} bills
                 </button>
               </div>
@@ -828,7 +829,7 @@ export default function BillsPage() {
                               filteredBills.length > 0
                             }
                             onChange={toggleAll}
-                            className="w-4 h-4 rounded border-slate-300 text-blue-600"
+                            className="w-4 h-4 rounded border-slate-300 text-[var(--brand)]"
                           />
                         </th>
                         <th className="px-3 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
@@ -851,7 +852,7 @@ export default function BillsPage() {
                         </th>
                         <th className="px-3 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
                           <span className="flex items-center gap-1">
-                            Due Date <span className="text-blue-500">↑</span>
+                            Due Date <span className="text-[var(--brand)]">↑</span>
                           </span>
                         </th>
                         <th className="px-3 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
@@ -893,7 +894,7 @@ export default function BillsPage() {
                                 type="checkbox"
                                 checked={selectedIds.has(bill.id)}
                                 onChange={() => toggleSelect(bill.id)}
-                                className="w-4 h-4 rounded border-slate-300 text-blue-600"
+                                className="w-4 h-4 rounded border-slate-300 text-[var(--brand)]"
                               />
                             </td>
                             <td className="px-3 py-3.5">
@@ -919,7 +920,7 @@ export default function BillsPage() {
                             <td className="px-3 py-3.5">
                               <div
                                 onClick={() => router.push(`/property-manager/money/bills/${bill.id}`)}
-                                className="text-[13px] font-semibold text-blue-600 hover:underline cursor-pointer"
+                                className="text-[13px] font-semibold text-[var(--brand)] hover:underline cursor-pointer"
                               >
                                 {bill.billNumber}
                               </div>
@@ -1193,7 +1194,7 @@ export default function BillsPage() {
                 </div>
                 {[
                   { label: "Paid", value: paymentSummary.paid, color: "text-emerald-600", dot: "bg-emerald-500" },
-                  { label: "Approved / Scheduled", value: paymentSummary.scheduled, color: "text-blue-600", dot: "bg-blue-500" },
+                  { label: "Approved / Scheduled", value: paymentSummary.scheduled, color: "text-[var(--brand)]", dot: "bg-[var(--brand)]" },
                   { label: "Overdue", value: paymentSummary.overdue, color: "text-red-600", dot: "bg-red-500" },
                 ].map((row) => (
                   <div key={row.label} className="flex items-center justify-between pl-3">
@@ -1215,7 +1216,7 @@ export default function BillsPage() {
                 <h3 className="text-[13px] font-semibold text-slate-900">
                   Payout Readiness Queue
                 </h3>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[var(--color-brand-100)] text-[var(--brand)]">
                   {liveSummary?.approvedToPay ?? 0}
                 </span>
               </div>

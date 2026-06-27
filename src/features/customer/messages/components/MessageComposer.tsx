@@ -27,7 +27,7 @@ export default function MessageComposer({ draft, onDraftChange, onSend, onQuickR
           <button
             key={q}
             onClick={() => onQuickReply(q)}
-            className="rounded-full border border-slate-200 px-3 py-1 text-[12px] text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+            className="rounded-full border border-slate-200 px-3 py-1 text-[12px] text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
           >
             {q}
           </button>
@@ -40,7 +40,7 @@ export default function MessageComposer({ draft, onDraftChange, onSend, onQuickR
               key={label}
               aria-label={label}
               type="button"
-              className="w-7 h-7 rounded hover:bg-slate-100 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+              className="w-7 h-7 rounded hover:bg-slate-100 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
             >
               <Icon className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
@@ -53,7 +53,7 @@ export default function MessageComposer({ draft, onDraftChange, onSend, onQuickR
             placeholder="Type your message…"
             aria-label="Message"
             rows={2}
-            className="flex-1 bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none resize-none focus:ring-2 focus:ring-blue-500/30 focus:bg-white transition-colors"
+            className="flex-1 bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none resize-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:bg-white transition-colors"
           />
           <button
             onClick={onSend}

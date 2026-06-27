@@ -120,7 +120,7 @@ export default function SupplierReadinessPage() {
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5">{c.detail}</p>
                   {c.status !== "complete" && (
-                    <Link href={c.href} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700">{c.actionLabel} <ArrowRight className="w-3.5 h-3.5" /></Link>
+                    <Link href={c.href} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]">{c.actionLabel} <ArrowRight className="w-3.5 h-3.5" /></Link>
                   )}
                 </div>
               </div>

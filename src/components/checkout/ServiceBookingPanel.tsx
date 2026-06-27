@@ -50,7 +50,7 @@ export default function ServiceBookingPanel({
             type="button"
             onClick={() => setSelected(i)}
             className={`rounded-lg py-1.5 text-xs font-bold transition-colors ${
-              selected === i ? "bg-white text-blue-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              selected === i ? "bg-white text-[var(--brand)] shadow-sm" : "text-slate-500 hover:text-slate-700"
             }`}
           >
             {p.name}
@@ -80,7 +80,7 @@ export default function ServiceBookingPanel({
       {/* Meta */}
       <div className="space-y-2 mb-5 text-sm border-t border-slate-100 pt-4">
         <div className="flex items-center gap-2 text-slate-600">
-          <Clock className="h-4 w-4 text-blue-500 shrink-0" />
+          <Clock className="h-4 w-4 text-[var(--brand)] shrink-0" />
           <span>Responds in <strong className="text-slate-900">{offer.responseTime}</strong></span>
         </div>
         <div className="flex items-center gap-2 text-slate-600">
@@ -98,7 +98,7 @@ export default function ServiceBookingPanel({
       {/* Primary CTA */}
       <Link
         href={`/property-manager/marketplace/suppliers-hub/services/${slug}/book?package=${pkg.name.toLowerCase()}`}
-        className="block w-full py-3.5 text-center bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors mb-3"
+        className="block w-full py-3.5 text-center bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white font-bold rounded-xl transition-colors mb-3"
       >
         Book {pkg.name} · {formatPence(pkg.price)} →
       </Link>

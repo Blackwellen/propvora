@@ -69,7 +69,10 @@ export function WizardShell({
   const active = steps[current - 1]
 
   return (
-    <div className="max-w-4xl mx-auto">
+    // Full content width (no mx-auto) so the wizard aligns with every other page
+    // type and the quick action bar. The side-step rail sits flush at the page's
+    // left edge; the form panel is width-capped for readability (see below).
+    <div className="w-full">
       <Link
         href={backHref}
         className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-6"
@@ -94,7 +97,7 @@ export function WizardShell({
             const target = Number(e.target.value)
             if (target <= current) onStepSelect(target)
           }}
-          className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+          className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]"
         >
           {steps.map((s, i) => (
             <option key={s.label} value={i + 1} disabled={i + 1 > current}>
@@ -122,7 +125,7 @@ export function WizardShell({
                     aria-current={isActive ? "step" : undefined}
                     className={cn(
                       "w-full flex items-start gap-3 px-3 py-2.5 rounded-xl text-left transition-all",
-                      isActive && "bg-blue-50",
+                      isActive && "bg-[var(--brand-soft)]",
                       isComplete && "hover:bg-slate-50 cursor-pointer",
                       isPending && "cursor-default opacity-50",
                     )}
@@ -130,7 +133,7 @@ export function WizardShell({
                     <span
                       className={cn(
                         "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all",
-                        isActive && "bg-blue-600 text-white ring-4 ring-blue-100",
+                        isActive && "bg-[var(--brand)] text-white ring-4 ring-[var(--color-brand-100)]",
                         isComplete && "bg-emerald-500 text-white",
                         isPending && "bg-slate-100 text-slate-400",
                       )}
@@ -157,8 +160,9 @@ export function WizardShell({
           </ol>
         </nav>
 
-        {/* Step content + footer */}
-        <div className="min-w-0">
+        {/* Step content + footer — capped for form readability while the rail
+            stays left-aligned to the page edge (avoids an awkward full-bleed form). */}
+        <div className="min-w-0 max-w-3xl">
           {banner}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
             <h2 className="text-base font-semibold text-slate-900 mb-5">{active?.label}</h2>
@@ -188,7 +192,7 @@ export function WizardShell({
                 disabled={!canAdvance}
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all",
-                  canAdvance ? "bg-blue-600 text-white hover:bg-blue-700 shadow-sm" : "bg-slate-200 text-slate-400 cursor-not-allowed",
+                  canAdvance ? "bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] shadow-sm" : "bg-slate-200 text-slate-400 cursor-not-allowed",
                 )}
               >
                 Continue <ChevronRight className="w-4 h-4" />

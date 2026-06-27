@@ -29,7 +29,7 @@ const STATUS_CONFIG: Record<
   draft:          { label: "Draft",          textColor: "text-slate-600",   bgColor: "bg-slate-100" },
   active:         { label: "Active",         textColor: "text-emerald-700", bgColor: "bg-emerald-100" },
   assumptions:    { label: "Assumptions",    textColor: "text-amber-700",   bgColor: "bg-amber-100" },
-  forecast_ready: { label: "Forecast Ready", textColor: "text-blue-700",    bgColor: "bg-blue-100" },
+  forecast_ready: { label: "Forecast Ready", textColor: "text-[var(--brand)]",    bgColor: "bg-[var(--color-brand-100)]" },
   risk_review:    { label: "Risk Review",    textColor: "text-orange-700",  bgColor: "bg-orange-100" },
   offer_sent:     { label: "Offer Sent",     textColor: "text-violet-700",  bgColor: "bg-violet-100" },
   accepted:       { label: "Accepted",       textColor: "text-emerald-700", bgColor: "bg-emerald-100" },
@@ -152,7 +152,7 @@ export default async function PlanningSetDetailLayout({
 
             {/* Profile type */}
             {operationProfile && (
-              <span className="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
+              <span className="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full bg-[var(--color-brand-100)] text-[var(--brand)]">
                 {profileLabel(operationProfile)}
               </span>
             )}

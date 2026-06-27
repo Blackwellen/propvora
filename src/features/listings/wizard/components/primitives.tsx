@@ -75,7 +75,7 @@ export function TextInput({
       maxLength={maxLength}
       placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
-      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-100"
+      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus-visible:border-[var(--color-brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-100)]"
     />
   )
 }
@@ -100,7 +100,7 @@ export function TextArea({
       maxLength={maxLength}
       placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-100"
+      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus-visible:border-[var(--color-brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-100)]"
     />
   )
 }
@@ -132,7 +132,7 @@ export function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-900 outline-none focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-100"
+      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-900 outline-none focus-visible:border-[var(--color-brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-100)]"
     >
       {options.map((o) => (
         <option key={o} value={o}>
@@ -235,7 +235,7 @@ export function ToggleChip({
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors",
         on
-          ? "border-blue-200 bg-blue-50 text-blue-700"
+          ? "border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand)]"
           : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
       )}
     >
@@ -289,7 +289,7 @@ export function AddChipInput({
             submit()
           }
         }}
-        className="h-9 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-900 outline-none placeholder:text-slate-400 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-100"
+        className="h-9 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-900 outline-none placeholder:text-slate-400 focus-visible:border-[var(--color-brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-100)]"
       />
       <button
         type="button"
@@ -356,7 +356,7 @@ export function Pill({
     slate: "bg-slate-100 text-slate-600",
     emerald: "bg-emerald-50 text-emerald-700",
     amber: "bg-amber-50 text-amber-700",
-    blue: "bg-blue-50 text-blue-700",
+    blue: "bg-[var(--brand-soft)] text-[var(--brand)]",
     violet: "bg-violet-50 text-violet-700",
     red: "bg-red-50 text-red-700",
   }

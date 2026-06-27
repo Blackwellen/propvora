@@ -47,7 +47,7 @@ function GrantRow({ grant, workspaceId }: { grant: PortalGrant; workspaceId: str
     >
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
             {(grant.contact?.full_name ?? "?").slice(0, 2).toUpperCase()}
           </div>
           <div className="min-w-0">
@@ -120,7 +120,7 @@ export default function PortalAccessListPage() {
         actions={
           <button
             onClick={() => setShowGrant(true)}
-            className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors shadow-sm shrink-0"
+            className="inline-flex items-center gap-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors shadow-sm shrink-0"
           >
             <Plus className="w-4 h-4" /> Grant portal access
           </button>
@@ -147,7 +147,7 @@ export default function PortalAccessListPage() {
                 onClick={() => setStatusFilter(f.key)}
                 className={cn(
                   "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
-                  statusFilter === f.key ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                  statusFilter === f.key ? "bg-white text-[var(--brand)] shadow-sm" : "text-slate-500 hover:text-slate-700"
                 )}
               >
                 {f.label}
@@ -162,7 +162,7 @@ export default function PortalAccessListPage() {
               placeholder="Search grants…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-56 transition-all"
+              className="pl-8 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] w-56 transition-all"
             />
             {search && (
               <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -192,7 +192,7 @@ export default function PortalAccessListPage() {
                   <tr>
                     <td colSpan={7} className="px-4 py-12 text-center">
                       <div className="flex items-center justify-center gap-2 text-slate-400">
-                        <div className="w-4 h-4 rounded-full border-2 border-slate-300 border-t-blue-500 animate-spin" />
+                        <div className="w-4 h-4 rounded-full border-2 border-slate-300 border-t-[var(--brand)] animate-spin" />
                         <span className="text-sm">Loading grants…</span>
                       </div>
                     </td>

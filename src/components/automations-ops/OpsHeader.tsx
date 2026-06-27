@@ -34,7 +34,7 @@ export default function OpsHeader({
       </Link>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 text-white shadow-[0_4px_16px_rgba(99,102,241,0.30)]">
+          <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-[var(--brand)] to-violet-500 text-white shadow-[0_4px_16px_rgba(99,102,241,0.30)]">
             {iconNode ?? (Icon ? <Icon className="h-5 w-5" /> : null)}
           </div>
           <div>

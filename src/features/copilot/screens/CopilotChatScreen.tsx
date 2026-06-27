@@ -371,7 +371,7 @@ export default function CopilotChatScreen() {
         </p>
         <Link
           href="/property-manager/billing"
-          className="px-4 py-2 rounded-lg bg-blue-600 text-white text-[13px] font-[600] hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 rounded-lg bg-[var(--brand)] text-white text-[13px] font-[600] hover:bg-[var(--brand-strong)] transition-colors"
         >
           Upgrade plan
         </Link>
@@ -462,7 +462,7 @@ export default function CopilotChatScreen() {
           </div>
           <div className="h-1 bg-slate-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-blue-500 rounded-full transition-all"
+              className="h-full bg-[var(--brand)] rounded-full transition-all"
               style={{ width: `${Math.min(100, (capInfo.used / capInfo.limit) * 100)}%` }}
             />
           </div>

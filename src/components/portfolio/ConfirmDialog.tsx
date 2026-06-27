@@ -35,7 +35,7 @@ export function ConfirmDialog({
   const btnCls =
     confirmVariant === "danger"
       ? "bg-red-600 hover:bg-red-700 text-white"
-      : "bg-[#2563EB] hover:bg-[#1d4ed8] text-white"
+      : "bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white"
 
   return (
     <>

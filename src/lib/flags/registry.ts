@@ -43,6 +43,8 @@ export const V2_FLAG_KEYS = [
   "sellerVerificationRequired",
   "legalSection",
   "planningEnabled",
+  "helpCentre",
+  "guidedHelp",
 ] as const
 
 /** A v2 feature flag identifier (camelCase). */
@@ -273,6 +275,23 @@ export const FLAG_REGISTRY: Record<V2FlagKey, FlagDefinition> = {
     dbKey: toDbKey("planningEnabled"),
     label: "Planning Engine",
     description: "Planning Engine section: forecasts, portfolio intelligence, yield analysis, scenario modelling, property acquisition sets. Operational kill-switch — ON in V1.",
+    defaultEnabled: true,
+  },
+  // ── Help & onboarding kill-switches (V1 — default ON) ────────────────────────
+  helpCentre: {
+    key: "helpCentre",
+    dbKey: toDbKey("helpCentre"),
+    label: "Help Centre & FAQ",
+    description:
+      "Public Help Centre (/help, /faq) and the in-app Help & Getting Started page. Operational kill-switch — ON in V1. Disable per-workspace/globally to hide help surfaces (e.g. white-label deployments with their own support).",
+    defaultEnabled: true,
+  },
+  guidedHelp: {
+    key: "guidedHelp",
+    dbKey: toDbKey("guidedHelp"),
+    label: "Guided Walkthroughs",
+    description:
+      "In-app first-use guided tours / interactive walkthroughs and the setup checklist. Operational kill-switch — ON in V1. Disable to suppress all guided tours without removing the Help Centre.",
     defaultEnabled: true,
   },
 }

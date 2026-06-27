@@ -42,7 +42,7 @@ export interface UnitCardData {
 /* Config                                                               */
 /* ------------------------------------------------------------------ */
 const ROOM_GRADIENTS = [
-  "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
+  "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)",
   "linear-gradient(135deg, #059669 0%, #10B981 100%)",
   "linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)",
   "linear-gradient(135deg, #EA580C 0%, #F97316 100%)",
@@ -137,7 +137,7 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
         <div className="px-3 pt-1.5 pb-2">
           {/* Header row: name + status */}
           <div className="flex items-center justify-between gap-2 mb-1.5">
-            <h3 className="text-[13.5px] font-bold text-slate-900 truncate group-hover:text-[#2563EB] transition-colors flex-1">
+            <h3 className="text-[13.5px] font-bold text-slate-900 truncate group-hover:text-[var(--brand)] transition-colors flex-1">
               {unit.unit_name}
             </h3>
             <span className={cn(
@@ -210,7 +210,7 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
                 <Image src={unit.tenant_avatar} alt={unit.tenant_name} width={20} height={20}
                   className="w-5 h-5 rounded-full object-cover border border-white shadow-sm" />
               ) : (
-                <div className="w-5 h-5 rounded-full bg-[#2563EB] flex items-center justify-center text-white text-[9px] font-bold">
+                <div className="w-5 h-5 rounded-full bg-[var(--brand)] flex items-center justify-center text-white text-[9px] font-bold">
                   {unit.tenant_name.charAt(0)}
                 </div>
               )}

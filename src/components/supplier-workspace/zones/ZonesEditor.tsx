@@ -281,10 +281,10 @@ export default function ZonesEditor() {
                       type="button"
                       onClick={() => setDraft((d) => ({ ...d, shape_type: s, centre: null, polygon: [] }))}
                       className={`flex items-start gap-2 rounded-xl border p-2.5 text-left transition-colors ${
-                        active ? "border-blue-300 bg-blue-50" : "border-slate-200 hover:border-slate-300"
+                        active ? "border-[var(--color-brand-300)] bg-[var(--brand-soft)]" : "border-slate-200 hover:border-slate-300"
                       }`}
                     >
-                      <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${active ? "text-blue-600" : "text-slate-400"}`} />
+                      <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${active ? "text-[var(--brand)]" : "text-slate-400"}`} />
                       <span className="min-w-0">
                         <span className="block text-[13px] font-semibold text-slate-800">{meta.label}</span>
                         <span className="block text-[11px] text-slate-500 leading-tight">{meta.hint}</span>
@@ -338,7 +338,7 @@ export default function ZonesEditor() {
                         step={1}
                         value={draft.radius_km ?? 10}
                         onChange={(e) => setDraft((d) => ({ ...d, radius_km: Number(e.target.value) }))}
-                        className="w-full accent-[#2563EB]"
+                        className="w-full accent-[var(--brand)]"
                       />
                     </SupplierField>
                   </>
@@ -385,7 +385,7 @@ export default function ZonesEditor() {
                             type="button"
                             onClick={() => toggleDraftMember(m.id)}
                             className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-medium border transition-colors ${
-                              on ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+                              on ? "bg-[var(--brand)] text-white border-[var(--brand)]" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
                             }`}
                           >
                             {on && <Check className="w-3 h-3" />}

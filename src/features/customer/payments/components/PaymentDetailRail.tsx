@@ -31,7 +31,7 @@ export default function PaymentDetailRail({ selected }: Props) {
           <Row l="Reference" r={`BK-${selected.id.replace(/-/g, "").slice(0, 6).toUpperCase()}`} />
         </div>
         <div className="mt-3 space-y-2">
-          {selected.canPay && <Link href={`/customer/bookings/${selected.id}`} className="block w-full bg-[#2563EB] text-white rounded-xl py-2.5 text-[13px] font-semibold text-center">Pay {formatPence(selected.amountPence, "GBP")}</Link>}
+          {selected.canPay && <Link href={`/customer/bookings/${selected.id}`} className="block w-full bg-[var(--brand)] text-white rounded-xl py-2.5 text-[13px] font-semibold text-center">Pay {formatPence(selected.amountPence, "GBP")}</Link>}
           <a href={`/api/customer/bookings/${selected.id}/receipt`} target="_blank" rel="noopener noreferrer" className="w-full inline-flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><Download className="w-4 h-4" /> Download receipt</a>
         </div>
       </div>

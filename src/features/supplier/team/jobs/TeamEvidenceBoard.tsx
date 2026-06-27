@@ -44,7 +44,7 @@ export function TeamEvidenceBoard() {
       {/* Filter chips */}
       <div className="flex gap-1.5">
         {([["all", "All"], ["awaiting_evidence", "Awaiting evidence"], ["awaiting_signoff", "Awaiting sign-off"]] as const).map(([k, l]) => (
-          <button key={k} onClick={() => setFilter(k)} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium", filter === k ? "bg-[#2563EB] text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50")}>{l}</button>
+          <button key={k} onClick={() => setFilter(k)} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium", filter === k ? "bg-[var(--brand)] text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50")}>{l}</button>
         ))}
       </div>
 
@@ -59,7 +59,7 @@ export function TeamEvidenceBoard() {
               <thead><tr className="text-left text-xs text-slate-500 border-b border-slate-100 bg-slate-50/60"><Th>Job</Th><Th>Worker</Th><Th>Completeness</Th><Th>Before/After/Cert</Th><Th>Quality</Th><Th>Status</Th><Th /></tr></thead>
               <tbody className="divide-y divide-slate-50">
                 {rows.map((j) => (
-                  <tr key={j.id} onClick={() => setSelId(j.id)} className={cn("hover:bg-slate-50/60 cursor-pointer", selected?.id === j.id && "bg-blue-50/40")}>
+                  <tr key={j.id} onClick={() => setSelId(j.id)} className={cn("hover:bg-slate-50/60 cursor-pointer", selected?.id === j.id && "bg-[var(--brand-soft)]/40")}>
                     <td className="px-4 py-3"><p className="font-semibold text-slate-800">{j.title}</p><p className="text-[11px] text-slate-400">{j.ref}</p></td>
                     <td className="px-4 py-3"><span className="inline-flex items-center gap-1.5"><span className="w-6 h-6 rounded-full bg-slate-100 text-[10px] font-semibold text-slate-600 flex items-center justify-center">{j.workerInitials}</span><span className="text-slate-600 text-xs">{j.worker.split(" ")[0]}</span></span></td>
                     <td className="px-4 py-3"><div className="flex items-center gap-2"><div className="w-16 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div className={cn("h-full rounded-full", j.completenessPct === 100 ? "bg-emerald-500" : "bg-amber-500")} style={{ width: `${j.completenessPct}%` }} /></div><span className="text-[11px] text-slate-400">{j.completenessPct}%</span></div></td>
@@ -122,7 +122,7 @@ function Req({ ok, label }: { ok: boolean; label: string }) {
   return <div className="flex items-center gap-2 text-sm">{ok ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Circle className="w-4 h-4 text-slate-300" />}<span className={ok ? "text-slate-600" : "text-slate-800 font-medium"}>{label}</span></div>
 }
 function Mini({ label, value, tone }: { label: string; value: string; tone: "blue" | "emerald" | "red" | "amber" }) {
-  const c = tone === "blue" ? "text-[#2563EB]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : "text-amber-600"
+  const c = tone === "blue" ? "text-[var(--brand)]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : "text-amber-600"
   return (
     <SupplierCard className="p-3.5">
       <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span>

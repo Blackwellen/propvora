@@ -47,7 +47,7 @@ export function TenancyActivityTab({ events, loaded }: TenancyActivityTabProps) 
           {events.map((a, i) => (
             <div key={a.id} className="flex gap-4 pb-5 last:pb-0">
               <div className="flex flex-col items-center">
-                <div className="w-3 h-3 rounded-full flex-shrink-0 mt-1 bg-blue-500" />
+                <div className="w-3 h-3 rounded-full flex-shrink-0 mt-1 bg-[var(--brand)]" />
                 {i < events.length - 1 && <div className="w-px flex-1 bg-slate-100 mt-1" />}
               </div>
               <div className="flex-1 min-w-0 pb-1">

@@ -64,7 +64,7 @@ export function ComplianceTab() {
                     <div className="flex items-center gap-1.5"><p className="text-sm font-semibold text-slate-800">{a.document}</p><Pill accent={a.status === "missing" ? "red" : "amber"}>{a.status}</Pill></div>
                     <p className="text-[12px] text-slate-500">{a.detail}{a.expiresAt ? ` · ${shortDate(a.expiresAt)}` : ""}</p>
                   </div>
-                  <button onClick={() => toast(`${a.ctaLabel} — uploader coming soon`, "info")} className="inline-flex items-center gap-1.5 bg-[#2563EB] text-white rounded-lg px-3 py-1.5 text-[12px] font-semibold hover:bg-[#1d4ed8] shrink-0 self-center">
+                  <button onClick={() => toast(`${a.ctaLabel} — uploader coming soon`, "info")} className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white rounded-lg px-3 py-1.5 text-[12px] font-semibold hover:bg-[var(--brand-strong)] shrink-0 self-center">
                     <Upload className="w-3.5 h-3.5" /> {a.ctaLabel}
                   </button>
                 </li>
@@ -75,7 +75,7 @@ export function ComplianceTab() {
           {/* Required document checklist */}
           <Panel title="Required documents" icon={FileCheck2} action={<OverviewLink href="/supplier/verification" label="Manage" />}>
             {data.requiredDocs.length === 0 && (
-              <p className="text-[12px] text-slate-400 py-1">No documents on file yet. <Link href="/supplier/compliance" className="font-semibold text-blue-600">Upload your first document</Link>.</p>
+              <p className="text-[12px] text-slate-400 py-1">No documents on file yet. <Link href="/supplier/compliance" className="font-semibold text-[var(--brand)]">Upload your first document</Link>.</p>
             )}
             <ul className="divide-y divide-slate-100">
               {data.requiredDocs.map((d) => {
@@ -92,7 +92,7 @@ export function ComplianceTab() {
                     </div>
                     <Pill accent={meta.accent}>{d.state.replace("_", " ")}</Pill>
                     {d.state !== "not_required" && (
-                      <Link href={d.href} className="text-[12px] font-semibold text-blue-600 hover:text-blue-700 shrink-0">{d.ctaLabel}</Link>
+                      <Link href={d.href} className="text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)] shrink-0">{d.ctaLabel}</Link>
                     )}
                   </li>
                 )
@@ -132,7 +132,7 @@ export function ComplianceTab() {
                 <div key={s.id} className="rounded-xl border border-slate-100 p-3">
                   <div className="flex items-center justify-between gap-2"><p className="text-sm font-semibold text-slate-800 truncate">{s.service}</p><Pill accent={IMPACT_ACCENT[s.state]}>{s.state.replace("_", " ")}</Pill></div>
                   <p className="text-[12px] text-slate-500 mt-1">{s.reason}</p>
-                  <button onClick={() => toast(`${s.ctaLabel} — coming soon`, "info")} className="mt-2 text-[12px] font-semibold text-blue-600 hover:text-blue-700">{s.ctaLabel} →</button>
+                  <button onClick={() => toast(`${s.ctaLabel} — coming soon`, "info")} className="mt-2 text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">{s.ctaLabel} →</button>
                 </div>
               ))}
             </div>
@@ -146,7 +146,7 @@ export function ComplianceTab() {
               <div><p className="text-sm font-semibold text-slate-800">{data.availability.available ? "Available" : "Unavailable"}</p><p className="text-[12px] text-slate-500">{data.availability.hours}</p></div>
               <span className={`w-2.5 h-2.5 rounded-full ${data.availability.available ? "bg-emerald-500" : "bg-slate-300"}`} />
             </div>
-            <Link href="/supplier/availability" className="mt-3 inline-block text-[12px] font-semibold text-blue-600 hover:text-blue-700">Manage hours →</Link>
+            <Link href="/supplier/availability" className="mt-3 inline-block text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">Manage hours →</Link>
           </Panel>
 
           <Panel title="Payout snapshot" icon={Wallet} action={<OverviewLink href="/supplier?tab=earnings" label="View" />}>
@@ -187,7 +187,7 @@ export function ComplianceTab() {
               ) : (
                 <p className="text-[12px] text-slate-400 py-4 text-center">Your public trust score appears here once you complete jobs and earn reviews.</p>
               )}
-              <Link href="/supplier/profile" className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-blue-600 hover:text-blue-700"><Eye className="w-3.5 h-3.5" /> Preview public profile</Link>
+              <Link href="/supplier/profile" className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]"><Eye className="w-3.5 h-3.5" /> Preview public profile</Link>
             </div>
           </Panel>
         </aside>

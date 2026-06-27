@@ -12,7 +12,7 @@ type EventType = "inspection" | "tenancy" | "meeting" | "maintenance" | string
 
 function EventTypeBadge({ type }: { type: EventType }) {
   const styles: Record<string, string> = {
-    inspection: "bg-blue-50 text-blue-700",
+    inspection: "bg-[var(--brand-soft)] text-[var(--brand)]",
     tenancy: "bg-emerald-50 text-emerald-700",
     meeting: "bg-violet-50 text-violet-700",
     maintenance: "bg-orange-50 text-orange-700",
@@ -42,7 +42,7 @@ function EventIcon({ type }: { type: EventType }) {
   }
   const Icon = icons[type] ?? CalendarDays
   const bgs: Record<string, string> = {
-    inspection: "bg-blue-50 text-blue-600",
+    inspection: "bg-[var(--brand-soft)] text-[var(--brand)]",
     tenancy: "bg-emerald-50 text-emerald-600",
     meeting: "bg-violet-50 text-violet-600",
     maintenance: "bg-orange-50 text-orange-600",
@@ -61,7 +61,7 @@ export function HomeUpcomingCard({ events }: HomeUpcomingCardProps) {
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5 flex flex-col gap-3 h-full">
       <div className="flex items-center justify-between">
         <h3 className="text-[13px] font-semibold text-slate-900">Upcoming</h3>
-        <Link href="/property-manager/calendar" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/calendar" className="text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
           Calendar →
         </Link>
       </div>
@@ -76,7 +76,7 @@ export function HomeUpcomingCard({ events }: HomeUpcomingCardProps) {
               <p className="text-[13px] font-medium text-slate-600">No upcoming events</p>
               <p className="text-[12px] text-slate-400 mt-0.5">Schedule events in your calendar</p>
             </div>
-            <Link href="/property-manager/calendar" className="text-[12px] font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+            <Link href="/property-manager/calendar" className="text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
               Open calendar →
             </Link>
           </div>
@@ -89,7 +89,7 @@ export function HomeUpcomingCard({ events }: HomeUpcomingCardProps) {
             >
               <EventIcon type={event.eventType ?? "default"} />
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-medium text-slate-800 truncate group-hover:text-blue-600 transition-colors">
+                <p className="text-[12px] font-medium text-slate-800 truncate group-hover:text-[var(--brand)] transition-colors">
                   {event.title}
                 </p>
                 <p className="text-[11px] text-slate-400">{event.subtitle}</p>
@@ -107,7 +107,7 @@ export function HomeUpcomingCard({ events }: HomeUpcomingCardProps) {
 
       {events.length > 0 && (
         <div className="pt-2 border-t border-slate-100">
-          <Link href="/property-manager/calendar" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+          <Link href="/property-manager/calendar" className="text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
             View full calendar →
           </Link>
         </div>

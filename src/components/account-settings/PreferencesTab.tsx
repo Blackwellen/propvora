@@ -81,7 +81,7 @@ export default function PreferencesTab() {
           <select
             value={vals[pref.key]}
             onChange={e => setVals(v => ({ ...v, [pref.key]: e.target.value }))}
-            className="w-full h-10 pl-3 pr-8 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 appearance-none"
+            className="w-full h-10 pl-3 pr-8 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] appearance-none"
           >
             {pref.options.map(o => (
               <option key={o} value={o}>

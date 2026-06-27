@@ -10,7 +10,7 @@ import { EmptyState } from "./shared"
 export function ActivityTimeline({ items }: { items: ActivityRecord[] }) {
   const iconMap: Record<string, React.ReactNode> = {
     payment:  <div style={{ color: "var(--color-success-500, #10B981)" }}><CheckCircle2 className="w-4 h-4" /></div>,
-    document: <div style={{ color: "var(--brand)" }}><FileText className="w-4 h-4" /></div>,
+    document: <div style={{ color: "#2563EB" }}><FileText className="w-4 h-4" /></div>,
     task:     <div style={{ color: "var(--color-warning-500, #F59E0B)" }}><ListChecks className="w-4 h-4" /></div>,
     alert:    <div style={{ color: "var(--color-danger-500, #EF4444)" }}><AlertTriangle className="w-4 h-4" /></div>,
     system:   <div style={{ color: "var(--text-disabled)" }}><Activity className="w-4 h-4" /></div>,

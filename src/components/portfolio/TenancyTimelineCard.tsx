@@ -124,16 +124,16 @@ const STAGE_STYLE: Record<StageState, {
   dot: string; line: string; labelClass: string; dateClass: string
 }> = {
   completed: {
-    dot: "bg-[#2563EB] border-[#2563EB] shadow-[0_0_0_3px_rgba(37,99,235,0.15)]",
-    line: "bg-[#2563EB]",
+    dot: "bg-[var(--brand)] border-[var(--brand)] shadow-[0_0_0_3px_rgba(37,99,235,0.15)]",
+    line: "bg-[var(--brand)]",
     labelClass: "text-slate-800 font-semibold",
     dateClass: "text-slate-500",
   },
   current: {
-    dot: "bg-white border-[#2563EB] border-2 shadow-[0_0_0_3px_rgba(37,99,235,0.2)]",
+    dot: "bg-white border-[var(--brand)] border-2 shadow-[0_0_0_3px_rgba(37,99,235,0.2)]",
     line: "bg-slate-200",
-    labelClass: "text-[#2563EB] font-bold",
-    dateClass: "text-[#2563EB]",
+    labelClass: "text-[var(--brand)] font-bold",
+    dateClass: "text-[var(--brand)]",
   },
   upcoming: {
     dot: "bg-white border-slate-300",
@@ -207,7 +207,7 @@ export function TenancyTimelineCard({ data }: { data: TenancyTimelineCardData })
                       : stage.state === "overdue"
                       ? <AlertTriangle className="w-3 h-3 text-white" />
                       : stage.state === "current"
-                      ? <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
+                      ? <span className="w-2 h-2 rounded-full bg-[var(--brand)]" />
                       : <Circle className="w-2.5 h-2.5 text-slate-300" />
                     }
                   </div>
@@ -226,7 +226,7 @@ export function TenancyTimelineCard({ data }: { data: TenancyTimelineCardData })
 
                   {/* Action */}
                   {stage.action && stage.state === "current" && (
-                    <button className="text-[9px] font-semibold text-white bg-[#2563EB] px-1.5 py-0.5 rounded-md hover:bg-[#1d4ed8] transition-colors whitespace-nowrap">
+                    <button className="text-[9px] font-semibold text-white bg-[var(--brand)] px-1.5 py-0.5 rounded-md hover:bg-[var(--brand-strong)] transition-colors whitespace-nowrap">
                       {stage.action}
                     </button>
                   )}
@@ -245,12 +245,12 @@ export function TenancyTimelineCard({ data }: { data: TenancyTimelineCardData })
       {/* Footer reminder */}
       {data.reminder_text && (
         <div className="px-4 pb-4">
-          <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-xl">
-            <Bell className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
-            <p className="text-[11px] text-[#1d4ed8] font-medium">{data.reminder_text}</p>
+          <div className="flex items-center gap-2 px-3 py-2 bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-xl">
+            <Bell className="w-3.5 h-3.5 text-[var(--brand)] shrink-0" />
+            <p className="text-[11px] text-[var(--brand-strong)] font-medium">{data.reminder_text}</p>
             {data.id && (
               <Link href={`/property-manager/portfolio/tenancies/${data.id}`}
-                className="ml-auto text-[10.5px] font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5">
+                className="ml-auto text-[10.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] flex items-center gap-0.5">
                 View <ChevronRight className="w-3 h-3" />
               </Link>
             )}

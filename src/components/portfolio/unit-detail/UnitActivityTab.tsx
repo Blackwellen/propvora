@@ -24,7 +24,7 @@ export function UnitActivityTab({ events, loaded }: { events: ActivityRow[]; loa
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm divide-y divide-slate-100">
         {events.map((a) => (
           <div key={a.id} className="flex gap-3 p-4 hover:bg-slate-50/50 transition-colors">
-            <div className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white bg-blue-500">
+            <div className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white bg-[var(--brand)]">
               <Activity className="w-4 h-4" />
             </div>
             <div className="flex-1 min-w-0">

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic"
 const HOLD_TONE: Record<string, string> = {
   held: "bg-amber-50 text-amber-700",
   released: "bg-emerald-50 text-emerald-700",
-  refunded: "bg-blue-50 text-blue-700",
+  refunded: "bg-[var(--brand-soft)] text-[var(--brand)]",
   cancelled: "bg-slate-100 text-slate-600",
 }
 

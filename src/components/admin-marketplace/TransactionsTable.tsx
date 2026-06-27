@@ -93,7 +93,7 @@ export default function TransactionsTable({ rows }: { rows: AdminTransactionRow[
                 <td className="px-4 py-2.5 text-xs font-semibold text-slate-900 whitespace-nowrap">
                   {fmtPence(t.grossPence, t.currency)}
                 </td>
-                <td className="px-4 py-2.5 text-xs text-[#2563EB] whitespace-nowrap">
+                <td className="px-4 py-2.5 text-xs text-[var(--brand)] whitespace-nowrap">
                   {fmtPence(t.platformFeePence, t.currency)}
                 </td>
                 <td className="px-4 py-2.5 text-xs text-slate-500 whitespace-nowrap">

@@ -38,7 +38,7 @@ export default function OffersTab() {
     { id: "counter", label: "Counter offers", value: data.filter((o) => o.status === "Counter offer").length, icon: RefreshCw, bg: "bg-violet-50 text-violet-600" },
     { id: "accepted", label: "Accepted offers", value: data.filter((o) => o.status === "Accepted").length, icon: CheckCircle2, bg: "bg-emerald-50 text-emerald-600" },
     { id: "expired", label: "Expired offers", value: data.filter((o) => o.status === "Expired").length, icon: Clock, bg: "bg-slate-50 text-slate-500" },
-    { id: "holding", label: "Holding deposits", value: data.filter((o) => o.holdingDepositPence > 0).length, icon: Wallet, bg: "bg-blue-50 text-blue-600" },
+    { id: "holding", label: "Holding deposits", value: data.filter((o) => o.holdingDepositPence > 0).length, icon: Wallet, bg: "bg-[var(--brand-soft)] text-[var(--brand)]" },
   ]
 
   async function patch(body: Record<string, unknown>, okMsg: string) {
@@ -70,7 +70,7 @@ export default function OffersTab() {
       <Tag className="w-8 h-8 text-slate-300 mx-auto mb-2" />
       <p className="text-[14px] font-semibold text-slate-700">No offers yet</p>
       <p className="text-[12.5px] text-slate-400 mt-1">Make an offer on a rental and track it here.</p>
-      <Link href="/customer/lets?tab=search" className="mt-3 inline-block text-[12.5px] font-semibold text-blue-600">Browse lets →</Link>
+      <Link href="/customer/lets?tab=search" className="mt-3 inline-block text-[12.5px] font-semibold text-[var(--brand)]">Browse lets →</Link>
     </div>
   )
 
@@ -89,13 +89,13 @@ export default function OffersTab() {
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-5 items-start">
         <div className="space-y-5">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">All offers</h3><div className="relative"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" /><input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-36" /></div></div>
+            <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">All offers</h3><div className="relative"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" /><input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)] w-36" /></div></div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead><tr className="text-[11px] uppercase tracking-wide text-slate-400 border-b border-slate-100"><th className="py-2 pr-2 font-semibold">Property</th><th className="py-2 px-2 font-semibold">Rent offered</th><th className="py-2 px-2 font-semibold">Move-in</th><th className="py-2 px-2 font-semibold">Status</th><th className="py-2 px-2 w-8"></th></tr></thead>
                 <tbody className="divide-y divide-slate-50">
                   {data.map((o) => { const active = o.id === selectedId; return (
-                    <tr key={o.id} onClick={() => setSelectedId(o.id)} className={cn("text-[12.5px] cursor-pointer", active ? "bg-blue-50/40 outline outline-2 -outline-offset-2 outline-blue-500" : "hover:bg-slate-50")}>
+                    <tr key={o.id} onClick={() => setSelectedId(o.id)} className={cn("text-[12.5px] cursor-pointer", active ? "bg-[var(--brand-soft)]/40 outline outline-2 -outline-offset-2 outline-[var(--brand)]" : "hover:bg-slate-50")}>
                       <td className="py-3 pr-2"><div className="flex items-center gap-2.5 min-w-[160px]">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={o.image} alt="" className="w-9 h-9 rounded-lg object-cover shrink-0" /><div className="min-w-0"><p className="font-semibold text-slate-800 truncate">{o.property}</p><p className="text-[11px] text-slate-400 truncate">{o.location}</p></div></div></td>
                       <td className="py-3 px-2 font-semibold text-slate-800 whitespace-nowrap">{formatPence(o.rentOfferedPence, "GBP")}<span className="text-slate-400 font-normal text-[10px]">/mo</span></td>
                       <td className="py-3 px-2 text-slate-500 whitespace-nowrap">{o.moveIn}</td>

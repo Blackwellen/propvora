@@ -28,7 +28,7 @@ export function TenantPortalMaintenanceStep2({ accessNotes, preferredDate, onAcc
           onChange={(e) => onAccessNotes(e.target.value)}
           rows={3}
           placeholder="e.g. Key is with neighbour, dog in property, best access via rear gate…"
-          className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none resize-none focus:ring-2 focus:ring-blue-100"
+          className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none resize-none focus:ring-2 focus:ring-[var(--color-brand-100)]"
         />
       </div>
 
@@ -39,7 +39,7 @@ export function TenantPortalMaintenanceStep2({ accessNotes, preferredDate, onAcc
           value={preferredDate}
           onChange={(e) => onPreferredDate(e.target.value)}
           min={new Date().toISOString().split("T")[0]}
-          className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-blue-100"
+          className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-[var(--color-brand-100)]"
         />
         <p className="text-[11px] text-slate-400 mt-1">A preference, not a guarantee — your manager will confirm the schedule.</p>
       </div>

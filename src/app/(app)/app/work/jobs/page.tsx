@@ -117,7 +117,7 @@ function FilterDropdown({ label, options, value, onChange }: {
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 text-[12.5px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50 appearance-none cursor-pointer"
+        className="border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 text-[12.5px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]/50 appearance-none cursor-pointer"
       >
         {options.map(o => (
           <option key={o} value={o === "All" || o.includes("▾") ? "" : o}>{o}</option>
@@ -135,8 +135,8 @@ function FilterDropdown({ label, options, value, onChange }: {
 // ---------------------------------------------------------------------------
 function JobStatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    scheduled: "bg-[#EFF6FF] text-[#2563EB]",
-    in_progress: "bg-blue-50 text-blue-700",
+    scheduled: "bg-[var(--brand-soft)] text-[var(--brand)]",
+    in_progress: "bg-[var(--brand-soft)] text-[var(--brand)]",
     overdue: "bg-red-50 text-red-700",
     waiting: "bg-amber-50 text-amber-700",
     complete: "bg-emerald-50 text-emerald-700",
@@ -180,8 +180,8 @@ function JobsKpiStrip({ jobs }: { jobs: DemoJob[] }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
       {[
-        { label: "Scheduled Jobs", value: String(scheduledCount), sub: "Upcoming this week", color: "text-[#2563EB]", bg: "bg-blue-50", icon: Calendar },
-        { label: "In Progress", value: String(inProgressCount), sub: "Currently active", color: "text-[#2563EB]", bg: "bg-blue-50", icon: Briefcase },
+        { label: "Scheduled Jobs", value: String(scheduledCount), sub: "Upcoming this week", color: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]", icon: Calendar },
+        { label: "In Progress", value: String(inProgressCount), sub: "Currently active", color: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]", icon: Briefcase },
         { label: "Overdue", value: String(overdueCount), sub: "Past due date", color: "text-red-600", bg: "bg-red-50", icon: AlertTriangle },
         { label: "Waiting Supplier", value: String(waitingCount), sub: "Pending response", color: "text-amber-600", bg: "bg-amber-50", icon: Clock },
         { label: "Invoice Pending", value: String(invoicePendingCount), sub: "Awaiting invoice", color: "text-violet-600", bg: "bg-violet-50", icon: Receipt },
@@ -344,10 +344,10 @@ function RecentJobsPanel({ jobs }: { jobs: DemoJob[] }) {
                 j.status === "complete" ? "bg-emerald-500" :
                 j.status === "overdue" ? "bg-red-500" :
                 j.status === "in_progress" ? "bg-indigo-500" :
-                "bg-blue-400"
+                "bg-[var(--color-brand-400)]"
               )} />
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-semibold text-slate-700 truncate group-hover:text-[#2563EB] transition-colors">{j.title}</p>
+                <p className="text-[12px] font-semibold text-slate-700 truncate group-hover:text-[var(--brand)] transition-colors">{j.title}</p>
                 <p className="text-[10px] text-slate-400">{j.property !== "—" ? j.property : "No property"} · {j.status.replace("_", " ")}</p>
               </div>
               {j.quoteValue !== "—" && (
@@ -418,7 +418,7 @@ const JOB_BOARD_COLUMNS: { key: string; label: string }[] = [
 
 const STATUS_DOT: Record<string, string> = {
   new: "bg-slate-400",
-  scheduled: "bg-blue-500",
+  scheduled: "bg-[var(--brand)]",
   in_progress: "bg-indigo-500",
   waiting: "bg-amber-500",
   overdue: "bg-red-500",
@@ -459,7 +459,7 @@ function JobsCalendarView({ jobs }: { jobs: DemoJob[] }) {
 
   // Legend reflects the status colours used by the day-cell dots.
   const legend = [
-    { label: "Scheduled", dot: "bg-blue-500" },
+    { label: "Scheduled", dot: "bg-[var(--brand)]" },
     { label: "In Progress", dot: "bg-indigo-500" },
     { label: "Waiting", dot: "bg-amber-500" },
     { label: "Overdue", dot: "bg-red-500" },
@@ -470,8 +470,8 @@ function JobsCalendarView({ jobs }: { jobs: DemoJob[] }) {
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
       <div className="flex items-center justify-between gap-3 flex-wrap px-4 sm:px-5 py-3 border-b border-slate-100">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
-            <Calendar className="w-4 h-4 text-[#2563EB]" />
+          <div className="w-8 h-8 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+            <Calendar className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-slate-900 leading-tight">{monthLabel}</h3>
@@ -503,26 +503,26 @@ function JobsCalendarView({ jobs }: { jobs: DemoJob[] }) {
               key={i}
               className={cn(
                 "group/cell min-h-[88px] sm:min-h-[108px] border-b border-r border-slate-100 p-1.5 align-top transition-colors",
-                !cell ? "bg-slate-50/40" : isWeekend ? "bg-slate-50/30 hover:bg-blue-50/30" : "hover:bg-blue-50/30",
-                isToday && "bg-blue-50/40"
+                !cell ? "bg-slate-50/40" : isWeekend ? "bg-slate-50/30 hover:bg-[var(--brand-soft)]/30" : "hover:bg-[var(--brand-soft)]/30",
+                isToday && "bg-[var(--brand-soft)]/40"
               )}
             >
               {cell && (
                 <>
                   <div className="flex items-center justify-between mb-1">
-                    <div className={cn("text-[11px] font-semibold w-6 h-6 flex items-center justify-center rounded-full tabular-nums transition-colors", isToday ? "bg-[#2563EB] text-white shadow-sm" : "text-slate-500 group-hover/cell:bg-white")}>{cell.day}</div>
+                    <div className={cn("text-[11px] font-semibold w-6 h-6 flex items-center justify-center rounded-full tabular-nums transition-colors", isToday ? "bg-[var(--brand)] text-white shadow-sm" : "text-slate-500 group-hover/cell:bg-white")}>{cell.day}</div>
                     {dayJobs.length > 0 && (
                       <span className="text-[9px] font-semibold text-slate-400 tabular-nums">{dayJobs.length}</span>
                     )}
                   </div>
                   <div className="space-y-1">
                     {dayJobs.slice(0, 3).map((j) => (
-                      <Link key={j.id} href={`/property-manager/work/jobs/${j.id}`} title={`${j.title} · ${j.property}`} className="flex items-center gap-1.5 rounded-md bg-white border border-slate-200/70 hover:border-[#2563EB]/40 hover:shadow-sm px-1.5 py-1 transition-all">
+                      <Link key={j.id} href={`/property-manager/work/jobs/${j.id}`} title={`${j.title} · ${j.property}`} className="flex items-center gap-1.5 rounded-md bg-white border border-slate-200/70 hover:border-[var(--brand)]/40 hover:shadow-sm px-1.5 py-1 transition-all">
                         <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", STATUS_DOT[j.status] ?? "bg-slate-400")} />
                         <span className="text-[10px] font-medium text-slate-600 truncate">{j.title}</span>
                       </Link>
                     ))}
-                    {dayJobs.length > 3 && <p className="text-[9px] font-medium text-[#2563EB] pl-1">+{dayJobs.length - 3} more</p>}
+                    {dayJobs.length > 3 && <p className="text-[9px] font-medium text-[var(--brand)] pl-1">+{dayJobs.length - 3} more</p>}
                   </div>
                 </>
               )}
@@ -572,8 +572,8 @@ function JobsTimelineView({ jobs }: { jobs: DemoJob[] }) {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
       <div className="flex items-center gap-2.5 px-4 sm:px-5 py-3 border-b border-slate-100">
-        <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
-          <Activity className="w-4 h-4 text-[#2563EB]" />
+        <div className="w-8 h-8 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+          <Activity className="w-4 h-4 text-[var(--brand)]" />
         </div>
         <div>
           <h3 className="text-sm font-semibold text-slate-900 leading-tight">Job Timeline</h3>
@@ -587,23 +587,23 @@ function JobsTimelineView({ jobs }: { jobs: DemoJob[] }) {
             return (
               <div key={label} className="relative mb-7 last:mb-0">
                 {/* Day node */}
-                <div className={cn("absolute -left-7 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center mt-0.5 shadow-sm", isToday ? "bg-[#2563EB]" : "bg-white ring-1 ring-slate-200")}>
-                  <span className={cn("w-1.5 h-1.5 rounded-full", isToday ? "bg-white" : "bg-[#2563EB]")} />
+                <div className={cn("absolute -left-7 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center mt-0.5 shadow-sm", isToday ? "bg-[var(--brand)]" : "bg-white ring-1 ring-slate-200")}>
+                  <span className={cn("w-1.5 h-1.5 rounded-full", isToday ? "bg-white" : "bg-[var(--brand)]")} />
                 </div>
                 {/* Day header pill */}
                 <div className="flex items-center gap-2 mb-2.5">
-                  <span className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-semibold", isToday ? "bg-[#EFF6FF] text-[#2563EB]" : "bg-slate-100 text-slate-600")}>
-                    {isToday && <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />}
+                  <span className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-semibold", isToday ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "bg-slate-100 text-slate-600")}>
+                    {isToday && <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand)]" />}
                     {label}
                   </span>
                   <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 rounded-full px-1.5 py-0.5 tabular-nums">{items.length}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
                   {items.map((j) => (
-                    <Link key={j.id} href={`/property-manager/work/jobs/${j.id}`} className="group flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white hover:border-[#2563EB]/40 hover:shadow-md px-3 py-2.5 transition-all">
+                    <Link key={j.id} href={`/property-manager/work/jobs/${j.id}`} className="group flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white hover:border-[var(--brand)]/40 hover:shadow-md px-3 py-2.5 transition-all">
                       <span className={cn("w-2.5 h-2.5 rounded-full shrink-0 ring-4 ring-offset-0", STATUS_DOT[j.status] ?? "bg-slate-400", "ring-slate-50")} />
                       <div className="min-w-0 flex-1">
-                        <p className="text-[12.5px] font-semibold text-slate-800 truncate group-hover:text-[#2563EB] transition-colors">{j.title}</p>
+                        <p className="text-[12.5px] font-semibold text-slate-800 truncate group-hover:text-[var(--brand)] transition-colors">{j.title}</p>
                         {j.property && j.property !== "—" && <p className="text-[10.5px] text-slate-400 truncate">{j.property}</p>}
                       </div>
                       {j.quoteValue !== "—" && <span className="text-[11px] font-bold text-slate-600 tabular-nums shrink-0">{j.quoteValue}</span>}
@@ -648,8 +648,8 @@ function JobsDataView({ jobs }: { jobs: DemoJob[] }) {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
       <div className="flex items-center gap-2.5 px-4 sm:px-5 py-3 border-b border-slate-100">
-        <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
-          <Database className="w-4 h-4 text-[#2563EB]" />
+        <div className="w-8 h-8 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+          <Database className="w-4 h-4 text-[var(--brand)]" />
         </div>
         <div>
           <h3 className="text-sm font-semibold text-slate-900 leading-tight">All Job Data</h3>
@@ -670,7 +670,7 @@ function JobsDataView({ jobs }: { jobs: DemoJob[] }) {
               <tr key={j.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors group">
                 <td className="px-3 py-2.5 font-mono text-[11px] text-slate-400 whitespace-nowrap">{String(j.id).slice(0, 10)}</td>
                 <td className="px-3 py-2.5">
-                  <Link href={`/property-manager/work/jobs/${j.id}`} className="font-semibold text-slate-800 group-hover:text-[#2563EB] whitespace-nowrap transition-colors">{j.title}</Link>
+                  <Link href={`/property-manager/work/jobs/${j.id}`} className="font-semibold text-slate-800 group-hover:text-[var(--brand)] whitespace-nowrap transition-colors">{j.title}</Link>
                 </td>
                 <td className="px-3 py-2.5"><JobStatusBadge status={j.status} /></td>
                 <td className="px-3 py-2.5"><WorkPriorityBadge priority={j.priority} /></td>
@@ -906,7 +906,7 @@ export default function JobsPage() {
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/property-manager/work/jobs/new"
-            className="h-8 px-3 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
+            className="h-8 px-3 rounded-lg bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" /> Create Job
           </Link>
@@ -959,7 +959,7 @@ export default function JobsPage() {
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[12.5px] font-medium transition-all",
                   activeView === vt.key
-                    ? "bg-[#EFF6FF] border-[#BFDBFE] text-[#2563EB]"
+                    ? "bg-[var(--brand-soft)] border-[#BFDBFE] text-[var(--brand)]"
                     : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                 )}
               >
@@ -1008,10 +1008,10 @@ export default function JobsPage() {
               <input type="checkbox" className="rounded" onChange={handleSelectAll} checked={selectedIds.length === displayJobs.length && displayJobs.length > 0} />
               {selectedIds.length > 0 ? (
                 <>
-                  <span className="text-sm font-medium text-[#2563EB]">{selectedIds.length} jobs selected</span>
+                  <span className="text-sm font-medium text-[var(--brand)]">{selectedIds.length} jobs selected</span>
                   <div className="w-px h-4 bg-slate-200" />
                   {usingLive ? (
-                    <label className="flex items-center gap-1.5 text-[12.5px] font-medium text-[#2563EB]">
+                    <label className="flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--brand)]">
                       Set status
                       <select
                         disabled={bulkBusy}
@@ -1028,8 +1028,8 @@ export default function JobsPage() {
                   ) : (
                     <span className="text-[12px] text-slate-500">Bulk status changes apply to live jobs</span>
                   )}
-                  {bulkBusy && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#2563EB]" />}
-                  <button onClick={exportSelected} className="text-[12.5px] font-medium text-[#2563EB] hover:underline flex items-center gap-1">
+                  {bulkBusy && <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--brand)]" />}
+                  <button onClick={exportSelected} className="text-[12.5px] font-medium text-[var(--brand)] hover:underline flex items-center gap-1">
                     <Download className="w-3.5 h-3.5" /> Export Selected
                   </button>
                   <button onClick={() => setSelectedIds([])} className="text-slate-400 hover:text-slate-600">✕</button>
@@ -1106,7 +1106,7 @@ export default function JobsPage() {
                     key={job.id}
                     className={cn(
                       "border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer",
-                      selectedIds.includes(job.id) && "bg-blue-50/40"
+                      selectedIds.includes(job.id) && "bg-[var(--brand-soft)]/40"
                     )}
                   >
                     <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
@@ -1148,7 +1148,7 @@ export default function JobsPage() {
                     </td>
                     <td className="px-4 py-3.5 hidden xl:table-cell">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[10px] text-white font-bold shrink-0">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--brand)] to-[var(--brand-strong)] flex items-center justify-center text-[10px] text-white font-bold shrink-0">
                           {job.engineerInitials}
                         </div>
                         <div>

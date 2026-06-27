@@ -356,8 +356,8 @@ export default function PlanningSetOverviewPage() {
         />
         <KpiCard
           loading={loading}
-          icon={<div style={{ color: "var(--brand)" }}><BarChart2 className="w-4 h-4" /></div>}
-          iconBg="bg-blue-50"
+          icon={<div style={{ color: "#2563EB" }}><BarChart2 className="w-4 h-4" /></div>}
+          iconBg="bg-[var(--brand-soft)]"
           label="Gross Yield"
           value={fmtPct(grossYield)}
         />
@@ -406,8 +406,8 @@ export default function PlanningSetOverviewPage() {
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <div style={{ color: "var(--brand)" }}><Home className="w-4 h-4" /></div>
+                  <div className="w-8 h-8 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+                    <div style={{ color: "#2563EB" }}><Home className="w-4 h-4" /></div>
                   </div>
                   <h3 className="text-sm font-semibold text-slate-900">Plan Summary</h3>
                 </div>
@@ -694,8 +694,8 @@ export default function PlanningSetOverviewPage() {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-blue-50 flex items-center justify-center">
-                  <div style={{ color: "var(--brand)" }}><CheckCircle2 className="w-3.5 h-3.5" /></div>
+                <div className="w-7 h-7 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+                  <div style={{ color: "#2563EB" }}><CheckCircle2 className="w-3.5 h-3.5" /></div>
                 </div>
                 <h3 className="text-sm font-semibold text-slate-900">Upcoming Tasks</h3>
               </div>

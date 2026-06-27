@@ -29,8 +29,8 @@ export function ActivityRowIcon({ eventType }: ActivityRowIconProps) {
     )
   }
   return (
-    <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-      <FileText className="w-4 h-4 text-blue-600" />
+    <div className="w-9 h-9 rounded-full bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+      <FileText className="w-4 h-4 text-[var(--brand)]" />
     </div>
   )
 }

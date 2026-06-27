@@ -15,7 +15,7 @@ export function QuoteMessagesTab({ request: r }: QuoteMessagesTabProps) {
     <SupplierCard className="p-5">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold text-slate-900">Messages</h2>
-        <Link href="/supplier/inbox" className="text-xs font-semibold text-blue-600">Open inbox</Link>
+        <Link href="/supplier/inbox" className="text-xs font-semibold text-[var(--brand)]">Open inbox</Link>
       </div>
       {!r || r.messages.length === 0 ? (
         <SupplierEmptyState icon={MessagesSquare} title="No messages" />

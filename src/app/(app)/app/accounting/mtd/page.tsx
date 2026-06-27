@@ -53,7 +53,7 @@ interface MtdSubmission {
 
 function periodStatusChip(status: MtdPeriod["status"]) {
   switch (status) {
-    case "current": return { label: "In progress", cls: "bg-blue-50 text-blue-600" }
+    case "current": return { label: "In progress", cls: "bg-[var(--brand-soft)] text-[var(--brand)]" }
     case "open": return { label: "Ready to file", cls: "bg-amber-50 text-amber-600" }
     case "overdue": return { label: "Overdue", cls: "bg-red-50 text-red-600" }
     default: return { label: "Upcoming", cls: "bg-slate-100 text-slate-500" }
@@ -207,7 +207,7 @@ export default function MtdPage() {
         // ── Honest "not connected" readiness banner ─────────────────────────
         <div className="flex flex-col sm:flex-row items-start gap-4 bg-white border border-[#E2E8F0] rounded-2xl shadow-sm px-5 py-5">
           <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center shrink-0">
-            {MTD_ENABLED ? <PlugZap className="w-5 h-5 text-[#2563EB]" /> : <Lock className="w-5 h-5 text-slate-400" />}
+            {MTD_ENABLED ? <PlugZap className="w-5 h-5 text-[var(--brand)]" /> : <Lock className="w-5 h-5 text-slate-400" />}
           </div>
           <div className="flex-1">
             <h2 className="text-base font-bold text-slate-900">Not connected to HMRC</h2>
@@ -246,8 +246,8 @@ export default function MtdPage() {
           subtitle="Income − expenses"
           trendNeutral
           icon={mtd && mtd.totalNet < 0 ? <TrendingDown className="w-5 h-5" /> : <TrendingUp className="w-5 h-5" />}
-          iconBg="bg-blue-50"
-          iconColor="text-blue-600"
+          iconBg="bg-[var(--brand-soft)]"
+          iconColor="text-[var(--brand)]"
         />
         {/* Next-deadline countdown — derived locally, honest about connection */}
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5 flex flex-col gap-1">
@@ -316,7 +316,7 @@ export default function MtdPage() {
                     const chip = periodStatusChip(p.status)
                     const canFile = isConnected && (p.status === "open" || p.status === "overdue")
                     const prog = Math.round(dueProgress(p) * 100)
-                    const progColor = p.status === "overdue" ? "bg-red-500" : p.status === "open" ? "bg-amber-500" : p.status === "current" ? "bg-blue-500" : "bg-slate-300"
+                    const progColor = p.status === "overdue" ? "bg-red-500" : p.status === "open" ? "bg-amber-500" : p.status === "current" ? "bg-[var(--brand)]" : "bg-slate-300"
                     const [qtr, range] = p.label.split(" · ")
                     return (
                       <tr key={p.key} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60 transition-colors">
@@ -343,7 +343,7 @@ export default function MtdPage() {
                             disabled={!canFile}
                             onClick={() => canFile && showToast("Submitting to HMRC requires the live connection — figures are ready to file")}
                             title={isConnected ? "" : "Connect HMRC to submit this period"}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] disabled:text-slate-300 disabled:cursor-not-allowed"
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] disabled:text-slate-300 disabled:cursor-not-allowed"
                           >
                             {isConnected ? "File update" : "Connect to file"}
                             {canFile && <ArrowRight className="w-3.5 h-3.5" />}
@@ -361,7 +361,7 @@ export default function MtdPage() {
                 const chip = periodStatusChip(p.status)
                 const canFile = isConnected && (p.status === "open" || p.status === "overdue")
                 const prog = Math.round(dueProgress(p) * 100)
-                const progColor = p.status === "overdue" ? "bg-red-500" : p.status === "open" ? "bg-amber-500" : p.status === "current" ? "bg-blue-500" : "bg-slate-300"
+                const progColor = p.status === "overdue" ? "bg-red-500" : p.status === "open" ? "bg-amber-500" : p.status === "current" ? "bg-[var(--brand)]" : "bg-slate-300"
                 return (
                   <div key={p.key} className="px-5 py-4 space-y-3">
                     <div className="flex items-center justify-between">
@@ -381,7 +381,7 @@ export default function MtdPage() {
                       <button
                         disabled={!canFile}
                         onClick={() => canFile && showToast("Submitting to HMRC requires the live connection — figures are ready to file")}
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#2563EB] disabled:text-slate-300 disabled:cursor-not-allowed"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)] disabled:text-slate-300 disabled:cursor-not-allowed"
                       >
                         {isConnected ? "File update" : "Connect to file"}
                         {canFile && <ArrowRight className="w-3.5 h-3.5" />}
@@ -463,7 +463,7 @@ export default function MtdPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-6">
               {[
-                { icon: Calendar, title: "Live obligations", desc: "Periods and deadlines pulled directly from HMRC — never simulated.", tint: "bg-blue-50 text-blue-600" },
+                { icon: Calendar, title: "Live obligations", desc: "Periods and deadlines pulled directly from HMRC — never simulated.", tint: "bg-[var(--brand-soft)] text-[var(--brand)]" },
                 { icon: Send, title: "Submit updates", desc: "The quarterly income & expense figures above, filed to HMRC for ITSA.", tint: "bg-violet-50 text-violet-600" },
                 { icon: CheckCircle2, title: "Acknowledgement refs", desc: "Real receipt references returned by HMRC, stored in your history.", tint: "bg-emerald-50 text-emerald-600" },
               ].map((f) => (
@@ -477,9 +477,9 @@ export default function MtdPage() {
               ))}
             </div>
 
-            <div className="mt-4 flex items-start gap-2.5 p-3 rounded-xl bg-blue-50 border border-blue-100">
-              <Info className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
-              <p className="text-xs text-blue-700">
+            <div className="mt-4 flex items-start gap-2.5 p-3 rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)]">
+              <Info className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
+              <p className="text-xs text-[var(--brand)]">
                 Need a full breakdown before filing? Use the live{" "}
                 <a href={sectionLink("/property-manager/accounting/reports")} className="font-semibold underline">Financial Reports</a>{" "}
                 (P&amp;L computed from your ledger).
@@ -491,9 +491,9 @@ export default function MtdPage() {
 
       {/* Connected: keep the cross-link to live reports for a healthy footer */}
       {isConnected && (
-        <div className="flex items-start gap-2.5 p-4 rounded-2xl bg-blue-50 border border-blue-100">
-          <Info className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
-          <p className="text-xs text-blue-700">
+        <div className="flex items-start gap-2.5 p-4 rounded-2xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)]">
+          <Info className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
+          <p className="text-xs text-[var(--brand)]">
             Need a full breakdown before filing? Use the live{" "}
             <a href={sectionLink("/property-manager/accounting/reports")} className="font-semibold underline">Financial Reports</a>{" "}
             (P&amp;L computed from your ledger).

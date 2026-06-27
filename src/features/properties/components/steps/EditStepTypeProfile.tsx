@@ -54,7 +54,7 @@ function TextInput({ className, ...props }: React.InputHTMLAttributes<HTMLInputE
       {...props}
       className={cn(
         "w-full h-10 px-3 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400",
-        "focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] bg-white transition-all",
+        "focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] bg-white transition-all",
         className,
       )}
     />
@@ -67,7 +67,7 @@ function SelectInput({ className, ...props }: React.SelectHTMLAttributes<HTMLSel
       {...props}
       className={cn(
         "w-full h-10 px-3 rounded-xl border border-slate-200 text-sm text-slate-900",
-        "focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] bg-white cursor-pointer transition-all",
+        "focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] bg-white cursor-pointer transition-all",
         className,
       )}
     />
@@ -95,7 +95,7 @@ export function EditStepTypeProfile({ register, errors, watch, setValue }: EditS
               className={cn(
                 "px-3 py-2.5 rounded-xl text-xs font-medium border transition-all text-left",
                 profile === p
-                  ? "border-[#2563EB] bg-blue-50 text-[#2563EB] shadow-sm ring-1 ring-[#2563EB]/20"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)] shadow-sm ring-1 ring-[var(--brand)]/20"
                   : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50",
               )}
             >

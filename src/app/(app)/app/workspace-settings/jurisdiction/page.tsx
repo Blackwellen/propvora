@@ -64,7 +64,7 @@ function SelectField({
         value={value}
         disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/20 transition-all disabled:opacity-60"
+        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[var(--brand)] focus:ring-1 focus:ring-[var(--brand)]/20 transition-all disabled:opacity-60"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -271,7 +271,7 @@ export default function JurisdictionSettingsPage() {
         </p>
         <a
           href="/property-manager/workspace/global"
-          className="inline-flex items-center gap-1.5 mt-2 text-[12.5px] font-medium text-blue-600 hover:text-blue-700"
+          className="inline-flex items-center gap-1.5 mt-2 text-[12.5px] font-medium text-[var(--brand)] hover:text-[var(--brand)]"
         >
           View full Global &amp; internationalisation settings →
         </a>
@@ -487,7 +487,7 @@ export default function JurisdictionSettingsPage() {
           <button
             onClick={handleSave}
             disabled={saving || !canEdit}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-70"
           >
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin" />

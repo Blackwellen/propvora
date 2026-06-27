@@ -78,7 +78,7 @@ export default async function LandlordMaintenancePage({ params }: { params: Prom
                       <td className="px-4 py-3 text-slate-500">{formatDate(j.created_at)}</td>
                       <td className="px-4 py-3"><StatusChip tone={urgentJob ? "red" : "blue"}>{urgentJob ? "Urgent" : "Normal"}</StatusChip></td>
                       <td className="px-4 py-3"><StatusChip tone={st.tone} dot>{st.label}</StatusChip></td>
-                      <td className="px-4 py-3 text-right"><Link href={`${base}/maintenance/${j.id}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-[#2563EB]">View <ChevronRight className="w-3.5 h-3.5" /></Link></td>
+                      <td className="px-4 py-3 text-right"><Link href={`${base}/maintenance/${j.id}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-[var(--brand)]">View <ChevronRight className="w-3.5 h-3.5" /></Link></td>
                     </tr>
                   )})}
                 </tbody>

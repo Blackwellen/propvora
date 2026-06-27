@@ -39,7 +39,7 @@ export function ContactsPagination({ total, page, onPage }: ContactsPaginationPr
               className={cn(
                 "w-8 h-8 rounded-lg text-xs font-medium transition-colors",
                 p === page
-                  ? "bg-[#2563EB] text-white"
+                  ? "bg-[var(--brand)] text-white"
                   : "border border-slate-200 bg-white hover:bg-slate-50 text-slate-600"
               )}
             >

@@ -132,8 +132,8 @@ export default function CalendarSettingsPage() {
         {/* iCal Export */}
         <div className="rounded-xl border border-slate-200 bg-white p-6 space-y-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-              <Globe className="w-4 h-4 text-blue-600" />
+            <div className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center">
+              <Globe className="w-4 h-4 text-[var(--brand)]" />
             </div>
             <div>
               <h2 className="text-sm font-semibold text-slate-800">iCal / Calendar Feed</h2>
@@ -168,8 +168,8 @@ export default function CalendarSettingsPage() {
         {/* Notification preferences */}
         <div className="rounded-xl border border-slate-200 bg-white p-6 space-y-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-              <Bell className="w-4 h-4 text-blue-600" />
+            <div className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center">
+              <Bell className="w-4 h-4 text-[var(--brand)]" />
             </div>
             <div>
               <h2 className="text-sm font-semibold text-slate-800">Notification Preferences</h2>
@@ -193,7 +193,7 @@ export default function CalendarSettingsPage() {
                   onClick={() => toggle(key)}
                   className={cn(
                     "w-11 h-6 rounded-full transition-colors relative shrink-0",
-                    notifications[key] ? "bg-[#2563EB]" : "bg-slate-300"
+                    notifications[key] ? "bg-[var(--brand)]" : "bg-slate-300"
                   )}
                 >
                   <span className={cn(
@@ -209,8 +209,8 @@ export default function CalendarSettingsPage() {
         {/* Default view */}
         <div className="rounded-xl border border-slate-200 bg-white p-6 space-y-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-              <CalendarDays className="w-4 h-4 text-blue-600" />
+            <div className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center">
+              <CalendarDays className="w-4 h-4 text-[var(--brand)]" />
             </div>
             <div>
               <h2 className="text-sm font-semibold text-slate-800">Default View</h2>
@@ -225,8 +225,8 @@ export default function CalendarSettingsPage() {
                 className={cn(
                   "px-4 py-2 rounded-lg border text-sm font-medium capitalize transition-all",
                   defaultView === view
-                    ? "bg-[#EFF6FF] border-[#2563EB] text-[#2563EB]"
-                    : "border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-blue-300"
+                    ? "bg-[var(--brand-soft)] border-[var(--brand)] text-[var(--brand)]"
+                    : "border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-[var(--color-brand-300)]"
                 )}
               >
                 {view}

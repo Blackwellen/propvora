@@ -64,7 +64,7 @@ export function PropertyDataView({ properties }: { properties: PropertyCardData[
         <span className={cn("inline-flex items-center gap-0.5", right ? "justify-end" : "justify-start")}>
           {label}
           {active
-            ? (sortDir === "asc" ? <ChevronUp className="w-3 h-3 text-[#2563EB]" /> : <ChevronDown className="w-3 h-3 text-[#2563EB]" />)
+            ? (sortDir === "asc" ? <ChevronUp className="w-3 h-3 text-[var(--brand)]" /> : <ChevronDown className="w-3 h-3 text-[var(--brand)]" />)
             : <ChevronUp className="w-3 h-3 text-slate-200" />
           }
         </span>
@@ -137,7 +137,7 @@ export function PropertyDataView({ properties }: { properties: PropertyCardData[
                 <tr key={p.id} className="hover:bg-slate-50/60 transition-colors group">
                   <td className="px-4 py-3">
                     <Link href={`/property-manager/portfolio/properties/${p.id}`}
-                      className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors block truncate max-w-[200px]">
+                      className="text-[13px] font-semibold text-slate-900 hover:text-[var(--brand)] transition-colors block truncate max-w-[200px]">
                       {p.name}
                     </Link>
                     <p className="text-[11px] text-slate-500 truncate max-w-[200px]">{p.address}</p>
@@ -193,7 +193,7 @@ export function PropertyDataView({ properties }: { properties: PropertyCardData[
                   {/* View */}
                   <td className="px-4 py-3">
                     <Link href={`/property-manager/portfolio/properties/${p.id}`}
-                      className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg bg-slate-100 hover:bg-[#2563EB] hover:text-white flex items-center justify-center text-slate-500 transition-all">
+                      className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg bg-slate-100 hover:bg-[var(--brand)] hover:text-white flex items-center justify-center text-slate-500 transition-all">
                       <Eye className="w-3.5 h-3.5" />
                     </Link>
                   </td>

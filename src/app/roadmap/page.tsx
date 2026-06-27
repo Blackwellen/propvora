@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Roadmap · Propvora",
   description:
     "Where Propvora is today and where it's heading. We ship the UK property-operations + compliance SaaS first, then stage planning, AI and the marketplace layers.",
+  alternates: { canonical: "/roadmap" },
   robots: { index: true, follow: true },
 }
 

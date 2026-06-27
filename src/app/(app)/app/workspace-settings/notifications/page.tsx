@@ -32,14 +32,14 @@ interface ChannelSettings {
 type DigestFrequency = "instant" | "hourly" | "daily" | "weekly"
 
 const ALERT_ROWS: { key: keyof AlertToggles; label: string; desc: string; icon: LucideIcon; tint: string }[] = [
-  { key: "workReminders",       label: "Work reminders",              desc: "Due dates and task reminders for maintenance and inspections",     icon: Wrench,        tint: "bg-blue-50 text-blue-600"     },
+  { key: "workReminders",       label: "Work reminders",              desc: "Due dates and task reminders for maintenance and inspections",     icon: Wrench,        tint: "bg-[var(--brand-soft)] text-[var(--brand)]"     },
   { key: "supplierReplies",     label: "Supplier reply notifications",desc: "When a supplier responds to a message or quote request",           icon: MessageSquare, tint: "bg-violet-50 text-violet-600" },
   { key: "invoiceDue",          label: "Invoice due alerts",          desc: "Alerts when tenant or supplier invoices are approaching due date",  icon: Receipt,       tint: "bg-amber-50 text-amber-600"   },
   { key: "arrears",             label: "Arrears alerts",              desc: "When rent payments are overdue or a tenant falls into arrears",     icon: AlertTriangle, tint: "bg-red-50 text-red-600"       },
   { key: "complianceExpiry",    label: "Compliance expiry alerts",    desc: "Gas safety, EPC, EICR and other certificates nearing expiry",      icon: ShieldCheck,   tint: "bg-emerald-50 text-emerald-600"},
   { key: "planningOfferExpiry", label: "Planning offer expiry",       desc: "When planning or legal offer deadlines are approaching",           icon: CalendarClock, tint: "bg-orange-50 text-orange-600" },
   { key: "aiApproval",          label: "AI approval notifications",   desc: "When AI actions are queued and awaiting your review",              icon: Sparkles,      tint: "bg-violet-50 text-violet-600" },
-  { key: "teamInvite",          label: "Team invite notifications",   desc: "When someone accepts or declines a workspace invite",              icon: UserPlus,      tint: "bg-blue-50 text-blue-600"     },
+  { key: "teamInvite",          label: "Team invite notifications",   desc: "When someone accepts or declines a workspace invite",              icon: UserPlus,      tint: "bg-[var(--brand-soft)] text-[var(--brand)]"     },
   { key: "securityAlerts",      label: "Security alerts",             desc: "Suspicious login attempts, MFA changes, and access events",        icon: ShieldAlert,   tint: "bg-red-50 text-red-600"       },
   { key: "billingAlerts",       label: "Billing alerts",              desc: "Payment failures, subscription changes and invoice notices",       icon: CreditCard,    tint: "bg-emerald-50 text-emerald-600"},
 ]
@@ -75,7 +75,7 @@ function ToggleRow({
         aria-label={label}
         className={cn(
           "w-10 h-6 rounded-full transition-colors shrink-0 relative",
-          enabled ? "bg-[#2563EB]" : "bg-slate-200"
+          enabled ? "bg-[var(--brand)]" : "bg-slate-200"
         )}
       >
         <span
@@ -187,8 +187,8 @@ export default function NotificationsPage() {
       </div>
 
       {/* Info banner */}
-      <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-2xl p-4 mb-6 flex items-start gap-3">
-        <div className="w-6 h-6 rounded-lg bg-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
+      <div className="bg-[var(--brand-soft)] border border-[#BFDBFE] rounded-2xl p-4 mb-6 flex items-start gap-3">
+        <div className="w-6 h-6 rounded-lg bg-[var(--brand)] flex items-center justify-center shrink-0 mt-0.5">
           <Bell className="w-3.5 h-3.5 text-white" />
         </div>
         <p className="text-[12.5px] text-[#1e3a8a] font-medium">
@@ -237,7 +237,7 @@ export default function NotificationsPage() {
                 setAlerts(all)
                 setIsDirty(true)
               }}
-              className="text-[11.5px] font-semibold text-[#2563EB] hover:text-[#1d4ed8] transition-colors"
+              className="text-[11.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
             >
               All on
             </button>
@@ -286,15 +286,15 @@ export default function NotificationsPage() {
                 onClick={() => toggleChannel(ch.key)}
                 className={cn(
                   "flex flex-col items-start gap-2 p-4 rounded-xl border-2 transition-all text-left",
-                  on ? "border-[#2563EB] bg-[#EFF6FF]" : "border-slate-200 bg-white hover:border-slate-300"
+                  on ? "border-[var(--brand)] bg-[var(--brand-soft)]" : "border-slate-200 bg-white hover:border-slate-300"
                 )}
               >
                 <div className="flex items-center justify-between w-full">
-                  <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", on ? "bg-[#2563EB]" : "bg-slate-100")}>
+                  <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", on ? "bg-[var(--brand)]" : "bg-slate-100")}>
                     <Icon className={cn("w-4 h-4", on ? "text-white" : "text-slate-400")} />
                   </div>
                   {on && (
-                    <div className="w-5 h-5 rounded-full bg-[#2563EB] flex items-center justify-center">
+                    <div className="w-5 h-5 rounded-full bg-[var(--brand)] flex items-center justify-center">
                       <Check className="w-3 h-3 text-white" />
                     </div>
                   )}
@@ -343,7 +343,7 @@ export default function NotificationsPage() {
                 className={cn(
                   "px-4 py-2 rounded-xl text-[12.5px] font-semibold border transition-all",
                   digest === f
-                    ? "bg-[#2563EB] text-white border-[#2563EB]"
+                    ? "bg-[var(--brand)] text-white border-[var(--brand)]"
                     : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                 )}
               >
@@ -377,7 +377,7 @@ export default function NotificationsPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-70"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
               {saving ? "Saving…" : saved ? "Saved!" : "Save changes"}

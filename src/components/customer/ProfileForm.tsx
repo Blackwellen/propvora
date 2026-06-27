@@ -23,7 +23,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60"
+      className="inline-flex items-center gap-1.5 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-xl px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60"
     >
       {pending ? "Saving…" : "Save changes"}
     </button>
@@ -61,7 +61,7 @@ function Field({
             type={type}
             defaultValue={defaultValue}
             placeholder={placeholder}
-            className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40 focus:border-[#2563EB] transition-colors"
+            className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/40 focus:border-[var(--brand)] transition-colors"
           />
         </div>
       ) : (
@@ -94,7 +94,7 @@ export default function ProfileForm({ profile }: { profile: CustomerProfile | nu
             <button
               type="button"
               onClick={() => setEditing((e) => !e)}
-              className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#2563EB] hover:underline"
+              className="inline-flex items-center gap-1 text-[13px] font-semibold text-[var(--brand)] hover:underline"
             >
               {editing ? <><X className="w-3.5 h-3.5" /> Cancel</> : <><Pencil className="w-3.5 h-3.5" /> Edit</>}
             </button>
@@ -118,7 +118,7 @@ export default function ProfileForm({ profile }: { profile: CustomerProfile | nu
                   type="checkbox"
                   name={p.key}
                   defaultChecked={Boolean(prefs[p.key.replace("pref_", "")])}
-                  className="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]/40"
+                  className="mt-0.5 w-4 h-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]/40"
                 />
                 <span className="min-w-0">
                   <span className="block text-sm font-medium text-slate-700">{p.label}</span>

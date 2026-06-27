@@ -18,7 +18,7 @@ export function RequestsKpiStrip({ stats }: RequestsKpiStripProps) {
       {stats.map((s) => {
         const c =
           s.tone === "blue"
-            ? "text-[#2563EB]"
+            ? "text-[var(--brand)]"
             : s.tone === "amber"
               ? "text-amber-600"
               : s.tone === "emerald"

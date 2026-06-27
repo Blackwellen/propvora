@@ -41,7 +41,7 @@ function Section({
         <button
           type="button"
           onClick={() => onJumpTo(step)}
-          className="flex items-center gap-1 text-xs text-blue-600 hover:underline"
+          className="flex items-center gap-1 text-xs text-[var(--brand)] hover:underline"
         >
           <Pencil className="w-3 h-3" />
           Edit
@@ -113,7 +113,7 @@ export default function Step8Review({
         {state.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1">
             {state.tags.map((t) => (
-              <span key={t.id} className="rounded-full bg-blue-100 text-blue-700 text-xs px-2 py-0.5">
+              <span key={t.id} className="rounded-full bg-[var(--color-brand-100)] text-[var(--brand)] text-xs px-2 py-0.5">
                 {t.label}
               </span>
             ))}

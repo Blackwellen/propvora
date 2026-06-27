@@ -25,7 +25,7 @@ export default function AutomationsConditionBuilder({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
-        <Filter className="h-4 w-4 text-blue-500" /> Conditions
+        <Filter className="h-4 w-4 text-[var(--brand)]" /> Conditions
       </div>
       <p className="text-xs text-slate-500">
         Tune the trigger threshold. These define exactly which records match.
@@ -41,7 +41,7 @@ export default function AutomationsConditionBuilder({
               value={triggerCfg[f.key] ?? ""}
               onChange={(e) => onChange(f.key, e.target.value)}
               type={f.kind === "number" ? "number" : "text"}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-[var(--color-brand-400)] focus:bg-white focus:ring-2 focus:ring-[var(--color-brand-100)]"
             />
             {f.help && <p className="mt-1 text-[11px] text-slate-400">{f.help}</p>}
           </div>

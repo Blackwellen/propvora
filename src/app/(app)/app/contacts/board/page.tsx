@@ -17,7 +17,7 @@ import type { Contact } from "@/types/database"
 
 // ─── Avatar helpers ────────────────────────────────────────────────────────────
 const AVATAR_BG = [
-  "bg-blue-500","bg-emerald-500","bg-violet-500","bg-amber-500",
+  "bg-[var(--brand)]","bg-emerald-500","bg-violet-500","bg-amber-500",
   "bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500",
 ]
 function avatarBg(name: string): string {
@@ -47,7 +47,7 @@ interface ColumnDef {
 const STATUS_COLUMNS: ColumnDef[] = [
   { id: "new",           title: "New / Enquiry",    borderClass: "border-t-slate-400",   dotClass: "bg-slate-400",   badgeClass: "bg-slate-100 text-slate-600",   headerBg: "bg-slate-50" },
   { id: "active_tenant", title: "Active Tenants",   borderClass: "border-t-emerald-500", dotClass: "bg-emerald-500", badgeClass: "bg-emerald-100 text-emerald-700", headerBg: "bg-emerald-50/40" },
-  { id: "landlord",      title: "Landlords",        borderClass: "border-t-blue-500",    dotClass: "bg-blue-500",    badgeClass: "bg-blue-100 text-blue-700",     headerBg: "bg-blue-50/40" },
+  { id: "landlord",      title: "Landlords",        borderClass: "border-t-[var(--brand)]",    dotClass: "bg-[var(--brand)]",    badgeClass: "bg-[var(--color-brand-100)] text-[var(--brand)]",     headerBg: "bg-[var(--brand-soft)]/40" },
   { id: "supplier",      title: "Suppliers",        borderClass: "border-t-orange-500",  dotClass: "bg-orange-500",  badgeClass: "bg-orange-100 text-orange-700", headerBg: "bg-orange-50/40" },
   { id: "professional",  title: "Professionals",    borderClass: "border-t-violet-500",  dotClass: "bg-violet-500",  badgeClass: "bg-violet-100 text-violet-700", headerBg: "bg-violet-50/40" },
   { id: "follow_up",     title: "Follow-up Needed", borderClass: "border-t-red-500",     dotClass: "bg-red-500",     badgeClass: "bg-red-100 text-red-700",       headerBg: "bg-red-50/40" },
@@ -56,7 +56,7 @@ const STATUS_COLUMNS: ColumnDef[] = [
 
 const TYPE_COLUMNS: ColumnDef[] = [
   { id: "tenant",   title: "Tenants",      borderClass: "border-t-emerald-500", dotClass: "bg-emerald-500", badgeClass: "bg-emerald-100 text-emerald-700", headerBg: "bg-emerald-50/40" },
-  { id: "landlord", title: "Landlords",    borderClass: "border-t-blue-500",    dotClass: "bg-blue-500",    badgeClass: "bg-blue-100 text-blue-700",     headerBg: "bg-blue-50/40" },
+  { id: "landlord", title: "Landlords",    borderClass: "border-t-[var(--brand)]",    dotClass: "bg-[var(--brand)]",    badgeClass: "bg-[var(--color-brand-100)] text-[var(--brand)]",     headerBg: "bg-[var(--brand-soft)]/40" },
   { id: "supplier", title: "Suppliers",    borderClass: "border-t-orange-500",  dotClass: "bg-orange-500",  badgeClass: "bg-orange-100 text-orange-700", headerBg: "bg-orange-50/40" },
   { id: "agent",    title: "Agents",       borderClass: "border-t-indigo-500",  dotClass: "bg-indigo-500",  badgeClass: "bg-indigo-100 text-indigo-700", headerBg: "bg-indigo-50/40" },
   { id: "legal",    title: "Professionals",borderClass: "border-t-violet-500",  dotClass: "bg-violet-500",  badgeClass: "bg-violet-100 text-violet-700", headerBg: "bg-violet-50/40" },
@@ -69,7 +69,7 @@ const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
   tenant:      { label: "Tenant",      cls: "bg-emerald-100 text-emerald-700" },
   post_tenant: { label: "Past Tenant", cls: "bg-slate-100 text-slate-600" },
   applicant:   { label: "Applicant",   cls: "bg-sky-100 text-sky-700" },
-  landlord:    { label: "Landlord",    cls: "bg-blue-100 text-blue-700" },
+  landlord:    { label: "Landlord",    cls: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   supplier:    { label: "Supplier",    cls: "bg-orange-100 text-orange-700" },
   agent:       { label: "Agent",       cls: "bg-indigo-100 text-indigo-700" },
   legal:       { label: "Legal",       cls: "bg-violet-100 text-violet-700" },
@@ -154,7 +154,7 @@ function BoardCard({
       onKeyDown={(e) => { if (e.key === "Enter") router.push(`/property-manager/contacts/${contact.id}`) }}
       className={cn(
         "bg-white rounded-xl border border-slate-200 p-3.5 cursor-pointer active:cursor-grabbing select-none transition-all duration-150",
-        isDragging ? "ring-2 ring-blue-400 shadow-lg rotate-1 opacity-80" : "hover:shadow-md hover:border-slate-300"
+        isDragging ? "ring-2 ring-[var(--color-brand-400)] shadow-lg rotate-1 opacity-80" : "hover:shadow-md hover:border-slate-300"
       )}
     >
       {/* Avatar + name */}
@@ -264,7 +264,7 @@ function BoardColumn({
       {/* Footer */}
       <Link
         href="/property-manager/contacts/new"
-        className="bg-white border-x border-b border-slate-200 rounded-b-xl px-3 py-2 text-xs text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors flex items-center gap-1.5 w-full"
+        className="bg-white border-x border-b border-slate-200 rounded-b-xl px-3 py-2 text-xs text-slate-400 hover:text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors flex items-center gap-1.5 w-full"
       >
         <Plus className="w-3.5 h-3.5" />
         Add Contact
@@ -417,7 +417,7 @@ export default function ContactsBoardPage() {
         </div>
         <Link
           href="/property-manager/contacts/new"
-          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm shrink-0"
+          className="inline-flex items-center gap-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm shrink-0"
         >
           <Plus className="w-4 h-4" />
           Add Contact
@@ -432,7 +432,7 @@ export default function ContactsBoardPage() {
             onClick={() => setBoardMode("status")}
             className={cn(
               "flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors",
-              boardMode === "status" ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-slate-50"
+              boardMode === "status" ? "bg-[var(--brand)] text-white" : "text-slate-600 hover:bg-slate-50"
             )}
           >
             <LayoutGrid className="w-3.5 h-3.5" />
@@ -442,7 +442,7 @@ export default function ContactsBoardPage() {
             onClick={() => setBoardMode("type")}
             className={cn(
               "flex items-center gap-1.5 px-3 py-2 text-xs font-medium border-l border-slate-200 transition-colors",
-              boardMode === "type" ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-slate-50"
+              boardMode === "type" ? "bg-[var(--brand)] text-white" : "text-slate-600 hover:bg-slate-50"
             )}
           >
             <Tag className="w-3.5 h-3.5" />
@@ -479,10 +479,10 @@ export default function ContactsBoardPage() {
             placeholder="Search contacts..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-52 transition-all"
+            className="pl-8 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] w-52 transition-all"
           />
           {search && (
-            <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 rounded">
+            <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 rounded">
               <X className="w-3.5 h-3.5" />
             </button>
           )}

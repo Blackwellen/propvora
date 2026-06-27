@@ -48,9 +48,9 @@ export default function StatusFilter({
             onClick={() => select(opt.value)}
             aria-pressed={active}
             className={cn(
-              "px-3 py-1.5 rounded-lg text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]",
+              "px-3 py-1.5 rounded-lg text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
               active
-                ? "bg-[#2563EB] text-white shadow-sm"
+                ? "bg-[var(--brand)] text-white shadow-sm"
                 : "bg-white text-slate-600 border border-[#E2E8F0] hover:bg-slate-50 hover:text-slate-900",
             )}
           >

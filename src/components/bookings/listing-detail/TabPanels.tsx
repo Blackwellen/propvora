@@ -61,7 +61,7 @@ function currencySymbol(currency: string): string {
 }
 
 const inputCls =
-  "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+  "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
 
 function PanelWrap({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
   return (
@@ -278,7 +278,7 @@ export function MediaPanel({
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors"
           onClick={() => {/* Upload handled via /api/uploads/r2 */}}
         >
           <Plus className="w-4 h-4" />
@@ -405,7 +405,7 @@ export function AmenitiesPanel({
                       onClick={() => toggle(a.slug)}
                       className={cn(
                         "h-9 px-3 rounded-lg text-[12.5px] font-medium transition-colors",
-                        on ? "bg-[#2563EB] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                        on ? "bg-[var(--brand)] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                       )}
                     >
                       {a.label}
@@ -426,7 +426,7 @@ export function AmenitiesPanel({
                   onClick={() => toggle(slug)}
                   className={cn(
                     "h-9 px-3 rounded-lg text-[12.5px] font-medium capitalize transition-colors",
-                    on ? "bg-[#2563EB] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                    on ? "bg-[var(--brand)] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                   )}
                 >
                   {slug.replace(/_/g, " ")}
@@ -542,7 +542,7 @@ export function AvailabilityPanel({ listingId }: { listingId: string }) {
             type="button"
             onClick={openWindow}
             disabled={pending}
-            className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 disabled:opacity-60 transition-colors"
+            className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-60 transition-colors"
           >
             <CalendarRange className="w-4 h-4" />
             {pending ? "Opening…" : "Open next 180 days"}
@@ -695,7 +695,7 @@ export function RulesPanel({ listing }: { listing: BookingListing }) {
                 className={cn(
                   "text-left p-3.5 rounded-xl border text-sm transition-colors",
                   policy === p.value
-                    ? "border-[#2563EB] bg-blue-50/50 text-[#2563EB]"
+                    ? "border-[var(--brand)] bg-[var(--brand-soft)]/50 text-[var(--brand)]"
                     : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                 )}
               >
@@ -728,7 +728,7 @@ export function RulesPanel({ listing }: { listing: BookingListing }) {
                   onClick={() => set(!val)}
                   className={cn(
                     "w-10 h-6 rounded-full relative transition-colors cursor-pointer",
-                    val ? "bg-[#2563EB]" : "bg-slate-200"
+                    val ? "bg-[var(--brand)]" : "bg-slate-200"
                   )}
                 >
                   <span className={cn("absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform", val ? "translate-x-5" : "translate-x-1")} />
@@ -761,7 +761,7 @@ export function CheckInPanel({
       {keylessLock ? (
         <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-4 space-y-2">
           <div className="flex items-center gap-2">
-            <KeyRound className="w-4 h-4 text-[#2563EB]" />
+            <KeyRound className="w-4 h-4 text-[var(--brand)]" />
             <span className="text-sm font-semibold text-slate-800">
               {keylessLock.provider.replace(/_/g, " ")}
             </span>
@@ -838,7 +838,7 @@ export function ChannelsPanel({ listingId, listingTitle }: { listingId: string; 
       </div>
       <Link
         href={`/property-manager/bookings/listings/${listingId}/channels`}
-        className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors"
+        className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors"
       >
         Open channel sync
         <ExternalLink className="w-3.5 h-3.5" />
@@ -981,9 +981,9 @@ export function PerformancePanel({
 export function AIOptimiserPanel({ listingId, listing }: { listingId: string; listing: BookingListing }) {
   return (
     <PanelWrap title="AI Optimiser" desc="Copilot suggestions for title, description and pricing.">
-      <div className="rounded-xl border border-slate-100 bg-gradient-to-br from-blue-50/50 to-slate-50 px-5 py-6">
+      <div className="rounded-xl border border-slate-100 bg-gradient-to-br from-[var(--brand-soft)]/50 to-slate-50 px-5 py-6">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-7 h-7 rounded-lg bg-[#2563EB] flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-[var(--brand)] flex items-center justify-center">
             <span className="text-white text-[11px] font-bold">AI</span>
           </div>
           <p className="text-sm font-semibold text-slate-800">Propvora Copilot</p>
@@ -994,7 +994,7 @@ export function AIOptimiserPanel({ listingId, listing }: { listingId: string; li
       </div>
       <Link
         href={`/property-manager/copilot?context=listing&listingId=${listingId}`}
-        className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors"
+        className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors"
       >
         Open AI Copilot
         <ExternalLink className="w-3.5 h-3.5" />
@@ -1049,7 +1049,7 @@ export function SettingsPanel({ listing }: { listing: BookingListing }) {
                 onClick={() => setBookingMode(m)}
                 className={cn(
                   "flex-1 h-10 rounded-xl text-sm font-medium capitalize transition-colors",
-                  bookingMode === m ? "bg-[#2563EB] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                  bookingMode === m ? "bg-[var(--brand)] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                 )}
               >
                 {m}

@@ -56,7 +56,7 @@ export function TenancyTab({ contact }: { contact: ContactDetail }) {
         </div>
         {t.id && (
           <div className="pt-2 border-t border-slate-100">
-            <Link href={`/property-manager/portfolio/tenancies/${t.id}`} className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+            <Link href={`/property-manager/portfolio/tenancies/${t.id}`} className="text-sm text-[var(--brand)] hover:underline flex items-center gap-1">
               <ExternalLink className="w-3.5 h-3.5" /> Open Full Tenancy Record
             </Link>
           </div>

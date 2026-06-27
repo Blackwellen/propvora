@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { HelpCircle, X, RotateCcw, Check, BookOpen, PlayCircle } from "lucide-react"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useGuidedHelp } from "../GuidedHelpProvider"
@@ -34,8 +35,14 @@ export default function TutorialLauncher({
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-violet-600" />
-            <h3 className="text-sm font-bold text-slate-900">Help &amp; guides</h3>
+            <Image
+              src="/propvora-favicon.png"
+              alt="Propvora"
+              width={18}
+              height={18}
+              className="w-[18px] h-[18px] object-contain"
+            />
+            <h3 className="text-sm font-bold text-slate-900">Propvora guides</h3>
           </div>
           <button
             onClick={() => setOpen(false)}

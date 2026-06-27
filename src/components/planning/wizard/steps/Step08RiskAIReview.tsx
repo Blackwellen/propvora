@@ -709,7 +709,7 @@ export default function Step08RiskAIReview() {
             </div>
 
             {/* Final Readiness */}
-            <div className="bg-gradient-to-br from-violet-50 to-blue-50 rounded-2xl border border-violet-200/60 p-4">
+            <div className="bg-gradient-to-br from-violet-50 to-[var(--brand-soft)] rounded-2xl border border-violet-200/60 p-4">
               <p className="text-[13px] font-bold text-slate-900 mb-3">Final Readiness</p>
               <div className="flex items-center gap-4 mb-3">
                 <div className="relative w-16 h-16 shrink-0">

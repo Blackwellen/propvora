@@ -75,7 +75,7 @@ function ClosedInner({ dispute, source }: { dispute: Dispute; source: 'live' | '
               <li key={e.id} className="flex items-center gap-2 text-sm">
                 <FileText className="w-4 h-4 text-slate-400 shrink-0" />
                 <span className="text-slate-700 truncate">{e.title}</span>
-                <button onClick={() => fire('Downloading…')} className="ml-auto text-xs text-blue-600 hover:text-blue-700">Download</button>
+                <button onClick={() => fire('Downloading…')} className="ml-auto text-xs text-[var(--brand)] hover:text-[var(--brand)]">Download</button>
               </li>
             ))}
           </ul>
@@ -103,14 +103,14 @@ function ClosedInner({ dispute, source }: { dispute: Dispute; source: 'live' | '
             </li>
           ))}
         </ul>
-        <button onClick={() => setDrawer('task')} className="mt-3 inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700">
+        <button onClick={() => setDrawer('task')} className="mt-3 inline-flex items-center gap-1.5 text-sm text-[var(--brand)] hover:text-[var(--brand)]">
           <Plus className="w-4 h-4" /> Add follow-up task
         </button>
       </SectionCard>
 
       {/* actions */}
       <div className="flex flex-wrap items-center gap-2">
-        <button onClick={() => fire('Preparing case bundle…')} className="inline-flex items-center gap-1.5 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700">
+        <button onClick={() => fire('Preparing case bundle…')} className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-[var(--brand-strong)]">
           <Download className="w-4 h-4" /> Download bundle
         </button>
         <button onClick={() => fire('Downloading final decision…')} className="inline-flex items-center gap-1.5 border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
@@ -142,11 +142,11 @@ function ClosedInner({ dispute, source }: { dispute: Dispute; source: 'live' | '
       <StubDrawer open={drawer === 'task'} title="Add follow-up task" onClose={() => setDrawer(null)}>
         <input placeholder="Task title" className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm mb-3" />
         <input type="date" className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm" />
-        <button onClick={() => { fire('Follow-up task added'); setDrawer(null) }} className="mt-3 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700">Add task</button>
+        <button onClick={() => { fire('Follow-up task added'); setDrawer(null) }} className="mt-3 bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-[var(--brand-strong)]">Add task</button>
       </StubDrawer>
       <StubDrawer open={drawer === 'share'} title="Share case summary" onClose={() => setDrawer(null)}>
         <input placeholder="Recipient email" className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm mb-3" />
-        <button onClick={() => { fire('Summary shared'); setDrawer(null) }} className="mt-1 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700">Share</button>
+        <button onClick={() => { fire('Summary shared'); setDrawer(null) }} className="mt-1 bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-[var(--brand-strong)]">Share</button>
       </StubDrawer>
       <FeedbackToast msg={msg} />
     </DisputeWorkflowLayout>
@@ -163,7 +163,7 @@ function Kv({ label, value }: { label: string; value: string }) {
 }
 
 const TONES: Record<string, string> = {
-  blue: 'text-blue-700 bg-blue-50',
+  blue: 'text-[var(--brand)] bg-[var(--brand-soft)]',
   amber: 'text-amber-700 bg-amber-50',
   violet: 'text-violet-700 bg-violet-50',
   emerald: 'text-emerald-700 bg-emerald-50',

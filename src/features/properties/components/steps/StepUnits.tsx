@@ -64,7 +64,7 @@ export function StepUnits({ data, onChange }: StepUnitsProps) {
                 type="text"
                 value={unit.name}
                 onChange={(e) => updateUnit(unit.id, { name: e.target.value })}
-                className="flex-1 h-8 px-2 rounded-lg border border-[#E2E8F0] bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+                className="flex-1 h-8 px-2 rounded-lg border border-[#E2E8F0] bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                 placeholder="Room name"
               />
               <select
@@ -83,7 +83,7 @@ export function StepUnits({ data, onChange }: StepUnitsProps) {
                   type="number"
                   value={unit.targetRent}
                   onChange={(e) => updateUnit(unit.id, { targetRent: Number(e.target.value) })}
-                  className="w-24 h-8 pl-5 pr-2 rounded-lg border border-[#E2E8F0] bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+                  className="w-24 h-8 pl-5 pr-2 rounded-lg border border-[#E2E8F0] bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                   placeholder="500"
                 />
               </div>

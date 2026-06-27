@@ -66,14 +66,14 @@ export function PlanComparisonGrid({ plans, cycle, onUpgrade, onManage }: PlanCo
             key={plan.id}
             className={`relative bg-white rounded-2xl border p-5 shadow-sm flex flex-col ${
               plan.isCurrent
-                ? "border-[#2563EB] ring-1 ring-[#2563EB]/20"
+                ? "border-[var(--brand)] ring-1 ring-[var(--brand)]/20"
                 : plan.isPopular
                 ? "border-violet-300"
                 : "border-slate-200"
             }`}
           >
             {plan.isCurrent && (
-              <span className="absolute -top-3 left-4 text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#2563EB] text-white">
+              <span className="absolute -top-3 left-4 text-[10px] font-bold px-2.5 py-1 rounded-full bg-[var(--brand)] text-white">
                 Current plan
               </span>
             )}
@@ -117,7 +117,7 @@ export function PlanComparisonGrid({ plans, cycle, onUpgrade, onManage }: PlanCo
                 <button
                   type="button"
                   onClick={() => onUpgrade(plan.id)}
-                  className="w-full py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+                  className="w-full py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
                 >
                   Upgrade
                 </button>

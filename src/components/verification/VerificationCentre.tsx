@@ -94,13 +94,13 @@ export function VerificationCentre({ audience }: CentreCopy) {
             <div
               className={cn(
                 "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0",
-                verified ? "bg-emerald-50" : phase === "requires_input" ? "bg-amber-50" : "bg-blue-50"
+                verified ? "bg-emerald-50" : phase === "requires_input" ? "bg-amber-50" : "bg-[var(--brand-soft)]"
               )}
             >
               <ShieldCheck
                 className={cn(
                   "w-6 h-6",
-                  verified ? "text-emerald-600" : phase === "requires_input" ? "text-amber-600" : "text-[#2563EB]"
+                  verified ? "text-emerald-600" : phase === "requires_input" ? "text-amber-600" : "text-[var(--brand)]"
                 )}
               />
             </div>
@@ -176,7 +176,7 @@ export function VerificationCentre({ audience }: CentreCopy) {
               const Icon = p.icon
               return (
                 <li key={p.text} className="flex items-start gap-2.5 rounded-xl bg-slate-50/70 border border-slate-100 px-3.5 py-3">
-                  <Icon className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0" />
+                  <Icon className="w-4 h-4 text-[var(--brand)] mt-0.5 shrink-0" />
                   <span className="text-[13px] text-slate-700">{p.text}</span>
                 </li>
               )

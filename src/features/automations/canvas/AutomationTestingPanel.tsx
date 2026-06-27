@@ -101,7 +101,7 @@ function DryRunPreviewTab({
           onChange={(e) => setTestEvent(e.target.value)}
           rows={8}
           spellCheck={false}
-          className="w-full resize-none rounded-xl border border-slate-200 bg-slate-900 p-3 font-mono text-[11px] leading-relaxed text-emerald-300 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          className="w-full resize-none rounded-xl border border-slate-200 bg-slate-900 p-3 font-mono text-[11px] leading-relaxed text-emerald-300 focus:border-[var(--color-brand-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)]"
         />
         {jsonError && (
           <p className="text-[11px] text-red-500">{jsonError}</p>
@@ -109,7 +109,7 @@ function DryRunPreviewTab({
         <button
           onClick={handleRun}
           disabled={dryRunRunning || nodes.length === 0}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-60 transition"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[var(--brand-strong)] disabled:opacity-60 transition"
         >
           {dryRunRunning ? (
             <><Loader2 className="h-4 w-4 animate-spin" /> Running…</>
@@ -347,7 +347,7 @@ export function AutomationTestingPanel({
                 className={[
                   "flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition",
                   active
-                    ? "bg-blue-50 text-blue-600"
+                    ? "bg-[var(--brand-soft)] text-[var(--brand)]"
                     : "text-slate-500 hover:bg-slate-50 hover:text-slate-700",
                 ].join(" ")}
               >

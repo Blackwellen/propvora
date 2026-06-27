@@ -171,7 +171,7 @@ export default function SchedulePage() {
           <div className="flex items-center gap-2 shrink-0">
             <Link
               href={sectionLink("/property-manager/calendar/events/new")}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-[var(--brand)] rounded-lg hover:bg-[var(--brand-strong)] transition-colors"
             >
               <Plus className="w-4 h-4" />
               New Event
@@ -201,7 +201,7 @@ export default function SchedulePage() {
                 {overdue.length > 0 && (
                   <ScheduleSection title="Overdue" items={overdue} accent="text-red-600" />
                 )}
-                <ScheduleSection title="Today" items={today} accent="text-blue-600" emptyHint="Nothing due today." />
+                <ScheduleSection title="Today" items={today} accent="text-[var(--brand)]" emptyHint="Nothing due today." />
                 <ScheduleSection title="This Week" items={week} accent="text-slate-500" emptyHint="Nothing else this week." />
               </>
             )}
@@ -267,7 +267,7 @@ export default function SchedulePage() {
               <div className="space-y-2.5">
                 {[
                   { label: "Total (week + overdue)", value: stats.total, color: "text-slate-800" },
-                  { label: "Today", value: stats.today, color: "text-blue-600" },
+                  { label: "Today", value: stats.today, color: "text-[var(--brand)]" },
                   { label: "Overdue", value: stats.overdue, color: "text-red-600" },
                   { label: "Upcoming this week", value: stats.upcoming, color: "text-slate-600" },
                 ].map((stat) => (

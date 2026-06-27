@@ -100,7 +100,7 @@ export default function SSOPage() {
           </div>
           <button
             disabled
-            className="mt-4 w-full py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold opacity-50"
+            className="mt-4 w-full py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold opacity-50"
           >
             Save SSO configuration
           </button>

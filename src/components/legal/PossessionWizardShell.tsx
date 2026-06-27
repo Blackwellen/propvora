@@ -71,7 +71,7 @@ export function PossessionWizardShell({
           <button
             onClick={() => router.push("/property-manager/legal/possession")}
             aria-label="Back to possession cases"
-            className="text-slate-400 hover:text-slate-600 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded"
+            className="text-slate-400 hover:text-slate-600 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 rounded"
           >
             <Gavel className="w-4 h-4" />
           </button>
@@ -81,7 +81,7 @@ export function PossessionWizardShell({
             <p className="text-xs text-slate-500 truncate">{subtitle}</p>
           </div>
         </div>
-        <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap shrink-0">
+        <span className="bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)] px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap shrink-0">
           Step {currentStep} of 5
         </span>
       </div>
@@ -90,7 +90,7 @@ export function PossessionWizardShell({
       <div className="bg-white border-b border-slate-100 px-4 sm:px-6 py-4">
         {/* Mobile compact indicator */}
         <div className="md:hidden flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-[12px] font-bold shrink-0">
+          <div className="w-8 h-8 rounded-full bg-[var(--brand)] text-white flex items-center justify-center text-[12px] font-bold shrink-0">
             {currentStep}
           </div>
           <div className="min-w-0 flex-1">
@@ -106,7 +106,7 @@ export function PossessionWizardShell({
               aria-label={`Step ${currentStep} of 5`}
             >
               <div
-                className="h-full bg-blue-600 rounded-full transition-all"
+                className="h-full bg-[var(--brand)] rounded-full transition-all"
                 style={{ width: `${(currentStep / 5) * 100}%` }}
               />
             </div>
@@ -126,9 +126,9 @@ export function PossessionWizardShell({
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold border-2 transition-all ${
                       done
-                        ? "bg-blue-600 border-blue-600 text-white"
+                        ? "bg-[var(--brand)] border-[var(--brand)] text-white"
                         : active
-                        ? "bg-white border-blue-600 text-blue-600"
+                        ? "bg-white border-[var(--brand)] text-[var(--brand)]"
                         : "bg-white border-slate-200 text-slate-400"
                     }`}
                   >
@@ -136,7 +136,7 @@ export function PossessionWizardShell({
                   </div>
                   <span
                     className={`text-[10px] font-medium text-center leading-tight ${
-                      active ? "text-blue-600" : done ? "text-slate-600" : "text-slate-400"
+                      active ? "text-[var(--brand)]" : done ? "text-slate-600" : "text-slate-400"
                     }`}
                   >
                     {step.label}
@@ -145,7 +145,7 @@ export function PossessionWizardShell({
                 {i < WIZARD_STEPS.length - 1 && (
                   <div
                     className={`flex-1 h-0.5 mb-5 transition-colors ${
-                      stepNum < currentStep ? "bg-blue-600" : "bg-slate-200"
+                      stepNum < currentStep ? "bg-[var(--brand)]" : "bg-slate-200"
                     }`}
                   />
                 )}
@@ -178,7 +178,7 @@ export function PossessionWizardShell({
       <div className="bg-white border-t border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between mt-6 gap-3">
         <button
           onClick={handleBack}
-          className="flex items-center gap-1.5 border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-medium px-3 sm:px-4 py-2 min-h-[40px] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+          className="flex items-center gap-1.5 border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-medium px-3 sm:px-4 py-2 min-h-[40px] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
         >
           <ChevronLeft className="w-3.5 h-3.5 shrink-0" />
           {backLabel}
@@ -189,7 +189,7 @@ export function PossessionWizardShell({
             {showSaveDraft && (
               <button
                 onClick={onSaveDraft}
-                className="flex items-center gap-1.5 border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-medium px-3 sm:px-4 py-2 min-h-[40px] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                className="flex items-center gap-1.5 border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-medium px-3 sm:px-4 py-2 min-h-[40px] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
               >
                 <Save className="w-3.5 h-3.5 shrink-0" />
                 <span className="hidden sm:inline">Save Draft</span>
@@ -199,7 +199,7 @@ export function PossessionWizardShell({
             <button
               onClick={handleNext}
               disabled={nextDisabled}
-              className="flex items-center gap-1.5 bg-[#2563EB] text-white hover:bg-[#1d4ed8] disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium px-3 sm:px-4 py-2 min-h-[40px] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+              className="flex items-center gap-1.5 bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium px-3 sm:px-4 py-2 min-h-[40px] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/50"
             >
               {nextLabel}
               <ChevronRight className="w-3.5 h-3.5 shrink-0" />

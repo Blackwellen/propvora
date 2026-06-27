@@ -43,14 +43,14 @@ const CATEGORY_MAP: Record<string, GalleryCategory> = {
 }
 
 const CATEGORY_CONFIG: Record<GalleryCategory, { label: string; color: string; bg: string; icon: React.ElementType }> = {
-  property:   { label: "Property",   color: "text-[#2563EB]",  bg: "bg-blue-50",    icon: Building2 },
+  property:   { label: "Property",   color: "text-[var(--brand)]",  bg: "bg-[var(--brand-soft)]",    icon: Building2 },
   unit:       { label: "Unit/Room",  color: "text-[#7C3AED]",  bg: "bg-violet-50",  icon: Home },
   document:   { label: "Document",   color: "text-slate-600",  bg: "bg-slate-50",   icon: Tag },
   inspection: { label: "Inspection", color: "text-amber-600",  bg: "bg-amber-50",   icon: ZoomIn },
 }
 
 const GALLERY_GRADIENTS = [
-  "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
+  "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)",
   "linear-gradient(135deg, #059669 0%, #10B981 100%)",
   "linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)",
   "linear-gradient(135deg, #EA580C 0%, #F97316 100%)",
@@ -222,7 +222,7 @@ function GalleryCard({ image, onClick }: { image: GalleryImage; onClick: () => v
   const CatIcon = cat.icon
 
   return (
-    <button onClick={onClick} className="group relative overflow-hidden rounded-2xl bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 shadow-sm hover:shadow-lg transition-all duration-200 w-full">
+    <button onClick={onClick} className="group relative overflow-hidden rounded-2xl bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 shadow-sm hover:shadow-lg transition-all duration-200 w-full">
       <div className="w-full h-48 transition-transform duration-300 group-hover:scale-105 relative overflow-hidden">
         {image.src ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -341,16 +341,16 @@ export default function PortfolioGalleryPage() {
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input type="text" placeholder="Search images..." value={search} onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-9 pl-9 pr-4 rounded-xl text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all shadow-sm" />
+              className="w-full h-9 pl-9 pr-4 rounded-xl text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all shadow-sm" />
           </div>
 
           <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100">
             {[{ key: "all", label: "All" }, { key: "property", label: "Properties" }, { key: "unit", label: "Units" }].map(({ key, label }) => (
-              <button key={key} onClick={() => setFilterCat(key)} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all", filterCat === key ? "bg-white shadow-sm text-[#2563EB]" : "text-slate-500 hover:text-slate-700")}>{label}</button>
+              <button key={key} onClick={() => setFilterCat(key)} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all", filterCat === key ? "bg-white shadow-sm text-[var(--brand)]" : "text-slate-500 hover:text-slate-700")}>{label}</button>
             ))}
           </div>
 
-          <select value={filterProp} onChange={(e) => setFilterProp(e.target.value)} className="h-9 px-3 rounded-xl text-sm bg-white border border-slate-200 text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 shadow-sm cursor-pointer">
+          <select value={filterProp} onChange={(e) => setFilterProp(e.target.value)} className="h-9 px-3 rounded-xl text-sm bg-white border border-slate-200 text-slate-600 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 shadow-sm cursor-pointer">
             <option value="all">All properties</option>
             {allProperties.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
@@ -404,13 +404,13 @@ export default function PortfolioGalleryPage() {
         type="button"
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading}
-        className="mt-8 w-full border-2 border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center gap-3 hover:border-[#2563EB]/30 hover:bg-blue-50/20 transition-all cursor-pointer group disabled:opacity-50"
+        className="mt-8 w-full border-2 border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center gap-3 hover:border-[var(--brand)]/30 hover:bg-[var(--brand-soft)]/20 transition-all cursor-pointer group disabled:opacity-50"
       >
-        <div className="w-12 h-12 rounded-2xl bg-slate-100 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
-          {uploading ? <Loader2 className="w-6 h-6 text-[#2563EB] animate-spin" /> : <Upload className="w-6 h-6 text-slate-400 group-hover:text-[#2563EB] transition-colors" />}
+        <div className="w-12 h-12 rounded-2xl bg-slate-100 group-hover:bg-[var(--color-brand-100)] flex items-center justify-center transition-colors">
+          {uploading ? <Loader2 className="w-6 h-6 text-[var(--brand)] animate-spin" /> : <Upload className="w-6 h-6 text-slate-400 group-hover:text-[var(--brand)] transition-colors" />}
         </div>
         <div className="text-center">
-          <p className="text-sm font-semibold text-slate-600 group-hover:text-[#2563EB] transition-colors">
+          <p className="text-sm font-semibold text-slate-600 group-hover:text-[var(--brand)] transition-colors">
             {uploading ? "Uploading images…" : "Upload property or unit images"}
           </p>
           <p className="text-xs text-slate-500 mt-1">JPG, PNG, WebP · max 10 MB per file</p>

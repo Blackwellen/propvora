@@ -8,11 +8,11 @@ const STAT_ICON: Record<HomeStat["icon"], typeof Calendar> = {
   calendar: Calendar, bag: ShoppingBag, heart: Heart, chat: MessageSquare, offer: BadgePercent,
 }
 const STAT_ICON_BG: Record<HomeStat["accent"], string> = {
-  blue: "bg-blue-50 text-blue-600", amber: "bg-amber-50 text-amber-600", red: "bg-rose-50 text-rose-500",
+  blue: "bg-[var(--brand-soft)] text-[var(--brand)]", amber: "bg-amber-50 text-amber-600", red: "bg-rose-50 text-rose-500",
   violet: "bg-violet-50 text-violet-600", emerald: "bg-emerald-50 text-emerald-600",
 }
 const SUB_ACCENT: Record<HomeStat["subAccent"], string> = {
-  blue: "text-blue-600", amber: "text-amber-600", red: "text-rose-500",
+  blue: "text-[var(--brand)]", amber: "text-amber-600", red: "text-rose-500",
   violet: "text-violet-600", emerald: "text-emerald-600", slate: "text-slate-500",
 }
 

@@ -77,7 +77,7 @@ export function OrderEscrowDetailView({ escrowId }: { escrowId: string }) {
           <Card title="Payout split">{payoutSplits.map(s => <KV key={s.id} label={s.label} value={formatPence(s.amountPence)} />)}</Card>
           <Card title="Milestone progress">
             <p className="text-2xl font-bold text-slate-900">{escrow.milestoneProgress}%</p>
-            <div className="h-2 bg-slate-200 rounded-full overflow-hidden mt-2"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${escrow.milestoneProgress}%` }} /></div>
+            <div className="h-2 bg-slate-200 rounded-full overflow-hidden mt-2"><div className="h-full bg-[var(--brand)] rounded-full" style={{ width: `${escrow.milestoneProgress}%` }} /></div>
             <p className="text-xs text-slate-500 mt-2">{escrow.milestoneLabel}</p>
           </Card>
         </div>
@@ -88,7 +88,7 @@ export function OrderEscrowDetailView({ escrowId }: { escrowId: string }) {
           <div className="space-y-3">
             {milestones.map(m => (
               <div key={m.id} className="flex items-center gap-3">
-                {m.status === "done" ? <CheckCircle2 className="w-5 h-5 text-emerald-500" /> : m.status === "in_progress" ? <Clock className="w-5 h-5 text-blue-500" /> : <div className="w-5 h-5 rounded-full border-2 border-slate-200" />}
+                {m.status === "done" ? <CheckCircle2 className="w-5 h-5 text-emerald-500" /> : m.status === "in_progress" ? <Clock className="w-5 h-5 text-[var(--brand)]" /> : <div className="w-5 h-5 rounded-full border-2 border-slate-200" />}
                 <p className="text-sm font-medium text-slate-800 flex-1">{m.label}</p>
                 {m.amountPence ? <span className="text-sm font-semibold text-slate-700">{formatPence(m.amountPence)}</span> : null}
               </div>
@@ -100,7 +100,7 @@ export function OrderEscrowDetailView({ escrowId }: { escrowId: string }) {
       {tab === "evidence" && (
         <Card title="Submitted evidence">
           {evidenceMissing && escrow.evidenceStatus === "missing" ? (
-            <p className="text-sm text-slate-500 py-6 text-center">No evidence submitted yet. <button onClick={() => showToast("Evidence requested")} className="text-[#2563EB] font-semibold">Request evidence</button></p>
+            <p className="text-sm text-slate-500 py-6 text-center">No evidence submitted yet. <button onClick={() => showToast("Evidence requested")} className="text-[var(--brand)] font-semibold">Request evidence</button></p>
           ) : (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm"><span className="text-slate-600">before-kitchen.jpg</span><StatusBadge tone="emerald">Approved</StatusBadge></div>
@@ -148,7 +148,7 @@ export function OrderEscrowDetailView({ escrowId }: { escrowId: string }) {
         <Card title="Activity timeline">
           <div className="flex flex-col divide-y divide-slate-100">
             {activity.map(a => (
-              <div key={a.id} className="py-2.5 flex items-start gap-3"><div className="w-2 h-2 rounded-full bg-blue-400 mt-1.5" /><div><p className="text-sm text-slate-700">{a.text}</p><p className="text-xs text-slate-400">{a.actor} · {a.at}</p></div></div>
+              <div key={a.id} className="py-2.5 flex items-start gap-3"><div className="w-2 h-2 rounded-full bg-[var(--color-brand-400)] mt-1.5" /><div><p className="text-sm text-slate-700">{a.text}</p><p className="text-xs text-slate-400">{a.actor} · {a.at}</p></div></div>
             ))}
           </div>
         </Card>

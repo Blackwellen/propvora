@@ -77,7 +77,7 @@ function InlineEditName({
           if (e.key === "Enter") commit()
           if (e.key === "Escape") { setDraft(value); setEditing(false) }
         }}
-        className="w-48 rounded-md border border-blue-400 bg-white px-2 py-1 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
+        className="w-48 rounded-md border border-[var(--color-brand-400)] bg-white px-2 py-1 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)]"
         autoFocus
       />
     )
@@ -143,7 +143,7 @@ export function AutomationWorkflowHeader({
         <select
           value={meta.version}
           onChange={(e) => onPatchMeta({ version: e.target.value })}
-          className="appearance-none rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-2.5 pr-6 text-[11px] text-slate-600 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 transition"
+          className="appearance-none rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-2.5 pr-6 text-[11px] text-slate-600 focus:border-[var(--color-brand-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)] transition"
         >
           {VERSIONS.map((v) => (
             <option key={v} value={v}>v{v}</option>
@@ -243,7 +243,7 @@ export function AutomationWorkflowHeader({
       {/* Publish for review */}
       <button
         onClick={onPublish}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-[12px] font-semibold text-white shadow-[0_1px_6px_rgba(37,99,235,0.25)] hover:bg-blue-700 transition"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-3 py-1.5 text-[12px] font-semibold text-white shadow-[0_1px_6px_rgba(37,99,235,0.25)] hover:bg-[var(--brand-strong)] transition"
       >
         <SendHorizonal className="h-3.5 w-3.5" />
         Publish for review

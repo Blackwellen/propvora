@@ -168,7 +168,7 @@ export default function AuditPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search events, users, modules…"
-              className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] transition-all"
+              className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[var(--brand)] transition-all"
             />
           </div>
 
@@ -177,7 +177,7 @@ export default function AuditPage() {
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
             aria-label="Filter by type"
-            className="flex-1 sm:flex-none min-w-[140px] min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-700 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+            className="flex-1 sm:flex-none min-w-[140px] min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-700 bg-white focus:outline-none focus:border-[var(--brand)] transition-all"
           >
             {TYPE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -189,7 +189,7 @@ export default function AuditPage() {
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
             aria-label="Filter by date range"
-            className="flex-1 sm:flex-none min-w-[140px] min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-700 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+            className="flex-1 sm:flex-none min-w-[140px] min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-700 bg-white focus:outline-none focus:border-[var(--brand)] transition-all"
           >
             {DATE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>

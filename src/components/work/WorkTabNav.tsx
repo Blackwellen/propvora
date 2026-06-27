@@ -38,7 +38,7 @@ export function WorkTabNav() {
         <select
           value={activeHref}
           onChange={(e) => router.push(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
           aria-label="Navigate section"
         >
           {WORK_TABS.map((tab) => (
@@ -61,7 +61,7 @@ export function WorkTabNav() {
               className={cn(
                 "px-3 sm:px-5 py-3.5 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all duration-150",
                 active
-                  ? "border-[#2563EB] text-[#2563EB]"
+                  ? "border-[var(--brand)] text-[var(--brand)]"
                   : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
               )}
             >

@@ -96,7 +96,7 @@ export default function ChatBubble({
 
           {/* Animated ring — outer */}
           <motion.div
-            className="absolute inset-0 rounded-full ring-4 ring-[#2563EB]/40 motion-reduce:!opacity-60 motion-reduce:![transform:none]"
+            className="absolute inset-0 rounded-full ring-4 ring-[var(--brand)]/40 motion-reduce:!opacity-60 motion-reduce:![transform:none]"
             aria-hidden
             animate={{
               opacity: [0.4, 0.85, 0.4],
@@ -110,7 +110,7 @@ export default function ChatBubble({
           />
 
           {/* Extra soft glow ring */}
-          <div className="absolute -inset-1 rounded-full ring-2 ring-[#2563EB]/20 pointer-events-none" />
+          <div className="absolute -inset-1 rounded-full ring-2 ring-[var(--brand)]/20 pointer-events-none" />
 
           {/* Thinking shimmer overlay */}
           {bubbleState === "thinking" && (
@@ -153,7 +153,7 @@ export default function ChatBubble({
               "shadow-[0_8px_32px_rgba(37,99,235,0.30),0_2px_8px_rgba(37,99,235,0.15)]",
               "hover:shadow-[0_12px_40px_rgba(37,99,235,0.45),0_4px_12px_rgba(37,99,235,0.25)]",
               // Focus ring
-              "focus:outline-none focus-visible:ring-4 focus-visible:ring-[#2563EB]/50 focus-visible:ring-offset-2",
+              "focus:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand)]/50 focus-visible:ring-offset-2",
               "transition-shadow duration-300",
               "cursor-pointer"
             )}

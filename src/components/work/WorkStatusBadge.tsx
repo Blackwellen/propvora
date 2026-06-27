@@ -22,17 +22,17 @@ type AnyStatus = TaskStatus | JobStatus | string
 const statusConfig: Record<string, { label: string; className: string }> = {
   // Task statuses
   todo: { label: "To Do", className: "bg-slate-100 text-slate-600" },
-  in_progress: { label: "In Progress", className: "bg-blue-50 text-blue-700" },
+  in_progress: { label: "In Progress", className: "bg-[var(--brand-soft)] text-[var(--brand)]" },
   waiting: { label: "Waiting", className: "bg-amber-50 text-amber-700" },
   blocked: { label: "Blocked", className: "bg-red-50 text-red-700" },
   done: { label: "Done", className: "bg-emerald-50 text-emerald-700" },
   cancelled: { label: "Cancelled", className: "bg-slate-100 text-slate-500" },
   // Job statuses
   new: { label: "New", className: "bg-slate-100 text-slate-600" },
-  scoped: { label: "Scoped", className: "bg-blue-50 text-blue-700" },
+  scoped: { label: "Scoped", className: "bg-[var(--brand-soft)] text-[var(--brand)]" },
   supplier_requested: { label: "Supplier Requested", className: "bg-violet-50 text-violet-700" },
   quote_received: { label: "Quote Received", className: "bg-amber-50 text-amber-700" },
-  approved: { label: "Approved", className: "bg-blue-50 text-blue-700" },
+  approved: { label: "Approved", className: "bg-[var(--brand-soft)] text-[var(--brand)]" },
   scheduled: { label: "Scheduled", className: "bg-sky-50 text-sky-700" },
   complete: { label: "Complete", className: "bg-emerald-50 text-emerald-700" },
   invoiced: { label: "Invoiced", className: "bg-violet-50 text-violet-700" },

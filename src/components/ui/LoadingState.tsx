@@ -27,7 +27,7 @@ export function Spinner({
       role={decorative ? undefined : "status"}
       aria-label={decorative ? undefined : "Loading"}
       aria-hidden={decorative || undefined}
-      className={cn("animate-spin text-[#2563EB] motion-reduce:animate-none", sizeClasses[size], className)}
+      className={cn("animate-spin text-[var(--brand)] motion-reduce:animate-none", sizeClasses[size], className)}
     />
   )
 }

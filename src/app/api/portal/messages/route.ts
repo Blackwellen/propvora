@@ -32,6 +32,9 @@ export async function POST(req: NextRequest) {
 
   const content = (body.content ?? "").trim()
   if (!content) return NextResponse.json({ ok: false, error: "Message is empty." }, { status: 400 })
+  // Cap body + subject length so a single request cannot store an unbounded blob.
+  if (content.length > 10_000) return NextResponse.json({ ok: false, error: "Message is too long (max 10,000 characters)." }, { status: 400 })
+  if ((body.subject ?? "").trim().length > 200) return NextResponse.json({ ok: false, error: "Subject is too long (max 200 characters)." }, { status: 400 })
 
   const admin = createAdminClient()
   const senderName = await getPortalContactName(session)

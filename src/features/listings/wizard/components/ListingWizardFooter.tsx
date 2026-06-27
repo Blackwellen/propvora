@@ -42,7 +42,7 @@ export function ListingWizardFooter({
         <span className="hidden items-center gap-1.5 text-[11px] text-slate-400 sm:flex">
           {isSaving ? (
             <>
-              <span className="h-3 w-3 animate-spin rounded-full border-2 border-slate-300 border-t-blue-500" />
+              <span className="h-3 w-3 animate-spin rounded-full border-2 border-slate-300 border-t-[var(--brand)]" />
               Saving…
             </>
           ) : null}
@@ -59,7 +59,7 @@ export function ListingWizardFooter({
           <button
             type="button"
             onClick={onNext}
-            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-blue-600 px-4 text-[13px] font-semibold text-white shadow-sm hover:bg-blue-700 sm:px-5"
+            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[var(--brand)] px-4 text-[13px] font-semibold text-white shadow-sm hover:bg-[var(--brand-strong)] sm:px-5"
           >
             <span className="truncate">{nextLabel}</span>
             <ChevronRight className="h-4 w-4 shrink-0" />

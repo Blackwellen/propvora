@@ -41,7 +41,7 @@ export default function TrialFeatureGate({
         </div>
 
         {/* Lock icon */}
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-100 to-blue-50 flex items-center justify-center">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-100 to-[var(--brand-soft)] flex items-center justify-center">
           <Lock className="w-6 h-6 text-slate-500" />
         </div>
 
@@ -60,8 +60,8 @@ export default function TrialFeatureGate({
           <ul className="w-full flex flex-col gap-2 text-left">
             {benefits.map((item) => (
               <li key={item} className="flex items-start gap-2.5">
-                <span className="mt-1 w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                <span className="mt-1 w-4 h-4 rounded-full bg-[var(--color-brand-100)] flex items-center justify-center shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand)]" />
                 </span>
                 <span className="text-[13px] text-slate-600">{item}</span>
               </li>
@@ -73,7 +73,7 @@ export default function TrialFeatureGate({
         <div className="w-full flex flex-col gap-2 pt-2">
           <Link
             href="/property-manager/workspace-settings/subscription"
-            className="w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white text-[14px] font-semibold text-center hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow"
+            className="w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-[var(--brand)] to-[#7C3AED] text-white text-[14px] font-semibold text-center hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow"
           >
             <Image src="/favicon.ico" alt="" width={18} height={18} className="rounded-sm opacity-90" unoptimized />
             Subscribe to Propvora

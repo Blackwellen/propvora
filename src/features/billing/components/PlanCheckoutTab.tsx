@@ -1,50 +1,41 @@
 "use client"
 
 import React, { useMemo, useState } from "react"
-import { Check, CreditCard, MapPin, Sparkles, ShoppingCart } from "lucide-react"
+import Link from "next/link"
+import { Check, CreditCard, MapPin, Sparkles, ShoppingCart, ArrowRight } from "lucide-react"
 import { startPlanCheckout, openBillingPortal } from "../data/stripe-link"
 import { cn } from "@/lib/utils"
 import { formatPence } from "@/lib/marketplace/money"
-import { usePlans, useActiveAddons, useAddonFeatureFlags, useBillingProfile, usePaymentMethod, useBillingRole } from "../data/hooks"
+import { usePlans, useBillingProfile, usePaymentMethod, useBillingRole } from "../data/hooks"
 import { SEED_ADDON_CATALOG } from "../data/seed"
 import { computeTotals, planCyclePence, planAnnualPence, taxRatePercent } from "../data/calc"
-import { addonAvailableForPlan, type BillingCycle, type PlanCode, type SubscriptionAddon } from "../data/types"
-import { BillingCard, BillingButton, Toggle, QtyStepper, SeedNotice, PermissionNotice } from "./ui"
+import { type BillingCycle, type PlanCode } from "../data/types"
+import { BillingCard, BillingButton, SeedNotice, PermissionNotice } from "./ui"
+
+const ADDONS_HREF = "/property-manager/workspace/billing/add-ons"
 
 export function PlanCheckoutTab() {
   const { data: plans, source } = usePlans()
-  const { data: activeAddons } = useActiveAddons()
   const { data: profile } = useBillingProfile()
   const { data: card } = usePaymentMethod()
   const { canManageBilling } = useBillingRole()
-  const addonFlags = useAddonFeatureFlags()
 
   const [cycle, setCycle] = useState<BillingCycle>("monthly")
   const [selected, setSelected] = useState<PlanCode>("professional")
-  const [addons, setAddons] = useState<SubscriptionAddon[]>(
-    SEED_ADDON_CATALOG.map((c) => {
-      const existing = activeAddons.find((a) => a.code === c.code)
-      return { code: c.code, enabled: existing?.enabled ?? false, quantity: existing?.quantity ?? (c.unit === "credit_pack" ? 0 : c.defaultQty) }
-    }),
-  )
   const [submitState, setSubmitState] = useState<"idle" | "processing">("idle")
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [portalError, setPortalError] = useState<string | null>(null)
   const [editingAddress, setEditingAddress] = useState(false)
 
-  const checkoutAddons = SEED_ADDON_CATALOG.filter((c) =>
-    ["extra_listings", "premium_support", "ai_pack", "automation_pack", "marketplace_boost"].includes(c.code) && addonAvailableForPlan(c, selected, "V1.5", addonFlags),
-  )
-
   const plan = useMemo(() => plans.find((p) => p.code === selected) ?? plans[0], [plans, selected])
+  // Plan-only totals. Add-ons are NOT charged at initial checkout — they require
+  // an active subscription and are provisioned as Stripe subscription-items from
+  // the Add-ons tab afterwards, so showing them in the "due now" total would be
+  // misleading. The empty add-on list keeps this total exactly what Stripe bills.
   const totals = useMemo(
-    () => computeTotals(plan, cycle, SEED_ADDON_CATALOG, addons, profile.taxRateBps),
-    [plan, cycle, addons, profile.taxRateBps],
+    () => computeTotals(plan, cycle, SEED_ADDON_CATALOG, [], profile.taxRateBps),
+    [plan, cycle, profile.taxRateBps],
   )
-
-  function setAddon(code: string, patch: Partial<SubscriptionAddon>) {
-    setAddons((prev) => prev.map((a) => (a.code === code ? { ...a, ...patch } : a)))
-  }
 
   async function proceed() {
     setCheckoutError(null)
@@ -80,13 +71,13 @@ export function PlanCheckoutTab() {
           <div className="inline-flex items-center rounded-xl border border-slate-200 p-0.5 text-[12px] font-semibold">
             <button
               onClick={() => setCycle("monthly")}
-              className={cn("px-3 py-1.5 rounded-lg transition-colors", cycle === "monthly" ? "bg-blue-600 text-white" : "text-slate-600")}
+              className={cn("px-3 py-1.5 rounded-lg transition-colors", cycle === "monthly" ? "bg-[var(--brand)] text-white" : "text-slate-600")}
             >
               Monthly
             </button>
             <button
               onClick={() => setCycle("annual")}
-              className={cn("px-3 py-1.5 rounded-lg transition-colors inline-flex items-center gap-1.5", cycle === "annual" ? "bg-blue-600 text-white" : "text-slate-600")}
+              className={cn("px-3 py-1.5 rounded-lg transition-colors inline-flex items-center gap-1.5", cycle === "annual" ? "bg-[var(--brand)] text-white" : "text-slate-600")}
             >
               Annual <span className="text-[10px] rounded-full bg-emerald-100 text-emerald-700 px-1.5 py-0.5">Save 20%</span>
             </button>
@@ -102,11 +93,11 @@ export function PlanCheckoutTab() {
                 key={p.code}
                 className={cn(
                   "relative rounded-2xl border p-4 flex flex-col transition-all",
-                  isSelected ? "border-blue-600 ring-2 ring-blue-600/15 bg-blue-50/30" : "border-slate-200 hover:border-slate-300",
+                  isSelected ? "border-[var(--brand)] ring-2 ring-[var(--brand)]/15 bg-[var(--brand-soft)]/30" : "border-slate-200 hover:border-slate-300",
                 )}
               >
                 {p.isPopular && (
-                  <span className="absolute -top-2.5 left-4 rounded-full bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5">
+                  <span className="absolute -top-2.5 left-4 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold px-2 py-0.5">
                     Most popular
                   </span>
                 )}
@@ -136,7 +127,7 @@ export function PlanCheckoutTab() {
                   disabled={!canManageBilling}
                   className={cn(
                     "mt-4 w-full rounded-xl py-2 text-[13px] font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed",
-                    isSelected ? "bg-blue-600 text-white" : "border border-slate-200 text-slate-700 hover:bg-slate-50",
+                    isSelected ? "bg-[var(--brand)] text-white" : "border border-slate-200 text-slate-700 hover:bg-slate-50",
                   )}
                 >
                   {isSelected ? "Selected" : "Select plan"}
@@ -148,49 +139,21 @@ export function PlanCheckoutTab() {
         <div className="mt-3"><SeedNotice source={source} /></div>
       </BillingCard>
 
-      {/* 2. Customise with add-ons */}
-      <BillingCard title="2. Customise with add-ons" description="Optional extras billed alongside your plan." icon={Sparkles}>
-        <div className="divide-y divide-slate-100">
-          {checkoutAddons.map((item) => {
-            const a = addons.find((x) => x.code === item.code)!
-            return (
-              <div key={item.code} className="flex items-center justify-between gap-4 py-3">
-                <div className="min-w-0">
-                  <p className="text-[13px] font-semibold text-slate-800">{item.name}</p>
-                  <p className="text-[11.5px] text-slate-400">
-                    {item.code === "extra_listings"
-                      ? `${formatPence(item.unitPricePence)}/property`
-                      : item.unit === "credit_pack"
-                        ? `from ${formatPence(item.unitPricePence)}`
-                        : `${formatPence(item.unitPricePence)}/mo`}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  {a.enabled && item.code === "extra_listings" && (
-                    <QtyStepper value={a.quantity} onChange={(q) => setAddon(item.code, { quantity: q })} min={0} suffix="props" disabled={!canManageBilling} />
-                  )}
-                  {a.enabled && item.unit === "credit_pack" && item.creditPacks && (
-                    <select
-                      value={a.quantity}
-                      onChange={(e) => setAddon(item.code, { quantity: Number(e.target.value) })}
-                      disabled={!canManageBilling}
-                      className="rounded-xl border border-slate-200 text-[12px] px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600/30"
-                    >
-                      {item.creditPacks.map((cp, i) => (
-                        <option key={cp.label} value={i}>{cp.label} — {formatPence(cp.pricePence)}</option>
-                      ))}
-                    </select>
-                  )}
-                  <Toggle
-                    label={`Toggle ${item.name}`}
-                    checked={a.enabled}
-                    disabled={!canManageBilling}
-                    onChange={(v) => setAddon(item.code, { enabled: v })}
-                  />
-                </div>
-              </div>
-            )
-          })}
+      {/* 2. Add-ons (provisioned after subscribing) */}
+      <BillingCard title="2. Add-ons" description="Optional extras you can enable once your plan is active." icon={Sparkles}>
+        <div className="rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)]/50 px-4 py-3.5">
+          <p className="text-[13px] text-slate-700">
+            Add-ons such as extra listings, AI credit packs and white-label are billed as
+            subscription items and are added <span className="font-semibold">after</span> you
+            subscribe — they&apos;re prorated onto your next invoice. Your total below is exactly
+            what Stripe charges today.
+          </p>
+          <Link
+            href={ADDONS_HREF}
+            className="mt-3 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
+          >
+            Browse add-ons <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </BillingCard>
 
@@ -219,7 +182,7 @@ export function PlanCheckoutTab() {
               {profile.vatNumber && <p className="text-[11.5px] text-slate-400 mt-0.5">VAT {profile.vatNumber}</p>}
               <BillingButton variant="ghost" className="text-[12px] px-3 py-1.5 mt-2.5" onClick={() => setEditingAddress((v) => !v)}>{editingAddress ? "Close" : "Edit"}</BillingButton>
               {editingAddress && (
-                <p className="text-[11.5px] text-slate-400 mt-2">Invoice address is managed in Workspace settings. <a className="text-blue-600 font-medium" href="/property-manager/workspace-settings/billing">Open settings</a></p>
+                <p className="text-[11.5px] text-slate-400 mt-2">Invoice address is managed in Workspace settings. <a className="text-[var(--brand)] font-medium" href="/property-manager/workspace-settings/billing">Open settings</a></p>
               )}
             </div>
           </div>

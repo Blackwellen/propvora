@@ -102,7 +102,7 @@ export function CollectionsSummaryCard({
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[13px] font-semibold text-slate-900">Collections Summary</h3>
-        <button className="text-[12px] text-blue-600 font-medium hover:underline">MTD &gt;</button>
+        <button className="text-[12px] text-[var(--brand)] font-medium hover:underline">MTD &gt;</button>
       </div>
       <div className="flex flex-col gap-2.5">
         {rows.map((row) => (
@@ -112,7 +112,7 @@ export function CollectionsSummaryCard({
           </div>
         ))}
       </div>
-      <Link href="/property-manager/accounting" className="mt-4 inline-block text-[12px] text-blue-600 font-medium hover:underline">
+      <Link href="/property-manager/accounting" className="mt-4 inline-block text-[12px] text-[var(--brand)] font-medium hover:underline">
         View in Accounting &gt;
       </Link>
     </div>

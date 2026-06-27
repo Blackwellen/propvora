@@ -63,7 +63,7 @@ export function DepositRulePanel({
   return (
     <div className={`rounded-xl border border-slate-200 bg-white p-5 ${className}`}>
       <div className="mb-3 flex items-center gap-2">
-        <Shield className="h-4 w-4 text-blue-600" aria-hidden="true" />
+        <Shield className="h-4 w-4 text-[var(--brand)]" aria-hidden="true" />
         <span className="text-sm font-bold text-slate-800">Deposit rule ({rule.jurisdiction})</span>
       </div>
 

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 export type PillTone = "blue" | "violet" | "emerald" | "amber" | "red" | "slate"
 
 const TONE: Record<PillTone, string> = {
-  blue: "bg-blue-50 text-blue-700",
+  blue: "bg-[var(--brand-soft)] text-[var(--brand)]",
   violet: "bg-violet-50 text-violet-700",
   emerald: "bg-emerald-50 text-emerald-700",
   amber: "bg-amber-50 text-amber-700",

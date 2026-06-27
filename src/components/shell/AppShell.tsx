@@ -83,9 +83,12 @@ export default function AppShell({ children, aiCopilotEnabled = false, isTrial =
         style={{ "--side-offset": `${sideOffset}px` } as React.CSSProperties}
       >
         {/* Topbar — desktop workspace toolbar only on lg+. Below lg, pages own
-            their own MobileTopBar; the bottom nav owns primary navigation. */}
-        <div className="hidden lg:block pt-4 pr-4 shrink-0">
-          <TopNavigation />
+            their own MobileTopBar; the bottom nav owns primary navigation.
+            Horizontal padding matches ShellContent (px-4 sm:px-6) so the quick
+            action bar's left/right edges align exactly with page content at every
+            breakpoint — the canonical width all page types are measured against. */}
+        <div className="hidden lg:block pt-4 px-4 sm:px-6 shrink-0">
+          <TopNavigation guidedHelp={navFlags?.guidedHelp !== false} />
         </div>
 
         {/* Content area — extra bottom padding below lg so the fixed bottom nav
@@ -129,8 +132,9 @@ export default function AppShell({ children, aiCopilotEnabled = false, isTrial =
       {/* Global command palette (⌘K) */}
       <CommandPalette />
 
-      {/* Guided Help — first-use popups. The launcher lives in TopNavigation. */}
-      <FirstUseModal />
+      {/* Guided Help — first-use popups. The launcher lives in TopNavigation.
+          Gated behind the `guidedHelp` operational kill-switch (default ON). */}
+      {navFlags?.guidedHelp !== false && <FirstUseModal />}
     </div>
     </GuidedHelpProvider>
   )

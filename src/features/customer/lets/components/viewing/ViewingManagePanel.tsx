@@ -17,7 +17,7 @@ export default function ViewingManagePanel() {
         </p>
         <button
           onClick={() => toast("Attendance confirmed", "success")}
-          className="w-full bg-[#2563EB] text-white rounded-xl py-2.5 text-[13px] font-semibold mb-2"
+          className="w-full bg-[var(--brand)] text-white rounded-xl py-2.5 text-[13px] font-semibold mb-2"
         >
           Confirm attendance
         </button>

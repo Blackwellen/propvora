@@ -17,11 +17,11 @@ import { Check, ArrowRight } from "lucide-react"
 export type Accent = "blue" | "emerald" | "amber" | "red" | "violet" | "sky" | "slate"
 
 const accentBg: Record<Accent, string> = {
-  blue: "bg-blue-50", emerald: "bg-emerald-50", amber: "bg-amber-50",
+  blue: "bg-[var(--brand-soft)]", emerald: "bg-emerald-50", amber: "bg-amber-50",
   red: "bg-red-50", violet: "bg-violet-50", sky: "bg-sky-50", slate: "bg-slate-100",
 }
 const accentText: Record<Accent, string> = {
-  blue: "text-blue-600", emerald: "text-emerald-600", amber: "text-amber-600",
+  blue: "text-[var(--brand)]", emerald: "text-emerald-600", amber: "text-amber-600",
   red: "text-red-600", violet: "text-violet-600", sky: "text-sky-600", slate: "text-slate-600",
 }
 
@@ -203,7 +203,7 @@ export function ViewToggle({
 
 export function Pill({ accent, children }: { accent: Accent; children: React.ReactNode }) {
   const styles: Record<Accent, string> = {
-    blue: "bg-blue-50 text-blue-700 border-blue-200",
+    blue: "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",
     emerald: "bg-emerald-50 text-emerald-700 border-emerald-200",
     amber: "bg-amber-50 text-amber-700 border-amber-200",
     red: "bg-red-50 text-red-700 border-red-200",
@@ -239,7 +239,7 @@ export function SourcePill({ source }: { source: "live" | "seed" }) {
 
 export function OverviewLink({ href, label }: { href: string; label: string }) {
   return (
-    <Link href={href} className="inline-flex items-center gap-1 text-[12px] font-medium text-blue-600 hover:text-blue-700">
+    <Link href={href} className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand)]">
       {label}
       <ArrowRight className="w-3 h-3" />
     </Link>

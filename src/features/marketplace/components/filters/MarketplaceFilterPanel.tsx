@@ -44,7 +44,7 @@ export default function MarketplaceFilterPanel({
           <select
             value={filters.countryCode}
             onChange={(e) => onChange({ countryCode: e.target.value })}
-            className="h-9 rounded-xl border border-slate-200 bg-white px-3 text-[12.5px] font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+            className="h-9 rounded-xl border border-slate-200 bg-white px-3 text-[12.5px] font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
           >
             <option value="">All countries</option>
             {COUNTRY_OPTIONS.map((c) => (
@@ -62,7 +62,7 @@ export default function MarketplaceFilterPanel({
             value={filters.location}
             onChange={(e) => onChange({ location: e.target.value })}
             placeholder={isStay ? "City or postcode" : "City, region or postcode"}
-            className="h-9 w-[220px] rounded-xl border border-slate-200 bg-white px-3 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+            className="h-9 w-[220px] rounded-xl border border-slate-200 bg-white px-3 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
           />
         </label>
 
@@ -79,7 +79,7 @@ export default function MarketplaceFilterPanel({
                 defaultValue={filters.minPence === null ? "" : String(filters.minPence / 100)}
                 onChange={(e) => onChange({ minPence: majorToPence(e.target.value) })}
                 placeholder="Min"
-                className="h-9 w-[90px] rounded-xl border border-slate-200 bg-white pl-6 pr-2 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                className="h-9 w-[90px] rounded-xl border border-slate-200 bg-white pl-6 pr-2 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
               />
             </div>
             <span className="text-slate-300">–</span>
@@ -90,7 +90,7 @@ export default function MarketplaceFilterPanel({
                 defaultValue={filters.maxPence === null ? "" : String(filters.maxPence / 100)}
                 onChange={(e) => onChange({ maxPence: majorToPence(e.target.value) })}
                 placeholder="Max"
-                className="h-9 w-[90px] rounded-xl border border-slate-200 bg-white pl-6 pr-2 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                className="h-9 w-[90px] rounded-xl border border-slate-200 bg-white pl-6 pr-2 text-[12.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
               />
             </div>
           </div>
@@ -108,7 +108,7 @@ export default function MarketplaceFilterPanel({
                 className={cn(
                   "inline-flex h-9 items-center gap-1 rounded-xl border px-2.5 text-[12.5px] font-medium",
                   filters.minRating === r
-                    ? "border-[#2563EB] bg-blue-50 text-[#2563EB]"
+                    ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
                     : "border-slate-200 bg-white text-slate-600"
                 )}
               >

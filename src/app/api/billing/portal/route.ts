@@ -56,7 +56,7 @@ export async function POST() {
 
     const returnUrl =
       process.env.STRIPE_PORTAL_RETURN_URL ??
-      `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/property-manager/workspace-settings/subscription`
+      `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/property-manager/workspace/billing/renewals`
 
     const configurationId = process.env.STRIPE_PORTAL_CONFIGURATION_ID
 

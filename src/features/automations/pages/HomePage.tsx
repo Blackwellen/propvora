@@ -202,7 +202,7 @@ export default function HomePage({
               <button
                 key={s.id}
                 onClick={() => setTab(s.id)}
-                className={`border-b-2 px-3.5 py-2.5 text-sm transition ${tab === s.id ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}
+                className={`border-b-2 px-3.5 py-2.5 text-sm transition ${tab === s.id ? "border-[var(--brand)] font-semibold text-[var(--brand)]" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}
               >
                 {s.label}
                 {s.badge ? <span className="ml-1.5 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">{s.badge}</span> : null}

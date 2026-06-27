@@ -66,8 +66,8 @@ const COLUMN_DEFS: ColumnDef[] = [
   {
     key: "in_progress",
     label: "In Progress",
-    headerColor: "border-blue-400",
-    dotColor: "bg-blue-500",
+    headerColor: "border-[var(--color-brand-400)]",
+    dotColor: "bg-[var(--brand)]",
   },
   {
     key: "blocked",
@@ -125,8 +125,8 @@ function buildKpis(tasks: Task[]): WorkKpi[] {
   return [
     {
       icon: Briefcase,
-      iconBg: "bg-blue-50",
-      iconColor: "text-blue-600",
+      iconBg: "bg-[var(--brand-soft)]",
+      iconColor: "text-[var(--brand)]",
       value: open,
       label: "Open Work",
     },
@@ -198,7 +198,7 @@ function TaskCard({ task, isDragging = false, propertyName }: TaskCardProps) {
         isOverdue ? "border-red-200 bg-red-50/30" : "border-slate-200",
         isDone && "opacity-70",
         isDragging
-          ? "shadow-2xl ring-2 ring-blue-400/50 opacity-90 rotate-1 cursor-grabbing"
+          ? "shadow-2xl ring-2 ring-[var(--color-brand-400)]/50 opacity-90 rotate-1 cursor-grabbing"
           : "hover:shadow-md cursor-grab"
       )}
     >
@@ -212,7 +212,7 @@ function TaskCard({ task, isDragging = false, propertyName }: TaskCardProps) {
           )}
         />
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold text-slate-800 leading-snug group-hover:text-[#2563EB] transition-colors truncate">
+          <p className="text-[13px] font-semibold text-slate-800 leading-snug group-hover:text-[var(--brand)] transition-colors truncate">
             {isDone && (
               <CheckCircle2 className="inline w-3.5 h-3.5 text-emerald-500 mr-1" />
             )}
@@ -260,7 +260,7 @@ function TaskCard({ task, isDragging = false, propertyName }: TaskCardProps) {
         <Link
           href={`/property-manager/work/tasks/${task.id}`}
           onClick={(e) => e.stopPropagation()}
-          className="block text-[11px] text-[#2563EB] hover:underline pl-5 truncate"
+          className="block text-[11px] text-[var(--brand)] hover:underline pl-5 truncate"
         >
           View details →
         </Link>
@@ -313,7 +313,7 @@ function DroppableColumn({
       ref={setNodeRef}
       className={cn(
         "flex flex-col gap-2.5 min-h-[120px] rounded-xl transition-colors p-1 -m-1",
-        isOver && "bg-blue-50/60"
+        isOver && "bg-[var(--brand-soft)]/60"
       )}
     >
       {children}
@@ -569,7 +569,7 @@ export default function WorkBoardPage() {
           <>
             <Link
               href="/property-manager/work/tasks/new"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
               Create Task
@@ -650,7 +650,7 @@ export default function WorkBoardPage() {
             className={cn(
               "shrink-0 min-h-[36px] px-3.5 rounded-xl text-[13px] font-semibold border transition-colors",
               priorityFilter === p.value
-                ? "bg-[#2563EB] border-[#2563EB] text-white"
+                ? "bg-[var(--brand)] border-[var(--brand)] text-white"
                 : "bg-white border-[#E2EAF6] text-slate-600"
             )}
           >
@@ -718,11 +718,11 @@ export default function WorkBoardPage() {
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold text-slate-900">Recently Updated</h3>
-                  <Link href="/property-manager/work" className="text-[12px] text-[#2563EB] hover:underline">View all</Link>
+                  <Link href="/property-manager/work" className="text-[12px] text-[var(--brand)] hover:underline">View all</Link>
                 </div>
                 {displayTasks.slice(0, 4).map((t) => (
                   <div key={t.id} className="flex items-start gap-2 mb-3">
-                    <ClipboardList className="w-4 h-4 mt-0.5 text-blue-500 shrink-0" />
+                    <ClipboardList className="w-4 h-4 mt-0.5 text-[var(--brand)] shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-[12px] text-slate-700 leading-snug truncate">{t.title}</p>
                       <p className="text-[11px] text-slate-400 mt-0.5 capitalize">{t.status?.replace("_", " ")}</p>

@@ -104,9 +104,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 const inputCls =
-  "w-full h-10 px-3 rounded-lg text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+  "w-full h-10 px-3 rounded-lg text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
 const selectCls =
-  "w-full h-10 px-3 rounded-lg text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+  "w-full h-10 px-3 rounded-lg text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
@@ -403,7 +403,7 @@ export default function NewBillPage() {
                             value={li.description}
                             onChange={(e) => updateLineItem(li.id, "description", e.target.value)}
                             placeholder="Description"
-                            className="w-full h-8 px-2 rounded border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                            className="w-full h-8 px-2 rounded border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                           />
                         </td>
                         <td className="py-2 pr-1">
@@ -412,7 +412,7 @@ export default function NewBillPage() {
                             min={1}
                             value={li.qty}
                             onChange={(e) => updateLineItem(li.id, "qty", Number(e.target.value))}
-                            className="w-full h-8 px-2 rounded border border-slate-200 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                            className="w-full h-8 px-2 rounded border border-slate-200 text-sm text-right focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                           />
                         </td>
                         <td className="py-2 pr-1">
@@ -424,7 +424,7 @@ export default function NewBillPage() {
                               step={0.01}
                               value={li.unit_price}
                               onChange={(e) => updateLineItem(li.id, "unit_price", Number(e.target.value))}
-                              className="w-full h-8 pl-5 pr-2 rounded border border-slate-200 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                              className="w-full h-8 pl-5 pr-2 rounded border border-slate-200 text-sm text-right focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                             />
                           </div>
                         </td>
@@ -435,7 +435,7 @@ export default function NewBillPage() {
                             max={100}
                             value={li.tax_rate}
                             onChange={(e) => updateLineItem(li.id, "tax_rate", Number(e.target.value))}
-                            className="w-full h-8 px-2 rounded border border-slate-200 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                            className="w-full h-8 px-2 rounded border border-slate-200 text-sm text-right focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                           />
                         </td>
                         <td className="py-2 pr-1 text-right text-sm font-medium text-slate-900 whitespace-nowrap">
@@ -458,7 +458,7 @@ export default function NewBillPage() {
             </div>
             <button
               onClick={addLineItem}
-              className="flex items-center gap-2 text-sm text-[#2563EB] hover:text-blue-700 font-medium"
+              className="flex items-center gap-2 text-sm text-[var(--brand)] hover:text-[var(--brand)] font-medium"
             >
               <Plus className="w-4 h-4" />
               Add Line Item
@@ -502,7 +502,7 @@ export default function NewBillPage() {
               </div>
             ) : (
               <label className="block cursor-pointer">
-                <div className="rounded-2xl border-2 border-dashed border-slate-200 hover:border-blue-300 bg-slate-50 hover:bg-blue-50/30 transition-all p-10 text-center space-y-3">
+                <div className="rounded-2xl border-2 border-dashed border-slate-200 hover:border-[var(--color-brand-300)] bg-slate-50 hover:bg-[var(--brand-soft)]/30 transition-all p-10 text-center space-y-3">
                   <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto">
                     <Upload className="w-6 h-6 text-slate-400" />
                   </div>
@@ -552,7 +552,7 @@ export default function NewBillPage() {
                   onClick={() => setField("approval_required", !form.approval_required)}
                   className={cn(
                     "relative w-10 h-5.5 rounded-full transition-colors",
-                    form.approval_required ? "bg-[#2563EB]" : "bg-slate-200"
+                    form.approval_required ? "bg-[var(--brand)]" : "bg-slate-200"
                   )}
                 >
                   <span
@@ -575,7 +575,7 @@ export default function NewBillPage() {
                   onChange={(e) => setField("approval_notes", e.target.value)}
                   placeholder="e.g. Please approve by 2026-06-10 for BACS run"
                   rows={3}
-                  className="w-full px-3 py-2 rounded-lg text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 resize-none"
+                  className="w-full px-3 py-2 rounded-lg text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] resize-none"
                 />
               </Field>
             )}
@@ -606,7 +606,7 @@ export default function NewBillPage() {
             <ReviewRow label="VAT" value={`£${totalTax.toLocaleString("en-GB", { minimumFractionDigits: 2 })}`} />
             <div className="flex items-center justify-between py-2 border-t border-slate-200">
               <span className="text-sm font-bold text-slate-900">Total</span>
-              <span className="text-lg font-bold text-[#2563EB]">£{grandTotal.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</span>
+              <span className="text-lg font-bold text-[var(--brand)]">£{grandTotal.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</span>
             </div>
             <ReviewRow label="Invoice PDF" value={form.invoice_file ? form.invoice_file.name : "Not uploaded"} />
             <ReviewRow label="Approval Required" value={form.approval_required ? "Yes" : "No"} />
@@ -647,7 +647,7 @@ export default function NewBillPage() {
                     onClick={() => s.num < step && setStep(s.num)}
                     className={cn(
                       "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all",
-                      isActive && "bg-[#EFF6FF] text-[#2563EB]",
+                      isActive && "bg-[var(--brand-soft)] text-[var(--brand)]",
                       !isActive && isCompleted && "hover:bg-slate-50 text-slate-600 cursor-pointer",
                       !isActive && !isCompleted && "text-slate-400 cursor-default"
                     )}
@@ -655,7 +655,7 @@ export default function NewBillPage() {
                     <div
                       className={cn(
                         "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
-                        isActive && "bg-[#2563EB] text-white",
+                        isActive && "bg-[var(--brand)] text-white",
                         isCompleted && "bg-emerald-500 text-white",
                         !isActive && !isCompleted && "bg-slate-100 text-slate-400"
                       )}
@@ -674,7 +674,7 @@ export default function NewBillPage() {
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-5 border-b border-slate-200">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wide">
+                  <span className="text-xs font-bold text-[var(--brand)] uppercase tracking-wide">
                     Step {step} of {STEPS.length}
                   </span>
                 </div>
@@ -733,7 +733,7 @@ export default function NewBillPage() {
                 </div>
                 <div className="flex justify-between text-sm font-bold text-slate-900">
                   <span>Total</span>
-                  <span className="text-[#2563EB]">£{grandTotal.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</span>
+                  <span className="text-[var(--brand)]">£{grandTotal.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</span>
                 </div>
               </div>
             </div>

@@ -83,7 +83,7 @@ export default function SupplierOnboardingCompletePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {QUICK_START.map((q) => (
                 <Link key={q.label} href={q.href} className="flex items-center gap-3 rounded-xl border border-slate-200 p-3 hover:border-slate-300 hover:bg-slate-50 transition-colors">
-                  <span className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><q.icon className="w-4 h-4" /></span>
+                  <span className="w-9 h-9 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center shrink-0"><q.icon className="w-4 h-4" /></span>
                   <span className="text-sm font-medium text-slate-800">{q.label}</span>
                   <ArrowRight className="w-4 h-4 text-slate-300 ml-auto shrink-0" />
                 </Link>
@@ -112,7 +112,7 @@ export default function SupplierOnboardingCompletePage() {
           </SupplierCard>
 
           <SupplierCard className="p-5 text-center">
-            <div className="mx-auto w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center mb-3"><Sparkles className="w-6 h-6" /></div>
+            <div className="mx-auto w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[var(--brand-strong)] text-white flex items-center justify-center mb-3"><Sparkles className="w-6 h-6" /></div>
             <h2 className="text-base font-semibold text-slate-900">Get your first job</h2>
             <p className="text-sm text-slate-500 mt-1">See how ready you are to start receiving work.</p>
             <Link href="/supplier/onboarding/readiness" className="mt-4 block"><SupplierButton className="w-full justify-center">First-job readiness <ArrowRight className="w-4 h-4" /></SupplierButton></Link>

@@ -22,7 +22,7 @@ import type { Message } from "@/types/database"
 
 /* ── Avatar helpers ─────────────────────────────────────────────────────── */
 const AVATAR_BG = [
-  "bg-blue-500", "bg-emerald-500", "bg-violet-500", "bg-amber-500",
+  "bg-[var(--brand)]", "bg-emerald-500", "bg-violet-500", "bg-amber-500",
   "bg-rose-500", "bg-cyan-500", "bg-indigo-500", "bg-teal-500",
 ]
 function avatarBg(name: string): string {
@@ -37,7 +37,7 @@ function initials(name: string): string {
 
 const TYPE_BADGE: Record<string, string> = {
   tenant: "bg-emerald-100 text-emerald-700",
-  landlord: "bg-blue-100 text-blue-700",
+  landlord: "bg-[var(--color-brand-100)] text-[var(--brand)]",
   supplier: "bg-amber-100 text-amber-700",
   applicant: "bg-sky-100 text-sky-700",
   agent: "bg-violet-100 text-violet-700",
@@ -54,7 +54,7 @@ function Bubble({ message }: { message: Message }) {
           className={cn(
             "px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap",
             isUser
-              ? "bg-blue-600 text-white rounded-tr-sm"
+              ? "bg-[var(--brand)] text-white rounded-tr-sm"
               : "bg-white border border-slate-200 text-slate-800 rounded-tl-sm shadow-sm"
           )}
         >
@@ -225,7 +225,7 @@ export default function ConversationPage() {
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || sendMessage.isPending}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-[var(--brand)] hover:bg-[var(--brand-strong)] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg transition-colors"
                 >
                   {sendMessage.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                   Send

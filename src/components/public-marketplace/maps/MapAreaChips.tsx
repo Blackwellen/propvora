@@ -45,7 +45,7 @@ export default function MapAreaChips({
         className={cn(
           'flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap',
           !active
-            ? 'bg-blue-600 text-white border-blue-600'
+            ? 'bg-[var(--brand)] text-white border-[var(--brand)]'
             : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300',
         )}
       >
@@ -62,7 +62,7 @@ export default function MapAreaChips({
             className={cn(
               'shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap',
               isActive
-                ? 'bg-blue-600 text-white border-blue-600'
+                ? 'bg-[var(--brand)] text-white border-[var(--brand)]'
                 : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300',
             )}
           >

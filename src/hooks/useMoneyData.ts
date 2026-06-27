@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { useNotify } from '@/hooks/useNotify'
+import { formatCurrency } from '@/lib/utils'
 
 // ─────────────────────────────────────────────
 // Real-table rewire (live schema)
@@ -624,7 +625,7 @@ function mapTransactionToActivity(r: RawRow): MoneyActivityRow {
     entity_id: str(r.id),
     description:
       str(r.description) ||
-      `${dir === 'in' ? 'Received' : 'Paid'} £${amount.toLocaleString('en-GB')} — ${str(r.category)}`,
+      `${dir === 'in' ? 'Received' : 'Paid'} ${formatCurrency(amount)} — ${str(r.category)}`,
     performed_by: strN(r.created_by),
     metadata: null,
     created_at: str(r.created_at),

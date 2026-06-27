@@ -31,7 +31,7 @@ import { type Contact, type ContactType } from "./ContactCard"
 
 const TYPE_COLOURS: Record<ContactType, string> = {
   tenant:    "bg-emerald-100 text-emerald-700",
-  landlord:  "bg-blue-100 text-blue-700",
+  landlord:  "bg-[var(--color-brand-100)] text-[var(--brand)]",
   supplier:  "bg-amber-100 text-amber-700",
   agent:     "bg-violet-100 text-violet-700",
   applicant: "bg-sky-100 text-sky-700",
@@ -39,7 +39,7 @@ const TYPE_COLOURS: Record<ContactType, string> = {
 }
 
 const AVATAR_COLOURS = [
-  "bg-blue-500", "bg-emerald-500", "bg-violet-500", "bg-amber-500",
+  "bg-[var(--brand)]", "bg-emerald-500", "bg-violet-500", "bg-amber-500",
   "bg-rose-500", "bg-cyan-500", "bg-fuchsia-500", "bg-teal-500",
 ]
 
@@ -183,7 +183,7 @@ export function ContactTable({ contacts, onEdit, onMessage, onDelete }: ContactT
                 aria-label="Contact actions"
                 aria-haspopup="menu"
                 aria-expanded={isOpen}
-                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
                 onClick={(e) => {
                   e.stopPropagation()
                   setOpenDropdown(isOpen ? null : id)

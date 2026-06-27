@@ -59,13 +59,13 @@ function timeAgo(iso: string) {
 // ─── Quick actions ────────────────────────────────────────────────────────────
 
 const QUICK_ACTIONS = [
-  { label: "Create Task",    href: "/property-manager/work/tasks/new",   icon: ClipboardList, iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
-  { label: "Create Job",     href: "/property-manager/work/jobs/new",    icon: Briefcase,     iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
+  { label: "Create Task",    href: "/property-manager/work/tasks/new",   icon: ClipboardList, iconBg: "bg-[var(--brand-soft)]",    iconColor: "text-[var(--brand)]" },
+  { label: "Create Job",     href: "/property-manager/work/jobs/new",    icon: Briefcase,     iconBg: "bg-[var(--brand-soft)]",    iconColor: "text-[var(--brand)]" },
   { label: "Add Supplier",   href: "/property-manager/work/suppliers",   icon: UserPlus,      iconBg: "bg-emerald-50", iconColor: "text-emerald-600" },
   { label: "Request Quote",  href: "/property-manager/work/suppliers",   icon: FileText,      iconBg: "bg-amber-50",   iconColor: "text-amber-600" },
   { label: "Log Issue",      href: "/property-manager/work/tasks/new",   icon: AlertTriangle, iconBg: "bg-red-50",     iconColor: "text-red-600" },
   { label: "Complaints",     href: "/property-manager/work/complaints",  icon: MessageSquare, iconBg: "bg-orange-50",  iconColor: "text-orange-600" },
-  { label: "Calendar",       href: "/property-manager/calendar",         icon: Calendar,      iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
+  { label: "Calendar",       href: "/property-manager/calendar",         icon: Calendar,      iconBg: "bg-[var(--brand-soft)]",    iconColor: "text-[var(--brand)]" },
   { label: "Reports",        href: "/property-manager/work/reports",     icon: BarChart2,     iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
 ]
 
@@ -156,7 +156,7 @@ export default function WorkPage() {
           title: t.title,
           property: (t as any).properties?.name ?? t.property_id ?? "—",
           status: t.status === "in_progress" ? "In Progress" : t.status === "waiting" ? "Waiting" : "To Do",
-          statusColor: t.status === "in_progress" ? "bg-blue-50 text-blue-700" : t.status === "waiting" ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-600",
+          statusColor: t.status === "in_progress" ? "bg-[var(--brand-soft)] text-[var(--brand)]" : t.status === "waiting" ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-600",
         }
       })
   }, [tasks])
@@ -194,8 +194,8 @@ export default function WorkPage() {
       .slice(0, 5)
     return events.map(e => ({
       icon: e.done ? CheckCircle2 : ClipboardList,
-      bg: e.done ? "bg-emerald-50" : "bg-blue-50",
-      color: e.done ? "text-emerald-600" : "text-blue-600",
+      bg: e.done ? "bg-emerald-50" : "bg-[var(--brand-soft)]",
+      color: e.done ? "text-emerald-600" : "text-[var(--brand)]",
       text: e.text,
       initials: e.initials,
       time: timeAgo(e.ts!),
@@ -247,12 +247,12 @@ export default function WorkPage() {
 
   // ─── Build KPI strip ────────────────────────────────────────────────────
   const KPIS: WorkKpi[] = [
-    { icon: Briefcase,     iconBg: "bg-blue-50",    iconColor: "text-blue-600",    value: kpiValues.openWork,        label: "Open Work",        sub: hasLiveData ? "Live count" : "No data yet",    subColor: hasLiveData ? "text-emerald-600" : "text-slate-400", href: "/property-manager/work/tasks" },
+    { icon: Briefcase,     iconBg: "bg-[var(--brand-soft)]",    iconColor: "text-[var(--brand)]",    value: kpiValues.openWork,        label: "Open Work",        sub: hasLiveData ? "Live count" : "No data yet",    subColor: hasLiveData ? "text-emerald-600" : "text-slate-400", href: "/property-manager/work/tasks" },
     { icon: AlertTriangle, iconBg: "bg-red-50",     iconColor: "text-red-600",     value: kpiValues.overdue,         label: "Overdue",          sub: kpiValues.overdue > 0 ? `${kpiValues.overdue} critical` : "All on time", subColor: kpiValues.overdue > 0 ? "text-red-500" : "text-emerald-600", href: "/property-manager/work/tasks" },
     { icon: Clock,         iconBg: "bg-amber-50",   iconColor: "text-amber-600",   value: kpiValues.waitingSupplier, label: "Waiting Supplier", sub: "Chase required",                              subColor: "text-amber-600",  href: "/property-manager/work/jobs" },
     { icon: TrendingDown,  iconBg: "bg-red-50",     iconColor: "text-red-600",     value: kpiValues.revenueBlocking, label: "Revenue Blocking", sub: "High urgency",                                subColor: "text-red-500",    href: "/property-manager/work/tasks" },
     { icon: Receipt,       iconBg: "bg-violet-50",  iconColor: "text-violet-600",  value: kpiValues.invoicePending,  label: "Invoice Pending",  sub: "Awaiting payment",                            subColor: "text-slate-500",  href: "/property-manager/money" },
-    { icon: Calendar,      iconBg: "bg-blue-50",    iconColor: "text-blue-600",    value: kpiValues.dueThisWeek,     label: "Due This Week",    sub: "Next 7 days",                                 subColor: "text-amber-600",  href: "/property-manager/work/tasks" },
+    { icon: Calendar,      iconBg: "bg-[var(--brand-soft)]",    iconColor: "text-[var(--brand)]",    value: kpiValues.dueThisWeek,     label: "Due This Week",    sub: "Next 7 days",                                 subColor: "text-amber-600",  href: "/property-manager/work/tasks" },
     { icon: Briefcase,     iconBg: "bg-emerald-50", iconColor: "text-emerald-600", value: kpiValues.scheduledJobs,   label: "Scheduled Jobs",   sub: "Upcoming",                                    subColor: "text-slate-500",  href: "/property-manager/work/jobs" },
     { ring: true, ringColor: "#2563EB",              value: kpiValues.completionRate, label: "Completion Rate",      sub: hasLiveData ? "Tasks completed" : "No data yet",                          subColor: "text-emerald-600", href: "/property-manager/work/reports" },
   ]
@@ -300,7 +300,7 @@ export default function WorkPage() {
             <>
               <Link
                 href="/property-manager/work/tasks/new"
-                className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
+                className="inline-flex items-center gap-1.5 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
               >
                 <Plus className="w-4 h-4" /> Create Task
               </Link>
@@ -333,7 +333,7 @@ export default function WorkPage() {
             <h2 className="text-base font-semibold text-slate-900">Work Pipeline</h2>
             <Link
               href="/property-manager/work/board"
-              className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
+              className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] flex items-center gap-0.5"
             >
               View Board <ChevronRight className="w-3 h-3" />
             </Link>
@@ -346,7 +346,7 @@ export default function WorkPage() {
               <p className="text-sm text-slate-400">No tasks yet</p>
               <Link
                 href="/property-manager/work/tasks/new"
-                className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+                className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
               >
                 Create your first task →
               </Link>
@@ -422,7 +422,7 @@ export default function WorkPage() {
                     {item.status}
                   </p>
                 </div>
-                <span className="shrink-0 flex items-center gap-1 text-xs font-semibold text-[#2563EB]">
+                <span className="shrink-0 flex items-center gap-1 text-xs font-semibold text-[var(--brand)]">
                   Chase <ChevronRight className="w-3 h-3" />
                 </span>
               </Link>
@@ -431,7 +431,7 @@ export default function WorkPage() {
           {chaseItems.length > 0 && (
             <Link
               href="/property-manager/work/tasks"
-              className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+              className="mt-3 flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
             >
               View all overdue <ChevronRight className="w-3 h-3" />
             </Link>
@@ -444,7 +444,7 @@ export default function WorkPage() {
             <h2 className="text-base font-semibold text-slate-900">Next 7 Days</h2>
             <Link
               href="/property-manager/calendar"
-              className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
+              className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] flex items-center gap-0.5"
             >
               Calendar <ChevronRight className="w-3 h-3" />
             </Link>
@@ -458,8 +458,8 @@ export default function WorkPage() {
                 href={`/property-manager/work/tasks/${item.id}`}
                 className="flex items-center gap-2.5 hover:bg-slate-50 rounded-lg px-1 -mx-1 transition-colors"
               >
-                <div className="w-12 shrink-0 rounded-lg bg-blue-50 px-1 py-1 text-center">
-                  <p className="text-[9px] font-bold text-blue-600 leading-none">{item.date}</p>
+                <div className="w-12 shrink-0 rounded-lg bg-[var(--brand-soft)] px-1 py-1 text-center">
+                  <p className="text-[9px] font-bold text-[var(--brand)] leading-none">{item.date}</p>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold text-slate-800 truncate leading-tight">{item.title}</p>
@@ -485,7 +485,7 @@ export default function WorkPage() {
               <p className="text-xs text-slate-400">No supplier jobs yet</p>
               <Link
                 href="/property-manager/work/suppliers"
-                className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+                className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
               >
                 Add a supplier →
               </Link>
@@ -529,7 +529,7 @@ export default function WorkPage() {
           )}
           <Link
             href="/property-manager/work/suppliers"
-            className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+            className="mt-3 flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
           >
             View Suppliers <ChevronRight className="w-3 h-3" />
           </Link>
@@ -547,7 +547,7 @@ export default function WorkPage() {
                 <p className="text-sm font-semibold text-slate-800">{kpiValues.overdue} Overdue</p>
                 <p className="text-xs text-slate-500">Require immediate attention</p>
               </div>
-              <Link href="/property-manager/work/tasks" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
+              <Link href="/property-manager/work/tasks" className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] shrink-0">
                 View →
               </Link>
             </div>
@@ -559,19 +559,19 @@ export default function WorkPage() {
                 <p className="text-sm font-semibold text-slate-800">{kpiValues.dueThisWeek} Due This Week</p>
                 <p className="text-xs text-slate-500">Next 7 days</p>
               </div>
-              <Link href="/property-manager/work/tasks" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
+              <Link href="/property-manager/work/tasks" className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] shrink-0">
                 View →
               </Link>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                <Calendar className="w-4 h-4 text-blue-500" />
+              <div className="w-8 h-8 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                <Calendar className="w-4 h-4 text-[var(--brand)]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-slate-800">{kpiValues.scheduledJobs} Scheduled Jobs</p>
                 <p className="text-xs text-slate-500">Upcoming</p>
               </div>
-              <Link href="/property-manager/calendar" className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
+              <Link href="/property-manager/calendar" className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] shrink-0">
                 View →
               </Link>
             </div>
@@ -608,7 +608,7 @@ export default function WorkPage() {
           </div>
           <Link
             href="/property-manager/work/board"
-            className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+            className="mt-3 flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
           >
             View Board <ChevronRight className="w-3 h-3" />
           </Link>
@@ -623,7 +623,7 @@ export default function WorkPage() {
               <p className="text-xs text-slate-400">No job cost data yet</p>
               <Link
                 href="/property-manager/work/jobs/new"
-                className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+                className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
               >
                 Create a job →
               </Link>
@@ -649,17 +649,17 @@ export default function WorkPage() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="flex items-center gap-2 text-slate-600">
-                    <span className="w-2 h-2 rounded-full bg-blue-400 shrink-0" />
+                    <span className="w-2 h-2 rounded-full bg-[var(--color-brand-400)] shrink-0" />
                     Pending Quotes
                   </span>
-                  <span className="font-semibold text-blue-600">{fmt(costExposure.pending)}</span>
+                  <span className="font-semibold text-[var(--brand)]">{fmt(costExposure.pending)}</span>
                 </div>
               </div>
             </>
           )}
           <Link
             href="/property-manager/work/jobs"
-            className="mt-4 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+            className="mt-4 flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
           >
             View Financial Impact <ChevronRight className="w-3 h-3" />
           </Link>

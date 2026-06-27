@@ -92,7 +92,7 @@ function IntakeInner({ dispute, source }: { dispute: Dispute; source: 'live' | '
 
       {/* actions */}
       <div className="flex flex-wrap items-center gap-2">
-        <button onClick={() => fire('Intake saved')} className="inline-flex items-center gap-1.5 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700">
+        <button onClick={() => fire('Intake saved')} className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-[var(--brand-strong)]">
           <Save className="w-4 h-4" /> Save intake
         </button>
         <button onClick={() => fire('Evidence request sent')} className="inline-flex items-center gap-1.5 border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">

@@ -106,7 +106,7 @@ export default function ListingPreviewPanel({ listing, onClose }: ListingPreview
           <h3 className="text-xl font-bold text-slate-900">{listing.title}</h3>
           <p className="text-sm text-slate-500 mt-0.5">{listing.property_location}</p>
           <div className="flex gap-1.5 mt-2 flex-wrap">
-            <span className="bg-blue-50 text-blue-700 border border-blue-100 rounded-full text-xs px-2 py-0.5">
+            <span className="bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)] rounded-full text-xs px-2 py-0.5">
               {listing.listing_type === 'short_stay' ? 'Short stay' : 'Long-term'}
             </span>
             <span className="bg-slate-50 text-slate-600 border border-slate-100 rounded-full text-xs px-2 py-0.5">
@@ -162,7 +162,7 @@ export default function ListingPreviewPanel({ listing, onClose }: ListingPreview
             </div>
             <a
               href="#"
-              className="text-xs text-blue-600 hover:underline mt-1 flex items-center gap-1 truncate"
+              className="text-xs text-[var(--brand)] hover:underline mt-1 flex items-center gap-1 truncate"
             >
               propvora.com/listings/{listing.listing_reference.toLowerCase()}
               <ExternalLink className="w-3 h-3 shrink-0" />

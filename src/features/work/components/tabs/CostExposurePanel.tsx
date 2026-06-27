@@ -40,15 +40,15 @@ export function CostExposurePanel({ costExposure }: CostExposurePanelProps) {
         </div>
         <div className="flex items-center justify-between text-sm">
           <span className="flex items-center gap-2 text-slate-600">
-            <span className="w-2 h-2 rounded-full bg-blue-400 shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-[var(--color-brand-400)] shrink-0" />
             Pending Quotes
           </span>
-          <span className="font-semibold text-blue-600">{fmt(costExposure?.pending ?? 1220)}</span>
+          <span className="font-semibold text-[var(--brand)]">{fmt(costExposure?.pending ?? 1220)}</span>
         </div>
       </div>
       <Link
         href="/property-manager/work/jobs"
-        className="mt-4 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+        className="mt-4 flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
       >
         View Financial Impact <ChevronRight className="w-3 h-3" />
       </Link>

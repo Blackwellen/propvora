@@ -37,7 +37,7 @@ export default function ViewingsTab() {
   const selected = data.find((v) => v.id === selectedId) ?? data[0] ?? null
 
   const kpis = [
-    { id: "upcoming", label: "Upcoming viewings", value: data.filter((v) => v.status === "Upcoming").length, sub: "Awaiting", icon: Calendar, bg: "bg-blue-50 text-blue-600" },
+    { id: "upcoming", label: "Upcoming viewings", value: data.filter((v) => v.status === "Upcoming").length, sub: "Awaiting", icon: Calendar, bg: "bg-[var(--brand-soft)] text-[var(--brand)]" },
     { id: "confirmed", label: "Confirmed", value: data.filter((v) => v.status === "Confirmed").length, sub: "Booked in", icon: CheckCheck, bg: "bg-emerald-50 text-emerald-600" },
     { id: "completed", label: "Completed", value: data.filter((v) => v.status === "Completed").length, sub: "Viewed", icon: CheckCircle2, bg: "bg-violet-50 text-violet-600" },
     { id: "reschedule", label: "Reschedule requests", value: data.filter((v) => v.status === "Reschedule requested").length, sub: "Awaiting time", icon: RefreshCw, bg: "bg-amber-50 text-amber-600" },
@@ -64,7 +64,7 @@ export default function ViewingsTab() {
       <Calendar className="w-8 h-8 text-slate-300 mx-auto mb-2" />
       <p className="text-[14px] font-semibold text-slate-700">No viewings yet</p>
       <p className="text-[12.5px] text-slate-400 mt-1">Book a viewing from a rental listing and it'll appear here.</p>
-      <Link href="/customer/lets?tab=search" className="mt-3 inline-block text-[12.5px] font-semibold text-blue-600">Browse lets →</Link>
+      <Link href="/customer/lets?tab=search" className="mt-3 inline-block text-[12.5px] font-semibold text-[var(--brand)]">Browse lets →</Link>
     </div>
   )
 
@@ -84,13 +84,13 @@ export default function ViewingsTab() {
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-5 items-start">
         <div className="space-y-5">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">Your viewings</h3><div className="relative"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" /><input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-36" /></div></div>
+            <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">Your viewings</h3><div className="relative"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" /><input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)] w-36" /></div></div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead><tr className="text-[11px] uppercase tracking-wide text-slate-400 border-b border-slate-100"><th className="py-2 pr-2 font-semibold">Property</th><th className="py-2 px-2 font-semibold">Date &amp; time</th><th className="py-2 px-2 font-semibold">Agent</th><th className="py-2 px-2 font-semibold">Status</th><th className="py-2 px-2 font-semibold">Transport</th><th className="py-2 px-2 w-8"></th></tr></thead>
                 <tbody className="divide-y divide-slate-50">
                   {data.map((v) => { const active = v.id === selectedId; return (
-                    <tr key={v.id} onClick={() => setSelectedId(v.id)} className={cn("text-[12.5px] cursor-pointer", active ? "bg-blue-50/40 outline outline-2 -outline-offset-2 outline-blue-500" : "hover:bg-slate-50")}>
+                    <tr key={v.id} onClick={() => setSelectedId(v.id)} className={cn("text-[12.5px] cursor-pointer", active ? "bg-[var(--brand-soft)]/40 outline outline-2 -outline-offset-2 outline-[var(--brand)]" : "hover:bg-slate-50")}>
                       <td className="py-3 pr-2"><div className="flex items-center gap-2.5 min-w-[160px]">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={v.image} alt="" className="w-9 h-9 rounded-lg object-cover shrink-0" /><div className="min-w-0"><p className="font-semibold text-slate-800 truncate">{v.property}</p><p className="text-[11px] text-slate-400 truncate">{v.location}</p></div></div></td>
                       <td className="py-3 px-2 text-slate-600 whitespace-nowrap">{v.date}<span className="block text-[11px] text-slate-400">{v.time}</span></td>
                       <td className="py-3 px-2 text-slate-600">{v.agent}</td>
@@ -105,7 +105,7 @@ export default function ViewingsTab() {
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-            <h3 className="text-[14px] font-bold text-slate-900 mb-3 flex items-center gap-1.5"><ClipboardCheck className="w-4 h-4 text-blue-500" /> Viewing preparation checklist</h3>
+            <h3 className="text-[14px] font-bold text-slate-900 mb-3 flex items-center gap-1.5"><ClipboardCheck className="w-4 h-4 text-[var(--brand)]" /> Viewing preparation checklist</h3>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {PREP.map((p) => <li key={p} className="flex items-center gap-2 text-[12.5px] text-slate-600"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> {p}</li>)}
             </ul>

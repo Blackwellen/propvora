@@ -59,7 +59,7 @@ export default function StayCard({ stay, basePath = '/stays' }: StayCardProps) {
           <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
             {stay.instantBook && (
               <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-slate-800 backdrop-blur-sm shadow-sm">
-                <Zap className="h-3 w-3 text-blue-600" />
+                <Zap className="h-3 w-3 text-[var(--brand)]" />
                 Instant
               </span>
             )}

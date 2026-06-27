@@ -255,11 +255,11 @@ export default function EditInspectionPage() {
     <div className="space-y-0 pb-[120px] lg:pb-0">
       <div className="px-4 sm:px-6 pt-4 pb-2">
         <nav className="flex items-center gap-2 text-sm text-slate-500 flex-wrap">
-          <Link href="/property-manager/compliance" className="hover:text-[#2563EB] transition-colors">Compliance</Link>
+          <Link href="/property-manager/compliance" className="hover:text-[var(--brand)] transition-colors">Compliance</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link href="/property-manager/compliance/inspections" className="hover:text-[#2563EB] transition-colors">Inspections</Link>
+          <Link href="/property-manager/compliance/inspections" className="hover:text-[var(--brand)] transition-colors">Inspections</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link href={`/property-manager/compliance/inspections/${id}`} className="hover:text-[#2563EB] transition-colors">{typeLabel}</Link>
+          <Link href={`/property-manager/compliance/inspections/${id}`} className="hover:text-[var(--brand)] transition-colors">{typeLabel}</Link>
           <ChevronRight className="w-3.5 h-3.5" />
           <span className="text-slate-900 font-medium">Edit</span>
         </nav>
@@ -278,7 +278,7 @@ export default function EditInspectionPage() {
               <select
                 value={inspType}
                 onChange={(e) => setInspType(e.target.value)}
-                className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] max-h-60 overflow-y-auto"
+                className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] max-h-60 overflow-y-auto"
               >
                 {INSPECTION_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
@@ -290,7 +290,7 @@ export default function EditInspectionPage() {
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
                 placeholder="Any notes about this inspection…"
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] resize-none"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] resize-none"
               />
             </div>
           </div>
@@ -303,7 +303,7 @@ export default function EditInspectionPage() {
               <select
                 value={propertyId}
                 onChange={(e) => setPropertyId(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] max-h-60 overflow-y-auto"
+                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] max-h-60 overflow-y-auto"
               >
                 <option value="">{properties.length ? "Select property…" : "No properties found"}</option>
                 {properties.map((p) => <option key={p.id} value={p.id}>{p.name || p.address_line1 || "Property"}</option>)}
@@ -315,7 +315,7 @@ export default function EditInspectionPage() {
               <select
                 value={inspectorId}
                 onChange={(e) => setInspectorId(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] max-h-60 overflow-y-auto"
+                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] max-h-60 overflow-y-auto"
               >
                 <option value="">{liveContacts.length ? "Select inspector…" : "No contacts found"}</option>
                 {liveContacts.map((c) => <option key={c.id} value={c.id}>{c.full_name || c.company_name || "Contact"}</option>)}
@@ -328,7 +328,7 @@ export default function EditInspectionPage() {
                 <select
                   value={supplierId}
                   onChange={(e) => setSupplierId(e.target.value)}
-                  className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] max-h-60 overflow-y-auto"
+                  className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] max-h-60 overflow-y-auto"
                 >
                   <option value="">{liveContacts.length ? "Select supplier…" : "No contacts found"}</option>
                   {liveContacts.map((c) => <option key={c.id} value={c.id}>{c.full_name || c.company_name || "Contact"}</option>)}
@@ -346,7 +346,7 @@ export default function EditInspectionPage() {
               <select
                 value={scheduledTime}
                 onChange={(e) => setScheduledTime(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] max-h-60 overflow-y-auto"
+                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] max-h-60 overflow-y-auto"
               >
                 {["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"].map((t) => (
                   <option key={t} value={t}>{t}</option>
@@ -363,7 +363,7 @@ export default function EditInspectionPage() {
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as InspectionStatus)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] max-h-60 overflow-y-auto"
+                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] max-h-60 overflow-y-auto"
               >
                 {STATUS_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
               </select>

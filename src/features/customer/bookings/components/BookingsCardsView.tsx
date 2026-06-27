@@ -30,7 +30,7 @@ export default function BookingsCardsView({ rows, onSelect }: Props) {
             </div>
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
               <div><p className="text-[10.5px] text-slate-400">Total paid</p><p className="text-[14px] font-bold text-slate-900">{formatPence(b.totalPence, "GBP")}</p></div>
-              <Link href={`/customer/bookings/${b.id}`} onMouseEnter={() => onSelect(b.id)} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-blue-600 hover:text-blue-700">
+              <Link href={`/customer/bookings/${b.id}`} onMouseEnter={() => onSelect(b.id)} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">
                 View booking <ChevronRight className="w-4 h-4" />
               </Link>
             </div>

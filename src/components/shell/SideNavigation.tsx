@@ -124,7 +124,7 @@ const NAV_GROUPS: ShellNavGroup[] = [
     items: [
       { label: "Workspace", href: `${MANAGER_BASE}/workspace-settings`, icon: Settings },
       { label: "Billing", href: `${MANAGER_BASE}/workspace/billing`, icon: CreditCard },
-      { label: "Help & Support", href: `${MANAGER_BASE}/help`, icon: LifeBuoy },
+      { label: "Help & Support", href: `${MANAGER_BASE}/help`, icon: LifeBuoy, flag: "helpCentre" },
     ],
   },
 ]
@@ -143,6 +143,29 @@ function initialsOf(name: string): string {
   )
 }
 
+/** Map the workspace subscription state to a compact pill. Returns null for a
+ *  healthy active/free plan (no pill shown). "warn" = amber, "alert" = red. */
+function resolveSubState(
+  planStatus: string | null,
+  trialEndsAt: string | null,
+): { label: string; tone: "warn" | "alert" } | null {
+  const status = (planStatus ?? "").toLowerCase()
+  if (status === "past_due" || status === "unpaid") return { label: "Payment due", tone: "alert" }
+  if (status === "canceled" || status === "cancelled") return { label: "Cancelled", tone: "alert" }
+  if (status === "suspended") return { label: "Suspended", tone: "alert" }
+  if (status === "trialing" || status === "trial") {
+    if (trialEndsAt) {
+      const days = Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86_400_000)
+      if (Number.isFinite(days)) {
+        if (days <= 0) return { label: "Trial ended", tone: "alert" }
+        return { label: `Trial · ${days}d left`, tone: days <= 3 ? "alert" : "warn" }
+      }
+    }
+    return { label: "Trial", tone: "warn" }
+  }
+  return null
+}
+
 export default function SideNavigation({
   collapsed,
   onToggle,
@@ -159,11 +182,21 @@ export default function SideNavigation({
   // Resolve the active workspace config (defaults to Property Manager).
   const base = navConfig?.base ?? MANAGER_BASE
   const rawGroups: ShellNavGroup[] = navConfig?.groups ?? NAV_GROUPS
+  // Menu Builder: modules the workspace owner has hidden via Workspace Settings →
+  // Navigation. Matched by the nav item's href trailing segment (e.g. /work → "work").
+  const hiddenModules = new Set(workspace?.settings?.nav?.hiddenModules ?? [])
+  const moduleKeyOf = (href: string) => href.split("/").filter(Boolean).pop() ?? ""
   // Flag gating: drop items tagged with a `flag` that isn't enabled in navFlags,
-  // then drop any group left empty. With all V2/V1.5 flags off (default) this
-  // hides Bookings, Listings, Accounting (full GL) and Automations from V1.
+  // then drop any module hidden by the Menu Builder, then drop any group left
+  // empty. With all V2/V1.5 flags off (default) this hides Bookings, Listings,
+  // Accounting (full GL) and Automations from V1.
   const groups: ShellNavGroup[] = rawGroups
-    .map((g) => ({ ...g, items: g.items.filter((i) => !i.flag || navFlags?.[i.flag] === true) }))
+    .map((g) => ({
+      ...g,
+      items: g.items.filter(
+        (i) => (!i.flag || navFlags?.[i.flag] === true) && !hiddenModules.has(moduleKeyOf(i.href)),
+      ),
+    }))
     .filter((g) => g.items.length > 0)
   const workspaceHref = navConfig?.workspaceHref ?? `${MANAGER_BASE}/workspace-settings`
   const accountHref = navConfig?.accountHref ?? `${MANAGER_BASE}/account`
@@ -191,6 +224,10 @@ export default function SideNavigation({
 
   const workspaceName = workspace?.name ?? "Your workspace"
   const planLabel = workspace?.plan ? (PLAN_LABEL[workspace.plan] ?? "Active plan") : "—"
+  // Real subscription-state pill (no fabricated states) — driven by the workspace
+  // plan_status/trial_ends_at resolved server-side. Returns null for a healthy
+  // active/free plan so the card stays clean.
+  const subState = resolveSubState(workspace?.plan_status ?? null, workspace?.trial_ends_at ?? null)
 
   return (
     <aside
@@ -255,12 +292,26 @@ export default function SideNavigation({
             className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-white/[0.06] border border-white/[0.10] mb-2 hover:bg-white/[0.09] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38BDF8]/60"
             title="Workspace settings"
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center shrink-0 shadow-sm">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center shrink-0 shadow-sm">
               <Building2 className="w-4 h-4 text-white" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[12.5px] font-semibold text-white leading-tight truncate">{workspaceName}</p>
-              <p className="text-[10px] text-[#8EA9D8] mt-0.5 truncate">{planLabel}</p>
+              <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
+                <p className="text-[10px] text-[#8EA9D8] truncate">{planLabel}</p>
+                {subState && (
+                  <span
+                    className="shrink-0 rounded-full px-1.5 py-px text-[9px] font-semibold leading-none"
+                    style={
+                      subState.tone === "alert"
+                        ? { background: "rgba(248,113,113,0.18)", color: "#FCA5A5" }
+                        : { background: "rgba(251,191,36,0.18)", color: "#FCD34D" }
+                    }
+                  >
+                    {subState.label}
+                  </span>
+                )}
+              </div>
             </div>
             <ChevronRight className="w-3.5 h-3.5 text-[#8EA9D8] shrink-0" />
           </Link>
@@ -276,9 +327,8 @@ export default function SideNavigation({
             collapsed ? "px-2 py-2 justify-center" : "px-3 py-2.5"
           )}
         >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[12px] font-bold shrink-0 shadow-sm relative">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center text-white text-[12px] font-bold shrink-0 shadow-sm">
             {initialsOf(user.name)}
-            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#06142E]" />
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">

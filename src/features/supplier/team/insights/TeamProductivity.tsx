@@ -122,10 +122,10 @@ export function TeamProductivity() {
                 {AREAS.filter((a) => !a.covered).length > 0 && (
                   <li className="flex gap-2"><TrendingUp className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />{AREAS.filter((a) => !a.covered).length} uncovered area{AREAS.filter((a) => !a.covered).length === 1 ? "" : "s"} — consider expanding your coverage.</li>
                 )}
-                <li className="flex gap-2"><MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />Review worker route efficiency regularly to optimise scheduling.</li>
+                <li className="flex gap-2"><MapPin className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />Review worker route efficiency regularly to optimise scheduling.</li>
               </ul>
             )}
-            <button onClick={() => setToast("Opening coverage planner…")} className="mt-3 text-[12px] font-semibold text-blue-600 inline-flex items-center gap-0.5">Adjust coverage <ChevronRight className="w-3.5 h-3.5" /></button>
+            <button onClick={() => setToast("Opening coverage planner…")} className="mt-3 text-[12px] font-semibold text-[var(--brand)] inline-flex items-center gap-0.5">Adjust coverage <ChevronRight className="w-3.5 h-3.5" /></button>
           </SupplierCard>
         </div>
       </div>
@@ -134,6 +134,6 @@ export function TeamProductivity() {
 }
 
 function Mini({ label, value, tone }: { label: string; value: string; tone: "blue" | "emerald" | "red" | "slate" }) {
-  const c = tone === "blue" ? "text-[#2563EB]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : "text-slate-900"
+  const c = tone === "blue" ? "text-[var(--brand)]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : "text-slate-900"
   return <SupplierCard className="p-3.5"><span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span><p className={cn("text-lg font-bold mt-1", c)}>{value}</p></SupplierCard>
 }

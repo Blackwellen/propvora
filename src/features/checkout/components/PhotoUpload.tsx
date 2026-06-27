@@ -76,7 +76,7 @@ export function PhotoUpload({
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="flex aspect-square min-h-[88px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-[#CBD8EE] bg-[#F7FAFF] text-[#2563EB] transition-colors hover:border-[#2563EB] hover:bg-[#EFF5FF]"
+            className="flex aspect-square min-h-[88px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-[#CBD8EE] bg-[#F7FAFF] text-[var(--brand)] transition-colors hover:border-[var(--brand)] hover:bg-[#EFF5FF]"
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm">
               {photos.length === 0 ? <Camera className="h-5 w-5" /> : <ImagePlus className="h-5 w-5" />}

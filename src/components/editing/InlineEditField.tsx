@@ -76,8 +76,8 @@ export interface InlineEditFieldProps {
 
 /** Shared input styling — Propvora navy/blue, focus ring, no dark classes. */
 const inputBase =
-  "text-[13px] border border-[#2563EB] rounded-lg px-2.5 py-1.5 bg-white text-slate-900 w-full " +
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/25 focus:ring-2 focus:ring-[#2563EB]/20"
+  "text-[13px] border border-[var(--brand)] rounded-lg px-2.5 py-1.5 bg-white text-slate-900 w-full " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/25 focus:ring-2 focus:ring-[var(--brand)]/20"
 
 export function InlineEditField({
   value,
@@ -183,7 +183,7 @@ export function InlineEditField({
           aria-label={ariaLabel}
           className={cn(
             "inline-flex items-center gap-1 text-left rounded-md cursor-text",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30",
             "hover:bg-slate-50 transition-colors px-0.5 -mx-0.5"
           )}
         >
@@ -195,8 +195,8 @@ export function InlineEditField({
           aria-label={ariaLabel}
           className={cn(
             "shrink-0 inline-flex items-center justify-center rounded-md text-slate-400",
-            "hover:text-[#2563EB] hover:bg-[#2563EB]/8 transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30",
+            "hover:text-[var(--brand)] hover:bg-[var(--brand)]/8 transition-colors",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30",
             // ≥44px touch target on mobile; compact on desktop.
             isMobile ? "w-9 h-9" : "w-6 h-6"
           )}
@@ -294,9 +294,9 @@ export function InlineEditField({
       disabled={saving}
       aria-label="Save"
       className={cn(
-        "rounded-lg bg-[#2563EB] text-white flex items-center justify-center gap-1.5",
-        "hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 shrink-0",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+        "rounded-lg bg-[var(--brand)] text-white flex items-center justify-center gap-1.5",
+        "hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-50 shrink-0",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40",
         wide ? "h-11 px-4 text-[13px] font-semibold flex-1" : isMobile ? "w-11 h-11" : "w-7 h-7"
       )}
     >
@@ -338,7 +338,7 @@ export function InlineEditField({
             type="button"
             onClick={enterEdit}
             aria-label={ariaLabel}
-            className="shrink-0 w-9 h-9 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-[#2563EB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30"
+            className="shrink-0 w-9 h-9 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30"
           >
             <Pencil className="w-4 h-4" />
           </button>

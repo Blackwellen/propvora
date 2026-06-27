@@ -22,7 +22,7 @@ const TYPE_LABEL: Record<LedgerAccountType, string> = {
   asset: "Assets", liability: "Liabilities", equity: "Equity", income: "Income", expense: "Expenses",
 }
 const TYPE_STYLES: Record<LedgerAccountType, { border: string; bg: string; text: string; chip: string }> = {
-  asset: { border: "border-blue-500", bg: "bg-blue-50", text: "text-blue-700", chip: "bg-blue-100 text-blue-700" },
+  asset: { border: "border-[var(--brand)]", bg: "bg-[var(--brand-soft)]", text: "text-[var(--brand)]", chip: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   liability: { border: "border-red-500", bg: "bg-red-50", text: "text-red-700", chip: "bg-red-100 text-red-700" },
   equity: { border: "border-violet-500", bg: "bg-violet-50", text: "text-violet-700", chip: "bg-violet-100 text-violet-700" },
   income: { border: "border-emerald-500", bg: "bg-emerald-50", text: "text-emerald-700", chip: "bg-emerald-100 text-emerald-700" },
@@ -111,7 +111,7 @@ export default function ChartOfAccountsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by code or name..."
-          className="h-9 w-full md:w-72 px-3 rounded-xl border border-[#E2E8F0] text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+          className="h-9 w-full md:w-72 px-3 rounded-xl border border-[#E2E8F0] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
         />
         <div className="hidden md:flex items-center gap-2">
           <Button variant="outline" size="sm" leftIcon={<Download className="w-3.5 h-3.5" />} onClick={exportCsv} disabled={accounts.length === 0}>
@@ -131,8 +131,8 @@ export default function ChartOfAccountsPage() {
         </div>
       ) : accounts.length === 0 ? (
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-12 flex flex-col items-center gap-3 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-            <Plus className="w-5 h-5 text-[#2563EB]" />
+          <div className="w-12 h-12 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center">
+            <Plus className="w-5 h-5 text-[var(--brand)]" />
           </div>
           <p className="text-sm font-semibold text-slate-700">No accounts yet</p>
           <p className="text-xs text-slate-500 max-w-sm">
@@ -216,7 +216,7 @@ function AccountTypeSection({
                 <tr key={a.id} className={cn("border-b border-[#E2E8F0] hover:bg-slate-50/60 transition-colors", idx === accounts.length - 1 && "border-0")}>
                   <td className="px-5 py-3"><span className="font-mono text-[13px] font-semibold text-slate-700">{a.code}</span></td>
                   <td className="px-4 py-3">
-                    <Link href={sectionLink(`/property-manager/accounting/ledger/accounts/${a.id}`)} className="text-[13px] font-medium text-slate-900 hover:text-[#2563EB]">
+                    <Link href={sectionLink(`/property-manager/accounting/ledger/accounts/${a.id}`)} className="text-[13px] font-medium text-slate-900 hover:text-[var(--brand)]">
                       {a.name}
                     </Link>
                     {a.is_system && <span className="ml-2 text-[10px] text-slate-500">system</span>}

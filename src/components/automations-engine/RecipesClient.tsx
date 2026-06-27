@@ -67,7 +67,7 @@ export default function RecipesClient() {
           {visible.map((r) => (
             <div key={r.slug} className="flex flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
               <div className="flex items-start justify-between gap-2">
-                <span className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 text-white"><Sparkles className="h-4 w-4" /></span>
+                <span className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-[var(--brand)] to-violet-500 text-white"><Sparkles className="h-4 w-4" /></span>
                 {r.recommended && <span className="rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-700">Recommended</span>}
               </div>
               <h3 className="mt-3 text-sm font-semibold text-slate-900">{r.name}</h3>
@@ -78,7 +78,7 @@ export default function RecipesClient() {
                 <span className="rounded bg-slate-100 px-1.5 py-0.5">{r.nodeCount} nodes</span>
               </div>
               <button onClick={() => install(r.slug)} disabled={busy === r.slug}
-                className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+                className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--brand)] px-3 py-2 text-sm font-medium text-white hover:bg-[var(--brand-strong)] disabled:opacity-50">
                 {busy === r.slug ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Install draft
               </button>
             </div>

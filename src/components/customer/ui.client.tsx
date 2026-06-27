@@ -48,7 +48,7 @@ export function CustomerTabs({
             aria-selected={isActive}
             onClick={() => onChange(t.key)}
             className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40",
               isActive ? "bg-[#0D1B2A] text-white" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
             )}
           >
@@ -93,7 +93,7 @@ export function CustomerButton({
   className?: string
 }) {
   const variants: Record<string, string> = {
-    primary: "bg-[#2563EB] text-white hover:bg-[#1d4ed8] disabled:opacity-50",
+    primary: "bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-50",
     secondary: "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50",
     ghost: "text-slate-600 hover:bg-slate-100 disabled:opacity-50",
     danger: "bg-red-600 text-white hover:bg-red-700 disabled:opacity-50",
@@ -108,7 +108,7 @@ export function CustomerButton({
       onClick={onClick}
       disabled={disabled || loading}
       className={cn(
-        "inline-flex items-center justify-center font-semibold transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+        "inline-flex items-center justify-center font-semibold transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40",
         variants[variant],
         sizes[size],
         className

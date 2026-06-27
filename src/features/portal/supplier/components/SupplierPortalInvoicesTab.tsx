@@ -100,7 +100,7 @@ export function SupplierPortalInvoicesTab({
         </Card>
         <Card className="p-4 rounded-2xl border-slate-200">
           <p className="text-xs text-slate-500 mb-1">Approved</p>
-          <p className="text-xl font-bold text-[#2563EB]">{formatMoney(totalApproved)}</p>
+          <p className="text-xl font-bold text-[var(--brand)]">{formatMoney(totalApproved)}</p>
           <p className="text-xs text-slate-400">Ready for payout</p>
         </Card>
         <Card className="p-4 rounded-2xl border-slate-200">
@@ -128,7 +128,7 @@ export function SupplierPortalInvoicesTab({
               className={cn(
                 "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
                 statusFilter === s
-                  ? "bg-[#2563EB] text-white"
+                  ? "bg-[var(--brand)] text-white"
                   : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
               )}
             >
@@ -177,7 +177,7 @@ export function SupplierPortalInvoicesTab({
                       <td className="px-4 py-3 font-mono text-xs font-medium">
                         <Link
                           href={`/portal/${session.id}/supplier/invoices/${inv.id}`}
-                          className="text-[#2563EB] hover:underline"
+                          className="text-[var(--brand)] hover:underline"
                         >
                           {inv.invoice_number || inv.id.slice(0, 8).toUpperCase()}
                         </Link>

@@ -85,7 +85,7 @@ export function ServiceWizard({
         <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Live preview</p>
         <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center"><Wrench className="w-4 h-4 text-blue-600" /></div>
+            <div className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center"><Wrench className="w-4 h-4 text-[var(--brand)]" /></div>
             <p className="text-sm font-semibold text-slate-900 truncate">{form.name || "Untitled service"}</p>
           </div>
           {form.category && <p className="text-xs text-slate-400 mt-2">{form.category}</p>}

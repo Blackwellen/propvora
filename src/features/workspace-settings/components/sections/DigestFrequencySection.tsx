@@ -31,11 +31,11 @@ export function DigestFrequencySection({ frequency, onChange }: DigestFrequencyS
             onClick={() => onChange(opt.value)}
             className={`text-left p-4 rounded-xl border-2 transition-all ${
               frequency === opt.value
-                ? "border-[#2563EB] bg-blue-50"
+                ? "border-[var(--brand)] bg-[var(--brand-soft)]"
                 : "border-slate-200 bg-white hover:border-slate-300"
             }`}
           >
-            <p className={`text-[13px] font-semibold ${frequency === opt.value ? "text-[#2563EB]" : "text-slate-800"}`}>
+            <p className={`text-[13px] font-semibold ${frequency === opt.value ? "text-[var(--brand)]" : "text-slate-800"}`}>
               {opt.label}
             </p>
             <p className="text-[11.5px] text-slate-400 mt-0.5">{opt.description}</p>

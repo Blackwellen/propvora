@@ -29,7 +29,7 @@ export function ComplianceKpiStrip({ data }: ComplianceKpiStripProps) {
       sub: total === 0 && !loading ? "No items tracked yet" : `${compliant} compliant`,
     },
     {
-      label: "Properties Tracked",  icon: Building2,     iconBg: "bg-blue-100",    iconColor: "text-blue-600",
+      label: "Properties Tracked",  icon: Building2,     iconBg: "bg-[var(--color-brand-100)]",    iconColor: "text-[var(--brand)]",
       value: loading ? "—" : String(trackedProperties),
       sub: trackedProperties === 0 && !loading ? "Link items to properties" : "With compliance items",
     },

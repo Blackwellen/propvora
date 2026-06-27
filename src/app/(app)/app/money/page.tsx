@@ -131,7 +131,7 @@ function AddIncomeModal({ onClose, workspaceId, onSaved }: { onClose: () => void
               name="income_type"
               value={form.income_type}
               onChange={handleChange}
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             >
               <option value="">Select type…</option>
               {INCOME_TYPES.map((t) => (
@@ -151,7 +151,7 @@ function AddIncomeModal({ onClose, workspaceId, onSaved }: { onClose: () => void
               value={form.amount}
               onChange={handleChange}
               placeholder="0.00"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -161,7 +161,7 @@ function AddIncomeModal({ onClose, workspaceId, onSaved }: { onClose: () => void
               type="date"
               value={form.date}
               onChange={handleChange}
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -172,7 +172,7 @@ function AddIncomeModal({ onClose, workspaceId, onSaved }: { onClose: () => void
               onChange={handleChange}
               rows={2}
               placeholder="Optional note…"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] resize-none"
             />
           </div>
         </div>
@@ -188,7 +188,7 @@ function AddIncomeModal({ onClose, workspaceId, onSaved }: { onClose: () => void
             <button
               onClick={handleSave}
               disabled={saving}
-              className="px-4 py-2 text-sm font-medium text-white bg-[#2563EB] hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60"
+              className="px-4 py-2 text-sm font-medium text-white bg-[var(--brand)] hover:bg-[var(--brand-strong)] rounded-lg transition-colors disabled:opacity-60"
             >
               {saving ? "Saving…" : "Save Income"}
             </button>
@@ -221,8 +221,8 @@ function ActivityRowIcon({ eventType }: { eventType: string }) {
       </div>
     )
   return (
-    <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-      <FileText className="w-4 h-4 text-blue-600" />
+    <div className="w-9 h-9 rounded-full bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+      <FileText className="w-4 h-4 text-[var(--brand)]" />
     </div>
   )
 }
@@ -340,8 +340,8 @@ export default function MoneyOverviewPage() {
         },
         overview.bills.awaitingReview > 0 && {
           id: "att-bill",
-          icon: <Receipt className="w-4 h-4 text-blue-600" />,
-          iconBg: "bg-blue-50",
+          icon: <Receipt className="w-4 h-4 text-[var(--brand)]" />,
+          iconBg: "bg-[var(--brand-soft)]",
           title: "Bills awaiting review",
           subtitle: `${overview.bills.awaitingReview} pending approval`,
           href: "/property-manager/money/bills",
@@ -393,7 +393,7 @@ export default function MoneyOverviewPage() {
             <>
               <button
                 onClick={() => setShowAddModal(true)}
-                className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
+                className="inline-flex items-center gap-1.5 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors"
               >
                 <Plus className="w-4 h-4" /> Add Income
               </button>
@@ -452,8 +452,8 @@ export default function MoneyOverviewPage() {
             value={fmtGBP(netCashflow)}
             trendUp={netCashflow >= 0}
             icon={<BarChart3 className="w-5 h-5" />}
-            iconBg="bg-blue-50"
-            iconColor="text-blue-600"
+            iconBg="bg-[var(--brand-soft)]"
+            iconColor="text-[var(--brand)]"
           />
           <MoneyKpiCard
             label="Outstanding Invoices"
@@ -529,7 +529,7 @@ export default function MoneyOverviewPage() {
               {accountingEnabled && (
                 <p className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500">
                   For full ledgers, journals and reports, see{" "}
-                  <Link href="/property-manager/accounting" className="text-[#2563EB] font-medium hover:underline">Accounting</Link>.
+                  <Link href="/property-manager/accounting" className="text-[var(--brand)] font-medium hover:underline">Accounting</Link>.
                 </p>
               )}
             </div>
@@ -587,7 +587,7 @@ export default function MoneyOverviewPage() {
                   <h2 className="text-base font-semibold text-slate-900">Recent Financial Activity</h2>
                   <p className="text-xs text-slate-500 mt-0.5">Latest events across Money</p>
                 </div>
-                <Link href="/property-manager/money/activity" className="text-xs font-medium text-[#2563EB] hover:underline flex items-center gap-1">
+                <Link href="/property-manager/money/activity" className="text-xs font-medium text-[var(--brand)] hover:underline flex items-center gap-1">
                   View all activity <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -666,7 +666,7 @@ export default function MoneyOverviewPage() {
                 {[
                   { label: "Income", href: "/property-manager/money/income", icon: <TrendingUp className="w-4 h-4 text-emerald-600" /> },
                   { label: "Expenses", href: "/property-manager/money/expenses", icon: <TrendingDown className="w-4 h-4 text-red-500" /> },
-                  { label: "Invoices", href: "/property-manager/money/invoices", icon: <FileText className="w-4 h-4 text-blue-600" /> },
+                  { label: "Invoices", href: "/property-manager/money/invoices", icon: <FileText className="w-4 h-4 text-[var(--brand)]" /> },
                   { label: "Bills & Supplier Pay", href: "/property-manager/money/bills", icon: <Receipt className="w-4 h-4 text-amber-600" /> },
                   { label: "Arrears", href: "/property-manager/money/arrears", icon: <AlertTriangle className="w-4 h-4 text-orange-600" /> },
                   { label: "Deposits", href: "/property-manager/money/deposits", icon: <Home className="w-4 h-4 text-violet-600" /> },
@@ -689,7 +689,7 @@ export default function MoneyOverviewPage() {
               <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
                 <h3 className="text-sm font-semibold text-slate-900 mb-1">Accounting</h3>
                 <p className="text-xs text-slate-500 mb-3">Ledger, journals, P&amp;L and tax reporting live in Accounting.</p>
-                <Link href="/property-manager/accounting" className="text-xs font-medium text-[#2563EB] hover:underline flex items-center gap-1">
+                <Link href="/property-manager/accounting" className="text-xs font-medium text-[var(--brand)] hover:underline flex items-center gap-1">
                   Open Accounting <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>

@@ -44,7 +44,7 @@ export function AccountingFilterBar({
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="w-full h-9 pl-9 pr-3 rounded-lg border border-[#E2E8F0] bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+          className="w-full h-9 pl-9 pr-3 rounded-lg border border-[#E2E8F0] bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
         />
       </div>
       {filters.map((f) => (
@@ -52,7 +52,7 @@ export function AccountingFilterBar({
           <select
             value={f.value}
             onChange={(e) => f.onChange(e.target.value)}
-            className="h-9 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-sm text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] cursor-pointer"
+            className="h-9 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-sm text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] cursor-pointer"
           >
             <option value="">{f.placeholder}</option>
             {f.options.map((o) => (

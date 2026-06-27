@@ -168,7 +168,7 @@ export default function WebhookManager() {
         </div>
         <button
           onClick={() => { setShowCreate(true); setReveal(null) }}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-blue-700"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-3.5 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-[var(--brand-strong)]"
         >
           <Plus className="h-4 w-4" /> New webhook
         </button>
@@ -226,16 +226,16 @@ export default function WebhookManager() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Zapier — new enquiry"
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[var(--color-brand-400)] focus:ring-2 focus:ring-[var(--color-brand-100)]"
               />
             </div>
             <label className="flex items-start gap-2 text-sm text-slate-600">
-              <input type="checkbox" checked={withSecret} onChange={(e) => setWithSecret(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600" />
+              <input type="checkbox" checked={withSecret} onChange={(e) => setWithSecret(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[var(--brand)]" />
               <span>Require a signing secret <span className="text-slate-400">(recommended — adds an HMAC-style check on top of the unguessable URL token)</span></span>
             </label>
             <div className="flex justify-end gap-2">
               <button onClick={() => setShowCreate(false)} className="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
-              <button onClick={create} disabled={creating || !name.trim()} className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+              <button onClick={create} disabled={creating || !name.trim()} className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-3.5 py-2 text-sm font-medium text-white hover:bg-[var(--brand-strong)] disabled:opacity-50">
                 {creating ? "Creating…" : "Create webhook"}
               </button>
             </div>
@@ -251,7 +251,7 @@ export default function WebhookManager() {
           title="No inbound webhooks yet"
           body="Create an endpoint to let external systems (Zapier, Make, your own apps) trigger an automation by calling a secure URL."
           action={
-            <button onClick={() => setShowCreate(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-blue-700">
+            <button onClick={() => setShowCreate(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-3.5 py-2 text-sm font-medium text-white hover:bg-[var(--brand-strong)]">
               <Plus className="h-4 w-4" /> New webhook
             </button>
           }
@@ -313,7 +313,7 @@ function EndpointRow({ ep, busy, onToggle, onRemove, onOpen }: {
 }) {
   return (
     <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${ep.active ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-400"}`}><Webhook className="h-4 w-4" /></span>
+      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${ep.active ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "bg-slate-100 text-slate-400"}`}><Webhook className="h-4 w-4" /></span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="truncate text-sm font-semibold text-slate-900">{ep.name}</span>
@@ -367,7 +367,7 @@ function DeliveriesPanel({ endpoint, deliveries, loading, onClose }: {
                   <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500">
                     {d.source_ip && <span>from {d.source_ip}</span>}
                     {d.run_id && (
-                      <a href={`/property-manager/automations/runs/${d.run_id}`} className="inline-flex items-center gap-0.5 text-blue-600 hover:text-blue-700">
+                      <a href={`/property-manager/automations/runs/${d.run_id}`} className="inline-flex items-center gap-0.5 text-[var(--brand)] hover:text-[var(--brand)]">
                         view run <ChevronRight className="h-3 w-3" />
                       </a>
                     )}

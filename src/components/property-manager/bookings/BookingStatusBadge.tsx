@@ -15,7 +15,7 @@ const STATUS_CONFIG: Record<BookingStatus, { label: string; className: string }>
   },
   checked_in: {
     label: 'Checked in',
-    className: 'bg-blue-50 text-blue-700 border border-blue-200',
+    className: 'bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]',
   },
   checked_out: {
     label: 'Checked out',
@@ -31,7 +31,7 @@ const STATUS_CONFIG: Record<BookingStatus, { label: string; className: string }>
   },
   active: {
     label: 'Active',
-    className: 'bg-blue-50 text-blue-700 border border-blue-200',
+    className: 'bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]',
   },
 }
 

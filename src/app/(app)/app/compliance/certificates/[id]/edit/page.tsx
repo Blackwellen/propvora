@@ -133,7 +133,7 @@ function Input({ value, onChange, placeholder, type = "text" }: { value: string;
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] bg-white"
+      className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] bg-white"
     />
   )
 }
@@ -143,7 +143,7 @@ function SelectInput({ value, onChange, children }: { value: string; onChange: (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] bg-white max-h-60 overflow-y-auto"
+      className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] bg-white max-h-60 overflow-y-auto"
     >
       {children}
     </select>
@@ -392,7 +392,7 @@ export default function EditCertificatePage() {
                 onChange={(e) => update({ notes: e.target.value })}
                 placeholder="Any additional notes about this certificate..."
                 rows={3}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] bg-white resize-none"
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] bg-white resize-none"
               />
             </div>
           </div>
@@ -433,9 +433,9 @@ export default function EditCertificatePage() {
             </div>
           </div>
           {state.issueDate && state.expiryDate && (
-            <div className="mt-3 flex items-center gap-2 px-4 py-2.5 bg-[#EFF6FF] rounded-lg border border-[#BFDBFE]">
-              <RefreshCw className="w-4 h-4 text-[#2563EB]" />
-              <span className="text-sm font-medium text-[#2563EB]">Certificate valid for: <strong>{duration}</strong></span>
+            <div className="mt-3 flex items-center gap-2 px-4 py-2.5 bg-[var(--brand-soft)] rounded-lg border border-[#BFDBFE]">
+              <RefreshCw className="w-4 h-4 text-[var(--brand)]" />
+              <span className="text-sm font-medium text-[var(--brand)]">Certificate valid for: <strong>{duration}</strong></span>
             </div>
           )}
         </SectionCard>

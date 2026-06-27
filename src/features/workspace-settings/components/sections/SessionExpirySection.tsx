@@ -41,7 +41,7 @@ export function SessionExpirySection({ values, onChange }: SessionExpirySectionP
               max={max}
               value={values[field] as number}
               onChange={(e) => onChange(field, parseInt(e.target.value) || min)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 focus:outline-none focus:border-[#2563EB] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 focus:outline-none focus:border-[var(--brand)] transition-all"
             />
           </div>
         ))}

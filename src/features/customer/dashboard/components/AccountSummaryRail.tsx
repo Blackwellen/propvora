@@ -21,7 +21,7 @@ export default function AccountSummaryRail() {
     <Card>
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-[15px] font-bold text-slate-900">Account summary</h3>
-        <Link href="/customer/account-settings" className="text-[12.5px] font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1">
+        <Link href="/customer/account-settings" className="text-[12.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand)] inline-flex items-center gap-1">
           View profile <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>

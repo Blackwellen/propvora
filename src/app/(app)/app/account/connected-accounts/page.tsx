@@ -1,34 +1,15 @@
 "use client"
 
-import { Globe, Link2 } from "lucide-react"
+import { useState } from "react"
+import { Globe, Link2, Loader2 } from "lucide-react"
+import { useAuthIdentities, linkProvider, unlinkIdentity, type DisplayIdentity } from "@/lib/account/identities"
+import ConfirmDialog from "@/components/account/ConfirmDialog"
 
-type Provider = {
-  id: string
-  name: string
-  desc: string
-  status: "connected" | "not_connected"
-  email: string | null
-  colour: string
-}
-
-const PROVIDERS: Provider[] = [
-  {
-    id: "google",
-    name: "Google",
-    desc: "Sign in with Google, sync calendar and contacts",
-    status: "not_connected",
-    email: null,
-    colour: "#EA4335",
-  },
-  {
-    id: "apple",
-    name: "Apple",
-    desc: "Sign in with Apple ID",
-    status: "not_connected",
-    email: null,
-    colour: "#1C1C1E",
-  },
-]
+/** OAuth providers Propvora supports linking. Real link state comes from Supabase. */
+const SUPPORTED = [
+  { id: "google", name: "Google", desc: "Sign in with Google" },
+  { id: "apple",  name: "Apple",  desc: "Sign in with your Apple ID" },
+] as const
 
 function GoogleIcon() {
   return (
@@ -50,12 +31,40 @@ function AppleIcon() {
 }
 
 function ProviderIcon({ id }: { id: string }) {
-  if (id === "google")    return <GoogleIcon />
-  if (id === "apple")     return <AppleIcon />
+  if (id === "google") return <GoogleIcon />
+  if (id === "apple")  return <AppleIcon />
   return <Globe className="w-5 h-5 text-slate-500" />
 }
 
 export default function ConnectedAccountsPage() {
+  const { identities, loading, error, refresh } = useAuthIdentities()
+  const [busyId, setBusyId] = useState<string | null>(null)
+  const [rowError, setRowError] = useState<{ id: string; text: string } | null>(null)
+  const [disconnectTarget, setDisconnectTarget] = useState<DisplayIdentity | null>(null)
+  const [disconnecting, setDisconnecting] = useState(false)
+
+  const linkedByProvider = new Map(identities.map(i => [i.provider, i]))
+
+  async function handleConnect(providerId: string) {
+    setBusyId(providerId); setRowError(null)
+    const res = await linkProvider(providerId)
+    if (!res.ok) { setRowError({ id: providerId, text: res.error ?? "Could not connect." }); setBusyId(null) }
+    else { await refresh(); setBusyId(null) }
+  }
+
+  async function handleDisconnect() {
+    if (!disconnectTarget) return
+    setDisconnecting(true); setRowError(null)
+    const res = await unlinkIdentity(disconnectTarget.raw)
+    setDisconnecting(false)
+    if (!res.ok) {
+      setRowError({ id: disconnectTarget.provider, text: res.error ?? "Could not disconnect." })
+    } else {
+      await refresh()
+    }
+    setDisconnectTarget(null)
+  }
+
   return (
     <div>
       <div className="mb-6">
@@ -65,57 +74,95 @@ export default function ConnectedAccountsPage() {
         </p>
       </div>
 
+      {error && (
+        <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12.5px] text-amber-700">
+          {error}
+        </div>
+      )}
+
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
         <div className="flex items-center gap-2 mb-5">
-          <div style={{ color: "var(--brand)" }}>
+          <div style={{ color: "#2563EB" }}>
             <Link2 className="w-4 h-4" />
           </div>
           <h3 className="text-[14px] font-bold text-slate-900">OAuth Providers</h3>
         </div>
 
-        {PROVIDERS.map(provider => (
-          <div
-            key={provider.id}
-            className="flex items-center justify-between py-4 border-b border-slate-100 last:border-0"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-                <ProviderIcon id={provider.id} />
-              </div>
-              <div>
-                <p className="text-[13px] font-semibold text-slate-800">{provider.name}</p>
-                <p className="text-[11.5px] text-slate-400">{provider.desc}</p>
-                {provider.email ? (
-                  <p className="text-[11px] text-emerald-600 font-medium mt-0.5">
-                    Connected as {provider.email}
-                  </p>
-                ) : (
-                  <p className="text-[11px] text-slate-400 mt-0.5">Not connected</p>
-                )}
-              </div>
-            </div>
-            <div>
-              {provider.status === "connected" ? (
-                <button className="px-3 py-1.5 rounded-lg border border-red-200 text-[11.5px] font-medium text-red-600 hover:bg-red-50 transition-colors">
-                  Disconnect
-                </button>
-              ) : (
-                <button className="px-3 py-1.5 rounded-lg border border-slate-200 text-[11.5px] font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-                  Connect
-                </button>
-              )}
-            </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-5 h-5 animate-spin text-slate-300" />
           </div>
-        ))}
+        ) : (
+          SUPPORTED.map(provider => {
+            const linked = linkedByProvider.get(provider.id)
+            const busy = busyId === provider.id
+            return (
+              <div
+                key={provider.id}
+                className="flex items-center justify-between py-4 border-b border-slate-100 last:border-0"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+                    <ProviderIcon id={provider.id} />
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-semibold text-slate-800">{provider.name}</p>
+                    <p className="text-[11.5px] text-slate-400">{provider.desc}</p>
+                    {linked ? (
+                      <p className="text-[11px] text-emerald-600 font-medium mt-0.5">
+                        Connected{linked.email ? ` as ${linked.email}` : ""}
+                      </p>
+                    ) : (
+                      <p className="text-[11px] text-slate-400 mt-0.5">Not connected</p>
+                    )}
+                    {rowError?.id === provider.id && (
+                      <p className="text-[11px] text-red-500 mt-0.5">{rowError.text}</p>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  {linked ? (
+                    <button
+                      onClick={() => setDisconnectTarget(linked)}
+                      className="px-3 py-1.5 rounded-lg border border-red-200 text-[11.5px] font-medium text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      Disconnect
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleConnect(provider.id)}
+                      disabled={busy}
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 text-[11.5px] font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-60 flex items-center gap-1.5"
+                    >
+                      {busy && <Loader2 className="w-3 h-3 animate-spin" />}
+                      Connect
+                    </button>
+                  )}
+                </div>
+              </div>
+            )
+          })
+        )}
       </div>
 
       <div className="bg-slate-50 rounded-2xl border border-slate-200 p-5">
         <p className="text-[12.5px] text-slate-500">
           <span className="font-semibold text-slate-700">Administrator note:</span>{" "}
-          Contact your workspace administrator to configure OAuth providers for your organisation.
-          Connecting providers here will allow single sign-on once configured.
+          Single sign-on providers must be enabled for your organisation before they can be connected.
+          Connecting a provider here lets you use it for single sign-on once configured.
         </p>
       </div>
+
+      <ConfirmDialog
+        open={disconnectTarget !== null}
+        title={`Disconnect ${disconnectTarget ? (SUPPORTED.find(s => s.id === disconnectTarget.provider)?.name ?? disconnectTarget.provider) : ""}?`}
+        description="You'll no longer be able to sign in with this provider. You can reconnect it at any time."
+        confirmLabel="Disconnect"
+        tone="danger"
+        busy={disconnecting}
+        onConfirm={handleDisconnect}
+        onCancel={() => { if (!disconnecting) setDisconnectTarget(null) }}
+      />
     </div>
   )
 }

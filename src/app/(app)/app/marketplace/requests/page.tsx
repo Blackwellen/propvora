@@ -23,7 +23,7 @@ interface EnquiryRow {
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  new: "bg-[#EFF6FF] text-[#2563EB] border border-blue-100",
+  new: "bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]",
   contacted: "bg-violet-50 text-[#7C3AED] border border-violet-100",
   closed: "bg-slate-100 text-slate-500 border border-slate-200",
   spam: "bg-red-50 text-red-600 border border-red-100",
@@ -85,7 +85,7 @@ export default async function MarketplaceRequestsPage() {
               {r.message && <p className="mt-2 text-[13px] text-slate-600 line-clamp-3">{r.message}</p>}
               <div className="mt-2.5 flex flex-wrap items-center gap-3 text-[12px]">
                 {r.buyer_email && (
-                  <a href={`mailto:${r.buyer_email}`} className="inline-flex items-center gap-1 font-medium text-[#2563EB] hover:underline">
+                  <a href={`mailto:${r.buyer_email}`} className="inline-flex items-center gap-1 font-medium text-[var(--brand)] hover:underline">
                     <Mail className="w-3.5 h-3.5" /> {r.buyer_email}
                   </a>
                 )}

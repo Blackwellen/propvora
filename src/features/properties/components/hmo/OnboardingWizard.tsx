@@ -96,13 +96,13 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
             {WIZARD_STEPS.map((step) => (
               <div
                 key={step.number}
-                className={`h-1.5 flex-1 rounded-full transition-colors ${step.number <= currentStep ? "bg-blue-600" : "bg-slate-200"}`}
+                className={`h-1.5 flex-1 rounded-full transition-colors ${step.number <= currentStep ? "bg-[var(--brand)]" : "bg-slate-200"}`}
               />
             ))}
           </div>
           <div className="flex justify-between mt-1">
             {WIZARD_STEPS.map((step) => (
-              <span key={step.number} className={`text-[9px] font-medium ${step.number === currentStep ? "text-blue-600" : "text-slate-400"}`}>
+              <span key={step.number} className={`text-[9px] font-medium ${step.number === currentStep ? "text-[var(--brand)]" : "text-slate-400"}`}>
                 {step.number}
               </span>
             ))}
@@ -119,7 +119,7 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
                 {vacantRooms.map((room) => (
                   <label
                     key={room.id}
-                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${selectedRoom === room.id ? "border-blue-600 bg-blue-50" : "border-slate-200 hover:border-slate-300"}`}
+                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${selectedRoom === room.id ? "border-[var(--brand)] bg-[var(--brand-soft)]" : "border-slate-200 hover:border-slate-300"}`}
                   >
                     <input
                       type="radio"
@@ -127,7 +127,7 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
                       value={room.id}
                       checked={selectedRoom === room.id}
                       onChange={(e) => setSelectedRoom(e.target.value)}
-                      className="text-blue-600"
+                      className="text-[var(--brand)]"
                     />
                     <div>
                       <p className="text-sm font-medium text-slate-800">{room.room}</p>
@@ -146,23 +146,23 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">First Name</label>
-                  <input type="text" value={form.firstName} onChange={(e) => setField("firstName", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="First name" />
+                  <input type="text" value={form.firstName} onChange={(e) => setField("firstName", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" placeholder="First name" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Last Name</label>
-                  <input type="text" value={form.lastName} onChange={(e) => setField("lastName", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Last name" />
+                  <input type="text" value={form.lastName} onChange={(e) => setField("lastName", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" placeholder="Last name" />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-medium text-slate-700 mb-1">Email</label>
-                  <input type="email" value={form.email} onChange={(e) => setField("email", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="tenant@email.com" />
+                  <input type="email" value={form.email} onChange={(e) => setField("email", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" placeholder="tenant@email.com" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Phone</label>
-                  <input type="tel" value={form.phone} onChange={(e) => setField("phone", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+44 7700 000000" />
+                  <input type="tel" value={form.phone} onChange={(e) => setField("phone", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" placeholder="+44 7700 000000" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Source</label>
-                  <select value={form.source} onChange={(e) => setField("source", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <select value={form.source} onChange={(e) => setField("source", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
                     <option value="">Select source</option>
                     <option value="direct">Direct enquiry</option>
                     <option value="rightmove">Rightmove</option>
@@ -181,15 +181,15 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Monthly Rent (£)</label>
-                  <input type="number" value={form.rent} onChange={(e) => setField("rent", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="750" />
+                  <input type="number" value={form.rent} onChange={(e) => setField("rent", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" placeholder="750" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Payment Day (1-28)</label>
-                  <input type="number" min={1} max={28} value={form.paymentDay} onChange={(e) => setField("paymentDay", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="1" />
+                  <input type="number" min={1} max={28} value={form.paymentDay} onChange={(e) => setField("paymentDay", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" placeholder="1" />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-medium text-slate-700 mb-1">Move-in Date</label>
-                  <input type="date" value={form.moveInDate} onChange={(e) => setField("moveInDate", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <input type="date" value={form.moveInDate} onChange={(e) => setField("moveInDate", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
                 </div>
               </div>
             </div>
@@ -200,14 +200,14 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-slate-900">Generate Room Agreement</h3>
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3">
-                <div className="w-10 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-blue-600 text-[10px] font-bold">PDF</span>
+                <div className="w-10 h-12 bg-[var(--color-brand-100)] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-[var(--brand)] text-[10px] font-bold">PDF</span>
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-800">Room AST — {selectedRoom || "Selected Room"}</p>
                   <p className="text-xs text-slate-500 mt-0.5">Assured Shorthold Tenancy Agreement · Room only · Periodic</p>
                   <div className="flex items-center gap-2 mt-2">
-                    <button className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">Generate & Preview</button>
+                    <button className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">Generate & Preview</button>
                     <button className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">Send for eSignature</button>
                   </div>
                 </div>
@@ -225,11 +225,11 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Deposit Amount (£)</label>
-                  <input type="number" value={form.depositAmount} onChange={(e) => setField("depositAmount", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="750" />
+                  <input type="number" value={form.depositAmount} onChange={(e) => setField("depositAmount", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" placeholder="750" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Protection Scheme</label>
-                  <select value={form.depositScheme} onChange={(e) => setField("depositScheme", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <select value={form.depositScheme} onChange={(e) => setField("depositScheme", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
                     <option value="">Select scheme</option>
                     <option value="DPS">DPS</option>
                     <option value="TDS">TDS</option>
@@ -238,10 +238,10 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
                 </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-medium text-slate-700 mb-1">Date Protected</label>
-                  <input type="date" value={form.depositDate} onChange={(e) => setField("depositDate", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <input type="date" value={form.depositDate} onChange={(e) => setField("depositDate", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
                 </div>
               </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5 text-xs text-blue-700">
+              <div className="bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-lg px-3 py-2.5 text-xs text-[var(--brand)]">
                 Deposit must be protected within 30 days of receipt. Prescribed Information must be served.
               </div>
             </div>
@@ -254,7 +254,7 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
               <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2">
                   <label className="block text-xs font-medium text-slate-700 mb-1">Document Type Seen</label>
-                  <select value={form.docType} onChange={(e) => setField("docType", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <select value={form.docType} onChange={(e) => setField("docType", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
                     <option value="">Select document</option>
                     <option value="passport_uk">UK/EEA Passport</option>
                     <option value="brp">Biometric Residence Permit</option>
@@ -265,11 +265,11 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Date Checked</label>
-                  <input type="date" value={form.dateChecked} onChange={(e) => setField("dateChecked", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <input type="date" value={form.dateChecked} onChange={(e) => setField("dateChecked", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Expiry Date (if time-limited)</label>
-                  <input type="date" value={form.expiryDate} onChange={(e) => setField("expiryDate", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <input type="date" value={form.expiryDate} onChange={(e) => setField("expiryDate", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
                 </div>
               </div>
               <div className="flex items-start gap-2 bg-slate-50 border border-slate-200 rounded-lg p-3">
@@ -286,11 +286,11 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Key Reference</label>
-                  <input type="text" value={form.keyRef} onChange={(e) => setField("keyRef", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. R6-A" />
+                  <input type="text" value={form.keyRef} onChange={(e) => setField("keyRef", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" placeholder="e.g. R6-A" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Number of Sets</label>
-                  <input type="number" min={1} value={form.keySets} onChange={(e) => setField("keySets", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="2" />
+                  <input type="number" min={1} value={form.keySets} onChange={(e) => setField("keySets", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" placeholder="2" />
                 </div>
               </div>
               <div className="flex items-start gap-2 bg-slate-50 border border-slate-200 rounded-lg p-3">
@@ -318,17 +318,17 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
                     <tr key={r}>
                       <td className="py-2 text-slate-700">{r}</td>
                       <td className="py-2 text-right text-slate-700">20%</td>
-                      <td className="py-2 text-right text-blue-600 font-medium">16.7%</td>
+                      <td className="py-2 text-right text-[var(--brand)] font-medium">16.7%</td>
                     </tr>
                   ))}
                   <tr>
                     <td className="py-2 text-slate-700 font-medium">New Room</td>
                     <td className="py-2 text-right text-slate-400">—</td>
-                    <td className="py-2 text-right text-blue-600 font-medium">16.7%</td>
+                    <td className="py-2 text-right text-[var(--brand)] font-medium">16.7%</td>
                   </tr>
                 </tbody>
               </table>
-              <button className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">Add to Equal Split</button>
+              <button className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">Add to Equal Split</button>
             </div>
           )}
 
@@ -344,7 +344,7 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
                     {form.firstName || "Tenant"} {form.lastName} · {form.email || "email not entered"}
                   </p>
                 </div>
-                <button className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">Send Welcome Email with Portal Link</button>
+                <button className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">Send Welcome Email with Portal Link</button>
               </div>
             </div>
           )}
@@ -384,7 +384,7 @@ export function OnboardingWizard({ vacantRooms, onClose }: OnboardingWizardProps
           {currentStep < 10 ? (
             <button
               onClick={handleNext}
-              className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-4 py-1.5 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-4 py-1.5 rounded-lg transition-colors"
             >
               Next
               <ChevronRight className="w-3.5 h-3.5" />

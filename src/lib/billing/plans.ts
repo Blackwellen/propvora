@@ -35,6 +35,16 @@ function envPrice(tier: PlanTier, interval: BillingInterval): string | undefined
   return process.env[key]
 }
 
+/**
+ * Per-add-on Stripe price override (env wins over catalog.generated.json), so a
+ * regenerated Stripe account can be pointed at fresh add-on prices without
+ * rewriting the whole catalog — the SAME pattern plan prices already use.
+ *   NEXT_PUBLIC_STRIPE_PRICE_ADDON_EXTRA_SEAT=price_...
+ */
+function envAddonPrice(key: string): string | undefined {
+  return process.env[`NEXT_PUBLIC_STRIPE_PRICE_ADDON_${key.toUpperCase()}`]
+}
+
 export interface PlanFeatureSet {
   properties: number | "Unlimited"
   teamSeats: number | "Unlimited"
@@ -201,7 +211,7 @@ export function getAddons(): AddonDef[] {
       description: d?.description ?? "",
       amount: a.amount,
       interval: (a.interval as "month" | null) ?? null,
-      priceId: a.priceId,
+      priceId: envAddonPrice(key) ?? a.priceId,
       audience: d?.audience ?? "operator",
       eligibility: d?.eligibility,
       releaseStage: d?.releaseStage ?? "V1",
@@ -219,6 +229,25 @@ const ADDON_STAGE_RANK: Record<AddonReleaseStage, number> = { V1: 1, "V1.5": 2, 
 
 export function getReleasedOperatorAddons(stage: AddonReleaseStage = "V1.5"): AddonDef[] {
   return getOperatorAddons().filter((addon) => ADDON_STAGE_RANK[addon.releaseStage] <= ADDON_STAGE_RANK[stage])
+}
+
+/**
+ * Operator add-ons to show on the PUBLIC pricing page for the current release.
+ *
+ * V1 release policy: only V1 add-ons are purchasable, so only those are shown by
+ * default. A V1.5/V2 add-on appears ONLY when it declares a `requiredFlag` AND
+ * that flag is enabled for the visitor's context — i.e. roadmap add-ons are
+ * feature-flagged off until the surface they extend actually ships. This keeps
+ * the marketing pricing grid honest: no "buy" cards for things you can't yet use.
+ *
+ * @param enabledFlags map of feature-flag key -> enabled (e.g. resolved public
+ *   flags). Omit/empty for the pure V1 view (only V1 add-ons).
+ */
+export function getPublicPricingAddons(enabledFlags: Record<string, boolean> = {}): AddonDef[] {
+  return getOperatorAddons().filter((addon) => {
+    if (addon.requiredFlag) return enabledFlags[addon.requiredFlag] === true
+    return addon.releaseStage === "V1"
+  })
 }
 
 /** Supplier-workspace add-ons only. */

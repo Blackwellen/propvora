@@ -90,8 +90,8 @@ function Toggle({
         aria-label={label}
         onClick={() => onChange(!on)}
         className={cn(
-          "relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-1",
-          on ? "bg-[#2563EB]" : "bg-slate-300",
+          "relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1",
+          on ? "bg-[var(--brand)]" : "bg-slate-300",
         )}
       >
         <span
@@ -251,7 +251,7 @@ export default function AutomationGovernancePage() {
                   <select
                     value={state.publishPermission}
                     onChange={(e) => { setState((s) => ({ ...s, publishPermission: e.target.value as PublishPermission })); setSaved(false) }}
-                    className="mt-3 w-full max-w-xs rounded-xl border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-700 focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                    className="mt-3 w-full max-w-xs rounded-xl border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-700 focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
                   >
                     {PUBLISH_OPTIONS.map((o) => (
                       <option key={o.value} value={o.value}>{o.label}</option>
@@ -274,7 +274,7 @@ export default function AutomationGovernancePage() {
                   <select
                     value={state.auditRetentionDays}
                     onChange={(e) => { setState((s) => ({ ...s, auditRetentionDays: e.target.value as AuditRetention })); setSaved(false) }}
-                    className="mt-3 w-full max-w-xs rounded-xl border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-700 focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                    className="mt-3 w-full max-w-xs rounded-xl border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-700 focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
                   >
                     {RETENTION_OPTIONS.map((o) => (
                       <option key={o.value} value={o.value}>{o.label}</option>
@@ -333,7 +333,7 @@ export default function AutomationGovernancePage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex shrink-0 items-center gap-2 rounded-xl bg-[#2563EB] px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1d4ed8] disabled:opacity-70"
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--brand-strong)] disabled:opacity-70"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : saved ? <Check className="h-4 w-4" /> : null}
             {saving ? "Saving…" : saved ? "Saved!" : "Save changes"}

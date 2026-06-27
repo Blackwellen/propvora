@@ -70,7 +70,7 @@ export function TeamQuoteApprovalQueue() {
                 <thead><tr className="text-left text-xs text-slate-500 border-b border-slate-100 bg-slate-50/60"><Th>Quote</Th><Th>Estimator</Th><Th>Value</Th><Th>Margin</Th><Th>Risk</Th><Th>Deadline</Th></tr></thead>
                 <tbody className="divide-y divide-slate-50">
                   {queue.map((q) => (
-                    <tr key={q.id} onClick={() => setSelectedId(q.id)} className={cn("hover:bg-slate-50/60 cursor-pointer", selected?.id === q.id && "bg-blue-50/40")}>
+                    <tr key={q.id} onClick={() => setSelectedId(q.id)} className={cn("hover:bg-slate-50/60 cursor-pointer", selected?.id === q.id && "bg-[var(--brand-soft)]/40")}>
                       <td className="px-4 py-3"><p className="font-semibold text-slate-800">{q.customer}</p><p className="text-[11px] text-slate-400">{q.ref}</p></td>
                       <td className="px-4 py-3"><span className="inline-flex items-center gap-1.5"><span className="w-6 h-6 rounded-full bg-slate-100 text-[10px] font-semibold text-slate-600 flex items-center justify-center">{q.estimatorInitials}</span><span className="text-xs text-slate-600">{q.estimator.split(" ")[0]}</span></span></td>
                       <td className="px-4 py-3 font-semibold text-slate-900">{moneyPence(q.valuePence)}</td>
@@ -87,7 +87,7 @@ export function TeamQuoteApprovalQueue() {
           {/* Preview + margin/risk + decision */}
           {selected && (
             <SupplierCard className="p-5">
-              <div className="flex items-center justify-between mb-1"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Quote preview</p><Link href={`/supplier/quotes/${selected.ref}`} className="text-xs font-semibold text-blue-600">Open</Link></div>
+              <div className="flex items-center justify-between mb-1"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Quote preview</p><Link href={`/supplier/quotes/${selected.ref}`} className="text-xs font-semibold text-[var(--brand)]">Open</Link></div>
               <h2 className="text-base font-semibold text-slate-900">{selected.customer}</h2>
               <p className="text-xs text-slate-400">{selected.ref} · {selected.estimator}</p>
 
@@ -127,7 +127,7 @@ function Th({ children }: { children?: React.ReactNode }) {
   return <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{children}</th>
 }
 function Mini({ label, value, tone, icon: Icon }: { label: string; value: string; tone: "blue" | "emerald" | "red" | "amber"; icon: typeof FileCheck2 }) {
-  const c = tone === "blue" ? "text-[#2563EB]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : "text-amber-600"
+  const c = tone === "blue" ? "text-[var(--brand)]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : "text-amber-600"
   return (
     <SupplierCard className="p-3.5">
       <div className="flex items-center justify-between"><span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span><Icon className="w-3.5 h-3.5 text-slate-300" /></div>

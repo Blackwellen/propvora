@@ -149,11 +149,11 @@ export default async function ServiceDetailPage({
 
       {/* ── Breadcrumb ────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-        <Link href="/property-manager/marketplace/suppliers-hub" className="hover:text-blue-600 transition-colors">
+        <Link href="/property-manager/marketplace/suppliers-hub" className="hover:text-[var(--brand)] transition-colors">
           Marketplace
         </Link>
         <span>›</span>
-        <Link href="/property-manager/marketplace/suppliers-hub/services" className="hover:text-blue-600 transition-colors">
+        <Link href="/property-manager/marketplace/suppliers-hub/services" className="hover:text-[var(--brand)] transition-colors">
           Services
         </Link>
         <span>›</span>
@@ -176,7 +176,7 @@ export default async function ServiceDetailPage({
 
         {/* Category pill */}
         <div className="absolute top-4 left-6">
-          <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-full">
+          <span className="bg-[var(--brand)] text-white text-xs font-bold px-3 py-1.5 rounded-full">
             {offer.category}
           </span>
         </div>
@@ -200,7 +200,7 @@ export default async function ServiceDetailPage({
               </div>
               <span className="font-medium">{offer.providerName}</span>
               {offer.providerPro && (
-                <span className="bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded font-bold">Pro</span>
+                <span className="bg-[var(--brand)] text-white text-xs px-1.5 py-0.5 rounded font-bold">Pro</span>
               )}
             </div>
             <span className="flex items-center gap-1 opacity-90">
@@ -268,7 +268,7 @@ export default async function ServiceDetailPage({
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-slate-900">{offer.providerName}</span>
                 {offer.providerPro && (
-                  <span className="text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded font-semibold">Pro</span>
+                  <span className="text-xs bg-[var(--brand)] text-white px-1.5 py-0.5 rounded font-semibold">Pro</span>
                 )}
               </div>
               <div className="text-sm text-slate-500 flex flex-wrap items-center gap-2 mt-0.5">
@@ -289,7 +289,7 @@ export default async function ServiceDetailPage({
             </div>
             <Link
               href={`/property-manager/marketplace/suppliers-hub/${offer.providerSlug}`}
-              className="text-xs text-blue-600 hover:underline font-medium shrink-0"
+              className="text-xs text-[var(--brand)] hover:underline font-medium shrink-0"
             >
               View profile →
             </Link>
@@ -345,12 +345,12 @@ export default async function ServiceDetailPage({
                   key={pkg.name}
                   className={`relative rounded-2xl border p-4 flex flex-col ${
                     i === 1
-                      ? "border-blue-600 ring-2 ring-blue-600 bg-blue-50"
+                      ? "border-[var(--brand)] ring-2 ring-[var(--brand)] bg-[var(--brand-soft)]"
                       : "border-slate-200 bg-white"
                   }`}
                 >
                   {i === 1 && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--brand)] text-white text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
                       Most Popular
                     </span>
                   )}
@@ -371,8 +371,8 @@ export default async function ServiceDetailPage({
                     href={`/property-manager/marketplace/suppliers-hub/services/${slug}/book?package=${pkg.name.toLowerCase()}`}
                     className={`block w-full py-2.5 text-center text-sm font-bold rounded-xl transition-colors ${
                       i === 1
-                        ? "bg-blue-600 hover:bg-blue-700 text-white"
-                        : "border border-blue-600 text-blue-600 hover:bg-blue-50"
+                        ? "bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white"
+                        : "border border-[var(--brand)] text-[var(--brand)] hover:bg-[var(--brand-soft)]"
                     }`}
                   >
                     Choose {pkg.name}
@@ -402,7 +402,7 @@ export default async function ServiceDetailPage({
                       <span className="font-bold text-slate-900 text-sm">+£{(addon.price / 100).toFixed(0)}</span>
                       <Link
                         href={`/property-manager/marketplace/suppliers-hub/services/${slug}/book?package=standard`}
-                        className="text-xs px-3 py-1.5 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 font-semibold transition-colors"
+                        className="text-xs px-3 py-1.5 border border-[var(--brand)] text-[var(--brand)] rounded-lg hover:bg-[var(--brand-soft)] font-semibold transition-colors"
                       >
                         Add
                       </Link>
@@ -415,12 +415,12 @@ export default async function ServiceDetailPage({
 
           {/* Availability */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+            <div className="p-4 bg-[var(--brand-soft)] rounded-xl border border-[var(--color-brand-100)]">
               <div className="flex items-center gap-2 mb-1">
-                <Zap className="h-4 w-4 text-blue-600" />
+                <Zap className="h-4 w-4 text-[var(--brand)]" />
                 <span className="font-semibold text-slate-900 text-sm">Next available</span>
               </div>
-              <p className="text-sm text-blue-700 font-medium">{offer.nextAvailable}</p>
+              <p className="text-sm text-[var(--brand)] font-medium">{offer.nextAvailable}</p>
             </div>
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
               <div className="flex items-center gap-2 mb-1">
@@ -440,7 +440,7 @@ export default async function ServiceDetailPage({
                   key={step.n}
                   className="flex gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200"
                 >
-                  <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm shrink-0">
+                  <div className="w-8 h-8 bg-[var(--brand)] text-white rounded-full flex items-center justify-center font-bold text-sm shrink-0">
                     {step.n}
                   </div>
                   <div>

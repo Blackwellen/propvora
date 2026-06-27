@@ -326,7 +326,7 @@ export default function LocationMap({
       {title && hasAny && (
         <div className="pointer-events-none absolute left-3 top-3 max-w-[70%] rounded-xl border border-white/70 bg-white/85 px-3 py-2 shadow-[0_6px_20px_rgba(2,6,23,0.12)] backdrop-blur-md">
           <div className="flex items-center gap-1.5">
-            <span className="inline-block w-2 h-2 rounded-full bg-[#2563EB] shadow-[0_0_0_3px_rgba(37,99,235,0.18)]" />
+            <span className="inline-block w-2 h-2 rounded-full bg-[var(--brand)] shadow-[0_0_0_3px_rgba(37,99,235,0.18)]" />
             <p className="text-[12.5px] font-semibold text-slate-800 leading-tight truncate">{title}</p>
           </div>
           {caption && <p className="text-[11px] text-slate-500 leading-tight mt-0.5 truncate">{caption}</p>}

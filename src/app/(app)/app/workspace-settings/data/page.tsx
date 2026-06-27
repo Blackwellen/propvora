@@ -50,7 +50,7 @@ export default function DataPage() {
       {/* Full workspace export */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-4">
         <div className="flex items-center gap-3 mb-2">
-          <div style={{ color: "var(--brand)" }}>
+          <div style={{ color: "#2563EB" }}>
             <Database className="w-5 h-5" />
           </div>
           <h3 className="text-[14px] font-bold text-slate-900">Full Workspace Export</h3>
@@ -138,7 +138,7 @@ export default function DataPage() {
               id="data-archive-policy"
               value={archivePolicy}
               onChange={(e) => setArchivePolicy(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[var(--brand)] transition-all"
             >
               <option value="never">Never</option>
               <option value="6m">After 6 months</option>
@@ -154,7 +154,7 @@ export default function DataPage() {
               id="data-document-policy"
               value={documentPolicy}
               onChange={(e) => setDocumentPolicy(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[var(--brand)] transition-all"
             >
               <option value="forever">Keep forever</option>
               <option value="2y">2 years</option>

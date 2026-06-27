@@ -112,7 +112,7 @@ export function OverviewTab({ supplier, jobs, onSaveField, onSaveTrade }: Overvi
             <div>
               <div className="flex items-center gap-2">
                 <p className="text-[14px] font-bold text-slate-900">{supplier.name}</p>
-                <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-semibold rounded-full border border-blue-200">Primary</span>
+                <span className="px-1.5 py-0.5 bg-[var(--brand-soft)] text-[var(--brand)] text-[10px] font-semibold rounded-full border border-[var(--color-brand-100)]">Primary</span>
               </div>
               <p className="text-[12px] text-slate-500">{supplier.trade}</p>
             </div>
@@ -120,7 +120,7 @@ export function OverviewTab({ supplier, jobs, onSaveField, onSaveTrade }: Overvi
           {supplier.email && (
             <div className="flex items-center gap-2.5 mb-2.5">
               <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-              <a href={`mailto:${supplier.email}`} className="text-[12.5px] text-[#2563EB] hover:underline truncate">{supplier.email}</a>
+              <a href={`mailto:${supplier.email}`} className="text-[12.5px] text-[var(--brand)] hover:underline truncate">{supplier.email}</a>
             </div>
           )}
           {supplier.phone && (

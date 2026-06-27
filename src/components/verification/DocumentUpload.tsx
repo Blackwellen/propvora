@@ -134,7 +134,7 @@ export function DocumentUpload({
         value={docType}
         onChange={(e) => setDocType(e.target.value)}
         disabled={busy}
-        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 disabled:opacity-60"
+        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 disabled:opacity-60"
       >
         {DOC_TYPES.map((d) => (
           <option key={d.value} value={d.value}>
@@ -164,17 +164,17 @@ export function DocumentUpload({
           "mt-3 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-7 transition-colors min-h-[120px]",
           busy
             ? "border-slate-200 bg-slate-50 cursor-wait"
-            : "border-slate-200 bg-slate-50/60 hover:border-[#2563EB]/40 hover:bg-blue-50/40"
+            : "border-slate-200 bg-slate-50/60 hover:border-[var(--brand)]/40 hover:bg-[var(--brand-soft)]/40"
         )}
       >
         {busy ? (
           <>
-            <Loader2 className="w-6 h-6 text-[#2563EB] animate-spin motion-reduce:animate-none" />
+            <Loader2 className="w-6 h-6 text-[var(--brand)] animate-spin motion-reduce:animate-none" />
             <span className="text-sm font-medium text-slate-600">Uploading securely…</span>
           </>
         ) : (
           <>
-            <span className="flex items-center gap-2 text-[#2563EB]">
+            <span className="flex items-center gap-2 text-[var(--brand)]">
               <Camera className="w-5 h-5" />
               <Upload className="w-5 h-5" />
             </span>

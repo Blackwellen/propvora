@@ -173,7 +173,7 @@ export default function StayBookingCard({ stay }: { stay: PublicStay }) {
           type="button"
           onClick={handleBook}
           disabled={!hasDateRange}
-          className="mb-2 flex w-full items-center justify-center gap-2 rounded-[8px] bg-blue-600 py-3.5 text-[15px] font-[800] text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="mb-2 flex w-full items-center justify-center gap-2 rounded-[8px] bg-[var(--brand)] py-3.5 text-[15px] font-[800] text-white transition-colors hover:bg-[var(--brand-strong)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Zap className="h-4 w-4" />
           {hasDateRange ? 'Instant book' : 'Select dates to book'}
@@ -199,13 +199,13 @@ export default function StayBookingCard({ stay }: { stay: PublicStay }) {
         </div>
         <div className="space-y-1.5 text-[12px] text-slate-600">
           <div className="flex items-center gap-2">
-            <CheckCircle className="h-3.5 w-3.5 shrink-0 text-blue-600" />Verified stay
+            <CheckCircle className="h-3.5 w-3.5 shrink-0 text-[var(--brand)]" />Verified stay
           </div>
           <div className="flex items-center gap-2">
-            <Lock className="h-3.5 w-3.5 shrink-0 text-blue-600" />Secure payments
+            <Lock className="h-3.5 w-3.5 shrink-0 text-[var(--brand)]" />Secure payments
           </div>
           <div className="flex items-center gap-2">
-            <CheckCircle className="h-3.5 w-3.5 shrink-0 text-blue-600" />Always-on guest support
+            <CheckCircle className="h-3.5 w-3.5 shrink-0 text-[var(--brand)]" />Always-on guest support
           </div>
         </div>
       </div>

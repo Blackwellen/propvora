@@ -19,7 +19,7 @@ interface Props {
 
 export default function TenancySetupCard({ icon: Icon, title, status, tone, detail, cta, onClick, href, primary, ctaIcon: CtaIcon }: Props) {
   const btnCls = primary
-    ? "bg-[#2563EB] text-white"
+    ? "bg-[var(--brand)] text-white"
     : "border border-slate-200 text-slate-700 hover:bg-slate-50"
   const inner = (
     <>

@@ -44,7 +44,7 @@ export function DocumentsTab({ workspaceId, supplierId, complianceOnly }: Docume
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
       <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
-          <FileCheck2 className="w-4 h-4 text-[#2563EB]" />
+          <FileCheck2 className="w-4 h-4 text-[var(--brand)]" />
           <h3 className="text-sm font-semibold text-slate-900">
             {title} <span className="text-slate-400 font-normal ml-1">({filtered.length})</span>
           </h3>
@@ -86,10 +86,10 @@ export function DocumentsTab({ workspaceId, supplierId, complianceOnly }: Docume
             return (
               <div
                 key={d.id}
-                className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3.5 hover:border-[#2563EB]/40 hover:shadow-sm transition-all"
+                className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3.5 hover:border-[var(--brand)]/40 hover:shadow-sm transition-all"
               >
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-                  <FileText className="w-5 h-5 text-[#2563EB]" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand-soft)] to-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 text-[var(--brand)]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">

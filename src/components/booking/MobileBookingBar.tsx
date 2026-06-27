@@ -65,7 +65,7 @@ export default function MobileBookingBar({
         </div>
         <a
           href={`#${bookingCardId}`}
-          className="inline-flex h-12 items-center justify-center rounded-xl bg-[#1D4ED8] px-6 text-[14.5px] font-semibold text-white hover:bg-[#1A45BE] transition-colors"
+          className="inline-flex h-12 items-center justify-center rounded-xl bg-[var(--brand-strong)] px-6 text-[14.5px] font-semibold text-white hover:bg-[#1A45BE] transition-colors"
         >
           Reserve
         </a>

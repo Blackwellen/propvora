@@ -36,7 +36,7 @@ export default function FinanceSection() {
     <Panel
       title="Finance &amp; payment settings"
       action={
-        <Link href="/customer/payments" className="text-[12px] font-semibold text-blue-600">
+        <Link href="/customer/payments" className="text-[12px] font-semibold text-[var(--brand)]">
           Open payments →
         </Link>
       }

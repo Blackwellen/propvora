@@ -81,7 +81,7 @@ export function FlagActions({
         onChange={(e) => setReason(e.target.value)}
         rows={2}
         placeholder={flagged ? "Reason for clearing (optional)…" : "Reason for flagging (required)…"}
-        className="w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-[13px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+        className="w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-[13px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
       />
 
       {error && <p className="text-[12px] text-rose-600">{error}</p>}

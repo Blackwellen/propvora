@@ -210,7 +210,7 @@ function relativeTime(iso: string): string {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
 }
 
-const COMMENT_AVATAR_BG = ["bg-blue-500", "bg-violet-500", "bg-emerald-500", "bg-amber-500", "bg-rose-500", "bg-cyan-500", "bg-indigo-500"]
+const COMMENT_AVATAR_BG = ["bg-[var(--brand)]", "bg-violet-500", "bg-emerald-500", "bg-amber-500", "bg-rose-500", "bg-cyan-500", "bg-indigo-500"]
 /** Deterministic avatar colour from a seed string. */
 function avatarColor(seed: string): string {
   let h = 0
@@ -287,21 +287,21 @@ function TaskKpiStrip({ task, setActiveTab }: { task: TaskView; setActiveTab: (t
           <p className="text-sm font-bold text-slate-900">{task.slaCompliance}%</p>
           <p className="text-[11px] text-slate-500">SLA Compliance</p>
           <p className="text-[10px] text-slate-400">Target {task.slaTarget} · Due {task.slaDue}</p>
-          <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] font-medium">Add reminder</Link>
+          <Link href="/property-manager/work/tasks" className="text-[10px] text-[var(--brand)] font-medium">Add reminder</Link>
         </div>
       </div>
 
       {/* Due Date */}
       <div className="bg-white border border-slate-200 rounded-xl p-3">
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">
-            <Calendar className="w-3.5 h-3.5 text-blue-600" />
+          <div className="w-6 h-6 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center">
+            <Calendar className="w-3.5 h-3.5 text-[var(--brand)]" />
           </div>
           <p className="text-[11px] text-slate-500">Due Date</p>
         </div>
         <p className="text-base font-bold text-slate-900">{task.dueDate}</p>
         <p className="text-[11px] text-slate-400">{task.dueDays}</p>
-        <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] font-medium">Add reminder</Link>
+        <Link href="/property-manager/work/tasks" className="text-[10px] text-[var(--brand)] font-medium">Add reminder</Link>
       </div>
 
       {/* Time Remaining */}
@@ -314,7 +314,7 @@ function TaskKpiStrip({ task, setActiveTab }: { task: TaskView; setActiveTab: (t
         </div>
         <p className="text-base font-bold text-slate-900">{task.timeRemaining}</p>
         <p className="text-[11px] text-slate-400">Until due</p>
-        <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] font-medium">View timeline</Link>
+        <Link href="/property-manager/work/tasks" className="text-[10px] text-[var(--brand)] font-medium">View timeline</Link>
       </div>
 
       {/* Cost Impact */}
@@ -327,7 +327,7 @@ function TaskKpiStrip({ task, setActiveTab }: { task: TaskView; setActiveTab: (t
         </div>
         <p className="text-base font-bold text-slate-900">{task.costImpact}</p>
         <p className="text-[11px] text-slate-400">{task.costLabel}</p>
-        <Link href="/property-manager/work/jobs" className="text-[10px] text-[#2563EB] font-medium">View breakdown</Link>
+        <Link href="/property-manager/work/jobs" className="text-[10px] text-[var(--brand)] font-medium">View breakdown</Link>
       </div>
 
       {/* Attachments */}
@@ -340,7 +340,7 @@ function TaskKpiStrip({ task, setActiveTab }: { task: TaskView; setActiveTab: (t
         </div>
         <p className="text-base font-bold text-slate-900">{task.attachments}</p>
         <p className="text-[11px] text-slate-400">Files attached</p>
-        <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] font-medium">View all</Link>
+        <Link href="/property-manager/work/tasks" className="text-[10px] text-[var(--brand)] font-medium">View all</Link>
       </div>
 
       {/* Comments */}
@@ -353,7 +353,7 @@ function TaskKpiStrip({ task, setActiveTab }: { task: TaskView; setActiveTab: (t
         </div>
         <p className="text-base font-bold text-slate-900">{task.comments}</p>
         <p className="text-[11px] text-slate-400">Total comments</p>
-        <button onClick={() => setActiveTab("Activity")} className="text-[10px] text-[#2563EB] font-medium">
+        <button onClick={() => setActiveTab("Activity")} className="text-[10px] text-[var(--brand)] font-medium">
           View comments
         </button>
       </div>
@@ -497,7 +497,7 @@ function OverviewTabLeft({ task, rawTask, setActiveTab, onSaveField, options }: 
                 <div
                   className={cn(
                     "w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all duration-200",
-                    item.done ? "bg-[#2563EB] border-[#2563EB] scale-100" : "border-slate-300"
+                    item.done ? "bg-[var(--brand)] border-[var(--brand)] scale-100" : "border-slate-300"
                   )}
                 >
                   {item.done && <CheckSquare className="w-3 h-3 text-white" />}
@@ -516,7 +516,7 @@ function OverviewTabLeft({ task, rawTask, setActiveTab, onSaveField, options }: 
               </div>
             ))}
           </div>
-          <button onClick={() => setActiveTab("Checklist")} className="mt-3 flex items-center gap-1.5 text-[12px] text-[#2563EB] hover:underline">
+          <button onClick={() => setActiveTab("Checklist")} className="mt-3 flex items-center gap-1.5 text-[12px] text-[var(--brand)] hover:underline">
             <Plus className="w-3.5 h-3.5" /> Manage checklist
           </button>
         </div>
@@ -535,11 +535,11 @@ function OverviewTabLeft({ task, rawTask, setActiveTab, onSaveField, options }: 
                 </div>
                 <div className="flex items-center gap-2">
                   {rec.status && (
-                    <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] font-medium text-[var(--brand)] bg-[var(--brand-soft)] px-2 py-0.5 rounded-full">
                       {rec.status}
                     </span>
                   )}
-                  <Link href={rec.href} className="text-[12px] text-[#2563EB] hover:underline">
+                  <Link href={rec.href} className="text-[12px] text-[var(--brand)] hover:underline">
                     View →
                   </Link>
                 </div>
@@ -567,7 +567,7 @@ function OverviewTabLeft({ task, rawTask, setActiveTab, onSaveField, options }: 
             <p className="text-sm font-bold text-slate-900">£{task.costEstimate.total.toFixed(2)}</p>
           </div>
         </div>
-        <Link href="/property-manager/work/jobs" className="mt-2 text-[12px] text-[#2563EB] hover:underline">
+        <Link href="/property-manager/work/jobs" className="mt-2 text-[12px] text-[var(--brand)] hover:underline">
           View cost breakdown →
         </Link>
       </div>
@@ -612,14 +612,14 @@ function NotesSection({
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="Add a note..."
-        className="w-full border border-slate-200 rounded-lg p-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50 resize-none"
+        className="w-full border border-slate-200 rounded-lg p-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]/50 resize-none"
         rows={3}
       />
       <div className="flex items-center justify-end mt-2">
         <button
           onClick={handleSaveNote}
           disabled={saving}
-          className="px-3 py-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-lg text-xs font-semibold transition-colors disabled:opacity-60 flex items-center gap-1.5"
+          className="px-3 py-1.5 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-lg text-xs font-semibold transition-colors disabled:opacity-60 flex items-center gap-1.5"
         >
           {saving ? (
             <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -656,12 +656,12 @@ function ActivityTab({ task, workspaceId, taskId }: { task: TaskView; workspaceI
       <div className="relative space-y-4 pl-6 before:absolute before:left-2 before:top-0 before:bottom-0 before:w-0.5 before:bg-slate-100">
         {events.map((item) => (
           <div key={item.id} className="relative">
-            <div className="absolute -left-6 w-4 h-4 rounded-full bg-[#2563EB] flex items-center justify-center">
+            <div className="absolute -left-6 w-4 h-4 rounded-full bg-[var(--brand)] flex items-center justify-center">
               <div className="w-2 h-2 rounded-full bg-white" />
             </div>
             <div className="bg-slate-50 rounded-lg p-3">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-5 h-5 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center">
+                <div className="w-5 h-5 rounded-full bg-[var(--brand)] text-white text-[9px] font-bold flex items-center justify-center">
                   {item.initials}
                 </div>
                 <p className="text-xs font-semibold text-slate-700 capitalize">{item.user}</p>
@@ -754,7 +754,7 @@ function LiveChecklistTab({ workspaceId, taskId }: { workspaceId?: string; taskI
                   onClick={() => workspaceId && toggleItem.mutate({ workspaceId, taskId, id: item.id, done: !item.done })}
                   className={cn(
                     "w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all duration-200 active:scale-90 motion-reduce:active:scale-100",
-                    item.done ? "bg-[#2563EB] border-[#2563EB]" : "border-slate-300 hover:border-[#2563EB]"
+                    item.done ? "bg-[var(--brand)] border-[var(--brand)]" : "border-slate-300 hover:border-[var(--brand)]"
                   )}
                   aria-label={item.done ? "Mark incomplete" : "Mark complete"}
                 >
@@ -780,12 +780,12 @@ function LiveChecklistTab({ workspaceId, taskId }: { workspaceId?: string; taskI
             onChange={(e) => setLabel(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAdd() } }}
             placeholder="Add a subtask…"
-            className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50"
+            className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]/50"
           />
           <button
             onClick={handleAdd}
             disabled={!label.trim() || addItem.isPending || !workspaceId}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[12.5px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-[12.5px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
             {addItem.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />} Add
           </button>
@@ -824,13 +824,13 @@ function LiveCommentsTab({ workspaceId, taskId, baseActivity }: { workspaceId?: 
           onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handlePost() } }}
           rows={3}
           placeholder="Add a comment…  (Ctrl/⌘ + Enter to post)"
-          className="w-full border border-slate-200 rounded-lg p-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50 resize-none"
+          className="w-full border border-slate-200 rounded-lg p-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]/50 resize-none"
         />
         <div className="flex justify-end mt-2">
           <button
             onClick={handlePost}
             disabled={!body.trim() || addComment.isPending || !workspaceId}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-xs font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {addComment.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />} Post Comment
           </button>
@@ -841,7 +841,7 @@ function LiveCommentsTab({ workspaceId, taskId, baseActivity }: { workspaceId?: 
       {/* Thread */}
       <div className="bg-white border border-slate-200 rounded-xl p-4">
         <div className="flex items-center gap-2 mb-4">
-          <MessageSquare className="w-4 h-4 text-[#2563EB]" />
+          <MessageSquare className="w-4 h-4 text-[var(--brand)]" />
           <h3 className="text-sm font-semibold text-slate-900">Activity &amp; Comments</h3>
           {comments.length > 0 && <span className="text-[11px] font-semibold text-slate-400 tabular-nums">{comments.length}</span>}
         </div>
@@ -851,7 +851,7 @@ function LiveCommentsTab({ workspaceId, taskId, baseActivity }: { workspaceId?: 
           <div className="space-y-4">
             {comments.map((c) => (
               <div key={c.id} className="group flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--brand)] to-[var(--brand-strong)] flex items-center justify-center text-[11px] font-bold text-white shrink-0">
                   You
                 </div>
                 <div className="flex-1 min-w-0">
@@ -868,7 +868,7 @@ function LiveCommentsTab({ workspaceId, taskId, baseActivity }: { workspaceId?: 
                       <Trash2 className="w-3 h-3" />
                     </button>
                   </div>
-                  <div className="inline-block max-w-full bg-blue-50 border border-blue-100 rounded-2xl rounded-tl-sm px-3.5 py-2.5">
+                  <div className="inline-block max-w-full bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-2xl rounded-tl-sm px-3.5 py-2.5">
                     <p className="text-sm text-slate-700 whitespace-pre-wrap break-words">{c.body_md}</p>
                   </div>
                 </div>
@@ -929,26 +929,26 @@ function LinkedWorkTab({ task }: { task: TaskView }) {
               <Link
                 key={rec.label}
                 href={rec.href}
-                className="group flex items-center gap-3 py-3 px-3.5 rounded-xl border border-slate-200 bg-white hover:border-[#2563EB]/40 hover:shadow-sm transition-all"
+                className="group flex items-center gap-3 py-3 px-3.5 rounded-xl border border-slate-200 bg-white hover:border-[var(--brand)]/40 hover:shadow-sm transition-all"
               >
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                  <Building2 className="w-5 h-5 text-[#2563EB]" />
+                <div className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                  <Building2 className="w-5 h-5 text-[var(--brand)]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold">{rec.type}</p>
-                  <p className="text-sm font-semibold text-slate-800 group-hover:text-[#2563EB] transition-colors truncate">{rec.label}</p>
+                  <p className="text-sm font-semibold text-slate-800 group-hover:text-[var(--brand)] transition-colors truncate">{rec.label}</p>
                 </div>
                 {rec.status && (
-                  <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full shrink-0">{rec.status}</span>
+                  <span className="text-[11px] font-medium text-[var(--brand)] bg-[var(--brand-soft)] px-2 py-0.5 rounded-full shrink-0">{rec.status}</span>
                 )}
-                <ChevronLeft className="w-4 h-4 text-slate-300 rotate-180 group-hover:text-[#2563EB] transition-colors shrink-0" />
+                <ChevronLeft className="w-4 h-4 text-slate-300 rotate-180 group-hover:text-[var(--brand)] transition-colors shrink-0" />
               </Link>
             ))}
           </div>
         )}
         <Link
           href={task.propertyId ? `/property-manager/work/jobs/new?propertyId=${task.propertyId}` : "/property-manager/work/jobs/new"}
-          className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#2563EB] hover:underline"
+          className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[var(--brand)] hover:underline"
         >
           <Plus className="w-3.5 h-3.5" /> Raise a job from this task
         </Link>
@@ -1019,7 +1019,7 @@ function RightColumn({
           />
         </div>
         {task.propertyId && (
-          <Link href="/property-manager/portfolio" className="mt-3 block text-[12px] text-[#2563EB] hover:underline">
+          <Link href="/property-manager/portfolio" className="mt-3 block text-[12px] text-[var(--brand)] hover:underline">
             View Property →
           </Link>
         )}
@@ -1031,7 +1031,7 @@ function RightColumn({
         <div className="relative space-y-3 pl-5 before:absolute before:left-1.5 before:top-0 before:bottom-0 before:w-0.5 before:bg-slate-100">
           {task.activity.slice(0, 4).map((item, i) => (
             <div key={i} className="relative">
-              <div className="absolute -left-5 w-3 h-3 rounded-full bg-[#2563EB] border-2 border-white" />
+              <div className="absolute -left-5 w-3 h-3 rounded-full bg-[var(--brand)] border-2 border-white" />
               <p className="text-[11px] font-medium text-slate-700">{item.text}</p>
               <p className="text-[10px] text-slate-400">
                 {item.user} · {item.time}
@@ -1039,7 +1039,7 @@ function RightColumn({
             </div>
           ))}
         </div>
-        <button onClick={() => setActiveTab("Activity")} className="mt-3 text-[12px] text-[#2563EB] hover:underline">
+        <button onClick={() => setActiveTab("Activity")} className="mt-3 text-[12px] text-[var(--brand)] hover:underline">
           View full timeline →
         </button>
       </div>
@@ -1058,7 +1058,7 @@ function RecentActivityFooter({ task }: { task: TaskView }) {
         {task.activity.map((item) => (
           <div key={item.id} className="bg-slate-50 rounded-xl p-3 min-w-[200px] flex-shrink-0">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-[var(--brand)] text-white text-[9px] font-bold flex items-center justify-center">
                 {item.initials}
               </div>
               <p className="text-xs font-semibold text-slate-700">{item.user}</p>
@@ -1113,7 +1113,7 @@ export default function TaskDetailPage() {
           <AlertTriangle className="w-10 h-10 text-slate-300" />
           <p className="text-base font-semibold text-slate-700">Task not found</p>
           <p className="text-sm text-slate-400">This task may have been deleted or you don&apos;t have access.</p>
-          <Link href="/property-manager/work/tasks" className="px-4 py-2 bg-[#2563EB] text-white rounded-lg text-sm font-semibold hover:bg-[#1d4ed8]">
+          <Link href="/property-manager/work/tasks" className="px-4 py-2 bg-[var(--brand)] text-white rounded-lg text-sm font-semibold hover:bg-[var(--brand-strong)]">
             Back to Tasks
           </Link>
         </div>
@@ -1243,7 +1243,7 @@ export default function TaskDetailPage() {
               <span className="flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5" />
                 {taskData.property_id ? (
-                  <Link href="/property-manager/portfolio" className="text-[#2563EB] hover:underline">
+                  <Link href="/property-manager/portfolio" className="text-[var(--brand)] hover:underline">
                     {task.propertyName}
                   </Link>
                 ) : (
@@ -1287,7 +1287,7 @@ export default function TaskDetailPage() {
               className={cn(
                 "flex items-center gap-1.5 px-4 py-3 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all",
                 activeTab === tab
-                  ? "border-[#2563EB] text-[#2563EB]"
+                  ? "border-[var(--brand)] text-[var(--brand)]"
                   : "border-transparent text-slate-500 hover:text-slate-700"
               )}
             >

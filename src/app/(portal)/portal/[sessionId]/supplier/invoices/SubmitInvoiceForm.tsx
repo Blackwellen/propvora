@@ -51,7 +51,7 @@ export default function SubmitInvoiceForm({ sessionId, jobs, onSubmitted }: Prop
     return (
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 rounded-xl bg-[#2563EB] px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
+        className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--brand)] px-3 py-2 text-xs font-semibold text-white hover:bg-[var(--brand-strong)] transition-colors"
       >
         <Plus className="w-3.5 h-3.5" /> Submit invoice
       </button>
@@ -91,7 +91,7 @@ export default function SubmitInvoiceForm({ sessionId, jobs, onSubmitted }: Prop
             <select
               value={jobId}
               onChange={(e) => setJobId(e.target.value)}
-              className="h-9 w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+              className="h-9 w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
             >
               <option value="">— No job linked —</option>
               {jobs.map((j) => (
@@ -107,7 +107,7 @@ export default function SubmitInvoiceForm({ sessionId, jobs, onSubmitted }: Prop
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
             placeholder="Any additional notes about this invoice…"
-            className="w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] resize-none"
+            className="w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] resize-none"
           />
         </div>
         {msg && (
@@ -120,7 +120,7 @@ export default function SubmitInvoiceForm({ sessionId, jobs, onSubmitted }: Prop
           <button
             type="submit"
             disabled={submitting}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors disabled:opacity-60"
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60"
           >
             {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
             {submitting ? "Submitting…" : "Submit invoice"}

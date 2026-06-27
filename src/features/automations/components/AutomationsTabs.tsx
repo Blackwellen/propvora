@@ -93,7 +93,7 @@ export default function AutomationsTabs({
                 className={[
                   "relative shrink-0 whitespace-nowrap border-b-2 px-3.5 py-3 text-sm transition",
                   active
-                    ? "border-blue-600 font-semibold text-blue-700"
+                    ? "border-[var(--brand)] font-semibold text-[var(--brand)]"
                     : "border-transparent font-medium text-slate-500 hover:text-slate-800",
                 ].join(" ")}
               >
@@ -103,7 +103,7 @@ export default function AutomationsTabs({
                     <span
                       className={[
                         "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
-                        active ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500",
+                        active ? "bg-[var(--color-brand-100)] text-[var(--brand)]" : "bg-slate-100 text-slate-500",
                       ].join(" ")}
                     >
                       {tab.badge}

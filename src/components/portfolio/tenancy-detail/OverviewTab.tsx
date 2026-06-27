@@ -24,7 +24,7 @@ export function OverviewTab({ t, activity, activityLoaded, onSave }: {
         <SectionCard className="p-5">
           <div className="flex items-start gap-4">
             {/* Avatar */}
-            <div className="w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center flex-shrink-0">
+            <div className="w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-[var(--brand)] to-violet-600 flex items-center justify-center flex-shrink-0">
               <span className="text-white font-bold text-xl">{t.tenantAvatarInitials}</span>
             </div>
             {/* Name + actions */}
@@ -47,12 +47,12 @@ export function OverviewTab({ t, activity, activityLoaded, onSave }: {
               {(t.tenantEmail || t.tenantPhone) && (
                 <div className="flex items-center gap-4 mt-2">
                   {t.tenantEmail && (
-                    <a href={`mailto:${t.tenantEmail}`} className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
+                    <a href={`mailto:${t.tenantEmail}`} className="flex items-center gap-1.5 text-xs text-[var(--brand)] hover:underline">
                       <Mail className="w-3.5 h-3.5" />{t.tenantEmail}
                     </a>
                   )}
                   {t.tenantPhone && (
-                    <a href={`tel:${t.tenantPhone}`} className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
+                    <a href={`tel:${t.tenantPhone}`} className="flex items-center gap-1.5 text-xs text-[var(--brand)] hover:underline">
                       <Phone className="w-3.5 h-3.5" />{t.tenantPhone}
                     </a>
                   )}
@@ -60,14 +60,14 @@ export function OverviewTab({ t, activity, activityLoaded, onSave }: {
               )}
               <div className="flex items-center gap-4 mt-1.5">
                 {t.propertyId ? (
-                  <Link href={`/property-manager/portfolio/properties/${t.propertyId}`} className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
+                  <Link href={`/property-manager/portfolio/properties/${t.propertyId}`} className="flex items-center gap-1.5 text-xs text-[var(--brand)] hover:underline">
                     <Home className="w-3.5 h-3.5" />{t.property}
                   </Link>
                 ) : (
                   <span className="flex items-center gap-1.5 text-xs text-slate-500"><Home className="w-3.5 h-3.5" />{t.property}</span>
                 )}
                 {t.unitId ? (
-                  <Link href={`/property-manager/portfolio/units/${t.unitId}`} className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
+                  <Link href={`/property-manager/portfolio/units/${t.unitId}`} className="flex items-center gap-1.5 text-xs text-[var(--brand)] hover:underline">
                     <Building2 className="w-3.5 h-3.5" />{t.unit} ({t.unitSize})
                   </Link>
                 ) : (
@@ -195,7 +195,7 @@ export function OverviewTab({ t, activity, activityLoaded, onSave }: {
           </div>
           <div className="flex flex-col divide-y divide-slate-100">
             {[
-              { icon: Calendar, label: "Lease Start", date: fmtDate(t.leaseStart), iconColor: "text-blue-600", iconBg: "bg-blue-50" },
+              { icon: Calendar, label: "Lease Start", date: fmtDate(t.leaseStart), iconColor: "text-[var(--brand)]", iconBg: "bg-[var(--brand-soft)]" },
               { icon: Calendar, label: "Lease End", date: t.leaseEnd && t.leaseEnd !== "Periodic" ? fmtDate(t.leaseEnd) : "Periodic", iconColor: "text-violet-600", iconBg: "bg-violet-50" },
             ].map((row) => (
               <div key={row.label} className="flex items-center gap-3 py-2.5">
@@ -213,7 +213,7 @@ export function OverviewTab({ t, activity, activityLoaded, onSave }: {
         <SectionCard className="p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-bold text-slate-800">Financial Summary</span>
-            <Link href="/property-manager/money" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+            <Link href="/property-manager/money" className="text-xs text-[var(--brand)] hover:underline flex items-center gap-1">
               Open Money <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -249,7 +249,7 @@ export function OverviewTab({ t, activity, activityLoaded, onSave }: {
             <div className="flex flex-col gap-3">
               {activity.slice(0, 5).map((a) => (
                 <div key={a.id} className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
+                  <div className="w-2 h-2 rounded-full bg-[var(--brand)] mt-1.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-800">{a.action ?? a.description ?? "Activity"}</p>
                     <p className="text-xs text-slate-500">{fmtDate(a.created_at)}</p>
@@ -264,9 +264,9 @@ export function OverviewTab({ t, activity, activityLoaded, onSave }: {
         <SectionCard className="p-5">
           <span className="text-sm font-bold text-slate-800 block mb-3">Quick Stats</span>
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
-              <p className="text-[10px] text-blue-700 font-semibold uppercase tracking-wide">Monthly Rent</p>
-              <p className="text-2xl font-bold text-blue-700 tabular-nums mt-1">{t.rent != null ? fmtGBP(t.rent) : "—"}</p>
+            <div className="bg-[var(--brand-soft)] rounded-xl p-3 border border-[var(--color-brand-100)]">
+              <p className="text-[10px] text-[var(--brand)] font-semibold uppercase tracking-wide">Monthly Rent</p>
+              <p className="text-2xl font-bold text-[var(--brand)] tabular-nums mt-1">{t.rent != null ? fmtGBP(t.rent) : "—"}</p>
             </div>
             <div className="bg-violet-50 rounded-xl p-3 border border-violet-100">
               <p className="text-[10px] text-violet-700 font-semibold uppercase tracking-wide">Deposit</p>

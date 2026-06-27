@@ -108,7 +108,7 @@ export default function SecurityPage() {
           aria-label={label}
           className={cn(
             "w-10 h-6 rounded-full transition-colors shrink-0 mt-0.5",
-            value ? "bg-[#2563EB]" : "bg-slate-200"
+            value ? "bg-[var(--brand)]" : "bg-slate-200"
           )}
         >
           <span
@@ -213,7 +213,7 @@ export default function SecurityPage() {
                 max={max}
                 value={policy[field] as number}
                 onChange={(e) => updatePolicy(field, parseInt(e.target.value) || min)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 focus:outline-none focus:border-[#2563EB] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 focus:outline-none focus:border-[var(--brand)] transition-all"
               />
             </div>
           ))}
@@ -291,7 +291,7 @@ export default function SecurityPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-70"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
               {saving ? "Saving…" : saved ? "Saved!" : "Save policy"}

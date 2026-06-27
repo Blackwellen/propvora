@@ -188,7 +188,7 @@ export default function ImageCropModal({
               step={0.01}
               value={zoom}
               onChange={(e) => setZoom(Number(e.target.value))}
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-blue-600"
+              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-[var(--brand)]"
               aria-label="Zoom"
             />
             <button
@@ -214,7 +214,7 @@ export default function ImageCropModal({
             type="button"
             onClick={apply}
             disabled={!nat}
-            className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-[13px] font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-xl bg-[var(--brand)] px-4 py-2 text-[13px] font-bold text-white transition-colors hover:bg-[var(--brand-strong)] disabled:opacity-50"
           >
             <Check className="h-4 w-4" /> Apply &amp; upload
           </button>

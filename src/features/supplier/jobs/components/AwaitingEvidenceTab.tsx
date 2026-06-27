@@ -118,7 +118,7 @@ export function AwaitingEvidenceTab({ jobs }: { jobs: SupplierJob[] }) {
                   {jobs.map((j) => {
                     const done = evidenceComplete(j)
                     return (
-                      <tr key={j.id} onClick={() => setSelectedId(j.id)} className={cn("cursor-pointer hover:bg-slate-50/60", selected?.id === j.id ? "bg-blue-50/40" : "")}>
+                      <tr key={j.id} onClick={() => setSelectedId(j.id)} className={cn("cursor-pointer hover:bg-slate-50/60", selected?.id === j.id ? "bg-[var(--brand-soft)]/40" : "")}>
                         <Td><p className="font-semibold text-slate-800">{j.title}</p><p className="text-xs text-slate-400">{j.ref} · {j.customerName}</p></Td>
                         <Td className="font-medium text-slate-700">{formatPence(j.escrowPence)}</Td>
                         <Td><div className="flex items-center gap-2"><ProgressRing value={evidencePct(j)} size={28} stroke={3} tone={done ? "emerald" : "amber"} label="" /><span className="text-xs text-slate-600">{evidencePct(j)}%</span></div></Td>
@@ -137,7 +137,7 @@ export function AwaitingEvidenceTab({ jobs }: { jobs: SupplierJob[] }) {
                 const done = evidenceComplete(j)
                 return (
                   <button key={j.id} onClick={() => setSelectedId(j.id)} className="text-left">
-                    <SupplierCard className={cn("p-4 h-full transition-all hover:shadow-md", selected?.id === j.id ? "ring-2 ring-blue-500/40" : "")}>
+                    <SupplierCard className={cn("p-4 h-full transition-all hover:shadow-md", selected?.id === j.id ? "ring-2 ring-[var(--brand)]/40" : "")}>
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <p className="text-sm font-semibold text-slate-900">{j.title}</p>

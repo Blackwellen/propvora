@@ -202,9 +202,9 @@ export function MyListingsClient({ canPublish, planName, defaultCountry }: Props
       </div>
 
       {banner && (
-        <div className="mb-4 flex items-center justify-between rounded-xl border border-blue-100 bg-[#EFF6FF] px-3.5 py-2.5">
-          <p className="text-[13px] font-medium text-[#1d4ed8]">{banner}</p>
-          <button onClick={() => setBanner(null)} className="text-[12px] font-semibold text-[#2563EB] hover:underline">
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)] px-3.5 py-2.5">
+          <p className="text-[13px] font-medium text-[var(--brand-strong)]">{banner}</p>
+          <button onClick={() => setBanner(null)} className="text-[12px] font-semibold text-[var(--brand)] hover:underline">
             Dismiss
           </button>
         </div>

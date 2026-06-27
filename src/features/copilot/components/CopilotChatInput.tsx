@@ -196,7 +196,7 @@ export default function CopilotChatInput({
         </div>
       )}
 
-      <div className="border border-slate-200 rounded-2xl bg-white shadow-sm overflow-hidden focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+      <div className="border border-slate-200 rounded-2xl bg-white shadow-sm overflow-hidden focus-within:border-[var(--color-brand-300)] focus-within:ring-2 focus-within:ring-[var(--color-brand-100)] transition-all">
         {/* Textarea */}
         <textarea
           ref={inputRef}
@@ -222,7 +222,7 @@ export default function CopilotChatInput({
               onClick={handleSlashButton}
               aria-label="Slash commands"
               title="Slash commands"
-              className="w-7 h-7 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center text-[13px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+              className="w-7 h-7 rounded-lg text-slate-500 hover:text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-all flex items-center justify-center text-[13px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
             >
               /
             </button>
@@ -245,7 +245,7 @@ export default function CopilotChatInput({
               disabled={!value.trim()}
               aria-label="Send message"
               title="Send message"
-              className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+              className="w-7 h-7 rounded-lg bg-[var(--brand)] text-white flex items-center justify-center hover:bg-[var(--brand-strong)] disabled:opacity-40 disabled:cursor-not-allowed transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
             >
               <Send className="w-3.5 h-3.5" aria-hidden="true" />
             </button>

@@ -103,8 +103,8 @@ export default function JournalPage() {
           <div className="p-12 text-center text-slate-500 text-sm">Loading journal…</div>
         ) : entries.length === 0 ? (
           <div className="p-12 flex flex-col items-center gap-3 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-[#2563EB]" />
+            <div className="w-12 h-12 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center">
+              <FileText className="w-5 h-5 text-[var(--brand)]" />
             </div>
             <p className="text-sm font-semibold text-slate-700">No journal entries yet</p>
             <p className="text-xs text-slate-500 max-w-sm">Post your first balanced entry to start the ledger.</p>

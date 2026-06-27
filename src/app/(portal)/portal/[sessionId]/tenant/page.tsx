@@ -106,7 +106,7 @@ export default async function TenantPortalHome({ params }: { params: Promise<{ s
       {/* Property hero */}
       <PortalCard className="overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr]">
-          <div className="relative h-44 lg:h-auto bg-gradient-to-br from-[#1E3A8A] to-[#2563EB]">
+          <div className="relative h-44 lg:h-auto bg-gradient-to-br from-[#1E3A8A] to-[var(--brand)]">
             {prop.image
               // eslint-disable-next-line @next/next/no-img-element
               ? <img src={prop.image} alt={prop.label} className="absolute inset-0 w-full h-full object-cover" />
@@ -210,7 +210,7 @@ export default async function TenantPortalHome({ params }: { params: Promise<{ s
           <PortalSectionCard title="Your contacts" icon={Phone}>
             <div className="space-y-2.5">
               <div className="flex items-center gap-2.5">
-                <span className="w-9 h-9 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-xs font-bold">{session.workspaceName.split(" ").map((w) => w[0]).slice(0, 2).join("")}</span>
+                <span className="w-9 h-9 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">{session.workspaceName.split(" ").map((w) => w[0]).slice(0, 2).join("")}</span>
                 <div className="min-w-0"><p className="text-sm font-semibold text-[#071B4D] truncate">{session.workspaceName}</p><p className="text-[11px] text-slate-400">Property manager</p></div>
               </div>
               <PortalAlertBanner tone="red" icon={AlertTriangle} title="Out-of-hours emergency"><span>Gas, flood or fire — call <span className="font-semibold">0800 000 000</span> immediately.</span></PortalAlertBanner>
@@ -223,7 +223,7 @@ export default async function TenantPortalHome({ params }: { params: Promise<{ s
 }
 
 function AttnRow({ tone, icon: Icon, title, sub, href }: { tone: PortalTone; icon: typeof Wrench; title: string; sub: string; href: string }) {
-  const soft = tone === "blue" ? "bg-[#EFF6FF] text-[#2563EB]" : tone === "amber" ? "bg-amber-50 text-amber-600" : "bg-slate-100 text-slate-500"
+  const soft = tone === "blue" ? "bg-[var(--brand-soft)] text-[var(--brand)]" : tone === "amber" ? "bg-amber-50 text-amber-600" : "bg-slate-100 text-slate-500"
   return (
     <Link href={href} className="flex items-center gap-3 rounded-xl border border-[#EEF3FB] hover:border-[#CFE0FB] hover:bg-[#F8FBFF] px-3 py-2.5 transition-colors">
       <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${soft}`}><Icon className="w-4 h-4" /></span>
@@ -233,7 +233,7 @@ function AttnRow({ tone, icon: Icon, title, sub, href }: { tone: PortalTone; ico
   )
 }
 function QuickAction({ href, icon: Icon, label, tone }: { href: string; icon: typeof Wrench; label: string; tone: PortalTone }) {
-  const soft = tone === "blue" ? "bg-[#EFF6FF] text-[#2563EB]" : tone === "emerald" ? "bg-emerald-50 text-emerald-600" : tone === "amber" ? "bg-amber-50 text-amber-600" : "bg-violet-50 text-violet-600"
+  const soft = tone === "blue" ? "bg-[var(--brand-soft)] text-[var(--brand)]" : tone === "emerald" ? "bg-emerald-50 text-emerald-600" : tone === "amber" ? "bg-amber-50 text-amber-600" : "bg-violet-50 text-violet-600"
   return (
     <Link href={href} className="flex flex-col items-center gap-2 rounded-xl border border-[#EEF3FB] hover:border-[#CFE0FB] hover:bg-[#F8FBFF] py-4 px-2 text-center transition-colors">
       <span className={`w-10 h-10 rounded-xl flex items-center justify-center ${soft}`}><Icon className="w-5 h-5" /></span>

@@ -26,7 +26,7 @@ export default function SupplierPayoutsPage() {
     { icon: CheckCircle2, iconBg: "bg-emerald-50", iconColor: "text-emerald-600", value: s ? moneyPence(s.paidPence, ccy) : "—", label: "Paid out", sub: "Lifetime", subColor: "text-slate-500" },
     { icon: Clock, iconBg: "bg-amber-50", iconColor: "text-amber-600", value: s ? moneyPence(s.pendingPence, ccy) : "—", label: "Pending", sub: "In transit", subColor: "text-slate-500" },
     { icon: XCircle, iconBg: "bg-red-50", iconColor: "text-red-600", value: s ? moneyPence(s.failedPence, ccy) : "—", label: "Failed / reversed", sub: "Needs attention", subColor: "text-slate-500" },
-    { icon: Wallet, iconBg: "bg-blue-50", iconColor: "text-blue-600", value: s ? String(s.count) : "—", label: "Total payouts" },
+    { icon: Wallet, iconBg: "bg-[var(--brand-soft)]", iconColor: "text-[var(--brand)]", value: s ? String(s.count) : "—", label: "Total payouts" },
   ]
 
   const mobileMapping: MobileCardMapping<SupplierPayoutRow> = {

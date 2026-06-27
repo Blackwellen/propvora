@@ -19,7 +19,7 @@ export function TaskStepDetails({ data, onChange, properties, propertiesLoading 
       </div>
       <div>
         <label className={labelClass}>Description</label>
-        <textarea placeholder="Describe the task in detail..." value={data.description} onChange={(e) => onChange({ description: e.target.value })} rows={3} className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none bg-white placeholder:text-slate-400" />
+        <textarea placeholder="Describe the task in detail..." value={data.description} onChange={(e) => onChange({ description: e.target.value })} rows={3} className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] resize-none bg-white placeholder:text-slate-400" />
       </div>
       <div>
         <label className={labelClass}>Category</label>
@@ -27,7 +27,7 @@ export function TaskStepDetails({ data, onChange, properties, propertiesLoading 
           {CATEGORIES.map((cat) => {
             const Icon = cat.icon
             return (
-              <button key={cat.key} type="button" onClick={() => onChange({ category: cat.key })} className={cn("flex flex-col items-center gap-1.5 p-3 rounded-xl border text-xs font-medium transition-all", data.category === cat.key ? "border-blue-500 bg-blue-50 text-blue-700" : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50")}>
+              <button key={cat.key} type="button" onClick={() => onChange({ category: cat.key })} className={cn("flex flex-col items-center gap-1.5 p-3 rounded-xl border text-xs font-medium transition-all", data.category === cat.key ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50")}>
                 <Icon className="w-4 h-4" />
                 {cat.label}
               </button>
@@ -53,7 +53,7 @@ export function TaskStepDetails({ data, onChange, properties, propertiesLoading 
           value={data.propertyId}
           onChange={(e) => { const prop = properties.find((p) => p.id === e.target.value); onChange({ propertyId: e.target.value, propertyName: prop?.name ?? "" }) }}
           disabled={propertiesLoading}
-          className="w-full h-10 px-3 rounded-xl border border-slate-200 text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer bg-white disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full h-10 px-3 rounded-xl border border-slate-200 text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] cursor-pointer bg-white disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <option value="">{propertiesLoading ? "Loading properties…" : "Select property..."}</option>
           {properties.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}

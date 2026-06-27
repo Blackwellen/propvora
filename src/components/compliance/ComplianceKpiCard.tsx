@@ -18,7 +18,7 @@ interface ComplianceKpiCardProps {
 // Delegates to the canonical StatCard for one consistent KPI style app-wide.
 export function ComplianceKpiCard({
   label, value, subtitle, trend, trendPositive,
-  icon: Icon, iconBg = "bg-blue-100", iconColor = "text-blue-600", href,
+  icon: Icon, iconBg = "bg-[var(--color-brand-100)]", iconColor = "text-[var(--brand)]", href,
 }: ComplianceKpiCardProps) {
   return (
     <StatCard

@@ -42,7 +42,7 @@ export default function ManualTransactionPage() {
             <div className="relative">
               <input
                 type="date"
-                className="w-full h-9 px-3 pr-9 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+                className="w-full h-9 px-3 pr-9 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
               />
               <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             </div>
@@ -52,7 +52,7 @@ export default function ManualTransactionPage() {
             <label className="text-sm font-medium text-slate-700">Property <span className="text-[#EF4444]">*</span></label>
             <div className="relative">
               <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-              <select className="w-full h-9 pl-9 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+              <select className="w-full h-9 pl-9 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30">
                 <option value="">Select a property…</option>
               </select>
             </div>
@@ -65,14 +65,14 @@ export default function ManualTransactionPage() {
               <input
                 type="text"
                 placeholder="Contact or supplier name"
-                className="w-full h-9 pl-9 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+                className="w-full h-9 pl-9 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Transaction Type <span className="text-[#EF4444]">*</span></label>
-            <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+            <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30">
               <option>Expense</option>
               <option>Income</option>
               <option>Transfer</option>
@@ -85,13 +85,13 @@ export default function ManualTransactionPage() {
             <input
               type="text"
               defaultValue="EXP-2026-04-0001"
-              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             />
           </div>
 
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Tax Code</label>
-            <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+            <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30">
               <option>20% (Standard Rate)</option>
               <option>5% (Reduced Rate)</option>
               <option>Exempt</option>
@@ -106,7 +106,7 @@ export default function ManualTransactionPage() {
             <input
               type="text"
               defaultValue="Repairs & maintenance materials for common areas"
-              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             />
           </div>
           <div className="space-y-1.5">
@@ -114,7 +114,7 @@ export default function ManualTransactionPage() {
             <textarea
               defaultValue="Replacement of lighting fixtures in main lobby and corridors. Invoice INV-38492."
               rows={3}
-              className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 resize-none"
+              className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 resize-none"
             />
           </div>
         </div>
@@ -190,10 +190,10 @@ export default function ManualTransactionPage() {
         </div>
       </div>
 
-      <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+      <div className="bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-xl p-4">
         <div className="flex items-start gap-2.5">
-          <Info className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
-          <p className="text-xs text-blue-700 leading-relaxed">
+          <Info className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
+          <p className="text-xs text-[var(--brand)] leading-relaxed">
             Balanced double-entry transactions are posted from the Journal Ledger, where debits are
             validated against credits before posting. Posted entries are immutable and corrected via reversal.
           </p>

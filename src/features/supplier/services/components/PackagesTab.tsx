@@ -109,7 +109,7 @@ export function PackagesTab() {
           <div className="space-y-3">
             {packages.map((p) => (
               <button key={p.id} onClick={() => setSelectedId(p.id)}
-                className={cn("w-full text-left", selectedId === p.id && "ring-2 ring-blue-500 rounded-2xl")}>
+                className={cn("w-full text-left", selectedId === p.id && "ring-2 ring-[var(--brand)] rounded-2xl")}>
                 <SupplierCard className="p-3">
                   <div className="flex gap-3">
                     <GripVertical className="w-4 h-4 text-slate-300 mt-1 shrink-0 cursor-grab" />
@@ -167,7 +167,7 @@ export function PackagesTab() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Included service lines</p>
-                    <button onClick={() => push("Add service line (TODO)")} className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700">
+                    <button onClick={() => push("Add service line (TODO)")} className="inline-flex items-center gap-1 text-xs font-medium text-[var(--brand)] hover:text-[var(--brand)]">
                       <Plus className="w-3.5 h-3.5" /> Add service line
                     </button>
                   </div>
@@ -184,8 +184,8 @@ export function PackagesTab() {
                 <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 space-y-2">
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Package pricing</p>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => push("Fixed price selected")} className={cn("flex-1 rounded-lg border px-3 py-2 text-sm font-medium", selected.pricingModel !== "range" ? "border-blue-500 bg-blue-50 text-blue-700" : "border-slate-200 text-slate-600")}>Fixed price</button>
-                    <button onClick={() => push("Price range selected")} className={cn("flex-1 rounded-lg border px-3 py-2 text-sm font-medium", selected.pricingModel === "range" ? "border-blue-500 bg-blue-50 text-blue-700" : "border-slate-200 text-slate-600")}>Price range</button>
+                    <button onClick={() => push("Fixed price selected")} className={cn("flex-1 rounded-lg border px-3 py-2 text-sm font-medium", selected.pricingModel !== "range" ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 text-slate-600")}>Fixed price</button>
+                    <button onClick={() => push("Price range selected")} className={cn("flex-1 rounded-lg border px-3 py-2 text-sm font-medium", selected.pricingModel === "range" ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 text-slate-600")}>Price range</button>
                   </div>
                   <div className="grid grid-cols-3 gap-2 pt-1 text-center text-xs">
                     <Stat label="Lines total" value={formatPence(linesTotal)} />
@@ -217,7 +217,7 @@ export function PackagesTab() {
                 {selected?.addons.map((a) => (
                   <button key={a.id} onClick={() => toggleAddon(a.id)} className="w-full flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">
                     <span className="flex items-center gap-2 text-sm text-slate-700">
-                      <span className={cn("w-4 h-4 rounded border flex items-center justify-center", a.attached ? "bg-blue-600 border-blue-600 text-white" : "border-slate-300")}>{a.attached && <Check className="w-3 h-3" />}</span>
+                      <span className={cn("w-4 h-4 rounded border flex items-center justify-center", a.attached ? "bg-[var(--brand)] border-[var(--brand)] text-white" : "border-slate-300")}>{a.attached && <Check className="w-3 h-3" />}</span>
                       {a.name}
                     </span>
                     <span className="text-sm font-medium text-slate-600">{formatPence(a.pricePence)}</span>
@@ -317,7 +317,7 @@ function AddonMatrix({ packages, push }: { packages: ServicePackage[]; push: (m:
                   return (
                     <td key={p.id} className="px-3 py-2.5 text-center">
                       {a ? (
-                        <button onClick={() => push("Add-on toggled (TODO)")} className={cn("inline-flex items-center justify-center w-6 h-6 rounded", a.attached ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400")}>
+                        <button onClick={() => push("Add-on toggled (TODO)")} className={cn("inline-flex items-center justify-center w-6 h-6 rounded", a.attached ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-400")}>
                           {a.attached ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
                         </button>
                       ) : <span className="text-slate-300">—</span>}

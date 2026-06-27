@@ -33,7 +33,7 @@ export default function SupplierInvoicesPage() {
   const ccy = s?.currency ?? "GBP"
 
   const kpis: SupplierKpi[] = [
-    { icon: ReceiptText, iconBg: "bg-blue-50", iconColor: "text-blue-600", value: s ? moneyPence(s.totalPence, ccy) : "—", label: "Total billed" },
+    { icon: ReceiptText, iconBg: "bg-[var(--brand-soft)]", iconColor: "text-[var(--brand)]", value: s ? moneyPence(s.totalPence, ccy) : "—", label: "Total billed" },
     { icon: Send, iconBg: "bg-amber-50", iconColor: "text-amber-600", value: s ? moneyPence(s.outstandingPence, ccy) : "—", label: "Outstanding" },
     { icon: ReceiptText, iconBg: "bg-emerald-50", iconColor: "text-emerald-600", value: s ? moneyPence(s.paidPence, ccy) : "—", label: "Paid" },
     { icon: ReceiptText, iconBg: "bg-slate-100", iconColor: "text-slate-500", value: s ? moneyPence(s.draftPence, ccy) : "—", label: "Draft" },

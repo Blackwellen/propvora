@@ -73,7 +73,7 @@ export default function Step2Details({
       {/* Photo / logo uploader */}
       <div className="flex items-center gap-4">
         <div className="relative">
-          <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-bold text-lg overflow-hidden">
+          <div className="w-16 h-16 rounded-2xl bg-[var(--brand)] flex items-center justify-center text-white font-bold text-lg overflow-hidden">
             {avatarKeyToUrl(state.avatarKey) ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatarKeyToUrl(state.avatarKey)!} alt="" className="w-full h-full object-cover" />
@@ -88,7 +88,7 @@ export default function Step2Details({
             className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:bg-slate-50 transition-colors"
           >
             {uploadingAvatar ? (
-              <Loader2 className="w-3 h-3 text-blue-600 animate-spin" />
+              <Loader2 className="w-3 h-3 text-[var(--brand)] animate-spin" />
             ) : (
               <Camera className="w-3 h-3 text-slate-600" />
             )}
@@ -180,10 +180,10 @@ export default function Step2Details({
           {state.tags.map((tag) => (
             <span
               key={tag.id}
-              className="flex items-center gap-1 rounded-full bg-blue-100 text-blue-700 text-xs px-2.5 py-0.5"
+              className="flex items-center gap-1 rounded-full bg-[var(--color-brand-100)] text-[var(--brand)] text-xs px-2.5 py-0.5"
             >
               {tag.label}
-              <button type="button" onClick={() => removeTag(tag.id)} aria-label={`Remove tag ${tag.label}`} className="ml-0.5 hover:text-blue-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
+              <button type="button" onClick={() => removeTag(tag.id)} aria-label={`Remove tag ${tag.label}`} className="ml-0.5 hover:text-[var(--brand-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] rounded">
                 <X className="w-3 h-3" />
               </button>
             </span>
@@ -197,13 +197,13 @@ export default function Step2Details({
             onChange={(e) => setTagInput(e.target.value)}
             onKeyDown={handleTagKeyDown}
             placeholder="Type a tag and press Enter…"
-            className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
           />
           <button
             type="button"
             onClick={addTag}
             aria-label="Add tag"
-            className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
           >
             <Tag className="w-4 h-4" />
           </button>

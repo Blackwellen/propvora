@@ -5,6 +5,7 @@ import { Upload, Check, Loader2, Info } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { uploadFile, validateUploadFile } from "@/lib/upload"
 import { broadcastBranding } from "@/lib/branding/BrandingLiveApply"
+import { BRAND_FONT_OPTIONS } from "@/lib/branding/theme"
 
 /** Resolve a stored R2 key to its authed streaming URL. */
 function keyToUrl(key: string | null): string | null {
@@ -24,6 +25,8 @@ interface BrandColours {
   secondary: string
   accent: string
   background: string
+  /** Optional brand font family (curated). Empty = system default. */
+  font?: string
 }
 
 async function uploadLogo(workspaceId: string, file: File): Promise<string> {
@@ -77,7 +80,7 @@ function LogoUploadZone({
       {hint && <p className="text-[11px] text-slate-400 mb-2">{hint}</p>}
       <div
         onClick={() => !uploading && inputRef.current?.click()}
-        className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-[#2563EB] transition-colors cursor-pointer group"
+        className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-[var(--brand)] transition-colors cursor-pointer group"
       >
         <input
           ref={inputRef}
@@ -92,15 +95,15 @@ function LogoUploadZone({
             <img src={displayUrl} alt={`${name} preview`} className="max-w-full max-h-full object-contain" />
           </div>
         ) : (
-          <div className="w-9 h-9 rounded-xl bg-slate-100 group-hover:bg-blue-50 flex items-center justify-center mx-auto mb-3 transition-colors">
+          <div className="w-9 h-9 rounded-xl bg-slate-100 group-hover:bg-[var(--brand-soft)] flex items-center justify-center mx-auto mb-3 transition-colors">
             {uploading ? (
-              <Loader2 className="w-4 h-4 text-[#2563EB] animate-spin" />
+              <Loader2 className="w-4 h-4 text-[var(--brand)] animate-spin" />
             ) : (
-              <Upload className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] transition-colors" />
+              <Upload className="w-4 h-4 text-slate-400 group-hover:text-[var(--brand)] transition-colors" />
             )}
           </div>
         )}
-        <p className="text-[12.5px] font-semibold text-slate-700 group-hover:text-[#2563EB] transition-colors">
+        <p className="text-[12.5px] font-semibold text-slate-700 group-hover:text-[var(--brand)] transition-colors">
           {uploading ? "Uploading…" : currentKey ? "Replace" : "Upload"}
         </p>
         {currentKey ? (
@@ -150,7 +153,7 @@ function FaviconUploadZone({
   return (
     <div
       onClick={() => !uploading && inputRef.current?.click()}
-      className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-[#2563EB] transition-colors cursor-pointer group max-w-[200px]"
+      className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-[var(--brand)] transition-colors cursor-pointer group max-w-[200px]"
     >
       <input
         ref={inputRef}
@@ -161,13 +164,13 @@ function FaviconUploadZone({
       />
       <div className={`w-8 h-8 rounded-lg bg-white border overflow-hidden flex items-center justify-center mx-auto mb-2 ${isDefault ? "border-dashed border-slate-200 opacity-50" : "border-slate-200"}`}>
         {uploading ? (
-          <Loader2 className="w-4 h-4 text-[#2563EB] animate-spin" />
+          <Loader2 className="w-4 h-4 text-[var(--brand)] animate-spin" />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={displayUrl} alt="Favicon preview" className="w-6 h-6 object-contain" />
         )}
       </div>
-      <p className="text-[12px] font-semibold text-slate-700 group-hover:text-[#2563EB] transition-colors">
+      <p className="text-[12px] font-semibold text-slate-700 group-hover:text-[var(--brand)] transition-colors">
         {currentKey ? "Replace favicon" : "Upload favicon"}
       </p>
       {isDefault ? (
@@ -192,6 +195,7 @@ export default function BrandingPage() {
     secondary:  "#1d4ed8",
     accent:     "#7C3AED",
     background: "#F8FAFC",
+    font:       "",
   })
   const [isDirty, setIsDirty] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -273,7 +277,7 @@ export default function BrandingPage() {
     }
   }
 
-  const COLOUR_ROWS: { key: keyof BrandColours; label: string; hint: string }[] = [
+  const COLOUR_ROWS: { key: "primary" | "secondary" | "accent" | "background"; label: string; hint: string }[] = [
     { key: "primary",    label: "Primary colour",    hint: "Buttons, links, and active highlights"  },
     { key: "secondary",  label: "Secondary colour",  hint: "Hover states and secondary actions"      },
     { key: "accent",     label: "Accent colour",     hint: "Badges, tags and feature highlights"     },
@@ -348,18 +352,39 @@ export default function BrandingPage() {
             </div>
           ))}
         </div>
+
+        {/* Brand font */}
+        <div className="mt-5 pt-5 border-t border-slate-100">
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <p className="text-[13px] font-medium text-slate-800">Brand font</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">Typeface applied across the app, portals and documents</p>
+            </div>
+            <select
+              value={colours.font ?? ""}
+              onChange={e => { setColours(prev => ({ ...prev, font: e.target.value })); setIsDirty(true); setSaved(false) }}
+              className="w-[200px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[var(--brand)] transition-all"
+              style={{ fontFamily: colours.font ? `'${colours.font}', sans-serif` : undefined }}
+            >
+              {BRAND_FONT_OPTIONS.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <div className="mt-4 flex items-center gap-3">
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-70"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
             {saving ? "Saving…" : saved ? "Saved" : "Save branding"}
           </button>
           <button
             onClick={() => {
-              setColours({ primary: "#2563EB", secondary: "#1d4ed8", accent: "#7C3AED", background: "#F8FAFC" })
+              setColours({ primary: "#2563EB", secondary: "#1d4ed8", accent: "#7C3AED", background: "#F8FAFC", font: "" })
               setIsDirty(true)
               setSaved(false)
             }}
@@ -454,7 +479,7 @@ export default function BrandingPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-70"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
               {saving ? "Saving…" : saved ? "Saved!" : "Save branding"}

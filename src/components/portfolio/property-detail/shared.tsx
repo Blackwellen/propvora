@@ -112,7 +112,7 @@ export const fmt = (n: number) =>
 /** Returns a CSS gradient keyed by property type */
 export function getPropertyGradient(propertyType: string | null | undefined): string {
   const t = (propertyType ?? "").toLowerCase()
-  if (t === "hmo") return "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)"
+  if (t === "hmo") return "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)"
   if (t === "btl" || t === "long-term let" || t === "long_term_let") return "linear-gradient(135deg, #059669 0%, #10B981 100%)"
   if (t === "sa" || t === "serviced" || t === "serviced_accommodation") return "linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)"
   if (t === "r2r" || t === "rent_to_rent" || t === "rent-to-rent") return "linear-gradient(135deg, #EA580C 0%, #F97316 100%)"
@@ -197,14 +197,14 @@ export function StatusPill({ status }: { status: string }) {
     under_works: "bg-amber-50 text-amber-700 border border-amber-200",
     reserved: "bg-violet-50 text-violet-700 border border-violet-200",
     active: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-    pending: "bg-blue-50 text-blue-700 border border-blue-200",
+    pending: "bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]",
     ended: "bg-slate-100 text-slate-600 border border-slate-200",
     disputed: "bg-red-50 text-red-700 border border-red-200",
     surrendered: "bg-slate-100 text-slate-600 border border-slate-200",
     Active: "bg-emerald-50 text-emerald-700 border border-emerald-200",
     Occupied: "bg-emerald-50 text-emerald-700 border border-emerald-200",
     Compliant: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-    Scheduled: "bg-blue-50 text-blue-700 border border-blue-200",
+    Scheduled: "bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]",
     Completed: "bg-emerald-50 text-emerald-700 border border-emerald-200",
     Prospect: "bg-violet-50 text-violet-700 border border-violet-200",
     Available: "bg-slate-100 text-slate-600 border border-slate-200",
@@ -226,7 +226,7 @@ export function StatusPill({ status }: { status: string }) {
 
 export function EditPen({ className }: { className?: string }) {
   return (
-    <button aria-label="Edit field" className={cn("opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity p-1 rounded hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500", className)}>
+    <button aria-label="Edit field" className={cn("opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity p-1 rounded hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]", className)}>
       <Edit2 size={12} className="text-slate-400" />
     </button>
   )

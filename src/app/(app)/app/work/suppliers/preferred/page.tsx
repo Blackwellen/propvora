@@ -33,9 +33,9 @@ import { useWorkspaceSupplierRatings } from "@/lib/suppliers/ratings"
 
 function buildKpis(total: number, preferred: number, tradesCount: number) {
   return [
-    { label: "Preferred Suppliers", value: String(preferred), sub: "Marked preferred", trend: `${total} total`, trendColor: "text-blue-600" },
+    { label: "Preferred Suppliers", value: String(preferred), sub: "Marked preferred", trend: `${total} total`, trendColor: "text-[var(--brand)]" },
     { label: "Total Suppliers", value: String(total), sub: "In your network", trend: "", trendColor: "text-slate-400" },
-    { label: "Active Trades", value: String(tradesCount), sub: "Covered by your network", trend: "trades", trendColor: "text-blue-600" },
+    { label: "Active Trades", value: String(tradesCount), sub: "Covered by your network", trend: "trades", trendColor: "text-[var(--brand)]" },
     { label: "Avg Response Time", value: "—", sub: "Builds up as jobs complete", trend: "", trendColor: "text-slate-400" },
   ]
 }
@@ -88,8 +88,8 @@ function SupplierCard({
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h3 className="text-[13.5px] font-semibold text-slate-900">{supplier.name}</h3>
-            {supplier.preferred && <BadgeCheck className="w-4 h-4 text-[#2563EB] shrink-0" />}
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-blue-700 border-blue-200">
+            {supplier.preferred && <BadgeCheck className="w-4 h-4 text-[var(--brand)] shrink-0" />}
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]">
               {supplier.trade}
             </span>
           </div>
@@ -162,7 +162,7 @@ function SupplierCard({
             </Link>
             <Link
               href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors text-center"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[12.5px] font-semibold hover:bg-[var(--brand-strong)] transition-colors text-center"
             >
               <Wrench className="w-3.5 h-3.5" /> Generate Job
             </Link>
@@ -191,7 +191,7 @@ function SupplierCard({
             </Link>
             <Link
               href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
-              className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-[12px] font-semibold hover:bg-[#1d4ed8] transition-colors whitespace-nowrap"
+              className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--brand)] text-white text-[12px] font-semibold hover:bg-[var(--brand-strong)] transition-colors whitespace-nowrap"
             >
               <Wrench className="w-3.5 h-3.5" /> Generate Job
             </Link>
@@ -355,7 +355,7 @@ export default function PreferredSuppliersPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search suppliers by name, trade or service..."
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50 bg-white"
+            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]/50 bg-white"
           />
         </div>
 
@@ -363,7 +363,7 @@ export default function PreferredSuppliersPage() {
           <select
             value={tradeFilter}
             onChange={(e) => setTradeFilter(e.target.value)}
-            className="appearance-none border border-slate-200 rounded-lg pl-3 pr-7 py-2 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 cursor-pointer"
+            className="appearance-none border border-slate-200 rounded-lg pl-3 pr-7 py-2 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 cursor-pointer"
           >
             {trades.map((o) => (
               <option key={o}>{o}</option>
@@ -377,11 +377,11 @@ export default function PreferredSuppliersPage() {
           className={cn(
             "flex items-center gap-1.5 px-3 py-2 rounded-lg border text-[12px] font-semibold transition-colors",
             preferredOnly
-              ? "border-[#2563EB] bg-blue-50 text-[#2563EB]"
+              ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
               : "border-slate-200 text-slate-600 hover:bg-slate-50"
           )}
         >
-          <Star className={cn("w-3.5 h-3.5", preferredOnly && "fill-[#2563EB]")} /> Preferred only
+          <Star className={cn("w-3.5 h-3.5", preferredOnly && "fill-[var(--brand)]")} /> Preferred only
         </button>
 
         <button onClick={clearFilters} className="text-[12px] font-medium text-slate-500 hover:text-slate-700 px-1">
@@ -440,13 +440,13 @@ export default function PreferredSuppliersPage() {
         <div className="space-y-4">
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-start gap-2 mb-3">
-              <Wrench className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
+              <Wrench className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
               <h3 className="text-sm font-semibold text-slate-900">Quick Actions</h3>
             </div>
             <div className="space-y-2">
               <Link
                 href="/property-manager/work/jobs/new"
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1d4ed8] transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors"
               >
                 <Wrench className="w-4 h-4" /> Generate Job
               </Link>

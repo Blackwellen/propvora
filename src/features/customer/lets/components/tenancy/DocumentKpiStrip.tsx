@@ -2,7 +2,7 @@ import { Clock, FilePlus2, FileSignature, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const KPIS = [
-  { id: "total", label: "Total documents", value: "38", icon: FileText, bg: "bg-blue-50 text-blue-600" },
+  { id: "total", label: "Total documents", value: "38", icon: FileText, bg: "bg-[var(--brand-soft)] text-[var(--brand)]" },
   { id: "sign", label: "Awaiting signature", value: "2", icon: FileSignature, bg: "bg-amber-50 text-amber-600" },
   { id: "recent", label: "Recently added", value: "4", icon: FilePlus2, bg: "bg-violet-50 text-violet-600" },
   { id: "expiring", label: "Expiring soon", value: "1", icon: Clock, bg: "bg-rose-50 text-rose-500" },

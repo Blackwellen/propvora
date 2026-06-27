@@ -57,7 +57,7 @@ export default function UnitDetailLayout({ children }: { children: React.ReactNo
     return (
       <div className="min-h-screen bg-slate-50/40 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <RefreshCw className="w-6 h-6 text-blue-600 animate-spin" />
+          <RefreshCw className="w-6 h-6 text-[var(--brand)] animate-spin" />
           <p className="text-sm text-slate-500">Loading unit…</p>
         </div>
       </div>
@@ -75,7 +75,7 @@ export default function UnitDetailLayout({ children }: { children: React.ReactNo
             <p className="text-[15px] font-bold text-slate-700">Unit not found</p>
             <p className="text-[13px] text-slate-500 mt-1">This unit doesn&apos;t exist or you don&apos;t have access to it.</p>
           </div>
-          <Link href="/property-manager/portfolio/units" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
+          <Link href="/property-manager/portfolio/units" className="text-[13px] font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
             <ChevronLeft className="w-3.5 h-3.5" /> Back to Units
           </Link>
         </div>
@@ -103,13 +103,13 @@ export default function UnitDetailLayout({ children }: { children: React.ReactNo
         <div className="hidden md:block bg-white border-b border-slate-200 px-6 py-3 sticky top-0 z-30">
           <div className="flex items-center justify-between">
             <nav className="flex items-center gap-1.5 text-[12px] text-slate-500">
-              <Link href="/property-manager/portfolio" className="hover:text-blue-600 font-medium">Portfolio</Link>
+              <Link href="/property-manager/portfolio" className="hover:text-[var(--brand)] font-medium">Portfolio</Link>
               <ChevronRight className="w-3 h-3 text-slate-300" />
-              <Link href="/property-manager/portfolio/properties" className="hover:text-blue-600 font-medium">Properties</Link>
+              <Link href="/property-manager/portfolio/properties" className="hover:text-[var(--brand)] font-medium">Properties</Link>
               {unit.property_id && (
                 <>
                   <ChevronRight className="w-3 h-3 text-slate-300" />
-                  <Link href={`/property-manager/portfolio/properties/${unit.property_id}`} className="hover:text-blue-600 font-medium">Property</Link>
+                  <Link href={`/property-manager/portfolio/properties/${unit.property_id}`} className="hover:text-[var(--brand)] font-medium">Property</Link>
                 </>
               )}
               <ChevronRight className="w-3 h-3 text-slate-300" />
@@ -118,7 +118,7 @@ export default function UnitDetailLayout({ children }: { children: React.ReactNo
             <div className="flex items-center gap-2">
               <Link
                 href={`/property-manager/portfolio/tenancies/new?unitId=${unitId}`}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 text-white rounded-xl text-[12px] font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-[var(--brand)] text-white rounded-xl text-[12px] font-semibold hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
               >
                 <Plus className="w-3.5 h-3.5" /> New Tenancy
               </Link>
@@ -136,8 +136,8 @@ export default function UnitDetailLayout({ children }: { children: React.ReactNo
         <div className="px-4 md:px-6 pb-8">
           {/* Entity hero row */}
           <div className="flex items-center gap-4 py-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <Home className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 rounded-2xl bg-[var(--color-brand-100)] flex items-center justify-center flex-shrink-0">
+              <Home className="w-6 h-6 text-[var(--brand)]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -171,7 +171,7 @@ export default function UnitDetailLayout({ children }: { children: React.ReactNo
                 <MapPin className="w-3 h-3" />
                 {unit.unit_type ?? "Unit"}
                 {unit.property_id && (
-                  <Link href={`/property-manager/portfolio/properties/${unit.property_id}`} className="text-blue-600 hover:underline ml-1">
+                  <Link href={`/property-manager/portfolio/properties/${unit.property_id}`} className="text-[var(--brand)] hover:underline ml-1">
                     · View Property
                   </Link>
                 )}
@@ -211,7 +211,7 @@ export default function UnitDetailLayout({ children }: { children: React.ReactNo
                 className={cn(
                   "px-4 py-2.5 text-[13px] font-semibold whitespace-nowrap border-b-2 transition-colors",
                   activeTab === tab.key
-                    ? "border-blue-600 text-blue-600"
+                    ? "border-[var(--brand)] text-[var(--brand)]"
                     : "border-transparent text-slate-500 hover:text-slate-800"
                 )}
               >

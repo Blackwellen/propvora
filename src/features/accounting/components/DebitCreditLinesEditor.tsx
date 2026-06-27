@@ -63,7 +63,7 @@ export function DebitCreditLinesEditor({ lines, onChange, className }: DebitCred
         <div className="flex items-center gap-2">
           <button
             onClick={addLine}
-            className="h-8 px-3 rounded-lg bg-[#2563EB] text-white text-xs font-medium flex items-center gap-1.5 hover:bg-[#1d4ed8] transition-colors"
+            className="h-8 px-3 rounded-lg bg-[var(--brand)] text-white text-xs font-medium flex items-center gap-1.5 hover:bg-[var(--brand-strong)] transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Add Line
@@ -106,7 +106,7 @@ export function DebitCreditLinesEditor({ lines, onChange, className }: DebitCred
                     value={line.accountCode ? `${line.accountCode} · ${line.accountName}` : ""}
                     onChange={(e) => updateLine(line.id, { accountName: e.target.value })}
                     placeholder="Select account..."
-                    className="w-full h-8 px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#2563EB] min-w-[160px]"
+                    className="w-full h-8 px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[var(--brand)] min-w-[160px]"
                   />
                 </td>
                 <td className="px-4 py-3">
@@ -114,14 +114,14 @@ export function DebitCreditLinesEditor({ lines, onChange, className }: DebitCred
                     value={line.description}
                     onChange={(e) => updateLine(line.id, { description: e.target.value })}
                     placeholder="Description..."
-                    className="w-full h-8 px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#2563EB] min-w-[120px]"
+                    className="w-full h-8 px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[var(--brand)] min-w-[120px]"
                   />
                 </td>
                 <td className="px-4 py-3">
                   <select
                     value={line.taxCode}
                     onChange={(e) => updateLine(line.id, { taxCode: e.target.value })}
-                    className="h-8 w-full px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-700 appearance-none focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+                    className="h-8 w-full px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-700 appearance-none focus:outline-none focus:ring-1 focus:ring-[var(--brand)]"
                   >
                     <option>20% (SR)</option>
                     <option>5% (RR)</option>
@@ -139,7 +139,7 @@ export function DebitCreditLinesEditor({ lines, onChange, className }: DebitCred
                       updateLine(line.id, { netAmount: net, vatAmount: vat, grossAmount: net + vat })
                     }}
                     placeholder="0.00"
-                    className="w-full h-8 px-2 rounded-lg border border-[#E2E8F0] text-xs text-right text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+                    className="w-full h-8 px-2 rounded-lg border border-[#E2E8F0] text-xs text-right text-slate-900 focus:outline-none focus:ring-1 focus:ring-[var(--brand)]"
                   />
                 </td>
                 <td className="px-4 py-3">
@@ -188,7 +188,7 @@ export function DebitCreditLinesEditor({ lines, onChange, className }: DebitCred
         {lines.length === 0 && (
           <div className="flex flex-col items-center py-10 text-slate-400">
             <p className="text-sm">No lines yet.</p>
-            <button onClick={addLine} className="mt-2 text-xs text-[#2563EB] font-medium hover:underline">
+            <button onClick={addLine} className="mt-2 text-xs text-[var(--brand)] font-medium hover:underline">
               + Add first line
             </button>
           </div>
@@ -222,7 +222,7 @@ export function DebitCreditLinesEditor({ lines, onChange, className }: DebitCred
 
       {/* Add line footer */}
       <div className="px-5 py-3 border-t border-[#E2E8F0]">
-        <button onClick={addLine} className="text-xs font-medium text-[#2563EB] hover:text-[#1d4ed8] transition-colors">
+        <button onClick={addLine} className="text-xs font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
           + Add another line
         </button>
       </div>

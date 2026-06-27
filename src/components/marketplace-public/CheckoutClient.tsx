@@ -172,8 +172,8 @@ export default function CheckoutClient({
     return (
       <Wrap>
         <div className="text-center">
-          <div className="w-14 h-14 rounded-full bg-[#EFF6FF] flex items-center justify-center mx-auto mb-4">
-            <LogIn className="w-7 h-7 text-[#2563EB]" />
+          <div className="w-14 h-14 rounded-full bg-[var(--brand-soft)] flex items-center justify-center mx-auto mb-4">
+            <LogIn className="w-7 h-7 text-[var(--brand)]" />
           </div>
           <h1 className="text-[19px] font-bold text-[#0B1B3F]">Sign in to complete your booking</h1>
           <p className="mt-2 text-[13.5px] text-slate-500 leading-relaxed">
@@ -182,7 +182,7 @@ export default function CheckoutClient({
           </p>
           <Link
             href={`/login?redirectTo=${encodeURIComponent(returnTo)}`}
-            className="mt-5 inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-[#2563EB] text-white text-[14px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+            className="mt-5 inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-[var(--brand)] text-white text-[14px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
           >
             <LogIn className="w-4 h-4" /> Sign in to continue
           </Link>
@@ -195,7 +195,7 @@ export default function CheckoutClient({
     return (
       <Wrap>
         <div className="text-center py-6 text-slate-500">
-          <Loader2 className="w-6 h-6 animate-spin mx-auto mb-3 text-[#2563EB]" />
+          <Loader2 className="w-6 h-6 animate-spin mx-auto mb-3 text-[var(--brand)]" />
           Setting up secure checkout…
         </div>
       </Wrap>
@@ -222,7 +222,7 @@ export default function CheckoutClient({
     return (
       <Wrap>
         <div className="text-center">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${held ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-[#2563EB]"}`}>
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${held ? "bg-emerald-100 text-emerald-600" : "bg-[var(--color-brand-100)] text-[var(--brand)]"}`}>
             {held ? <CheckCircle2 className="w-8 h-8" /> : <ShieldCheck className="w-8 h-8" />}
           </div>
           <h1 className="text-[20px] font-bold text-[#0B1B3F]">{held ? "Payment authorised" : "Order created"}</h1>
@@ -234,7 +234,7 @@ export default function CheckoutClient({
           {orderId && (
             <p className="mt-3 text-[12px] text-slate-400">Order reference <span className="font-semibold text-slate-600 tabular-nums break-all">{orderId}</span></p>
           )}
-          <Link href="/property-manager/marketplace/orders" className="mt-5 inline-flex items-center gap-1.5 h-11 px-5 rounded-xl bg-[#2563EB] text-white text-[14px] font-semibold hover:bg-[#1d4ed8] transition-colors">
+          <Link href="/property-manager/marketplace/orders" className="mt-5 inline-flex items-center gap-1.5 h-11 px-5 rounded-xl bg-[var(--brand)] text-white text-[14px] font-semibold hover:bg-[var(--brand-strong)] transition-colors">
             View my orders
           </Link>
         </div>
@@ -266,7 +266,7 @@ export default function CheckoutClient({
       <ul className="mt-4 space-y-2 border-t border-slate-100 pt-4 text-[12px] text-slate-500">
         <li className="flex items-start gap-2"><ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" /> Funds held in escrow until the work is completed</li>
         <li className="flex items-start gap-2"><Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" /> Card secured by Stripe — Propvora never stores your card</li>
-        <li className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#2563EB]" /> Authorised now, captured only on completion</li>
+        <li className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--brand)]" /> Authorised now, captured only on completion</li>
       </ul>
     </div>
   )
@@ -279,7 +279,7 @@ export default function CheckoutClient({
 
       {/* Stepper */}
       <div className="mb-5 flex items-center gap-2 text-[12px] font-semibold">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#EFF6FF] px-3 py-1 text-[#2563EB]">1 · Review</span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand-soft)] px-3 py-1 text-[var(--brand)]">1 · Review</span>
         <span className="h-px w-5 bg-slate-200" />
         <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0B1B3F] px-3 py-1 text-white">2 · Pay</span>
         <span className="h-px w-5 bg-slate-200" />
@@ -301,7 +301,7 @@ export default function CheckoutClient({
 
           <div className="mt-5">
             <label className="mb-1.5 block text-[12px] font-semibold uppercase tracking-wide text-slate-500">Card details</label>
-            <div className="min-h-[48px] rounded-xl border border-[#D6E0F0] bg-white px-3.5 py-3.5 transition-colors focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-[#2563EB]/20">
+            <div className="min-h-[48px] rounded-xl border border-[#D6E0F0] bg-white px-3.5 py-3.5 transition-colors focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/20">
               <div ref={cardMount} />
             </div>
             {cardError && <p className="mt-1.5 flex items-center gap-1.5 text-[12px] text-red-600"><AlertCircle className="h-3.5 w-3.5 shrink-0" /> {cardError}</p>}
@@ -312,7 +312,7 @@ export default function CheckoutClient({
           <button
             onClick={pay}
             disabled={submitting}
-            className="mt-5 hidden h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] text-[14.5px] font-semibold text-white transition-colors hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60 lg:flex"
+            className="mt-5 hidden h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand)] text-[14.5px] font-semibold text-white transition-colors hover:bg-[var(--brand-strong)] disabled:cursor-not-allowed disabled:opacity-60 lg:flex"
           >
             {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Authorising…</> : <><Lock className="h-4 w-4" /> Pay {amt}</>}
           </button>
@@ -335,7 +335,7 @@ export default function CheckoutClient({
           <button
             onClick={pay}
             disabled={submitting}
-            className="ml-auto inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-[#2563EB] text-[14.5px] font-semibold text-white transition-colors hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
+            className="ml-auto inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--brand)] text-[14.5px] font-semibold text-white transition-colors hover:bg-[var(--brand-strong)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Authorising…</> : <><Lock className="h-4 w-4" /> Pay securely</>}
           </button>

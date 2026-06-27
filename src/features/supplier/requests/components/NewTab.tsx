@@ -145,11 +145,11 @@ export function NewTab({ env, rows }: { env: RequestsEnvelope<PipelineRequest[]>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {paged.map((r) => (
-                      <tr key={r.id} onClick={() => setSelectedId(r.id)} className={`cursor-pointer hover:bg-slate-50/60 ${selected?.id === r.id ? "bg-blue-50/40" : ""}`}>
+                      <tr key={r.id} onClick={() => setSelectedId(r.id)} className={`cursor-pointer hover:bg-slate-50/60 ${selected?.id === r.id ? "bg-[var(--brand-soft)]/40" : ""}`}>
                         <Td>
                           <div className="flex items-center gap-1.5">
                             <span className="font-semibold text-slate-800">{r.requesterCompany}</span>
-                            {r.requesterVerified && <BadgeCheck className="w-3.5 h-3.5 text-blue-500" />}
+                            {r.requesterVerified && <BadgeCheck className="w-3.5 h-3.5 text-[var(--brand)]" />}
                           </div>
                           <p className="text-xs text-slate-400">{r.property.address}</p>
                         </Td>
@@ -170,14 +170,14 @@ export function NewTab({ env, rows }: { env: RequestsEnvelope<PipelineRequest[]>
                 {paged.map((r) => (
                   <SupplierCard
                     key={r.id}
-                    className={`p-4 cursor-pointer transition-all hover:border-slate-300 hover:shadow-md ${selected?.id === r.id ? "border-blue-300 ring-1 ring-blue-200" : ""}`}
+                    className={`p-4 cursor-pointer transition-all hover:border-slate-300 hover:shadow-md ${selected?.id === r.id ? "border-[var(--color-brand-300)] ring-1 ring-[var(--color-brand-100)]" : ""}`}
                   >
                     <button onClick={() => setSelectedId(r.id)} className="block w-full text-left">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
                             <span className="font-semibold text-slate-900 truncate">{r.requesterCompany}</span>
-                            {r.requesterVerified && <BadgeCheck className="w-4 h-4 text-blue-500 shrink-0" />}
+                            {r.requesterVerified && <BadgeCheck className="w-4 h-4 text-[var(--brand)] shrink-0" />}
                           </div>
                           <p className="text-sm text-slate-600 mt-0.5">{r.serviceTitle}</p>
                           <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" />{r.property.address}</p>
@@ -270,7 +270,7 @@ function NewDetailPanel({ r, act, onSendQuote }: { r: PipelineRequest; act: (l: 
             ))}
           </div>
         )}
-        <button onClick={() => act("Add file — opening uploader", "info")} className="mt-2 text-xs font-medium text-blue-600 hover:text-blue-700">+ Add file</button>
+        <button onClick={() => act("Add file — opening uploader", "info")} className="mt-2 text-xs font-medium text-[var(--brand)] hover:text-[var(--brand)]">+ Add file</button>
       </div>
 
       {/* Property details */}
@@ -287,8 +287,8 @@ function NewDetailPanel({ r, act, onSendQuote }: { r: PipelineRequest; act: (l: 
       </div>
 
       {/* Quote recommendation */}
-      <div className="rounded-xl bg-blue-50/50 border border-blue-100 p-3">
-        <p className="text-xs font-semibold text-blue-700 mb-2">Quote recommendation</p>
+      <div className="rounded-xl bg-[var(--brand-soft)]/50 border border-[var(--color-brand-100)] p-3">
+        <p className="text-xs font-semibold text-[var(--brand)] mb-2">Quote recommendation</p>
         <div className="grid grid-cols-3 gap-2 mb-2">
           <Stat label="Suggested" value={formatPence(rec.suggestedPricePence)} />
           <Stat label="Margin est." value={rec.marginEstPct == null ? "—" : `${rec.marginEstPct}%`} />

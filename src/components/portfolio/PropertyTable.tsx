@@ -22,7 +22,7 @@ type SortDir = "asc" | "desc"
 const TYPE_BADGE: Record<string, { label: string; bg: string; text: string }> = {
   SA:          { label: "SA",      bg: "bg-violet-100",  text: "text-violet-700" },
   R2R:         { label: "R2R",     bg: "bg-orange-100",  text: "text-orange-700" },
-  HMO:         { label: "HMO",     bg: "bg-blue-100",    text: "text-blue-700" },
+  HMO:         { label: "HMO",     bg: "bg-[var(--color-brand-100)]",    text: "text-[var(--brand)]" },
   BTL:         { label: "BTL",     bg: "bg-emerald-100", text: "text-emerald-700" },
   Commercial:  { label: "Comm.",   bg: "bg-slate-100",   text: "text-slate-700" },
   Mixed:       { label: "Mixed",   bg: "bg-indigo-100",  text: "text-indigo-700" },
@@ -33,7 +33,7 @@ const TYPE_BADGE: Record<string, { label: string; bg: string; text: string }> = 
 const STATUS_BADGE: Record<string, { label: string; dot: string; text: string; bg: string }> = {
   Active:        { label: "Occupied",    dot: "bg-emerald-500", text: "text-emerald-700", bg: "bg-emerald-50" },
   Vacant:        { label: "Vacant",      dot: "bg-amber-500",   text: "text-amber-700",   bg: "bg-amber-50" },
-  "Under Works": { label: "In Progress", dot: "bg-blue-500",    text: "text-blue-700",    bg: "bg-blue-50" },
+  "Under Works": { label: "In Progress", dot: "bg-[var(--brand)]",    text: "text-[var(--brand)]",    bg: "bg-[var(--brand-soft)]" },
   Archived:      { label: "Archived",    dot: "bg-slate-400",   text: "text-slate-600",   bg: "bg-slate-50" },
 }
 
@@ -66,7 +66,7 @@ function getInitials(name: string): string {
 /* Fallback gradients per type                                          */
 /* ------------------------------------------------------------------ */
 const TYPE_GRADIENTS: Record<string, string> = {
-  HMO:          "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
+  HMO:          "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)",
   BTL:          "linear-gradient(135deg, #059669 0%, #10B981 100%)",
   SA:           "linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)",
   R2R:          "linear-gradient(135deg, #EA580C 0%, #F97316 100%)",
@@ -115,8 +115,8 @@ export function PropertyTable({
   function SortIcon({ k }: { k: SortKey }) {
     if (sortKey !== k) return <ArrowUpDown className="w-3 h-3 text-slate-300 inline ml-1" />
     return sortDir === "asc"
-      ? <ChevronUp className="w-3 h-3 text-[#2563EB] inline ml-1" />
-      : <ChevronDown className="w-3 h-3 text-[#2563EB] inline ml-1" />
+      ? <ChevronUp className="w-3 h-3 text-[var(--brand)] inline ml-1" />
+      : <ChevronDown className="w-3 h-3 text-[var(--brand)] inline ml-1" />
   }
 
   function Th({ k, children }: { k: SortKey; children: React.ReactNode }) {
@@ -202,7 +202,7 @@ export function PropertyTable({
                         <Building2 size={16} className="text-white opacity-60" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[13px] font-bold text-slate-900 truncate group-hover:text-[#2563EB] transition-colors">
+                        <p className="text-[13px] font-bold text-slate-900 truncate group-hover:text-[var(--brand)] transition-colors">
                           {p.name}
                         </p>
                         <p className="text-[11px] text-slate-500 truncate max-w-[180px]">

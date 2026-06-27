@@ -34,7 +34,7 @@ export function ManagedEscrowDetailView({ escrowId, initialView = "overview" }: 
       <Banknote className="w-8 h-8 text-slate-200 mx-auto mb-3" />
       <p className="text-sm font-medium text-slate-600 mb-1">Escrow not found</p>
       <p className="text-[12.5px] text-slate-400 mb-4">This escrow may have been removed or the link may be incorrect.</p>
-      <Link href="/property-manager/money/escrow" className="text-[12.5px] text-[#2563EB] hover:underline">← Back to escrow</Link>
+      <Link href="/property-manager/money/escrow" className="text-[12.5px] text-[var(--brand)] hover:underline">← Back to escrow</Link>
     </div>
   )
 
@@ -86,7 +86,7 @@ export function ManagedEscrowDetailView({ escrowId, initialView = "overview" }: 
             <Card title="Timeline">
               <div className="flex flex-col divide-y divide-slate-100">
                 {timeline.map(t => (
-                  <div key={t.id} className="py-2.5 flex items-start gap-3"><div className="w-2 h-2 rounded-full bg-blue-400 mt-1.5" /><div><p className="text-sm text-slate-700">{t.fromState ? `${humanise(t.fromState)} → ` : ""}{humanise(t.toState)}{t.reason ? ` — ${t.reason}` : ""}</p><p className="text-xs text-slate-400">{t.actor} · {t.at}</p></div></div>
+                  <div key={t.id} className="py-2.5 flex items-start gap-3"><div className="w-2 h-2 rounded-full bg-[var(--color-brand-400)] mt-1.5" /><div><p className="text-sm text-slate-700">{t.fromState ? `${humanise(t.fromState)} → ` : ""}{humanise(t.toState)}{t.reason ? ` — ${t.reason}` : ""}</p><p className="text-xs text-slate-400">{t.actor} · {t.at}</p></div></div>
                 ))}
               </div>
             </Card>
@@ -97,7 +97,7 @@ export function ManagedEscrowDetailView({ escrowId, initialView = "overview" }: 
       {view === "evidence" && (
         <Card title="Evidence">
           {escrow.evidenceStatus === "missing" ? (
-            <p className="text-sm text-slate-500 py-6 text-center">No evidence submitted yet. <button onClick={() => showToast("Evidence requested")} className="text-[#2563EB] font-semibold">Request evidence</button></p>
+            <p className="text-sm text-slate-500 py-6 text-center">No evidence submitted yet. <button onClick={() => showToast("Evidence requested")} className="text-[var(--brand)] font-semibold">Request evidence</button></p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {evidence.map(ev => (

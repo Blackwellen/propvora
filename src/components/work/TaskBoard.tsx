@@ -8,7 +8,7 @@ import { Clock, AlertCircle } from "lucide-react"
 
 const COLUMNS: { key: TaskItem["status"]; label: string; color: string; bg: string }[] = [
   { key: "to_do", label: "To Do", color: "text-slate-600", bg: "bg-slate-100" },
-  { key: "in_progress", label: "In Progress", color: "text-[#2563EB]", bg: "bg-blue-100" },
+  { key: "in_progress", label: "In Progress", color: "text-[var(--brand)]", bg: "bg-[var(--color-brand-100)]" },
   { key: "waiting", label: "Waiting", color: "text-[#F59E0B]", bg: "bg-amber-100" },
   { key: "blocked", label: "Blocked", color: "text-[#EF4444]", bg: "bg-red-100" },
   { key: "done", label: "Done", color: "text-[#10B981]", bg: "bg-emerald-100" },
@@ -17,7 +17,7 @@ const COLUMNS: { key: TaskItem["status"]; label: string; color: string; bg: stri
 const priorityDots: Record<string, string> = {
   critical: "bg-[#EF4444]",
   high: "bg-[#F59E0B]",
-  medium: "bg-[#2563EB]",
+  medium: "bg-[var(--brand)]",
   low: "bg-slate-300",
 }
 
@@ -63,7 +63,7 @@ function TaskCard({ task }: TaskCardProps) {
           </div>
         ) : <span />}
         {task.assigneeInitials && (
-          <div className="w-5 h-5 rounded-full bg-[#2563EB] flex items-center justify-center text-white text-xs font-semibold">
+          <div className="w-5 h-5 rounded-full bg-[var(--brand)] flex items-center justify-center text-white text-xs font-semibold">
             {task.assigneeInitials}
           </div>
         )}

@@ -97,7 +97,7 @@ export function AffiliateEarnings({ basePath }: { basePath: string }) {
   if (!affiliate?.enrolled) {
     return (
       <div className="text-center py-16">
-        <p className="text-sm text-slate-500">You haven&apos;t enrolled yet. <Link href={basePath} className="text-[#2563EB] hover:underline">Join the programme</Link>.</p>
+        <p className="text-sm text-slate-500">You haven&apos;t enrolled yet. <Link href={basePath} className="text-[var(--brand)] hover:underline">Join the programme</Link>.</p>
       </div>
     )
   }
@@ -145,9 +145,9 @@ export function AffiliateEarnings({ basePath }: { basePath: string }) {
           <p className="text-xs text-amber-600">Pending (30-day cooling-off)</p>
           <p className="text-2xl font-bold text-[#F59E0B] mt-1">{formatPence(affiliate.pending_pence ?? 0)}</p>
         </div>
-        <div className="p-4 rounded-xl bg-[#EFF6FF] border border-blue-100">
-          <p className="text-xs text-[#2563EB]">Cleared (payable)</p>
-          <p className="text-2xl font-bold text-[#2563EB] mt-1">{formatPence(cleared)}</p>
+        <div className="p-4 rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)]">
+          <p className="text-xs text-[var(--brand)]">Cleared (payable)</p>
+          <p className="text-2xl font-bold text-[var(--brand)] mt-1">{formatPence(cleared)}</p>
         </div>
         <div className="p-4 rounded-xl bg-[#ECFDF5] border border-emerald-100">
           <p className="text-xs text-emerald-600">Paid out</p>
@@ -240,7 +240,7 @@ export function AffiliateEarnings({ basePath }: { basePath: string }) {
               <p className="mt-1 text-xs text-slate-400">
                 Payout account: {affiliate.payout_email
                   ? <span className="font-medium text-slate-600">{affiliate.payout_email}</span>
-                  : <Link href={`${basePath}/settings`} className="text-[#2563EB] hover:underline">add payout details</Link>}.
+                  : <Link href={`${basePath}/settings`} className="text-[var(--brand)] hover:underline">add payout details</Link>}.
               </p>
             </div>
           </div>
@@ -267,7 +267,7 @@ export function AffiliateEarnings({ basePath }: { basePath: string }) {
                 <button
                   onClick={handleRequest}
                   disabled={!canPayout || requesting}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#2563EB] px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {requesting && <Loader2 className="w-4 h-4 animate-spin" />}
                   {requesting ? "Requesting…" : `Request payout of ${formatPence(cleared)}`}

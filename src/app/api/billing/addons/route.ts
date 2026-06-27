@@ -73,6 +73,15 @@ export async function POST(request: NextRequest) {
       { status: 409 },
     )
   }
+  if (catalogAddon.interval === null) {
+    // One-time packs (e.g. AI credit packs) cannot be applied as a recurring
+    // subscription item — they must be bought via a one-off checkout. Reject
+    // honestly rather than letting Stripe 400 on a non-recurring price.
+    return NextResponse.json(
+      { error: `"${catalogAddon.name}" is a one-time pack and isn't managed as a recurring add-on.` },
+      { status: 409 },
+    )
+  }
 
   const quantityRaw = Number(body.quantity)
   const quantity =

@@ -35,7 +35,7 @@ const GRADIENT: Record<string, string> = {
   suppliers: "linear-gradient(135deg, #EA580C 0%, #F97316 100%)",
   emergency: "linear-gradient(135deg, #B91C1C 0%, #EF4444 100%)",
   services: "linear-gradient(135deg, #6D28D9 0%, #8B5CF6 100%)",
-  all: "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
+  all: "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)",
 }
 
 interface Props {
@@ -126,7 +126,7 @@ export default function PublicListingDetail({ listing, session }: Props) {
               </span>
             )}
             {listing.instantBook && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#2563EB]/90 px-2.5 py-0.5 text-[11px] font-semibold text-white">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--brand)]/90 px-2.5 py-0.5 text-[11px] font-semibold text-white">
                 <Zap className="w-3 h-3" aria-hidden="true" /> Instant book
               </span>
             )}
@@ -152,7 +152,7 @@ export default function PublicListingDetail({ listing, session }: Props) {
               onClick={() => setActive(i)}
               className={cn(
                 "relative w-20 h-14 shrink-0 rounded-xl overflow-hidden border-2 transition-all",
-                i === active ? "border-[#2563EB]" : "border-transparent opacity-70 hover:opacity-100"
+                i === active ? "border-[var(--brand)]" : "border-transparent opacity-70 hover:opacity-100"
               )}
               aria-label={`View image ${i + 1}`}
             >
@@ -288,7 +288,7 @@ export default function PublicListingDetail({ listing, session }: Props) {
                 size="lg"
               />
               {listing.instantBook && (
-                <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[#2563EB]">
+                <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[var(--brand)]">
                   <Zap className="w-3.5 h-3.5" aria-hidden="true" /> Instant
                 </span>
               )}
@@ -363,7 +363,7 @@ export default function PublicListingDetail({ listing, session }: Props) {
             </div>
             <Link
               href={`/marketplace/checkout/${listing.id}`}
-              className="ml-auto inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-[#2563EB] text-[14px] font-semibold text-white transition-colors hover:bg-[#1d4ed8]"
+              className="ml-auto inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--brand)] text-[14px] font-semibold text-white transition-colors hover:bg-[var(--brand-strong)]"
             >
               <CalendarCheck className="w-4 h-4" aria-hidden="true" />
               {isStay ? "Reserve" : "Book"}
@@ -491,7 +491,7 @@ function SupplierProfileLayout({ listing, session, intent, trust }: SupplierLayo
               />
             )}
             {listing.instantBook && (
-              <StatTile icon={<Zap className="w-4 h-4 text-[#2563EB]" aria-hidden="true" />} label="Response" value="Very fast" />
+              <StatTile icon={<Zap className="w-4 h-4 text-[var(--brand)]" aria-hidden="true" />} label="Response" value="Very fast" />
             )}
             {listing.serviceArea && (
               <StatTile icon={<MapPin className="w-4 h-4 text-slate-500" aria-hidden="true" />} label="Coverage" value={listing.serviceArea} />
@@ -668,7 +668,7 @@ function SupplierProfileLayout({ listing, session, intent, trust }: SupplierLayo
             </div>
             <Link
               href={`/marketplace/suppliers/${listing.id}`}
-              className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:text-[#1d4ed8] transition-colors"
+              className="inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
               aria-label={`View ${listing.title} profile`}
             >
               View <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -698,9 +698,9 @@ function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; va
 
 function KeyInfoTile({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className={cn("rounded-xl border p-3", accent ? "border-[#2563EB]/20 bg-[#EFF6FF]" : "border-slate-200 bg-white")}>
+    <div className={cn("rounded-xl border p-3", accent ? "border-[var(--brand)]/20 bg-[var(--brand-soft)]" : "border-slate-200 bg-white")}>
       <p className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400 mb-0.5">{label}</p>
-      <p className={cn("text-[14px] font-bold", accent ? "text-[#2563EB]" : "text-slate-800")}>{value}</p>
+      <p className={cn("text-[14px] font-bold", accent ? "text-[var(--brand)]" : "text-slate-800")}>{value}</p>
     </div>
   )
 }

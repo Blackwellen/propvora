@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { recordAudit } from "@/lib/audit/log"
 import { revalidatePath } from "next/cache"
 
 /* ------------------------------------------------------------------ */
@@ -64,26 +65,29 @@ async function resolveContext(): Promise<AuthedContext> {
 }
 
 /**
- * Writes an audit log entry. Best-effort — never throws (42P01-safe).
+ * Writes an audit log entry. Best-effort — never throws.
+ *
+ * Routes through the canonical `recordAudit` helper so the row lands in the
+ * real `audit_logs` columns (`metadata`, not a non-existent `detail` column).
+ * Keep metadata small and non-sensitive — never pass secrets/tokens.
  */
 async function writeAudit(
   workspaceId: string,
   userId: string,
   action: string,
-  detail: Record<string, unknown> = {}
+  metadata: Record<string, unknown> = {},
+  resourceType?: string,
+  resourceId?: string
 ): Promise<void> {
-  try {
-    const supabase = await createClient()
-    await supabase.from("audit_logs").insert({
-      workspace_id: workspaceId,
-      user_id: userId,
-      action,
-      detail,
-      created_at: new Date().toISOString(),
-    })
-  } catch {
-    /* audit table may not exist yet — non-fatal */
-  }
+  const supabase = await createClient()
+  await recordAudit(supabase, {
+    workspaceId,
+    userId,
+    action,
+    metadata,
+    resourceType: resourceType ?? null,
+    resourceId: resourceId ?? null,
+  })
 }
 
 /* ------------------------------------------------------------------ */
@@ -224,6 +228,60 @@ export async function saveWorkspaceSettings(
 }
 
 /* ------------------------------------------------------------------ */
+/* Menu Builder — sidebar module visibility + default landing page      */
+/* ------------------------------------------------------------------ */
+
+export interface NavConfigPatch {
+  hiddenModules?: string[]
+  defaultLanding?: string
+}
+
+/**
+ * Persists Menu Builder config into the `workspaces.settings` jsonb under a
+ * `nav` key, merging so i18n/other settings are preserved. Owner/admin only.
+ * Consumed live by SideNavigation (hidden modules) + login redirect (landing).
+ */
+export async function saveWorkspaceNav(patch: NavConfigPatch): Promise<SaveSettingsResult> {
+  let ctx: AuthedContext
+  try {
+    ctx = await resolveContext()
+  } catch (e) {
+    return { ok: false, unavailable: false, error: e instanceof Error ? e.message : "Unauthorised" }
+  }
+  if (!ctx.isOwner && ctx.role !== "admin") {
+    return { ok: false, unavailable: false, error: "Only owners and admins can change the menu." }
+  }
+
+  const supabase = await createClient()
+  const { data: ws } = await supabase
+    .from("workspaces")
+    .select("settings")
+    .eq("id", ctx.workspaceId)
+    .maybeSingle()
+
+  const current =
+    (ws?.settings && typeof ws.settings === "object" && !Array.isArray(ws.settings)
+      ? (ws.settings as Record<string, unknown>)
+      : {})
+  const currentNav =
+    (current.nav && typeof current.nav === "object" && !Array.isArray(current.nav)
+      ? (current.nav as Record<string, unknown>)
+      : {})
+  const nextSettings = { ...current, nav: { ...currentNav, ...patch } }
+
+  const { error } = await supabase
+    .from("workspaces")
+    .update({ settings: nextSettings, updated_at: new Date().toISOString() })
+    .eq("id", ctx.workspaceId)
+
+  if (error) return { ok: false, unavailable: false, error: error.message }
+
+  await writeAudit(ctx.workspaceId, ctx.userId, "workspace.nav_updated", { keys: Object.keys(patch) })
+  revalidatePath("/property-manager")
+  return { ok: true, unavailable: false }
+}
+
+/* ------------------------------------------------------------------ */
 /* Per-user preferences / notification settings                         */
 /* ------------------------------------------------------------------ */
 
@@ -232,19 +290,87 @@ export interface UserPrefsResult {
   unavailable: boolean
 }
 
-/** Reads the current user's row from user_preferences. 42P01-safe. */
+/**
+ * Resolves the signed-in user's id and their active workspace id without
+ * throwing. user_preferences is uniquely keyed on (user_id, workspace_id)
+ * with both columns NOT NULL, so every read/write needs the active workspace.
+ */
+async function resolveUserWorkspace(): Promise<{ userId: string; workspaceId: string } | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("current_workspace_id")
+    .eq("id", user.id)
+    .maybeSingle()
+
+  let workspaceId = (profile?.current_workspace_id as string | undefined) ?? undefined
+  if (!workspaceId) {
+    const { data: membership } = await supabase
+      .from("workspace_members")
+      .select("workspace_id")
+      .eq("user_id", user.id)
+      .order("joined_at", { ascending: true })
+      .limit(1)
+      .maybeSingle()
+    workspaceId = membership?.workspace_id as string | undefined
+  }
+  if (!workspaceId) return null
+  return { userId: user.id, workspaceId }
+}
+
+/**
+ * Records a personal account security/activity event for the signed-in user.
+ *
+ * Sensitive auth actions (password change, email change, 2FA enable/disable)
+ * happen client-side via Supabase Auth, which has no app-level audit hook. This
+ * server action lets those flows leave an entry in `audit_logs` so they appear
+ * in the user's Activity feed and satisfy the audit-trail requirement.
+ *
+ * The `audit_logs` INSERT policy requires a workspace_id the user belongs to, so
+ * we resolve the active workspace first; with no workspace the event is skipped
+ * (never throws). Metadata MUST stay non-sensitive — never pass passwords/codes.
+ */
+export async function recordAccountEvent(
+  action: string,
+  metadata: Record<string, unknown> = {}
+): Promise<{ ok: boolean }> {
+  const ctx = await resolveUserWorkspace()
+  if (!ctx) return { ok: false }
+  // Allow-list of account actions so a client cannot write arbitrary audit rows.
+  const ALLOWED = new Set([
+    "account.password_changed",
+    "account.email_change_requested",
+    "account.mfa_enabled",
+    "account.mfa_disabled",
+  ])
+  if (!ALLOWED.has(action)) return { ok: false }
+  const supabase = await createClient()
+  await recordAudit(supabase, {
+    workspaceId: ctx.workspaceId,
+    userId: ctx.userId,
+    action,
+    resourceType: "user",
+    resourceId: ctx.userId,
+    metadata,
+  })
+  return { ok: true }
+}
+
+/** Reads the current user's preferences for their active workspace. 42P01-safe. */
 export async function getUserPreferences(): Promise<UserPrefsResult> {
   try {
+    const ctx = await resolveUserWorkspace()
+    if (!ctx) return { prefs: null, unavailable: false }
     const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return { prefs: null, unavailable: false }
 
     const { data, error } = await supabase
       .from("user_preferences")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", ctx.userId)
+      .eq("workspace_id", ctx.workspaceId)
       .maybeSingle()
 
     if (error) {
@@ -257,21 +383,28 @@ export async function getUserPreferences(): Promise<UserPrefsResult> {
   }
 }
 
-/** Upserts a partial set of keys onto the current user's preferences. 42P01-safe. */
+/**
+ * Upserts a partial set of keys onto the current user's preferences for their
+ * active workspace. Keys on the (user_id, workspace_id) unique constraint.
+ * 42P01-safe.
+ */
 export async function saveUserPreferences(
   patch: Record<string, unknown>
 ): Promise<SaveSettingsResult> {
+  const ctx = await resolveUserWorkspace()
+  if (!ctx) return { ok: false, unavailable: false, error: "Not authenticated." }
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return { ok: false, unavailable: false, error: "Not authenticated." }
 
   const { error } = await supabase
     .from("user_preferences")
     .upsert(
-      { user_id: user.id, ...patch, updated_at: new Date().toISOString() },
-      { onConflict: "user_id" }
+      {
+        user_id: ctx.userId,
+        workspace_id: ctx.workspaceId,
+        ...patch,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id,workspace_id" }
     )
 
   if (error) {
@@ -337,7 +470,7 @@ export async function changeMemberRole(
 
   if (error) return { ok: false, error: error.message }
 
-  await writeAudit(ctx.workspaceId, ctx.userId, "team.role_changed", { memberId, newRole })
+  await writeAudit(ctx.workspaceId, ctx.userId, "team.role_changed", { memberId, newRole }, "workspace_member", memberId)
   revalidatePath("/property-manager/workspace-settings/team")
   return { ok: true }
 }
@@ -373,7 +506,7 @@ export async function removeMember(memberId: string): Promise<TeamMutationResult
 
   if (error) return { ok: false, error: error.message }
 
-  await writeAudit(ctx.workspaceId, ctx.userId, "team.member_removed", { memberId })
+  await writeAudit(ctx.workspaceId, ctx.userId, "team.member_removed", { memberId }, "workspace_member", memberId)
   revalidatePath("/property-manager/workspace-settings/team")
   return { ok: true }
 }
@@ -480,7 +613,7 @@ export async function leaveWorkspace(): Promise<DangerResult> {
     .update({ current_workspace_id: next?.workspace_id ?? null, updated_at: new Date().toISOString() })
     .eq("id", ctx.userId)
 
-  await writeAudit(ctx.workspaceId, ctx.userId, "workspace.left", {})
+  await writeAudit(ctx.workspaceId, ctx.userId, "workspace.left", {}, "workspace", ctx.workspaceId)
   revalidatePath("/property-manager")
   return { ok: true, redirect: next?.workspace_id ? "/property-manager" : "/onboarding" }
 }
@@ -518,7 +651,7 @@ export async function transferOwnership(targetUserId: string): Promise<DangerRes
     .update({ owner_id: targetUserId })
     .eq("id", ctx.workspaceId)
 
-  await writeAudit(ctx.workspaceId, ctx.userId, "workspace.ownership_transferred", { targetUserId })
+  await writeAudit(ctx.workspaceId, ctx.userId, "workspace.ownership_transferred", { targetUserId }, "workspace", ctx.workspaceId)
   revalidatePath("/property-manager/workspace-settings")
   return { ok: true }
 }
@@ -548,7 +681,7 @@ export async function archiveWorkspace(): Promise<DangerResult> {
     if (fallbackErr) return { ok: false, error: "Archiving is not available — the workspaces table has no archive column." }
   }
 
-  await writeAudit(ctx.workspaceId, ctx.userId, "workspace.archived", {})
+  await writeAudit(ctx.workspaceId, ctx.userId, "workspace.archived", {}, "workspace", ctx.workspaceId)
   revalidatePath("/property-manager")
   return { ok: true, redirect: "/property-manager" }
 }
@@ -588,7 +721,7 @@ export async function deleteWorkspace(confirmName: string): Promise<DangerResult
     if (fallbackErr) return { ok: false, error: "Delete failed. Please contact support." }
   }
 
-  await writeAudit(ctx.workspaceId, ctx.userId, "workspace.deleted", { name: confirmName })
+  await writeAudit(ctx.workspaceId, ctx.userId, "workspace.deleted", { name: confirmName }, "workspace", ctx.workspaceId)
   revalidatePath("/property-manager")
   return { ok: true, redirect: "/onboarding" }
 }

@@ -28,9 +28,9 @@ export default function StepperRail({
                     className={[
                       "w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold flex-shrink-0",
                       isDone
-                        ? "border-blue-600 bg-blue-600 text-white"
+                        ? "border-[var(--brand)] bg-[var(--brand)] text-white"
                         : isActive
-                        ? "border-blue-600 bg-white text-blue-600"
+                        ? "border-[var(--brand)] bg-white text-[var(--brand)]"
                         : "border-slate-200 bg-slate-50 text-slate-400",
                     ].join(" ")}
                   >
@@ -38,7 +38,7 @@ export default function StepperRail({
                   </div>
                   {i < STEP_NAMES.length - 1 && (
                     <div
-                      className={["w-px flex-1 my-1", isDone ? "bg-blue-300" : "bg-slate-200"].join(" ")}
+                      className={["w-px flex-1 my-1", isDone ? "bg-[var(--color-brand-300)]" : "bg-slate-200"].join(" ")}
                       style={{ minHeight: 20 }}
                     />
                   )}
@@ -48,7 +48,7 @@ export default function StepperRail({
                     className={[
                       "text-sm leading-tight mt-1",
                       isActive
-                        ? "font-semibold text-blue-700"
+                        ? "font-semibold text-[var(--brand)]"
                         : isDone
                         ? "font-medium text-slate-700"
                         : "text-slate-400",

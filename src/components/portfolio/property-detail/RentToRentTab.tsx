@@ -158,7 +158,7 @@ export function RentToRentTab({ prop, workspaceId, propertyId, onSave, tenancies
         <div className="px-5 py-3 border-t border-slate-100 flex items-center justify-between">
           <Link
             href={`/property-manager/legal?tab=r2r&propertyId=${propertyId}`}
-            className="text-[12px] text-blue-600 hover:underline flex items-center gap-1"
+            className="text-[12px] text-[var(--brand)] hover:underline flex items-center gap-1"
           >
             <ExternalLink size={12} />
             Full agreement in Legal
@@ -188,7 +188,7 @@ export function RentToRentTab({ prop, workspaceId, propertyId, onSave, tenancies
                   <p className="text-[13px] font-bold text-slate-900">{fmt(t.rent_amount)}/mo</p>
                   <Link
                     href={`/property-manager/portfolio/tenancies/${t.id}`}
-                    className="text-[11px] text-blue-600 hover:underline"
+                    className="text-[11px] text-[var(--brand)] hover:underline"
                   >
                     View
                   </Link>

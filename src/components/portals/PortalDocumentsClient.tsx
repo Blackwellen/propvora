@@ -70,7 +70,7 @@ export default function PortalDocumentsClient({
           <div className="flex items-center gap-2 flex-wrap">
             <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search documents…" className="w-full h-10 pl-9 pr-3 rounded-xl border border-[#E2EAF6] text-sm outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100" />
+              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search documents…" className="w-full h-10 pl-9 pr-3 rounded-xl border border-[#E2EAF6] text-sm outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--color-brand-100)]" />
             </div>
             <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} className="h-10 rounded-xl border border-[#E2EAF6] text-sm px-3 outline-none">
               <option value="newest">Newest first</option>
@@ -80,7 +80,7 @@ export default function PortalDocumentsClient({
           {/* Filter chips */}
           <div className="flex gap-1.5 flex-wrap">
             {filters.map((f) => (
-              <button key={f} onClick={() => setFilter(f)} className={cn("h-8 px-3 rounded-lg text-xs font-semibold transition-colors", filter === f ? "bg-[#2563EB] text-white" : "bg-white border border-[#E2EAF6] text-slate-600 hover:bg-slate-50")}>{f}</button>
+              <button key={f} onClick={() => setFilter(f)} className={cn("h-8 px-3 rounded-lg text-xs font-semibold transition-colors", filter === f ? "bg-[var(--brand)] text-white" : "bg-white border border-[#E2EAF6] text-slate-600 hover:bg-slate-50")}>{f}</button>
             ))}
           </div>
 
@@ -97,15 +97,15 @@ export default function PortalDocumentsClient({
                   <tbody className="divide-y divide-[#F1F5FB]">
                     {filtered.map((d) => (
                       <tr key={d.id} className="hover:bg-[#FAFCFF]">
-                        <td className="px-4 py-3"><div className="flex items-center gap-2.5"><span className="w-8 h-8 rounded-lg bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center shrink-0"><FileText className="w-4 h-4" /></span><span className="font-semibold text-[#071B4D] truncate max-w-[220px]">{d.name}</span></div></td>
+                        <td className="px-4 py-3"><div className="flex items-center gap-2.5"><span className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center shrink-0"><FileText className="w-4 h-4" /></span><span className="font-semibold text-[#071B4D] truncate max-w-[220px]">{d.name}</span></div></td>
                         <td className="px-4 py-3"><StatusChip tone="slate">{catLabel(d.type)}</StatusChip></td>
                         <td className="px-4 py-3 text-slate-500">{fmtDate(d.created_at)}</td>
                         <td className="px-4 py-3 text-slate-500">{fmtBytes(d.file_size)}</td>
                         <td className="px-4 py-3"><StatusChip tone="emerald" dot>Active</StatusChip></td>
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-end gap-1">
-                            {d.file_path && <a href={d.file_path} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg text-slate-400 hover:text-[#2563EB] hover:bg-[#EFF6FF]" title="View"><Eye className="w-4 h-4" /></a>}
-                            {d.file_path && <a href={d.file_path} download className="p-1.5 rounded-lg text-slate-400 hover:text-[#2563EB] hover:bg-[#EFF6FF]" title="Download"><Download className="w-4 h-4" /></a>}
+                            {d.file_path && <a href={d.file_path} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg text-slate-400 hover:text-[var(--brand)] hover:bg-[var(--brand-soft)]" title="View"><Eye className="w-4 h-4" /></a>}
+                            {d.file_path && <a href={d.file_path} download className="p-1.5 rounded-lg text-slate-400 hover:text-[var(--brand)] hover:bg-[var(--brand-soft)]" title="Download"><Download className="w-4 h-4" /></a>}
                             <button className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100" title="More"><MoreHorizontal className="w-4 h-4" /></button>
                           </div>
                         </td>

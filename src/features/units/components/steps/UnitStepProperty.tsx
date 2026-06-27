@@ -42,18 +42,18 @@ export function UnitStepProperty({ data, onChange, properties }: UnitStepPropert
               className={cn(
                 "flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all",
                 data.property_id === p.id
-                  ? "border-[#2563EB] bg-blue-50"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)]"
                   : "border-slate-200 hover:border-slate-300 hover:bg-slate-50",
               )}
             >
-              <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                <Building2 className="w-4 h-4 text-[#2563EB]" />
+              <div className="w-9 h-9 rounded-xl bg-[var(--color-brand-100)] flex items-center justify-center shrink-0">
+                <Building2 className="w-4 h-4 text-[var(--brand)]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-slate-900 truncate">{p.name}</p>
                 {p.address_line1 && <p className="text-xs text-slate-500 truncate">{p.address_line1}</p>}
               </div>
-              {data.property_id === p.id && <Check className="w-4 h-4 text-[#2563EB] shrink-0" />}
+              {data.property_id === p.id && <Check className="w-4 h-4 text-[var(--brand)] shrink-0" />}
             </button>
           ))
         )}

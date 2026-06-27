@@ -8,6 +8,7 @@ import {
   BarChart3,
   Calendar,
   Sparkles,
+  ArrowLeft,
 } from "lucide-react"
 import { use } from "react"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
@@ -61,7 +62,7 @@ function HmoTabStrip({ propertyId }: { propertyId: string }) {
             href={tab.href}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
               isActive
-                ? "border-blue-600 text-blue-600"
+                ? "border-[var(--brand)] text-[var(--brand)]"
                 : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -233,6 +234,13 @@ export default function HmoAnalyticsPage({
       {/* Page Header — hidden on phones */}
       <div className="hidden md:flex bg-white border-b border-slate-200 px-6 py-4 items-center justify-between">
         <div>
+          <Link
+            href={`/property-manager/portfolio/properties/${id}/hmo`}
+            className="inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-500 hover:text-slate-800 transition-colors mb-1.5"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to HMO dashboard
+          </Link>
           <h1 className="text-base font-bold text-slate-900">
             HMO Analytics &amp; Yield Intelligence
           </h1>
@@ -261,8 +269,8 @@ export default function HmoAnalyticsPage({
               value: "—",
               sub: "Set property value in settings",
               Icon: BarChart3,
-              bg: "bg-blue-50",
-              color: "text-blue-600",
+              bg: "bg-[var(--brand-soft)]",
+              color: "text-[var(--brand)]",
             },
             {
               title: "Void-Adjusted Yield",
@@ -407,7 +415,7 @@ export default function HmoAnalyticsPage({
                 </h3>
                 <div className="flex items-center gap-3 text-[11px] text-slate-500">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded bg-blue-600 inline-block" />
+                    <span className="w-2.5 h-2.5 rounded bg-[var(--brand)] inline-block" />
                     Received
                   </span>
                   <span className="flex items-center gap-1.5">

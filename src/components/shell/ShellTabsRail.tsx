@@ -7,17 +7,22 @@ import { cn } from "@/lib/utils"
 import {
   ALL_QUICK_WIDGETS,
   loadQuickBarPrefs,
+  loadQuickBarPrefsFromDb,
+  gateWidgets,
   type QuickBarPrefs,
 } from "@/lib/quickbar"
+import { useQuickbarFlags } from "@/hooks/useQuickbarFlags"
 
 export default function ShellTabsRail() {
   const pathname = usePathname()
   const [prefs, setPrefs] = useState<QuickBarPrefs | null>(null)
   const [scrolled, setScrolled] = useState(false)
 
-  // Load prefs from localStorage on mount
+  // Load prefs from localStorage on mount (instant), then hydrate from the DB
+  // (cross-device) which overrides when present.
   useEffect(() => {
     setPrefs(loadQuickBarPrefs())
+    loadQuickBarPrefsFromDb().then(db => { if (db) setPrefs(db) })
   }, [])
 
   // Re-read prefs when window gets focus (user saved in settings)
@@ -39,11 +44,16 @@ export default function ShellTabsRail() {
     return () => target.removeEventListener("scroll", handler)
   }, [])
 
+  const gatedFlags = useQuickbarFlags()
+
   if (!prefs) return null
 
+  // Only render widgets whose feature flag (if any) is enabled — a workspace
+  // can't surface a V2 shortcut it hasn't turned on, even if it was pinned before.
+  const allowed = new Set(gateWidgets(ALL_QUICK_WIDGETS, gatedFlags).map(w => w.key))
   const widgets = prefs.order
     .map(k => ALL_QUICK_WIDGETS.find(w => w.key === k))
-    .filter((w): w is NonNullable<typeof w> => !!w && prefs.visible[w.key])
+    .filter((w): w is NonNullable<typeof w> => !!w && prefs.visible[w.key] && allowed.has(w.key))
 
   return (
     /* Desktop-only quick/task rail. Below lg the mobile top bar + MobileTabs own

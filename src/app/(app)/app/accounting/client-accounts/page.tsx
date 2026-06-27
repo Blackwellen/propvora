@@ -28,7 +28,7 @@ type ClientAccount = ReturnType<typeof useClientAccounts>["data"][number]
 
 const HEALTH_STYLES: Record<string, string> = {
   "Excellent": "bg-[#ECFDF5] text-[#059669]",
-  "Good": "bg-[#EFF6FF] text-[#2563EB]",
+  "Good": "bg-[var(--brand-soft)] text-[var(--brand)]",
   "Fair": "bg-[#FFFBEB] text-[#d97706]",
   "Needs Attention": "bg-[#FFF7ED] text-[#ea580c]",
 }
@@ -214,7 +214,7 @@ export default function ClientAccountsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search clients..."
-              className="h-8 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 w-48"
+              className="h-8 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 w-48"
             />
             <ActionMenu
               items={[
@@ -229,8 +229,8 @@ export default function ClientAccountsPage() {
           <div className="p-12 text-center text-slate-500 text-sm">Loading client accounts…</div>
         ) : accounts.length === 0 ? (
           <div className="p-12 flex flex-col items-center justify-center gap-3 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-              <Users className="w-5 h-5 text-[#2563EB]" />
+            <div className="w-12 h-12 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center">
+              <Users className="w-5 h-5 text-[var(--brand)]" />
             </div>
             <p className="text-sm font-semibold text-slate-700">No client accounts yet</p>
             <p className="text-xs text-slate-500 max-w-sm">
@@ -319,7 +319,7 @@ export default function ClientAccountsPage() {
                 <select
                   value={dClient}
                   onChange={(e) => setDClient(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 appearance-none"
+                  className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 appearance-none"
                 >
                   {accounts.map((a) => (
                     <option key={a.id} value={a.id}>{a.name} ({a.code}) — {fmtGBP(a.balance)}</option>
@@ -334,7 +334,7 @@ export default function ClientAccountsPage() {
                   value={dPayee}
                   onChange={(e) => setDPayee(e.target.value)}
                   placeholder="e.g. Wickes Building Supplies Ltd"
-                  className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+                  className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                 />
               </div>
 
@@ -348,7 +348,7 @@ export default function ClientAccountsPage() {
                       value={dAmount}
                       onChange={(e) => setDAmount(e.target.value)}
                       placeholder="0.00"
-                      className="w-full h-9 pl-7 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+                      className="w-full h-9 pl-7 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                     />
                   </div>
                 </div>
@@ -358,7 +358,7 @@ export default function ClientAccountsPage() {
                     type="date"
                     value={dDate}
                     onChange={(e) => setDDate(e.target.value)}
-                    className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+                    className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                   />
                 </div>
               </div>
@@ -368,7 +368,7 @@ export default function ClientAccountsPage() {
                 <select
                   value={dCategory}
                   onChange={(e) => setDCategory(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 appearance-none"
+                  className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 appearance-none"
                 >
                   <option>Repairs &amp; Maintenance</option>
                   <option>Management Fees</option>
@@ -385,7 +385,7 @@ export default function ClientAccountsPage() {
                   onChange={(e) => setDNote(e.target.value)}
                   rows={3}
                   placeholder="Optional context for the approver…"
-                  className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 resize-none"
+                  className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 resize-none"
                 />
               </div>
 

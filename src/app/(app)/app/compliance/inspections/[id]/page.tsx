@@ -118,8 +118,8 @@ function ChecklistTab() {
         )}
       </div>
       {completing && (
-        <div className="mb-4 px-4 py-3 bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl">
-          <p className="text-sm text-[#2563EB] font-medium">Tick off each item as you inspect. {completed.size}/{ROUTINE_CHECKLIST.length} completed.</p>
+        <div className="mb-4 px-4 py-3 bg-[var(--brand-soft)] border border-[#BFDBFE] rounded-xl">
+          <p className="text-sm text-[var(--brand)] font-medium">Tick off each item as you inspect. {completed.size}/{ROUTINE_CHECKLIST.length} completed.</p>
         </div>
       )}
       <div className="space-y-2">
@@ -129,7 +129,7 @@ function ChecklistTab() {
             <div
               key={label}
               onClick={() => { if (completing) setCompleted((p) => { const n = new Set(p); n.has(label) ? n.delete(label) : n.add(label); return n }) }}
-              className={cn("flex items-center gap-3 px-4 py-3 rounded-xl border transition-all", completing ? "cursor-pointer hover:border-[#2563EB]/40" : "cursor-default", done ? "bg-emerald-50 border-emerald-200" : "bg-white border-slate-200")}
+              className={cn("flex items-center gap-3 px-4 py-3 rounded-xl border transition-all", completing ? "cursor-pointer hover:border-[var(--brand)]/40" : "cursor-default", done ? "bg-emerald-50 border-emerald-200" : "bg-white border-slate-200")}
             >
               <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0", done ? "border-emerald-500 bg-emerald-500" : "border-slate-300")}>
                 {done && <Check className="w-3 h-3 text-white" />}
@@ -276,9 +276,9 @@ export default function InspectionDetailPage() {
     <div className="space-y-0">
       <div className="px-6 pt-4 pb-2">
         <nav className="flex items-center gap-2 text-sm text-slate-500">
-          <Link href="/property-manager/compliance" className="hover:text-[#2563EB] transition-colors">Compliance</Link>
+          <Link href="/property-manager/compliance" className="hover:text-[var(--brand)] transition-colors">Compliance</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link href="/property-manager/compliance/inspections" className="hover:text-[#2563EB] transition-colors">Inspections</Link>
+          <Link href="/property-manager/compliance/inspections" className="hover:text-[var(--brand)] transition-colors">Inspections</Link>
           <ChevronRight className="w-3.5 h-3.5" />
           <span className="text-slate-900 font-medium">{label} — {row.property_name ?? "Inspection"}</span>
         </nav>
@@ -286,7 +286,7 @@ export default function InspectionDetailPage() {
 
       <div className="p-6 space-y-4">
         {isSeed && (
-          <div className="px-4 py-2.5 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-700">
+          <div className="px-4 py-2.5 bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-xl text-xs text-[var(--brand)]">
             Showing example data — connect the compliance database to enable inline editing.
           </div>
         )}
@@ -294,12 +294,12 @@ export default function InspectionDetailPage() {
         {/* Hero card */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="flex">
-            <div className={cn("w-1 shrink-0", overdue ? "bg-[#DC2626]" : "bg-[#2563EB]")} />
+            <div className={cn("w-1 shrink-0", overdue ? "bg-[#DC2626]" : "bg-[var(--brand)]")} />
             <div className="flex-1 p-5">
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div className="flex items-start gap-4">
-                  <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0", overdue ? "bg-red-50" : "bg-blue-50")}>
-                    <Home className={cn("w-5 h-5", overdue ? "text-[#DC2626]" : "text-[#2563EB]")} />
+                  <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0", overdue ? "bg-red-50" : "bg-[var(--brand-soft)]")}>
+                    <Home className={cn("w-5 h-5", overdue ? "text-[#DC2626]" : "text-[var(--brand)]")} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
@@ -374,7 +374,7 @@ export default function InspectionDetailPage() {
                       <button
                         key={tab.key}
                         onClick={() => setActiveTab(tab.key)}
-                        className={cn("flex items-center gap-2 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 -mb-px transition-all", activeTab === tab.key ? "border-[#2563EB] text-[#2563EB]" : "border-transparent text-slate-500 hover:text-slate-700")}
+                        className={cn("flex items-center gap-2 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 -mb-px transition-all", activeTab === tab.key ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-500 hover:text-slate-700")}
                       >
                         <Icon className="w-3.5 h-3.5 shrink-0" />{tab.label}
                       </button>
@@ -446,7 +446,7 @@ export default function InspectionDetailPage() {
 
                 {activeTab === "evidence" && (
                   <div>
-                    <Link href="/property-manager/compliance/evidence" className="block text-center border-2 border-dashed border-slate-200 rounded-xl py-12 bg-slate-50 mb-4 hover:border-[#2563EB]/40 transition-colors">
+                    <Link href="/property-manager/compliance/evidence" className="block text-center border-2 border-dashed border-slate-200 rounded-xl py-12 bg-slate-50 mb-4 hover:border-[var(--brand)]/40 transition-colors">
                       <Upload className="w-8 h-8 text-slate-300 mx-auto mb-3" />
                       <p className="text-sm font-medium text-slate-600">Upload evidence</p>
                       <p className="text-xs text-slate-400 mt-1">Go to the evidence library</p>
@@ -468,7 +468,7 @@ export default function InspectionDetailPage() {
                             <p className="text-xs text-slate-400">{rec.label}</p>
                             <p className="text-sm font-medium text-slate-800">{rec.value}</p>
                           </div>
-                          <Link href={rec.href} className="text-[#2563EB] text-xs font-medium hover:underline flex items-center gap-1">View <ChevronRight className="w-3.5 h-3.5" /></Link>
+                          <Link href={rec.href} className="text-[var(--brand)] text-xs font-medium hover:underline flex items-center gap-1">View <ChevronRight className="w-3.5 h-3.5" /></Link>
                         </div>
                       )
                     })}
@@ -572,7 +572,7 @@ export default function InspectionDetailPage() {
               type="date"
               value={rescheduleDate}
               onChange={(e) => setRescheduleDate(e.target.value)}
-              className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] mb-4"
+              className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] mb-4"
             />
             <div className="flex gap-2 justify-end">
               <Button variant="outline" size="sm" onClick={() => setRescheduleOpen(false)}>Cancel</Button>

@@ -18,7 +18,7 @@ export function ListingsHeader({ count, onNew }: ListingsHeaderProps) {
       </div>
       <button
         onClick={onNew}
-        className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm"
+        className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
       >
         <Plus className="w-4 h-4" />
         New listing

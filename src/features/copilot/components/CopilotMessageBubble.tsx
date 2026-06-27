@@ -154,7 +154,7 @@ export default function CopilotMessageBubble({
               <button
                 key={action.slug}
                 onClick={() => onQuickAction?.(action.slug)}
-                className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold hover:bg-blue-100 transition-colors border border-blue-100"
+                className="px-2.5 py-1 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] text-[11px] font-semibold hover:bg-[var(--color-brand-100)] transition-colors border border-[var(--color-brand-100)]"
               >
                 {action.label}
               </button>

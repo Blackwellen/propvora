@@ -91,7 +91,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...props}
       className={cn(
-        "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400",
+        "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all placeholder:text-slate-400",
         props.className
       )}
     />
@@ -101,7 +101,7 @@ function Select({ children, ...props }: React.SelectHTMLAttributes<HTMLSelectEle
   return (
     <select
       {...props}
-      className="w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+      className="w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
     >
       {children}
     </select>
@@ -111,7 +111,7 @@ function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       {...props}
-      className="w-full px-3 py-2.5 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all resize-none placeholder:text-slate-400"
+      className="w-full px-3 py-2.5 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all resize-none placeholder:text-slate-400"
     />
   )
 }
@@ -138,7 +138,7 @@ function LineItemRow({
           value={item.description}
           onChange={e => onChange({ ...item, description: e.target.value })}
           placeholder="Description"
-          className="w-full text-sm focus:outline-none bg-transparent border-b border-transparent focus:border-blue-400"
+          className="w-full text-sm focus:outline-none bg-transparent border-b border-transparent focus:border-[var(--color-brand-400)]"
         />
       </td>
       <td className="px-3 py-2 w-16">
@@ -146,7 +146,7 @@ function LineItemRow({
           type="number"
           value={item.quantity}
           onChange={e => onChange({ ...item, quantity: Number(e.target.value) })}
-          className="w-full text-sm text-right focus:outline-none bg-transparent border-b border-transparent focus:border-blue-400"
+          className="w-full text-sm text-right focus:outline-none bg-transparent border-b border-transparent focus:border-[var(--color-brand-400)]"
         />
       </td>
       <td className="px-3 py-2 w-28">
@@ -154,14 +154,14 @@ function LineItemRow({
           type="number"
           value={item.unit_price}
           onChange={e => onChange({ ...item, unit_price: Number(e.target.value) })}
-          className="w-full text-sm text-right focus:outline-none bg-transparent border-b border-transparent focus:border-blue-400"
+          className="w-full text-sm text-right focus:outline-none bg-transparent border-b border-transparent focus:border-[var(--color-brand-400)]"
         />
       </td>
       <td className="px-3 py-2 w-24">
         <select
           value={item.tax_rate}
           onChange={e => onChange({ ...item, tax_rate: Number(e.target.value) })}
-          className="w-full text-sm bg-transparent focus:outline-none border-b border-transparent focus:border-blue-400"
+          className="w-full text-sm bg-transparent focus:outline-none border-b border-transparent focus:border-[var(--color-brand-400)]"
         >
           {taxOptions.map(r => <option key={r} value={r}>{r}%</option>)}
         </select>
@@ -170,7 +170,7 @@ function LineItemRow({
         £{lineTotal.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </td>
       <td className="px-3 py-2 w-10">
-        <button onClick={onRemove} aria-label="Remove line item" className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
+        <button onClick={onRemove} aria-label="Remove line item" className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] rounded">
           <X className="w-3.5 h-3.5" />
         </button>
       </td>
@@ -511,7 +511,7 @@ export default function NewInvoicePage() {
                 ) : invScheme.system === "none" ? (
                   <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">Set your rate</span>
                 ) : (
-                  <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">{invScheme.label} {stdPct}%</span>
+                  <span className="rounded-full bg-[var(--brand-soft)] px-2 py-0.5 text-[11px] font-medium text-[var(--brand)]">{invScheme.label} {stdPct}%</span>
                 )}
               </div>
               <p className="text-[11px] text-slate-500 mt-1">
@@ -573,7 +573,7 @@ export default function NewInvoicePage() {
             </div>
             <button
               onClick={addLineItem}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
             >
               <Plus className="w-4 h-4" /> Add Line Item
             </button>
@@ -620,7 +620,7 @@ export default function NewInvoicePage() {
                           updateForm({ payment_methods: formData.payment_methods.filter(m => m !== key) })
                         }
                       }}
-                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]"
                     />
                     <span className="text-sm text-slate-700">{label}</span>
                   </label>
@@ -657,7 +657,7 @@ export default function NewInvoicePage() {
                 aria-label="Enable Stripe payments"
                 className={cn(
                   "relative inline-flex h-5 w-9 items-center rounded-full transition-colors border-2 border-transparent opacity-40 cursor-not-allowed",
-                  formData.stripe_enabled ? "bg-blue-600" : "bg-slate-200"
+                  formData.stripe_enabled ? "bg-[var(--brand)]" : "bg-slate-200"
                 )}
               >
                 <span className={cn(
@@ -683,7 +683,7 @@ export default function NewInvoicePage() {
                 onClick={() => updateForm({ email_on_send: !formData.email_on_send })}
                 className={cn(
                   "relative inline-flex h-5 w-9 items-center rounded-full transition-colors border-2 border-transparent",
-                  formData.email_on_send ? "bg-blue-600" : "bg-slate-200"
+                  formData.email_on_send ? "bg-[var(--brand)]" : "bg-slate-200"
                 )}
               >
                 <span className={cn(
@@ -765,7 +765,7 @@ export default function NewInvoicePage() {
                 </div>
                 <div className="px-4 py-3 grid grid-cols-2 gap-3 text-sm">
                   <div><p className="text-xs text-slate-500">Type</p><p className="font-medium text-slate-800">{formData.invoice_type}</p></div>
-                  <div><p className="text-xs text-slate-500">Number</p><p className="font-mono font-semibold text-blue-600">{formData.invoice_number}</p></div>
+                  <div><p className="text-xs text-slate-500">Number</p><p className="font-mono font-semibold text-[var(--brand)]">{formData.invoice_number}</p></div>
                   <div><p className="text-xs text-slate-500">Recipient</p><p className="font-medium text-slate-800">{formData.recipient_name || "—"}</p></div>
                   <div><p className="text-xs text-slate-500">Property</p><p className="font-medium text-slate-800">{selectedPropertyLabel || "—"}</p></div>
                   <div><p className="text-xs text-slate-500">Issue Date</p><p className="font-medium text-slate-800">{formData.issue_date}</p></div>
@@ -817,7 +817,7 @@ export default function NewInvoicePage() {
             <div className="bg-slate-50 rounded-xl border border-slate-200 px-6 py-4 text-left min-w-[260px]">
               <p className="text-xs text-slate-500 font-medium mb-2">Invoice Summary</p>
               <div className="space-y-1 text-sm">
-                <div className="flex justify-between"><span className="text-slate-500">Number</span><span className="font-mono font-semibold text-blue-600">{formData.invoice_number}</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">Number</span><span className="font-mono font-semibold text-[var(--brand)]">{formData.invoice_number}</span></div>
                 <div className="flex justify-between"><span className="text-slate-500">Total</span><span className="font-bold text-slate-900">£{grandTotal.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
                 <div className="flex justify-between"><span className="text-slate-500">Due</span><span className="font-medium text-slate-700">{formData.due_date}</span></div>
               </div>
@@ -826,7 +826,7 @@ export default function NewInvoicePage() {
               <button
                 onClick={() => { if (createdId) router.push(`/property-manager/money/invoices/${createdId}`) }}
                 disabled={!createdId}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors shadow-sm disabled:opacity-60"
               >
                 <Eye className="w-4 h-4" /> View Invoice
               </button>
@@ -884,12 +884,12 @@ export default function NewInvoicePage() {
                   disabled={step.num === 9}
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all text-sm",
-                    isActive ? "bg-blue-50 text-blue-700 font-semibold" : isDone ? "text-emerald-700 hover:bg-emerald-50" : "text-slate-500 hover:bg-slate-50"
+                    isActive ? "bg-[var(--brand-soft)] text-[var(--brand)] font-semibold" : isDone ? "text-emerald-700 hover:bg-emerald-50" : "text-slate-500 hover:bg-slate-50"
                   )}
                 >
                   <span className={cn(
                     "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
-                    isActive ? "bg-blue-600 text-white" : isDone ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400"
+                    isActive ? "bg-[var(--brand)] text-white" : isDone ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400"
                   )}>
                     {isDone ? <Check className="w-3.5 h-3.5" /> : step.num}
                   </span>
@@ -927,7 +927,7 @@ export default function NewInvoicePage() {
               {currentStep < 8 ? (
                 <button
                   onClick={() => setCurrentStep(s => Math.min(8, s + 1))}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
                 >
                   Continue <ChevronRight className="w-4 h-4" />
                 </button>
@@ -961,7 +961,7 @@ export default function NewInvoicePage() {
             <div className="space-y-1.5 text-sm">
               <div className="flex justify-between">
                 <span className="text-xs text-slate-500">Invoice #</span>
-                <span className="font-mono text-xs font-semibold text-blue-600">{formData.invoice_number}</span>
+                <span className="font-mono text-xs font-semibold text-[var(--brand)]">{formData.invoice_number}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-slate-500">Recipient</span>

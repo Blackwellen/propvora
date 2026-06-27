@@ -73,7 +73,7 @@ function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...props}
       className={cn(
-        "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400 disabled:bg-slate-50 disabled:text-slate-400",
+        "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all placeholder:text-slate-400 disabled:bg-slate-50 disabled:text-slate-400",
         props.className
       )}
     />
@@ -84,7 +84,7 @@ function SelectInput({ children, ...props }: React.SelectHTMLAttributes<HTMLSele
   return (
     <select
       {...props}
-      className="w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+      className="w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
     >
       {children}
     </select>
@@ -95,7 +95,7 @@ function TextareaInput(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>)
   return (
     <textarea
       {...props}
-      className="w-full px-3 py-2.5 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all resize-none placeholder:text-slate-400"
+      className="w-full px-3 py-2.5 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all resize-none placeholder:text-slate-400"
     />
   )
 }
@@ -120,7 +120,7 @@ function EditLineItemRow({
           value={item.description}
           onChange={e => onChange({ ...item, description: e.target.value })}
           placeholder="Description"
-          className="w-full text-sm focus:outline-none bg-transparent border-b border-transparent focus:border-blue-400"
+          className="w-full text-sm focus:outline-none bg-transparent border-b border-transparent focus:border-[var(--color-brand-400)]"
         />
       </td>
       <td className="px-3 py-2.5 w-16">
@@ -128,7 +128,7 @@ function EditLineItemRow({
           type="number"
           value={item.quantity}
           onChange={e => onChange({ ...item, quantity: Number(e.target.value) })}
-          className="w-full text-sm text-right focus:outline-none bg-transparent border-b border-transparent focus:border-blue-400"
+          className="w-full text-sm text-right focus:outline-none bg-transparent border-b border-transparent focus:border-[var(--color-brand-400)]"
         />
       </td>
       <td className="px-3 py-2.5 w-28">
@@ -136,14 +136,14 @@ function EditLineItemRow({
           type="number"
           value={item.unit_price}
           onChange={e => onChange({ ...item, unit_price: Number(e.target.value) })}
-          className="w-full text-sm text-right focus:outline-none bg-transparent border-b border-transparent focus:border-blue-400"
+          className="w-full text-sm text-right focus:outline-none bg-transparent border-b border-transparent focus:border-[var(--color-brand-400)]"
         />
       </td>
       <td className="px-3 py-2.5 w-24">
         <select
           value={item.tax_rate}
           onChange={e => onChange({ ...item, tax_rate: Number(e.target.value) })}
-          className="w-full text-sm bg-transparent focus:outline-none border-b border-transparent focus:border-blue-400"
+          className="w-full text-sm bg-transparent focus:outline-none border-b border-transparent focus:border-[var(--color-brand-400)]"
         >
           {[0, 5, 20].map(r => <option key={r} value={r}>{r}%</option>)}
         </select>
@@ -156,7 +156,7 @@ function EditLineItemRow({
           type="button"
           onClick={onRemove}
           aria-label="Remove line item"
-          className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+          className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] rounded"
         >
           <X className="w-3.5 h-3.5" />
         </button>
@@ -421,7 +421,7 @@ export default function EditInvoicePage() {
   if (loadingInvoice) {
     return (
       <div className="flex items-center justify-center min-h-[40vh]">
-        <span className="w-6 h-6 border-2 border-slate-200 border-t-blue-500 rounded-full animate-spin" />
+        <span className="w-6 h-6 border-2 border-slate-200 border-t-[var(--brand)] rounded-full animate-spin" />
       </div>
     )
   }
@@ -588,7 +588,7 @@ export default function EditInvoicePage() {
             <button
               type="button"
               onClick={addLineItem}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
             >
               <Plus className="w-4 h-4" /> Add Line Item
             </button>
@@ -628,7 +628,7 @@ export default function EditInvoicePage() {
                   disabled
                   className={cn(
                     "relative inline-flex h-5 w-9 items-center rounded-full transition-colors border-2 border-transparent opacity-40 cursor-not-allowed",
-                    stripeEnabled ? "bg-blue-600" : "bg-slate-200"
+                    stripeEnabled ? "bg-[var(--brand)]" : "bg-slate-200"
                   )}
                   onClick={() => setStripeEnabled(v => !v)}
                 >
@@ -766,7 +766,7 @@ export default function EditInvoicePage() {
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-60 transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] disabled:opacity-60 transition-colors shadow-sm"
               >
                 {isSaving ? (
                   <>

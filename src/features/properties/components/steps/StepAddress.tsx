@@ -34,7 +34,7 @@ export function StepAddress({ data, onChange }: StepAddressProps) {
             placeholder={field.placeholder}
             value={data[field.key]}
             onChange={(e) => onChange({ [field.key]: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+            className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
           />
         </div>
       ))}

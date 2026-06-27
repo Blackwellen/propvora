@@ -52,7 +52,7 @@ export default function CustomerLongTermMapView({ rentals }: { rentals: PublicLo
         <div className="flex-1 relative">
           <LongTermRentalMap rentals={rentals} basePath="/customer/stays/long-term" />
           <div className="absolute bottom-4 left-4 bg-white rounded-xl shadow-lg px-4 py-2 text-sm text-slate-700 border border-slate-200 flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-blue-600 shrink-0" />
+            <MapPin className="h-4 w-4 text-[var(--brand)] shrink-0" />
             Showing <strong>{rentals.length}</strong> rentals · Click a pin to preview
           </div>
         </div>

@@ -51,7 +51,7 @@ export function QuoteComparisonView({ quoteRequestId }: { quoteRequestId: string
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <button onClick={() => showToast("New RFQ started")} className="inline-flex items-center gap-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl px-3 py-2 text-sm font-semibold"><Plus className="w-4 h-4" /> Create RFQ</button>
-          <button onClick={() => setConfirm({ kind: "convert" })} className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-3.5 py-2 text-sm font-semibold"><ShoppingCart className="w-4 h-4" /> Convert to order</button>
+          <button onClick={() => setConfirm({ kind: "convert" })} className="inline-flex items-center gap-1.5 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-xl px-3.5 py-2 text-sm font-semibold"><ShoppingCart className="w-4 h-4" /> Convert to order</button>
         </div>
       </div>
 
@@ -122,7 +122,7 @@ export function QuoteComparisonView({ quoteRequestId }: { quoteRequestId: string
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
           <div className="flex flex-col divide-y divide-slate-100">
             {activity.map(a => (
-              <div key={a.id} className="py-2.5 flex items-start gap-3"><div className="w-2 h-2 rounded-full bg-blue-400 mt-1.5" /><div><p className="text-sm text-slate-700">{a.text}</p><p className="text-xs text-slate-400">{a.actor} · {a.at}</p></div></div>
+              <div key={a.id} className="py-2.5 flex items-start gap-3"><div className="w-2 h-2 rounded-full bg-[var(--color-brand-400)] mt-1.5" /><div><p className="text-sm text-slate-700">{a.text}</p><p className="text-xs text-slate-400">{a.actor} · {a.at}</p></div></div>
             ))}
           </div>
         </div>

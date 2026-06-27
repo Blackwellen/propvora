@@ -121,7 +121,7 @@ function RunStatusPill({ status }: { status: string }) {
   const map: Record<string, string> = {
     succeeded: "bg-emerald-50 text-emerald-700",
     failed: "bg-red-50 text-red-600",
-    running: "bg-blue-50 text-blue-600",
+    running: "bg-[var(--brand-soft)] text-[var(--brand)]",
     queued: "bg-slate-100 text-slate-500",
     skipped: "bg-slate-100 text-slate-400",
     dry_run: "bg-violet-50 text-violet-600",
@@ -203,7 +203,7 @@ function RunHistoryPanel({ definitionId, workspaceId }: { definitionId: string; 
                 <td className="px-4 py-2 capitalize text-slate-600">{triggerEvent}</td>
                 <td className="px-4 py-2 text-slate-500 max-w-[200px] truncate">{r.error ? <span className="text-red-600">{r.error}</span> : actionsSummary}</td>
                 <td className="px-4 py-2 text-right">
-                  <Link href={`/property-manager/automations/runs/${r.id}`} className="text-blue-500 hover:text-blue-700">
+                  <Link href={`/property-manager/automations/runs/${r.id}`} className="text-[var(--brand)] hover:text-[var(--brand)]">
                     <Eye className="h-3.5 w-3.5" />
                   </Link>
                 </td>
@@ -308,7 +308,7 @@ export default function DefinitionsListFull() {
       <div className="mt-4 flex items-center gap-2">
         <Link
           href="/property-manager/automations/canvas"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-3.5 py-2 text-sm font-medium text-white hover:bg-[var(--brand-strong)]"
         >
           <Plus className="h-4 w-4" /> New automation
         </Link>
@@ -333,7 +333,7 @@ export default function DefinitionsListFull() {
           </button>
           <Link
             href="/property-manager/automations/canvas"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-blue-700"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-[var(--brand-strong)]"
           >
             <Plus className="h-3.5 w-3.5" /> New automation
           </Link>
@@ -354,7 +354,7 @@ export default function DefinitionsListFull() {
             <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
               {/* Icon + info */}
               <div className="flex min-w-0 flex-1 items-center gap-3">
-                <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${status === "active" ? "bg-blue-50 text-blue-600" : status === "paused" ? "bg-amber-50 text-amber-500" : "bg-slate-100 text-slate-400"}`}>
+                <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${status === "active" ? "bg-[var(--brand-soft)] text-[var(--brand)]" : status === "paused" ? "bg-amber-50 text-amber-500" : "bg-slate-100 text-slate-400"}`}>
                   <TriggerIcon className="h-4.5 w-4.5" />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -393,7 +393,7 @@ export default function DefinitionsListFull() {
                 <button
                   onClick={() => toggleExpand(def.id, "runs")}
                   title="Run history"
-                  className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition ${isExpanded && expandedTab === "runs" ? "border-blue-200 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"}`}
+                  className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition ${isExpanded && expandedTab === "runs" ? "border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"}`}
                 >
                   <History className="h-3.5 w-3.5" /> Runs
                 </button>

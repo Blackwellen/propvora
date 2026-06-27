@@ -100,7 +100,7 @@ function planToRow(p: PpmPlan, propertyById?: Map<string, { name: string; addres
     nextDueDays: dueLabel(p.next_due_date),
     supplier: p.supplier_name ?? "—",
     supplierInitials: initials(p.supplier_name ?? "—"),
-    supplierBg: "bg-blue-600",
+    supplierBg: "bg-[var(--brand)]",
     estCost: p.estimated_cost ? `£${p.estimated_cost.toLocaleString()}` : "—",
     status: badgeStatus(p.status),
     rawStatus: p.status,
@@ -250,7 +250,7 @@ export default function PpmSchedulesPage() {
           </button>
           <Link
             href="/property-manager/work/ppm/schedules/new"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
           >
             <Plus className="w-4 h-4" /> New PPM Schedule
           </Link>
@@ -283,7 +283,7 @@ export default function PpmSchedulesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search schedules, assets, or task types..."
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50 bg-white"
+            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]/50 bg-white"
           />
         </div>
 
@@ -294,7 +294,7 @@ export default function PpmSchedulesPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="appearance-none border border-slate-200 rounded-lg pl-3 pr-7 py-2 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 cursor-pointer"
+            className="appearance-none border border-slate-200 rounded-lg pl-3 pr-7 py-2 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 cursor-pointer"
           >
             <option value="">All Statuses</option>
             <option value="scheduled">Scheduled</option>
@@ -306,7 +306,7 @@ export default function PpmSchedulesPage() {
         </div>
 
         {activeFilters > 0 && (
-          <span className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-50 border border-blue-200 text-[12px] font-semibold text-blue-700">
+          <span className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--brand-soft)] border border-[var(--color-brand-100)] text-[12px] font-semibold text-[var(--brand)]">
             Filters {activeFilters}
           </span>
         )}
@@ -363,7 +363,7 @@ export default function PpmSchedulesPage() {
                     {activeFilters === 0 && (
                       <Link
                         href="/property-manager/work/ppm/schedules/new"
-                        className="inline-flex items-center gap-1.5 mt-4 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-4 py-2 text-sm font-semibold transition-colors"
+                        className="inline-flex items-center gap-1.5 mt-4 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-xl px-4 py-2 text-sm font-semibold transition-colors"
                       >
                         <Plus className="w-4 h-4" /> Add PPM Schedule
                       </Link>
@@ -403,7 +403,7 @@ export default function PpmSchedulesPage() {
                     </td>
                     <td className="px-4 py-3.5 whitespace-nowrap">
                       <p className="text-[12px] font-semibold text-slate-800">{s.nextDue}</p>
-                      <p className="text-[10px] text-blue-600">{s.nextDueDays}</p>
+                      <p className="text-[10px] text-[var(--brand)]">{s.nextDueDays}</p>
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
@@ -511,7 +511,7 @@ function FilterSelect({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="appearance-none border border-slate-200 rounded-lg pl-3 pr-7 py-2 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 cursor-pointer max-w-[180px]"
+        className="appearance-none border border-slate-200 rounded-lg pl-3 pr-7 py-2 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 cursor-pointer max-w-[180px]"
       >
         <option value="">{allLabel}</option>
         {options.map((o) => (

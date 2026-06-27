@@ -30,7 +30,7 @@ export function FinanceMoneyKpiStrip({ data, loading }: FinanceMoneyKpiStripProp
   const kpis: { label: string; value: string; sub: string; icon: LucideIcon; color: string; bg: string }[] = [
     { label: "Total Income",        value: fmtGBP(data.totalIncome),        sub: "This month",          icon: TrendingUp,   color: "text-emerald-600", bg: "bg-emerald-50" },
     { label: "Total Expenses",      value: fmtGBP(data.totalExpenses),      sub: "This month",          icon: TrendingDown, color: "text-red-600",     bg: "bg-red-50"     },
-    { label: "Net Cashflow",        value: fmtGBP(data.netCashflow),        sub: "Income - Expenses",   icon: BarChart3,    color: "text-[#2563EB]",   bg: "bg-blue-50"    },
+    { label: "Net Cashflow",        value: fmtGBP(data.netCashflow),        sub: "Income - Expenses",   icon: BarChart3,    color: "text-[var(--brand)]",   bg: "bg-[var(--brand-soft)]"    },
     { label: "Overdue Receivables", value: fmtGBP(data.overdueReceivables), sub: "Past due",            icon: AlertTriangle,color: "text-red-600",     bg: "bg-red-50"     },
     { label: "Outstanding",         value: fmtGBP(data.totalOutstanding),   sub: "Total receivables",   icon: FileText,     color: "text-amber-600",   bg: "bg-amber-50"   },
     { label: "Collection Rate",     value: `${data.collectionRate}%`,        sub: "Paid vs issued",      icon: Target,       color: "text-emerald-600", bg: "bg-emerald-50" },

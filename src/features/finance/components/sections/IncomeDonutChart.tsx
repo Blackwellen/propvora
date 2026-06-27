@@ -109,7 +109,7 @@ interface IncomeSummaryCardProps {
 export function IncomeSummaryCard({ totalAll, received, expected, overdue, planned }: IncomeSummaryCardProps) {
   const rows = [
     { label: "Received", value: received, color: "text-emerald-600", dot: "bg-emerald-500" },
-    { label: "Expected", value: expected, color: "text-blue-600", dot: "bg-blue-500" },
+    { label: "Expected", value: expected, color: "text-[var(--brand)]", dot: "bg-[var(--brand)]" },
     { label: "Overdue", value: overdue, color: "text-red-500", dot: "bg-red-500" },
     { label: "Planned", value: planned, color: "text-amber-600", dot: "bg-amber-500" },
   ]

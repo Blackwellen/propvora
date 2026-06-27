@@ -125,11 +125,11 @@ export default async function EmergencyDetailPage({
 
       {/* ── Breadcrumb ────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-        <Link href="/property-manager/marketplace/suppliers-hub" className="hover:text-blue-600 transition-colors">
+        <Link href="/property-manager/marketplace/suppliers-hub" className="hover:text-[var(--brand)] transition-colors">
           Marketplace
         </Link>
         <span>›</span>
-        <Link href="/property-manager/marketplace/suppliers-hub/emergency" className="hover:text-blue-600 transition-colors">
+        <Link href="/property-manager/marketplace/suppliers-hub/emergency" className="hover:text-[var(--brand)] transition-colors">
           Emergency
         </Link>
         <span>›</span>
@@ -386,7 +386,7 @@ export default async function EmergencyDetailPage({
                     key={pc}
                     className="flex items-center gap-1 text-sm bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full font-medium"
                   >
-                    <MapPin className="h-3 w-3 text-blue-500" />
+                    <MapPin className="h-3 w-3 text-[var(--brand)]" />
                     {pc}
                   </span>
                 ))}
@@ -399,9 +399,9 @@ export default async function EmergencyDetailPage({
             <h2 className="text-xl font-bold text-slate-900 mb-4">Trust &amp; safety</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {service.policeVetted && (
-                <div className="flex flex-col items-center p-4 bg-blue-50 rounded-xl text-center border border-blue-200">
-                  <BadgeCheck className="h-7 w-7 text-blue-600 mb-1.5" />
-                  <span className="text-xs font-bold text-blue-900">Police Vetted</span>
+                <div className="flex flex-col items-center p-4 bg-[var(--brand-soft)] rounded-xl text-center border border-[var(--color-brand-100)]">
+                  <BadgeCheck className="h-7 w-7 text-[var(--brand)] mb-1.5" />
+                  <span className="text-xs font-bold text-[var(--brand-strong)]">Police Vetted</span>
                   <span className="text-xs text-slate-500 mt-0.5">DBS checked</span>
                 </div>
               )}

@@ -6,7 +6,7 @@ import type { LucideIcon } from "lucide-react"
 type Tone = "blue" | "amber" | "emerald" | "slate"
 
 const TONES: Record<Tone, string> = {
-  blue: "bg-blue-50 text-blue-600",
+  blue: "bg-[var(--brand-soft)] text-[var(--brand)]",
   amber: "bg-amber-50 text-amber-600",
   emerald: "bg-emerald-50 text-emerald-600",
   slate: "bg-slate-100 text-slate-500",

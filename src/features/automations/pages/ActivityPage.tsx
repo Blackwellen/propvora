@@ -46,7 +46,7 @@ const KIND_ICON: Record<ActivityItem["kind"], typeof Activity> = {
 
 const KIND_TONE: Record<ActivityItem["kind"], string> = {
   run_completed: "text-emerald-600",
-  action_executed: "text-blue-600",
+  action_executed: "text-[var(--brand)]",
   approval_required: "text-amber-600",
   error: "text-red-600",
   paused: "text-slate-500",
@@ -54,7 +54,7 @@ const KIND_TONE: Record<ActivityItem["kind"], string> = {
 
 const KIND_BG: Record<ActivityItem["kind"], string> = {
   run_completed: "bg-emerald-50",
-  action_executed: "bg-blue-50",
+  action_executed: "bg-[var(--brand-soft)]",
   approval_required: "bg-amber-50",
   error: "bg-red-50",
   paused: "bg-slate-100",
@@ -125,7 +125,7 @@ export default function ActivityPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search activity…"
-            className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/30"
+            className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm focus:border-[var(--color-brand-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-400)]/30"
           />
         </div>
         <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 pb-0">
@@ -133,7 +133,7 @@ export default function ActivityPage() {
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
-              className={`border-b-2 px-3.5 py-2.5 text-sm transition ${activeTab === t.id ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}
+              className={`border-b-2 px-3.5 py-2.5 text-sm transition ${activeTab === t.id ? "border-[var(--brand)] font-semibold text-[var(--brand)]" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}
             >
               {t.label}
             </button>

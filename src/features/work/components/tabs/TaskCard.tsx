@@ -45,7 +45,7 @@ export function TaskCard({ task, compact = false }: TaskCardProps) {
       </div>
       <div className="flex items-center justify-between mt-3">
         <div className="flex items-center gap-1.5">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[10px] text-white font-bold">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--brand)] to-[var(--brand-strong)] flex items-center justify-center text-[10px] text-white font-bold">
             {task.assigneeInitials}
           </div>
           <span className="text-[11px] text-slate-500 truncate max-w-[90px]">{task.assigneeName}</span>

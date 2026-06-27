@@ -164,7 +164,7 @@ export default function ReportsPage() {
             onClick={() => setTab(t)}
             className={cn(
               "px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all",
-              tab === t ? "bg-[#2563EB] text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
+              tab === t ? "bg-[var(--brand)] text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
             )}
           >
             {t}
@@ -185,8 +185,8 @@ export default function ReportsPage() {
           <div className="p-12 text-center text-slate-500 text-sm">Computing report from ledger…</div>
         ) : !hasData ? (
           <div className="p-12 flex flex-col items-center justify-center gap-3 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-              <Scale className="w-5 h-5 text-[#2563EB]" />
+            <div className="w-12 h-12 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center">
+              <Scale className="w-5 h-5 text-[var(--brand)]" />
             </div>
             <p className="text-sm font-semibold text-slate-700">No ledger data yet</p>
             <p className="text-xs text-slate-500 max-w-md">
@@ -258,8 +258,8 @@ function PLTable({ data }: { data: ReturnType<typeof buildProfitAndLoss> }) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <tbody>
-          <tr className="bg-blue-50/50 border-b border-[#E2E8F0]">
-            <td className="px-5 py-2 text-[11px] font-bold text-[#2563EB] uppercase tracking-wide">Income</td>
+          <tr className="bg-[var(--brand-soft)]/50 border-b border-[#E2E8F0]">
+            <td className="px-5 py-2 text-[11px] font-bold text-[var(--brand)] uppercase tracking-wide">Income</td>
             <td className="px-4 py-2" />
           </tr>
           {data.income.rows.length === 0 ? (

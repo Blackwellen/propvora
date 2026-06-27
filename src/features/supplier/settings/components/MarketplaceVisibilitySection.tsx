@@ -45,12 +45,12 @@ export function MarketplaceVisibilitySection({
             <div
               key={opt.value}
               className={`flex items-center gap-3 p-3 rounded-xl border ${
-                current ? "border-[#2563EB] bg-blue-50/40" : "border-slate-100"
+                current ? "border-[var(--brand)] bg-[var(--brand-soft)]/40" : "border-slate-100"
               }`}
             >
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                  current ? "bg-[#2563EB] text-white" : "bg-slate-100 text-slate-500"
+                  current ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-500"
                 }`}
               >
                 <Icon className="w-4 h-4" />

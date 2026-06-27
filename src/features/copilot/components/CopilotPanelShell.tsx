@@ -229,16 +229,16 @@ export default function CopilotPanelShell({ isOpen, onClose, summaryData, isTria
         <Link
           href="/contact"
           onClick={onClose}
-          className="group flex-1 flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3 py-2 hover:border-blue-200 hover:bg-[#F8FBFF] transition-all"
+          className="group flex-1 flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3 py-2 hover:border-[var(--color-brand-100)] hover:bg-[#F8FBFF] transition-all"
         >
-          <div className="w-7 h-7 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
-            <LifeBuoy className="w-4 h-4 text-[#2563EB]" />
+          <div className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+            <LifeBuoy className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[12px] font-semibold text-slate-800 leading-tight">Contact support</p>
             <p className="text-[10px] text-slate-400 leading-tight">We aim to reply within 12 hours</p>
           </div>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#2563EB] shrink-0" />
+          <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[var(--brand)] shrink-0" />
         </Link>
         <Link
           href="/help"
@@ -256,13 +256,15 @@ export default function CopilotPanelShell({ isOpen, onClose, summaryData, isTria
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       {(activeTab === "copilot" || (activeTab === "inbox" && inboxScreen === "list")) && (
         <div className="flex items-center justify-between gap-2 px-5 py-2 border-t border-slate-100 shrink-0 bg-slate-50/50">
-          <p className="inline-flex items-center gap-1.5 text-[10px] text-violet-600 font-semibold shrink-0">
+          {/* span (not p) — CopilotBrandMark renders a <div>, which is invalid
+              inside a <p> and triggered a hydration error (FIX-651). */}
+          <span className="inline-flex items-center gap-1.5 text-[10px] text-violet-600 font-semibold shrink-0">
             <CopilotBrandMark size={13} radius={4} /> Propvora Copilot
-          </p>
+          </span>
           {/* AI honesty disclaimer — kept visible on every breakpoint (incl. mobile). */}
-          <p className="text-[9.5px] text-slate-400 text-right max-w-[240px] leading-tight">
+          <span className="text-[9.5px] text-slate-400 text-right max-w-[240px] leading-tight">
             Responses may be inaccurate. Please review important information.
-          </p>
+          </span>
         </div>
       )}
     </motion.div>

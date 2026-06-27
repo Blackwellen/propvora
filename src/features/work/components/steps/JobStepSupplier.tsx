@@ -31,7 +31,7 @@ export function JobStepSupplier({ data, onChange }: JobStepSupplierProps) {
       <label className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors">
         <div className="relative w-10 h-5 flex-shrink-0">
           <input type="checkbox" checked={data.sendPortalLink} onChange={(e) => onChange({ sendPortalLink: e.target.checked })} className="sr-only" />
-          <div className={cn("w-10 h-5 rounded-full transition-colors", data.sendPortalLink ? "bg-blue-600" : "bg-slate-200")} />
+          <div className={cn("w-10 h-5 rounded-full transition-colors", data.sendPortalLink ? "bg-[var(--brand)]" : "bg-slate-200")} />
           <div className={cn("absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform", data.sendPortalLink ? "translate-x-5 left-0.5" : "translate-x-0 left-0.5")} />
         </div>
         <div>

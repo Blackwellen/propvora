@@ -47,7 +47,7 @@ export function SupplierViewSwitcher<T extends string>({
             onClick={() => onChange(key)}
             title={label}
             className={cn(
-              "inline-flex items-center gap-1.5 px-2.5 h-8 rounded-lg text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+              "inline-flex items-center gap-1.5 px-2.5 h-8 rounded-lg text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40",
               active ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-800"
             )}
           >
@@ -186,10 +186,10 @@ export function SupplierMiniCalendar({
               key={i}
               className={cn(
                 "min-h-[64px] rounded-lg border p-1.5 text-left",
-                isToday ? "border-[#2563EB] bg-blue-50/40" : "border-slate-100 bg-white"
+                isToday ? "border-[var(--brand)] bg-[var(--brand-soft)]/40" : "border-slate-100 bg-white"
               )}
             >
-              <span className={cn("text-[11px] font-semibold", isToday ? "text-[#2563EB]" : "text-slate-500")}>{d}</span>
+              <span className={cn("text-[11px] font-semibold", isToday ? "text-[var(--brand)]" : "text-slate-500")}>{d}</span>
               <div className="mt-1 space-y-1">
                 {dayEntries.slice(0, 2).map((e, j) => (
                   <button
@@ -197,7 +197,7 @@ export function SupplierMiniCalendar({
                     onClick={() => onEntryClick?.(e)}
                     className="block w-full truncate text-left text-[10px] font-medium text-slate-700 rounded px-1 py-0.5 bg-slate-50 hover:bg-slate-100"
                   >
-                    <span className={cn("inline-block w-1.5 h-1.5 rounded-full mr-1 align-middle", e.tone ?? "bg-[#2563EB]")} />
+                    <span className={cn("inline-block w-1.5 h-1.5 rounded-full mr-1 align-middle", e.tone ?? "bg-[var(--brand)]")} />
                     {e.label}
                   </button>
                 ))}

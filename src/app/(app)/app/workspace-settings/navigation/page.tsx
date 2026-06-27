@@ -18,9 +18,14 @@ import { cn } from "@/lib/utils"
 import {
   ALL_QUICK_WIDGETS,
   loadQuickBarPrefs,
-  saveQuickBarPrefs,
+  loadQuickBarPrefsFromDb,
+  saveQuickBarPrefsEverywhere,
+  gateWidgets,
   type QuickBarPrefs,
 } from "@/lib/quickbar"
+import { useWorkspace } from "@/providers/AuthProvider"
+import { saveWorkspaceNav } from "@/lib/actions/settings"
+import { useQuickbarFlags } from "@/hooks/useQuickbarFlags"
 
 // ─── Sidebar module visibility ────────────────────────────────────────────────
 
@@ -48,10 +53,26 @@ const WIDGET_GROUPS = ["Portfolio", "Work", "Contacts", "Money", "Planning", "Ot
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
+const LANDING_OPTIONS = [
+  { value: "/property-manager/portfolio", label: "Portfolio" },
+  { value: "/property-manager/work",       label: "Work" },
+  { value: "/property-manager/money",      label: "Money" },
+  { value: "/property-manager/calendar",   label: "Calendar" },
+  { value: "/property-manager/contacts",   label: "Contacts" },
+  { value: "/property-manager/compliance", label: "Compliance" },
+]
+
 export default function NavigationPage() {
+  const { workspace, refreshWorkspace } = useWorkspace()
   const [modules, setModules] = useState<MenuModule[]>(DEFAULT_MODULES)
   const [modulesDirty, setModulesDirty] = useState(false)
   const [modulesSaved, setModulesSaved] = useState(false)
+  const [modulesSaving, setModulesSaving] = useState(false)
+  const [modulesError, setModulesError] = useState<string | null>(null)
+
+  const [landing, setLanding] = useState("/property-manager/portfolio")
+  const [landingSaving, setLandingSaving] = useState(false)
+  const [landingSaved, setLandingSaved] = useState(false)
 
   const [prefs, setPrefs] = useState<QuickBarPrefs | null>(null)
   const [prefsDirty, setPrefsDirty] = useState(false)
@@ -61,18 +82,50 @@ export default function NavigationPage() {
 
   useEffect(() => {
     setPrefs(loadQuickBarPrefs())
+    // Hydrate from the DB (cross-device) — overrides localStorage when present.
+    loadQuickBarPrefsFromDb().then(db => { if (db) setPrefs(db) })
   }, [])
+
+  // Hydrate module visibility + landing page from the workspace nav config.
+  useEffect(() => {
+    const nav = workspace?.settings?.nav
+    if (!nav) return
+    const hidden = new Set(nav.hiddenModules ?? [])
+    setModules(prev => prev.map(m => m.canHide ? { ...m, visible: !hidden.has(m.key) } : m))
+    if (nav.defaultLanding) setLanding(nav.defaultLanding)
+  }, [workspace?.settings?.nav])
 
   function handleModuleToggle(key: string) {
     setModules(prev => prev.map(m => m.key === key && m.canHide ? { ...m, visible: !m.visible } : m))
     setModulesDirty(true)
     setModulesSaved(false)
+    setModulesError(null)
   }
 
-  function handleModulesSave() {
+  async function handleModulesSave() {
+    setModulesSaving(true)
+    setModulesError(null)
+    const hiddenModules = modules.filter(m => m.canHide && !m.visible).map(m => m.key)
+    const res = await saveWorkspaceNav({ hiddenModules })
+    setModulesSaving(false)
+    if (!res.ok) { setModulesError(res.error ?? "Failed to save."); return }
+    await refreshWorkspace()
     setModulesDirty(false)
     setModulesSaved(true)
     setTimeout(() => setModulesSaved(false), 2500)
+  }
+
+  async function handleLandingChange(value: string) {
+    setLanding(value)
+    setLandingSaving(true)
+    setLandingSaved(false)
+    const res = await saveWorkspaceNav({ defaultLanding: value })
+    setLandingSaving(false)
+    if (res.ok) {
+      await refreshWorkspace()
+      setLandingSaved(true)
+      setTimeout(() => setLandingSaved(false), 2500)
+    }
   }
 
   function toggleWidget(key: string) {
@@ -100,13 +153,20 @@ export default function NavigationPage() {
 
   function handlePrefsSave() {
     if (!prefs) return
-    saveQuickBarPrefs(prefs)
+    void saveQuickBarPrefsEverywhere(prefs)
     setPrefsDirty(false)
     setPrefsSaved(true)
     setTimeout(() => setPrefsSaved(false), 2500)
   }
 
-  const visibleCount = prefs ? Object.values(prefs.visible).filter(Boolean).length : 0
+  // Flag-gated widget catalogue: a workspace can only pin shortcuts to surfaces
+  // its feature flags have enabled (e.g. no Planning widgets until Planning is on).
+  const gatedFlags = useQuickbarFlags()
+  const allowedWidgets = new Set(gateWidgets(ALL_QUICK_WIDGETS, gatedFlags).map(w => w.key))
+
+  const visibleCount = prefs
+    ? Object.entries(prefs.visible).filter(([k, v]) => v && allowedWidgets.has(k)).length
+    : 0
 
   return (
     <div className="relative pb-24">
@@ -147,7 +207,7 @@ export default function NavigationPage() {
               <button
                 onClick={() => handleModuleToggle(mod.key)}
                 disabled={!mod.canHide}
-                className={cn("w-10 h-6 rounded-full transition-colors relative", mod.visible ? "bg-[#2563EB]" : "bg-slate-200", !mod.canHide && "opacity-40 cursor-not-allowed")}
+                className={cn("w-10 h-6 rounded-full transition-colors relative", mod.visible ? "bg-[var(--brand)]" : "bg-slate-200", !mod.canHide && "opacity-40 cursor-not-allowed")}
               >
                 <span className={cn("absolute top-1 block w-4 h-4 rounded-full bg-white shadow-sm transition-transform", mod.visible ? "translate-x-5" : "translate-x-1")} />
               </button>
@@ -155,14 +215,15 @@ export default function NavigationPage() {
           )
         })}
         {modulesDirty && (
-          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100">
-            <button onClick={() => { setModules(DEFAULT_MODULES); setModulesDirty(false) }}
+          <div className="flex items-center justify-end gap-3 mt-4 pt-4 border-t border-slate-100">
+            {modulesError && <p className="text-[12px] text-red-500 mr-auto">{modulesError}</p>}
+            <button onClick={() => { setModules(DEFAULT_MODULES); setModulesDirty(false); setModulesError(null) }}
               className="px-4 py-2 rounded-xl border border-slate-200 text-[13px] text-slate-600 hover:bg-slate-50 transition-colors">
               Reset
             </button>
-            <button onClick={handleModulesSave}
-              className="px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors">
-              Save changes
+            <button onClick={handleModulesSave} disabled={modulesSaving}
+              className="px-5 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60">
+              {modulesSaving ? "Saving…" : "Save changes"}
             </button>
           </div>
         )}
@@ -201,7 +262,7 @@ export default function NavigationPage() {
         {prefs && WIDGET_GROUPS.map(group => {
           const groupWidgets = prefs.order
             .map(k => ALL_QUICK_WIDGETS.find(w => w.key === k))
-            .filter((w): w is NonNullable<typeof w> => !!w && w.group === group)
+            .filter((w): w is NonNullable<typeof w> => !!w && w.group === group && allowedWidgets.has(w.key))
 
           if (!groupWidgets.length) return null
 
@@ -274,7 +335,7 @@ export default function NavigationPage() {
             <div className="flex items-center gap-1.5 flex-wrap p-3 bg-[#F6FAFF] rounded-2xl border border-slate-200">
               {prefs.order
                 .map(k => ALL_QUICK_WIDGETS.find(w => w.key === k))
-                .filter((w): w is NonNullable<typeof w> => !!w && prefs.visible[w.key])
+                .filter((w): w is NonNullable<typeof w> => !!w && prefs.visible[w.key] && allowedWidgets.has(w.key))
                 .map(w => {
                   const Icon = w.icon
                   return (
@@ -296,13 +357,31 @@ export default function NavigationPage() {
 
       {/* ── Section 3: Default landing page ───────────────────── */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6">
-        <h3 className="text-[14px] font-bold text-slate-900 mb-1">Default Landing Page</h3>
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="text-[14px] font-bold text-slate-900">Default Landing Page</h3>
+          {landingSaved && (
+            <span className="flex items-center gap-1.5 text-[12.5px] font-semibold text-emerald-600">
+              <Check className="w-4 h-4" />Saved
+            </span>
+          )}
+        </div>
         <p className="text-[12.5px] text-slate-500 mb-3">Choose which page users land on after logging in.</p>
-        <select className="w-full max-w-[320px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all">
-          {modules.filter(m => m.visible).map(m => (
-            <option key={m.key} value={`/property-manager/${m.key}`}>{m.label}</option>
+        <select
+          value={landing}
+          onChange={e => handleLandingChange(e.target.value)}
+          disabled={landingSaving}
+          className="w-full max-w-[320px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[var(--brand)] transition-all disabled:opacity-60"
+        >
+          {LANDING_OPTIONS.filter(o => {
+            // Only offer visible modules as landing targets.
+            const key = o.value.split("/").pop()
+            const mod = modules.find(m => m.key === key)
+            return !mod || mod.visible
+          }).map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </select>
+        {landingSaving && <p className="text-[11px] text-slate-400 mt-1.5">Saving…</p>}
       </div>
     </div>
   )

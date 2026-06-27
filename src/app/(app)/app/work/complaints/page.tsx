@@ -86,7 +86,7 @@ function ComplaintRow({
             {jobTitle && (
               <Link
                 href={`/property-manager/work/jobs/${complaint.job_id}`}
-                className="text-[12px] text-[#2563EB] hover:underline"
+                className="text-[12px] text-[var(--brand)] hover:underline"
               >
                 {jobTitle}
               </Link>
@@ -110,7 +110,7 @@ function ComplaintRow({
       {expanded && (
         <div className="mt-3 space-y-2.5 rounded-xl bg-slate-50 border border-slate-200 p-3">
           <textarea
-            className="w-full min-h-16 rounded-lg border border-slate-200 px-2.5 py-2 text-[12.5px] text-slate-900 resize-y bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+            className="w-full min-h-16 rounded-lg border border-slate-200 px-2.5 py-2 text-[12.5px] text-slate-900 resize-y bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             placeholder="Resolution / response notes (visible to the tenant)…"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -130,7 +130,7 @@ function ComplaintRow({
                   key={s}
                   onClick={() => applyStatus(s)}
                   disabled={update.isPending}
-                  className="px-3 py-1.5 rounded-lg bg-[#2563EB] text-white text-[12px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-60"
+                  className="px-3 py-1.5 rounded-lg bg-[var(--brand)] text-white text-[12px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60"
                 >
                   Mark {meta.label}
                 </button>
@@ -164,7 +164,7 @@ export default function ComplaintsPage() {
   const resolvedCount = complaints.filter((c) => c.status === "resolved" || c.status === "closed").length
 
   const KPIS = [
-    { label: "Total", value: String(complaints.length), icon: ListChecks, bg: "bg-blue-50", color: "text-blue-600" },
+    { label: "Total", value: String(complaints.length), icon: ListChecks, bg: "bg-[var(--brand-soft)]", color: "text-[var(--brand)]" },
     { label: "Open", value: String(openCount), icon: Clock, bg: "bg-amber-50", color: "text-amber-600" },
     { label: "Resolved", value: String(resolvedCount), icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" },
   ]
@@ -214,7 +214,7 @@ export default function ComplaintsPage() {
             onClick={() => setFilter(f.key)}
             className={cn(
               "px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all",
-              filter === f.key ? "bg-white text-[#2563EB] shadow-sm" : "text-slate-500 hover:text-slate-700"
+              filter === f.key ? "bg-white text-[var(--brand)] shadow-sm" : "text-slate-500 hover:text-slate-700"
             )}
           >
             {f.label}

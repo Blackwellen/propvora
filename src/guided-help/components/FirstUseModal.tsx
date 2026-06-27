@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { X, ChevronLeft, ChevronRight, Sparkles } from "lucide-react"
+import Image from "next/image"
+import { X, ChevronLeft, ChevronRight } from "lucide-react"
 import { useGuidedHelp } from "../GuidedHelpProvider"
 import type { Tutorial } from "../tutorial-types"
 
@@ -66,12 +67,22 @@ export default function FirstUseModal() {
         {/* Header */}
         <div className="flex items-start justify-between p-5 pb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "linear-gradient(135deg,var(--brand),var(--accent))" }}>
-              <Sparkles className="w-5 h-5 text-white" />
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-white border border-slate-200 shadow-sm overflow-hidden"
+              style={{ boxShadow: "0 0 0 2px color-mix(in srgb, var(--brand) 22%, transparent)" }}
+            >
+              <Image
+                src="/propvora-favicon.png"
+                alt="Propvora"
+                width={28}
+                height={28}
+                className="w-7 h-7 object-contain"
+              />
             </div>
             <div>
-              <p className="text-[11px] font-semibold text-violet-600 uppercase tracking-wide">{active.section}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--brand, #2563EB)" }}>
+                Propvora guides · {active.section}
+              </p>
               <h2 className="text-base font-bold text-slate-900 leading-tight">{active.title}</h2>
             </div>
           </div>

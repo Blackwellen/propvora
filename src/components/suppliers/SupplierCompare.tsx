@@ -69,15 +69,15 @@ export function SupplierCompare({ suppliers }: Props) {
               {suppliers.map((s) => (
                 <th key={s.id} className="p-3 text-left align-top border-b border-l border-slate-100 min-w-[200px]">
                   <Link href={`/property-manager/marketplace/suppliers/${s.id}`} className="group block">
-                    <div className="relative w-full h-24 rounded-xl overflow-hidden bg-gradient-to-br from-[#1D4ED8] to-[#2563EB] mb-2">
+                    <div className="relative w-full h-24 rounded-xl overflow-hidden bg-gradient-to-br from-[var(--brand-strong)] to-[var(--brand)] mb-2">
                       {s.thumbnailUrl && <Image src={s.thumbnailUrl} alt={s.title} fill className="object-cover" sizes="200px" />}
                       <div className="absolute top-1.5 left-1.5 flex gap-1">
-                        {(s.verificationStatus === "verified" || s.verificationStatus === "approved") && <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-white/95 text-[#2563EB] shadow-sm"><BadgeCheck className="w-3 h-3" /></span>}
+                        {(s.verificationStatus === "verified" || s.verificationStatus === "approved") && <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-white/95 text-[var(--brand)] shadow-sm"><BadgeCheck className="w-3 h-3" /></span>}
                         {s.insuranceVerified && <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-emerald-600/95 text-white shadow-sm"><ShieldCheck className="w-3 h-3" /></span>}
                         {s.acceptsEmergency && <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-red-600/95 text-white shadow-sm"><Zap className="w-3 h-3" /></span>}
                       </div>
                     </div>
-                    <p className="text-[13px] font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-[#2563EB] transition-colors">{s.title}</p>
+                    <p className="text-[13px] font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-[var(--brand)] transition-colors">{s.title}</p>
                   </Link>
                 </th>
               ))}
@@ -94,7 +94,7 @@ export function SupplierCompare({ suppliers }: Props) {
               <td className="sticky left-0 z-10 bg-white w-[200px] p-3" />
               {suppliers.map((s) => (
                 <td key={s.id} className="p-3 border-l border-slate-100">
-                  <Link href={`/property-manager/marketplace/suppliers/${s.id}`} className="inline-flex items-center justify-center gap-1.5 w-full h-9 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors"><MessageSquare className="w-3.5 h-3.5" /> Request quote</Link>
+                  <Link href={`/property-manager/marketplace/suppliers/${s.id}`} className="inline-flex items-center justify-center gap-1.5 w-full h-9 rounded-xl bg-[var(--brand)] text-white text-[12.5px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"><MessageSquare className="w-3.5 h-3.5" /> Request quote</Link>
                 </td>
               ))}
             </tr>

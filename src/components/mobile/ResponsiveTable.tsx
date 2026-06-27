@@ -116,7 +116,7 @@ export function MobileCardList<T>({
               className={cn(
                 "w-full text-left bg-white rounded-2xl border border-[#E8EEF8] shadow-sm p-3.5",
                 clickable &&
-                  "active:scale-[0.99] transition-transform hover:border-[#BFD8FB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 motion-reduce:active:scale-100"
+                  "active:scale-[0.99] transition-transform hover:border-[#BFD8FB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 motion-reduce:active:scale-100"
               )}
             >
               {/* Header row */}

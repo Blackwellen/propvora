@@ -46,8 +46,8 @@ import {
 const KPIS = [
   {
     icon: CalendarClock,
-    iconBg: "bg-blue-50",
-    iconColor: "text-blue-600",
+    iconBg: "bg-[var(--brand-soft)]",
+    iconColor: "text-[var(--brand)]",
     value: 0,
     label: "Active Schedules",
     sub: "Across all properties",
@@ -73,8 +73,8 @@ const KPIS = [
   },
   {
     icon: TrendingUp,
-    iconBg: "bg-blue-50",
-    iconColor: "text-blue-600",
+    iconBg: "bg-[var(--brand-soft)]",
+    iconColor: "text-[var(--brand)]",
     value: 0,
     label: "Due Next 30 Days",
     sub: "Next 30 days",
@@ -257,14 +257,25 @@ export default function PpmOverviewPage() {
   )
   const compliancePct = complianceData[0]?.pct ?? 0
 
-  // Live KPI values overriding the static template
+  // Live KPI values overriding the static template.
+  // "Due This Month" and "Due Next 30 Days" are distinct date-windowed counts
+  // derived from each plan's next_due_date (previously both showed the same
+  // due-soon count, which mislabelled two of the five cards).
   const kpiValues = useMemo(() => {
+    const now = Date.now()
+    const d = new Date()
+    const endOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999).getTime()
+    const in30 = now + 30 * 86_400_000
+    const plans = livePlans ?? []
+    const dueTs = (p: PpmPlan) => (p.next_due_date ? new Date(p.next_due_date).getTime() : null)
+
     const active = allUpcoming.length
     const overdue = allUpcoming.filter((r) => r.filterStatus === "overdue").length
-    const dueSoon = allUpcoming.filter((r) => r.filterStatus === "due-soon").length
     const completed = allUpcoming.filter((r) => r.filterStatus === "completed").length
-    return [active, dueSoon, overdue, dueSoon, completed]
-  }, [allUpcoming])
+    const dueThisMonth = plans.filter((p) => { const t = dueTs(p); return t != null && t >= now && t <= endOfMonth }).length
+    const dueNext30 = plans.filter((p) => { const t = dueTs(p); return t != null && t >= now && t <= in30 }).length
+    return [active, dueThisMonth, overdue, dueNext30, completed]
+  }, [allUpcoming, livePlans])
 
   function goToPlan(row: UpcomingRow) {
     if (row.id) router.push(`/property-manager/work/ppm/${row.id}`)
@@ -292,8 +303,8 @@ export default function PpmOverviewPage() {
       {/* Page header */}
       <div className="hidden md:flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-            <CalendarClock className="w-5 h-5 text-[#2563EB]" />
+          <div className="w-10 h-10 bg-[var(--brand-soft)] rounded-xl flex items-center justify-center">
+            <CalendarClock className="w-5 h-5 text-[var(--brand)]" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900">PPM Scheduler</h1>
@@ -310,7 +321,7 @@ export default function PpmOverviewPage() {
           </button>
           <Link
             href="/property-manager/work/ppm/schedules/new"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
           >
             <Plus className="w-4 h-4" /> New PPM Schedule
           </Link>
@@ -368,7 +379,7 @@ export default function PpmOverviewPage() {
                     className={cn(
                       "px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-colors",
                       statusFilter === f.key
-                        ? "bg-[#2563EB] text-white border-[#2563EB]"
+                        ? "bg-[var(--brand)] text-white border-[var(--brand)]"
                         : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                     )}
                   >
@@ -377,7 +388,7 @@ export default function PpmOverviewPage() {
                 ))}
                 <Link
                   href="/property-manager/work/ppm/schedules"
-                  className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
+                  className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] flex items-center gap-0.5"
                 >
                   View all <ChevronRight className="w-3 h-3" />
                 </Link>
@@ -465,7 +476,7 @@ export default function PpmOverviewPage() {
               <p className="text-xs text-slate-500">Showing {displayUpcomingDue.length} of {allUpcoming.length} schedules</p>
               <Link
                 href="/property-manager/work/ppm/schedules"
-                className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+                className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
               >
                 View all →
               </Link>
@@ -617,7 +628,7 @@ export default function PpmOverviewPage() {
             <div className="space-y-3">
               {insights.map((ins, i) => {
                 const tone = {
-                  blue: { wrap: "bg-blue-50 border-blue-100", icon: "text-blue-600", Icon: TrendingUp },
+                  blue: { wrap: "bg-[var(--brand-soft)] border-[var(--color-brand-100)]", icon: "text-[var(--brand)]", Icon: TrendingUp },
                   amber: { wrap: "bg-amber-50 border-amber-100", icon: "text-amber-600", Icon: AlertCircle },
                   emerald: { wrap: "bg-emerald-50 border-emerald-100", icon: "text-emerald-600", Icon: CheckCircle2 },
                 }[ins.tone]
@@ -632,7 +643,7 @@ export default function PpmOverviewPage() {
             </div>
             <Link
               href="/property-manager/work/reports"
-              className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+              className="mt-3 flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
             >
               View work reports <ChevronRight className="w-3 h-3" />
             </Link>

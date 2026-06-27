@@ -40,9 +40,9 @@ export function CategoryNav({ value, onChange, counts, className }: CategoryNavP
             aria-pressed={active}
             className={cn(
               "inline-flex items-center gap-1.5 shrink-0 h-9 px-3 rounded-xl text-[12.5px] font-semibold border transition-all whitespace-nowrap",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30",
               active
-                ? "bg-[#2563EB] border-[#2563EB] text-white shadow-sm"
+                ? "bg-[var(--brand)] border-[var(--brand)] text-white shadow-sm"
                 : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
             )}
           >

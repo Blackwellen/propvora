@@ -64,7 +64,7 @@ export function statusTab(l: SupplierLead): StatusTab {
 type LeadView = "list" | "cards" | "board"
 
 const LEAD_COLS: KanbanColumn[] = [
-  { key: "new", label: "New", accent: "text-blue-600", dot: "bg-blue-500" },
+  { key: "new", label: "New", accent: "text-[var(--brand)]", dot: "bg-[var(--brand)]" },
   { key: "quoted", label: "Quoted", accent: "text-violet-600", dot: "bg-violet-500" },
   { key: "active", label: "Active", accent: "text-emerald-600", dot: "bg-emerald-500" },
   { key: "completed", label: "Completed", accent: "text-slate-600", dot: "bg-slate-400" },
@@ -383,7 +383,7 @@ export function LeadsListView({ initialStatus = "new", showStatusTabs = true }: 
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => setViewingLead(lead)}
-                          className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
+                          className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] flex items-center gap-0.5"
                         >
                           Brief <ChevronRight className="w-3 h-3" />
                         </button>
@@ -394,7 +394,7 @@ export function LeadsListView({ initialStatus = "new", showStatusTabs = true }: 
                                 setQuoting(lead)
                                 setBanner(null)
                               }}
-                              className="inline-flex items-center gap-1 h-7 px-2.5 rounded-lg bg-[#2563EB] text-white text-[11px] font-semibold hover:bg-[#1d4ed8]"
+                              className="inline-flex items-center gap-1 h-7 px-2.5 rounded-lg bg-[var(--brand)] text-white text-[11px] font-semibold hover:bg-[var(--brand-strong)]"
                             >
                               <Send className="w-3 h-3" /> Quote
                             </button>
@@ -567,7 +567,7 @@ export function LeadsListView({ initialStatus = "new", showStatusTabs = true }: 
               </div>
               <button
                 onClick={addLine}
-                className="mt-2 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+                className="mt-2 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
               >
                 + Add line
               </button>
@@ -658,12 +658,12 @@ function LeadCard({ lead, onQuote, onDecline, onView }: LeadActionProps) {
     <SupplierCard className="p-4 flex flex-col">
       <div className="flex items-start justify-between gap-2">
         <div
-          className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isRequest ? "bg-violet-50" : "bg-blue-50"}`}
+          className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isRequest ? "bg-violet-50" : "bg-[var(--brand-soft)]"}`}
         >
           {isRequest ? (
             <FileText className="w-4 h-4 text-violet-600" />
           ) : (
-            <Mail className="w-4 h-4 text-blue-600" />
+            <Mail className="w-4 h-4 text-[var(--brand)]" />
           )}
         </div>
         <SupplierStatusBadge
@@ -702,7 +702,7 @@ function LeadCard({ lead, onQuote, onDecline, onView }: LeadActionProps) {
       <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2">
         <button
           onClick={() => onView(lead)}
-          className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
+          className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] flex items-center gap-0.5"
         >
           Full brief <ChevronRight className="w-3 h-3" />
         </button>
@@ -741,7 +741,7 @@ function LeadKanbanCard({ lead, onQuote, onDecline, onView }: LeadActionProps) {
       <div className="mt-2 flex items-center gap-1.5">
         <button
           onClick={() => onView(lead)}
-          className="text-[11px] font-semibold text-[#2563EB]"
+          className="text-[11px] font-semibold text-[var(--brand)]"
         >
           Brief
         </button>

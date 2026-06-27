@@ -41,7 +41,7 @@ export function AiUsageByWorkspaceTable({ rows, byWorkspace }: Props) {
           <ul className="space-y-2.5">
             {byWorkspace.map((w) => (
               <li key={w.workspaceId} className="flex items-center justify-between gap-2">
-                <Link href={`/admin/workspaces/${w.workspaceId}`} className="flex items-center gap-1.5 text-[13px] font-medium text-slate-700 hover:text-[#2563EB] min-w-0">
+                <Link href={`/admin/workspaces/${w.workspaceId}`} className="flex items-center gap-1.5 text-[13px] font-medium text-slate-700 hover:text-[var(--brand)] min-w-0">
                   <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   <span className="truncate">{w.workspaceName}</span>
                 </Link>
@@ -68,7 +68,7 @@ export function AiUsageByWorkspaceTable({ rows, byWorkspace }: Props) {
             {rows.slice(0, 100).map((r) => (
               <tr key={`${r.workspaceId}-${r.day}`} className="hover:bg-slate-50/60">
                 <td className="px-4 py-2.5">
-                  <Link href={`/admin/workspaces/${r.workspaceId}`} className="flex items-center gap-1.5 text-[12px] font-medium text-slate-800 hover:text-[#2563EB]">
+                  <Link href={`/admin/workspaces/${r.workspaceId}`} className="flex items-center gap-1.5 text-[12px] font-medium text-slate-800 hover:text-[var(--brand)]">
                     <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span className="truncate">{r.workspaceName}</span>
                   </Link>

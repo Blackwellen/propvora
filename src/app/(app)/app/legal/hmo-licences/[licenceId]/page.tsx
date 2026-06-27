@@ -108,7 +108,7 @@ function statusCls(s: string) {
   switch (s) {
     case "active": return "bg-green-100 text-green-700 border border-green-200"
     case "expired": return "bg-red-100 text-red-700 border border-red-200"
-    case "pending": return "bg-blue-100 text-blue-700 border border-blue-200"
+    case "pending": return "bg-[var(--color-brand-100)] text-[var(--brand)] border border-[var(--color-brand-100)]"
     default: return "bg-slate-100 text-slate-600 border border-slate-200"
   }
 }
@@ -168,7 +168,7 @@ export default function HmoLicenceDetailPage() {
           <AlertTriangle className="w-6 h-6 text-slate-400" />
         </div>
         <p className="text-[14px] font-semibold text-slate-700 mb-1">Licence not found</p>
-        <Link href="/property-manager/legal/hmo-licences" className="text-[12px] text-blue-600 hover:text-blue-800 font-medium mt-2">
+        <Link href="/property-manager/legal/hmo-licences" className="text-[12px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium mt-2">
           ← Back to HMO Licences
         </Link>
       </div>
@@ -270,7 +270,7 @@ export default function HmoLicenceDetailPage() {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-3 text-[13px] font-medium border-b-2 -mb-px transition-all ${
-                activeTab === tab ? "border-[#2563EB] text-[#2563EB]" : "border-transparent text-slate-500 hover:text-slate-700"
+                activeTab === tab ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-500 hover:text-slate-700"
               }`}
             >
               {tab}
@@ -377,7 +377,7 @@ export default function HmoLicenceDetailPage() {
                 <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-0.5">Expiry</p>
                 <p className="text-[15px] font-bold text-slate-900">{formatDate(lic.expiry_date)}</p>
                 <p className="text-[11px] text-slate-500 mt-1">Surfaced to the renewal calendar.</p>
-                <Link href="/property-manager/calendar" className="mt-3 inline-block text-[11px] text-blue-600 hover:text-blue-800 font-medium">
+                <Link href="/property-manager/calendar" className="mt-3 inline-block text-[11px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium">
                   Open Calendar →
                 </Link>
               </div>

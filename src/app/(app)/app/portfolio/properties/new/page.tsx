@@ -12,7 +12,6 @@ import { useWorkspace } from "@/providers/AuthProvider"
 import { useContacts } from "@/hooks/useContacts"
 import { geocodeAddress } from "@/lib/maps/geocode"
 import {
-  ChevronLeft,
   ChevronRight,
   Check,
   Building2,
@@ -27,7 +26,7 @@ import {
   Trash2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import MobileTopBar from "@/components/mobile/MobileTopBar"
+import { WizardShell, type WizardStepDef } from "@/components/wizard/WizardShell"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                 */
@@ -79,16 +78,18 @@ const STATUSES = [
 ]
 
 const STEPS = [
-  { number: 1, label: "Basics", icon: Building2 },
-  { number: 2, label: "Address", icon: MapPin },
-  { number: 3, label: "Profile", icon: Layers },
-  { number: 4, label: "Physical", icon: Home },
-  { number: 5, label: "Financials", icon: DollarSign },
-  { number: 6, label: "Units", icon: Layers },
-  { number: 7, label: "Contacts", icon: Users },
-  { number: 8, label: "Documents", icon: Upload },
-  { number: 9, label: "Review", icon: Eye },
+  { number: 1, label: "Basics", icon: Building2, description: "Name, type & status" },
+  { number: 2, label: "Address", icon: MapPin, description: "Location details" },
+  { number: 3, label: "Profile", icon: Layers, description: "How it's operated" },
+  { number: 4, label: "Physical", icon: Home, description: "Rooms & size" },
+  { number: 5, label: "Financials", icon: DollarSign, description: "Value & rent" },
+  { number: 6, label: "Units", icon: Layers, description: "Rooms / units" },
+  { number: 7, label: "Contacts", icon: Users, description: "Owner link" },
+  { number: 8, label: "Documents", icon: Upload, description: "Added after creation" },
+  { number: 9, label: "Review", icon: Eye, description: "Confirm & create" },
 ]
+
+const WIZARD_STEPS: WizardStepDef[] = STEPS.map((s) => ({ label: s.label, description: s.description }))
 
 const defaultData: PropertyWizardData = {
   name: "",
@@ -127,7 +128,7 @@ function StepBasics({ data, onChange }: { data: PropertyWizardData; onChange: (d
           placeholder="e.g. Brunswick Road HMO"
           value={data.name}
           onChange={(e) => onChange({ name: e.target.value })}
-          className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+          className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
         />
       </div>
 
@@ -138,7 +139,7 @@ function StepBasics({ data, onChange }: { data: PropertyWizardData; onChange: (d
           <select
             value={data.propertyType}
             onChange={(e) => onChange({ propertyType: e.target.value })}
-            className="w-full h-10 pl-9 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-slate-900 text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+            className="w-full h-10 pl-9 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-slate-900 text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
           >
             <option value="">Select a property type…</option>
             {PROPERTY_TYPE_GROUPS.map((grp) => (
@@ -163,7 +164,7 @@ function StepBasics({ data, onChange }: { data: PropertyWizardData; onChange: (d
               className={cn(
                 "px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-150",
                 data.status === s.key
-                  ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
                   : "border-[#E2E8F0] text-slate-600 hover:border-slate-300"
               )}
             >
@@ -196,7 +197,7 @@ function StepAddress({ data, onChange }: { data: PropertyWizardData; onChange: (
             placeholder={field.placeholder}
             value={(data as unknown as Record<string, unknown>)[field.key] as string}
             onChange={(e) => onChange({ [field.key]: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+            className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
           />
         </div>
       ))}
@@ -262,7 +263,7 @@ function StepPhysical({ data, onChange }: { data: PropertyWizardData; onChange: 
             max={field.max}
             value={(data as unknown as Record<string, unknown>)[field.key] as number}
             onChange={(e) => onChange({ [field.key]: Number(e.target.value) })}
-            className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+            className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
           />
         </div>
       ))}
@@ -290,7 +291,7 @@ function StepFinancials({ data, onChange }: { data: PropertyWizardData; onChange
               placeholder={field.placeholder}
               value={(data as unknown as Record<string, unknown>)[field.key] as number || ""}
               onChange={(e) => onChange({ [field.key]: Number(e.target.value) })}
-              className="w-full h-10 pl-7 pr-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+              className="w-full h-10 pl-7 pr-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
             />
           </div>
         </div>
@@ -339,7 +340,7 @@ function StepUnits({ data, onChange }: { data: PropertyWizardData; onChange: (d:
                 type="text"
                 value={unit.name}
                 onChange={(e) => updateUnit(unit.id, { name: e.target.value })}
-                className="flex-1 h-8 px-2 rounded-lg border border-[#E2E8F0] bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+                className="flex-1 h-8 px-2 rounded-lg border border-[#E2E8F0] bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                 placeholder="Room name"
               />
               <select
@@ -358,7 +359,7 @@ function StepUnits({ data, onChange }: { data: PropertyWizardData; onChange: (d:
                   type="number"
                   value={unit.targetRent}
                   onChange={(e) => updateUnit(unit.id, { targetRent: Number(e.target.value) })}
-                  className="w-24 h-8 pl-5 pr-2 rounded-lg border border-[#E2E8F0] bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+                  className="w-24 h-8 pl-5 pr-2 rounded-lg border border-[#E2E8F0] bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                   placeholder="500"
                 />
               </div>
@@ -396,7 +397,7 @@ function StepContacts({ data, onChange, contacts }: {
         {contacts.length === 0 ? (
           <div className="p-3 rounded-xl bg-slate-50 border border-[#E2E8F0] text-xs text-slate-500">
             No contacts yet. You can add an owner from the{" "}
-            <Link href="/property-manager/contacts" className="text-[#2563EB] underline">Contacts</Link>{" "}
+            <Link href="/property-manager/contacts" className="text-[var(--brand)] underline">Contacts</Link>{" "}
             section and link them later.
           </div>
         ) : (
@@ -405,7 +406,7 @@ function StepContacts({ data, onChange, contacts }: {
               id="landlord-contact"
               value={data.landlordContactId}
               onChange={(e) => onChange({ landlordContactId: e.target.value })}
-              className="w-full h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-slate-900 text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+              className="w-full h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-slate-900 text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
             >
               <option value="">No owner linked</option>
               {(landlordContacts.length > 0 ? landlordContacts : contacts).map((c) => (
@@ -416,7 +417,7 @@ function StepContacts({ data, onChange, contacts }: {
           </div>
         )}
       </div>
-      <div className="p-3 rounded-xl bg-blue-50 border border-blue-100 text-xs text-[#2563EB]">
+      <div className="p-3 rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)] text-xs text-[var(--brand)]">
         Managing agents, tenants and other parties are linked from the property’s Contacts tab once it’s created.
       </div>
     </div>
@@ -429,8 +430,8 @@ function StepDocuments() {
       <p className="text-sm text-slate-500">Documents are added once the property exists, so each file links to the right record.</p>
       <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-            <Upload className="w-4 h-4 text-[#2563EB]" />
+          <div className="w-9 h-9 rounded-xl bg-[var(--color-brand-100)] flex items-center justify-center shrink-0">
+            <Upload className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <div>
             <p className="text-sm font-semibold text-slate-900">Upload after creation</p>
@@ -642,108 +643,22 @@ export default function NewPropertyPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      {/* Mobile top bar */}
-      <MobileTopBar
-        title="Add Property"
-        subtitle={`Step ${step} of ${STEPS.length} — ${STEPS[step - 1].label}`}
-        showBack
-        backHref="/property-manager/portfolio/properties"
-      />
-
-      <div className="hidden md:block mb-6">
-        <Link href="/property-manager/portfolio/properties" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4">
-          <ChevronLeft className="w-4 h-4" />
-          Back to Properties
-        </Link>
-        <h1 className="text-2xl font-bold text-slate-900">Add Property</h1>
-        <p className="text-sm text-slate-500 mt-1">Step {step} of {STEPS.length} — {STEPS[step - 1].label}</p>
-      </div>
-
-      {/* Step indicator */}
-      <div className="flex items-center gap-1 mb-8 overflow-x-auto pb-2">
-        {STEPS.map((s, idx) => (
-          <React.Fragment key={s.number}>
-            <button
-              onClick={() => step > s.number && setStep(s.number)}
-              className={cn(
-                "flex flex-col items-center gap-1 min-w-[52px] transition-all duration-150",
-                s.number < step && "cursor-pointer"
-              )}
-            >
-              <div className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
-                s.number === step
-                  ? "bg-[#2563EB] text-white shadow-md shadow-blue-200"
-                  : s.number < step
-                  ? "bg-[#10B981] text-white"
-                  : "bg-slate-100 text-slate-400"
-              )}>
-                {s.number < step ? <Check className="w-3.5 h-3.5" /> : s.number}
-              </div>
-              <span className={cn(
-                "text-xs whitespace-nowrap",
-                s.number === step ? "text-[#2563EB] font-semibold" : s.number < step ? "text-[#10B981]" : "text-slate-400"
-              )}>
-                {s.label}
-              </span>
-            </button>
-            {idx < STEPS.length - 1 && (
-              <div className={cn(
-                "flex-1 h-0.5 min-w-[8px] rounded-full transition-all",
-                s.number < step ? "bg-[#10B981]" : "bg-slate-100"
-              )} />
-            )}
-          </React.Fragment>
-        ))}
-      </div>
-
-      {/* Step card */}
-      <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm p-6 mb-6">
-        <h2 className="text-base font-semibold text-slate-900 mb-1">{STEPS[step - 1].label}</h2>
-        <div className="border-b border-slate-100 mb-5" />
-        {stepComponents[step]}
-      </div>
-
-      {/* Navigation */}
-      {saveError && (
-        <div className="mb-3 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-          {saveError}
-        </div>
-      )}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="outline"
-          size="md"
-          onClick={() => setStep((s) => Math.max(1, s - 1))}
-          disabled={step === 1}
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Back
-        </Button>
-
-        {step < STEPS.length ? (
-          <Button
-            variant="primary"
-            size="md"
-            onClick={() => setStep((s) => s + 1)}
-            disabled={!canAdvance()}
-          >
-            Continue
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        ) : (
-          <Button
-            variant="success"
-            size="md"
-            loading={saving}
-            onClick={handleSubmit}
-          >
-            <Check className="w-4 h-4" />
-            Create property
-          </Button>
-        )}
-      </div>
-    </div>
+    <WizardShell
+      title="Add Property"
+      backHref="/property-manager/portfolio/properties"
+      backLabel="Back to Properties"
+      steps={WIZARD_STEPS}
+      current={step}
+      onStepSelect={(n) => setStep(n)}
+      onBack={() => setStep((s) => Math.max(1, s - 1))}
+      onNext={() => { if (canAdvance()) setStep((s) => Math.min(STEPS.length, s + 1)) }}
+      onSubmit={handleSubmit}
+      canAdvance={canAdvance()}
+      submitting={saving}
+      submitLabel="Create property"
+      error={saveError}
+    >
+      {stepComponents[step]}
+    </WizardShell>
   )
 }

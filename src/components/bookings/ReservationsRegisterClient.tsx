@@ -222,7 +222,7 @@ export function ReservationsRegisterClient({
                 className={cn(
                   "inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[13px] font-medium whitespace-nowrap transition-colors shrink-0",
                   active
-                    ? "bg-[#2563EB] text-white"
+                    ? "bg-[var(--brand)] text-white"
                     : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                 )}
               >
@@ -249,14 +249,14 @@ export function ReservationsRegisterClient({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search guest, reference, listing…"
-              className="w-full h-10 pl-9 pr-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+              className="w-full h-10 pl-9 pr-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             />
           </div>
           {listings.length > 0 && (
             <select
               value={listingFilter}
               onChange={(e) => setListingFilter(e.target.value)}
-              className="h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+              className="h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             >
               <option value="all">All listings</option>
               {listings.map((l) => (

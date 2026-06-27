@@ -27,7 +27,7 @@ export default function BookingsMapView({ rows, selectedId, onSelect }: Props) {
         {rows.map((b) => {
           const active = b.id === selectedId
           return (
-            <button key={b.id} onClick={() => onSelect(b.id)} className={cn("w-full text-left flex gap-3 p-3 transition-colors", active ? "bg-blue-50/50" : "hover:bg-slate-50")}>
+            <button key={b.id} onClick={() => onSelect(b.id)} className={cn("w-full text-left flex gap-3 p-3 transition-colors", active ? "bg-[var(--brand-soft)]/50" : "hover:bg-slate-50")}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={b.image} alt="" className="w-16 h-14 rounded-lg object-cover shrink-0" />
               <div className="min-w-0 flex-1">

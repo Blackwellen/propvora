@@ -86,7 +86,7 @@ export function PpmStepSchedule({ data, onChange }: PpmStepScheduleProps) {
                 className={cn(
                   "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all",
                   active
-                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
                     : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50",
                 )}
               >

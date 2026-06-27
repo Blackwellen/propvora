@@ -36,7 +36,8 @@ export const metadata: Metadata = {
   creator: "Blackwellen Ltd",
   publisher: "Blackwellen Ltd t/a Propvora",
   category: "Property management software",
-  alternates: { canonical: "/" },
+  // NB: no global canonical here — a root-level canonical would be inherited by
+  // every child route and wrongly point them all at "/". Each page sets its own.
   robots: {
     index: true,
     follow: true,
@@ -104,6 +105,20 @@ const STRUCTURED_DATA = {
       logo: `${SITE_URL}/propvora-logo-dark.png`,
       description: "UK property-operations & compliance software for landlords and letting agents.",
       areaServed: "GB",
+      sameAs: ["https://blackwellen.com"],
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: "GB",
+      },
+      contactPoint: [
+        {
+          "@type": "ContactPoint",
+          contactType: "customer support",
+          email: "support@propvora.com",
+          areaServed: "GB",
+          availableLanguage: ["en-GB"],
+        },
+      ],
     },
     {
       "@type": "WebSite",
@@ -121,7 +136,21 @@ const STRUCTURED_DATA = {
       url: SITE_URL,
       publisher: { "@id": `${SITE_URL}/#organization` },
       description: "Manage properties, tenancies, maintenance, compliance and finances in one place.",
-      offers: { "@type": "Offer", category: "SaaS subscription", priceCurrency: "GBP" },
+      featureList: [
+        "Portfolio & tenancy management",
+        "Maintenance, work & PPM scheduling",
+        "UK compliance tracking",
+        "Rent, expenses & finance",
+        "Tenant, landlord & supplier portals",
+        "Document management & evidence",
+      ],
+      offers: {
+        "@type": "Offer",
+        category: "SaaS subscription",
+        priceCurrency: "GBP",
+        price: "29.00",
+        url: `${SITE_URL}/pricing`,
+      },
     },
   ],
 }
@@ -133,7 +162,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
+      lang="en-GB"
       className={`${inter.variable} h-full antialiased`}
       suppressHydrationWarning
     >

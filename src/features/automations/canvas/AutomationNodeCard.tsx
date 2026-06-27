@@ -33,7 +33,7 @@ const CATEGORY_STYLES: Record<AutomationNodeCategory, CategoryStyle> = {
   delay:         { headerBg: "bg-sky-500",      headerText: "text-white",  icon: Clock,         borderColor: "border-sky-300" },
   lookup:        { headerBg: "bg-cyan-500",     headerText: "text-white",  icon: Search,        borderColor: "border-cyan-300" },
   ai:            { headerBg: "bg-violet-600",   headerText: "text-white",  icon: Sparkles,      borderColor: "border-violet-300" },
-  action:        { headerBg: "bg-blue-600",     headerText: "text-white",  icon: Play,          borderColor: "border-blue-300" },
+  action:        { headerBg: "bg-[var(--brand)]",     headerText: "text-white",  icon: Play,          borderColor: "border-[var(--color-brand-300)]" },
   communication: { headerBg: "bg-indigo-600",   headerText: "text-white",  icon: MessageSquare, borderColor: "border-indigo-300" },
   payment:       { headerBg: "bg-red-600",      headerText: "text-white",  icon: Lock,          borderColor: "border-red-300" },
   approval:      { headerBg: "bg-violet-700",   headerText: "text-white",  icon: ShieldCheck,   borderColor: "border-violet-400" },
@@ -132,7 +132,7 @@ export const AutomationNodeCard = memo(function AutomationNodeCard(
         "relative w-[220px] rounded-2xl border bg-white shadow-[0_2px_12px_rgba(15,23,42,0.08)] transition-all duration-150",
         style.borderColor,
         selected
-          ? "ring-2 ring-blue-500 ring-offset-1 shadow-[0_4px_20px_rgba(59,130,246,0.20)]"
+          ? "ring-2 ring-[var(--brand)] ring-offset-1 shadow-[0_4px_20px_rgba(59,130,246,0.20)]"
           : "hover:shadow-[0_4px_16px_rgba(15,23,42,0.12)]",
       ].join(" ")}
     >

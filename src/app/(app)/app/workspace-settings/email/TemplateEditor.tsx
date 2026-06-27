@@ -93,7 +93,7 @@ export function TemplateEditor({
               onClick={() => setView(v)}
               className={cn(
                 "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-colors",
-                view === v ? "bg-[#EFF6FF] text-[#2563EB]" : "text-slate-500 hover:bg-slate-50"
+                view === v ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "text-slate-500 hover:bg-slate-50"
               )}
             >
               <Icon className="w-3.5 h-3.5" /> {label}
@@ -110,7 +110,7 @@ export function TemplateEditor({
                 <input
                   value={subject}
                   onChange={(e) => { setSubject(e.target.value); setError(null) }}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 focus:outline-none focus:border-[#2563EB] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 focus:outline-none focus:border-[var(--brand)] transition-all"
                   placeholder="e.g. Your invoice {{invoice_number}} is ready"
                 />
               </div>
@@ -120,7 +120,7 @@ export function TemplateEditor({
                   value={body}
                   onChange={(e) => { setBody(e.target.value); setError(null) }}
                   rows={10}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 focus:outline-none focus:border-[#2563EB] transition-all resize-none font-mono leading-relaxed"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 focus:outline-none focus:border-[var(--brand)] transition-all resize-none font-mono leading-relaxed"
                   placeholder="Hi {{tenant_name}},&#10;&#10;…"
                 />
               </div>
@@ -134,7 +134,7 @@ export function TemplateEditor({
                         key={t}
                         type="button"
                         onClick={() => insertToken(t)}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-slate-200 bg-white text-[11px] font-mono text-slate-600 hover:border-[#2563EB] hover:text-[#2563EB] transition-colors"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-slate-200 bg-white text-[11px] font-mono text-slate-600 hover:border-[var(--brand)] hover:text-[var(--brand)] transition-colors"
                       >
                         <Plus className="w-3 h-3" />
                         {t}
@@ -173,7 +173,7 @@ export function TemplateEditor({
             <button
               onClick={handleSave}
               disabled={saving || !dirty}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {saving ? "Saving…" : "Save template"}

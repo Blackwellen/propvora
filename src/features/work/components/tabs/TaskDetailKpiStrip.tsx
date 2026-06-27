@@ -44,21 +44,21 @@ export function TaskDetailKpiStrip({ task, setActiveTab }: TaskDetailKpiStripPro
           <p className="text-sm font-bold text-slate-900">{task.slaCompliance}%</p>
           <p className="text-[11px] text-slate-500">SLA Compliance</p>
           <p className="text-[10px] text-slate-400">Target {task.slaTarget} · Due {task.slaDue}</p>
-          <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] font-medium">Add reminder</Link>
+          <Link href="/property-manager/work/tasks" className="text-[10px] text-[var(--brand)] font-medium">Add reminder</Link>
         </div>
       </div>
 
       {/* Due Date */}
       <div className="bg-white border border-slate-200 rounded-xl p-3">
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">
-            <Calendar className="w-3.5 h-3.5 text-blue-600" />
+          <div className="w-6 h-6 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center">
+            <Calendar className="w-3.5 h-3.5 text-[var(--brand)]" />
           </div>
           <p className="text-[11px] text-slate-500">Due Date</p>
         </div>
         <p className="text-base font-bold text-slate-900">{task.dueDate}</p>
         <p className="text-[11px] text-slate-400">{task.dueDays}</p>
-        <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] font-medium">Add reminder</Link>
+        <Link href="/property-manager/work/tasks" className="text-[10px] text-[var(--brand)] font-medium">Add reminder</Link>
       </div>
 
       {/* Time Remaining */}
@@ -71,7 +71,7 @@ export function TaskDetailKpiStrip({ task, setActiveTab }: TaskDetailKpiStripPro
         </div>
         <p className="text-base font-bold text-slate-900">{task.timeRemaining}</p>
         <p className="text-[11px] text-slate-400">Until due</p>
-        <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] font-medium">View timeline</Link>
+        <Link href="/property-manager/work/tasks" className="text-[10px] text-[var(--brand)] font-medium">View timeline</Link>
       </div>
 
       {/* Cost Impact */}
@@ -84,7 +84,7 @@ export function TaskDetailKpiStrip({ task, setActiveTab }: TaskDetailKpiStripPro
         </div>
         <p className="text-base font-bold text-slate-900">{task.costImpact}</p>
         <p className="text-[11px] text-slate-400">{task.costLabel}</p>
-        <Link href="/property-manager/work/jobs" className="text-[10px] text-[#2563EB] font-medium">View breakdown</Link>
+        <Link href="/property-manager/work/jobs" className="text-[10px] text-[var(--brand)] font-medium">View breakdown</Link>
       </div>
 
       {/* Attachments */}
@@ -97,7 +97,7 @@ export function TaskDetailKpiStrip({ task, setActiveTab }: TaskDetailKpiStripPro
         </div>
         <p className="text-base font-bold text-slate-900">{task.attachments}</p>
         <p className="text-[11px] text-slate-400">Files attached</p>
-        <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] font-medium">View all</Link>
+        <Link href="/property-manager/work/tasks" className="text-[10px] text-[var(--brand)] font-medium">View all</Link>
       </div>
 
       {/* Comments */}
@@ -110,7 +110,7 @@ export function TaskDetailKpiStrip({ task, setActiveTab }: TaskDetailKpiStripPro
         </div>
         <p className="text-base font-bold text-slate-900">{task.comments}</p>
         <p className="text-[11px] text-slate-400">Total comments</p>
-        <button onClick={() => setActiveTab("Activity")} className="text-[10px] text-[#2563EB] font-medium">
+        <button onClick={() => setActiveTab("Activity")} className="text-[10px] text-[var(--brand)] font-medium">
           View comments
         </button>
       </div>

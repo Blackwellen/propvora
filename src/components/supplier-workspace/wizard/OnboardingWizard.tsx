@@ -113,7 +113,7 @@ export function OnboardingWizard({
         {form.bio && <p className="text-xs text-slate-500 mt-2 line-clamp-3">{form.bio}</p>}
         {tradesArr.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
-            {tradesArr.map((c) => <span key={c} className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">{humaniseStatus(c)}</span>)}
+            {tradesArr.map((c) => <span key={c} className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[var(--brand-soft)] text-[var(--brand)]">{humaniseStatus(c)}</span>)}
           </div>
         )}
         {form.accepts_emergency && <p className="text-[11px] font-semibold text-amber-600 mt-2">⚡ Accepts emergency call-outs</p>}
@@ -165,7 +165,7 @@ export function OnboardingWizard({
           </SupplierField>
           {tradesArr.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
-              {tradesArr.map((c) => <span key={c} className="text-xs font-semibold px-2 py-1 rounded-lg bg-blue-50 text-blue-700">{humaniseStatus(c)}</span>)}
+              {tradesArr.map((c) => <span key={c} className="text-xs font-semibold px-2 py-1 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)]">{humaniseStatus(c)}</span>)}
             </div>
           )}
         </div>
@@ -184,7 +184,7 @@ export function OnboardingWizard({
             <input className={supplierInputClass} inputMode="numeric" value={form.service_radius_km} onChange={(e) => set("service_radius_km", e.target.value)} placeholder="e.g. 25" />
           </SupplierField>
           <label className="flex items-center gap-2.5 cursor-pointer">
-            <input type="checkbox" checked={form.accepts_emergency} onChange={(e) => set("accepts_emergency", e.target.checked)} className="w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]/30" />
+            <input type="checkbox" checked={form.accepts_emergency} onChange={(e) => set("accepts_emergency", e.target.checked)} className="w-4 h-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]/30" />
             <span className="text-sm font-medium text-slate-700">I accept emergency call-outs</span>
           </label>
         </div>

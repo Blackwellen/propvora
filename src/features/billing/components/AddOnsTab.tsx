@@ -7,7 +7,7 @@ import { useActiveAddons, useAddonFeatureFlags, useBillingRole, useSubscription 
 import { SEED_ADDON_CATALOG } from "../data/seed"
 import { addonMonthlyPence } from "../data/calc"
 import { addonAvailableForPlan, type SubscriptionAddon } from "../data/types"
-import { applyAddonChange, catalogKeyForAddon } from "../data/stripe-link"
+import { applyAddonChange, catalogKeyForAddon, oneOffCatalogKeyForAddon, startAddonOneOffCheckout } from "../data/stripe-link"
 import { BillingCard, BillingButton, Toggle, QtyStepper, StatusBadge, PermissionNotice } from "./ui"
 
 const UNIT_SUFFIX: Record<string, string> = {
@@ -66,6 +66,27 @@ export function AddOnsTab() {
     }
   }
 
+  // One-time packs (e.g. AI credit pack) are bought via a payment-mode Stripe
+  // Checkout. quantity is the number of 1,000-credit packs (5,000 = 5 packs).
+  async function buyOneOff(item: (typeof SEED_ADDON_CATALOG)[number]) {
+    const a = addons.find((x) => x.code === item.code)
+    if (!a) return
+    const pack = item.creditPacks?.[Math.min(Math.max(0, a.quantity), (item.creditPacks?.length ?? 1) - 1)]
+    const packs = Math.max(1, Math.round((pack?.credits ?? 1000) / 1000))
+    setErrorByCode((prev) => ({ ...prev, [item.code]: "" }))
+    setPendingCode(item.code)
+    try {
+      await startAddonOneOffCheckout({ code: item.code, quantity: packs })
+      // success → browser redirects to Stripe; line below is unreached.
+    } catch (e) {
+      setErrorByCode((prev) => ({
+        ...prev,
+        [item.code]: e instanceof Error ? e.message : "Could not start checkout.",
+      }))
+      setPendingCode(null)
+    }
+  }
+
   const available = SEED_ADDON_CATALOG.filter((c) => addonAvailableForPlan(c, subscription.planCode, "V1.5", addonFlags))
   const gated = SEED_ADDON_CATALOG.filter((c) => !addonAvailableForPlan(c, subscription.planCode, "V1.5", addonFlags))
 
@@ -78,9 +99,13 @@ export function AddOnsTab() {
           const a = addons.find((x) => x.code === item.code)!
           const monthly = addonMonthlyPence(item, a)
           const yearly = monthly * 12
+          // One-time packs (AI credit pack) buy via payment-mode checkout, not a
+          // recurring on/off subscription item — so no enable toggle.
+          const oneOff = item.unit === "credit_pack" && !!oneOffCatalogKeyForAddon(item.code)
+          const selectedPack = oneOff ? item.creditPacks?.[Math.min(Math.max(0, a.quantity), (item.creditPacks?.length ?? 1) - 1)] : undefined
           return (
             <BillingCard key={item.code} icon={Puzzle} title={item.name} description={item.description}
-              action={<Toggle label={`Toggle ${item.name}`} checked={a.enabled} disabled={!canManageBilling} onChange={(v) => setAddon(item.code, { enabled: v })} />}
+              action={oneOff ? undefined : <Toggle label={`Toggle ${item.name}`} checked={a.enabled} disabled={!canManageBilling} onChange={(v) => setAddon(item.code, { enabled: v })} />}
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -97,14 +122,14 @@ export function AddOnsTab() {
                   </div>
                 )}
 
-                {a.enabled && item.unit === "credit_pack" && item.creditPacks && (
+                {(oneOff || a.enabled) && item.unit === "credit_pack" && item.creditPacks && (
                   <div className="flex items-center justify-between">
                     <span className="text-[12px] text-slate-500">Credit pack</span>
                     <select
                       value={a.quantity}
                       onChange={(e) => setAddon(item.code, { quantity: Number(e.target.value) })}
                       disabled={!canManageBilling}
-                      className="rounded-xl border border-slate-200 text-[12px] px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600/30"
+                      className="rounded-xl border border-slate-200 text-[12px] px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                     >
                       {item.creditPacks.map((cp, i) => (
                         <option key={cp.label} value={i}>{cp.label} — {formatPence(cp.pricePence)}</option>
@@ -114,34 +139,61 @@ export function AddOnsTab() {
                 )}
 
                 <div className="rounded-xl bg-slate-50 px-3 py-2.5 flex items-center justify-between">
-                  <span className="text-[12px] text-slate-500">Preview total</span>
+                  <span className="text-[12px] text-slate-500">{oneOff ? "One-time charge" : "Preview total"}</span>
                   <span className="text-[13px] font-bold text-slate-900">
-                    {a.enabled ? `${formatPence(monthly)}/mo · ${formatPence(yearly)}/yr` : "Not added"}
+                    {oneOff
+                      ? `${formatPence(selectedPack?.pricePence ?? item.unitPricePence)} once`
+                      : a.enabled ? `${formatPence(monthly)}/mo · ${formatPence(yearly)}/yr` : "Not added"}
                   </span>
                 </div>
 
-                {!catalogKeyForAddon(item.code) && (
-                  <p className="text-[11px] text-amber-600">Not yet available for self-serve purchase — contact billing to enable.</p>
-                )}
-                {errorByCode[item.code] && (
-                  <p className="text-[11px] text-red-600">{errorByCode[item.code]}</p>
-                )}
+                {(() => {
+                  const recurring = !!catalogKeyForAddon(item.code)
+                  const unavailable = !oneOff && !recurring
+                  return (
+                    <>
+                      {unavailable && (
+                        <p className="text-[11px] text-amber-600">Not yet available for self-serve purchase — contact billing to enable.</p>
+                      )}
+                      {errorByCode[item.code] && (
+                        <p className="text-[11px] text-red-600">{errorByCode[item.code]}</p>
+                      )}
 
-                <div className="flex items-center justify-between">
-                  {a.enabled ? <StatusBadge tone="emerald">Active</StatusBadge> : <StatusBadge tone="slate">Off</StatusBadge>}
-                  <BillingButton
-                    variant="secondary"
-                    className="text-[12px] px-3 py-1.5"
-                    disabled={!canManageBilling || pendingCode === item.code || !catalogKeyForAddon(item.code)}
-                    onClick={() => void confirmAddon(item.code)}
-                  >
-                    {pendingCode === item.code
-                      ? "Saving…"
-                      : confirmedCode === item.code
-                        ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Saved</span>
-                        : "Confirm change"}
-                  </BillingButton>
-                </div>
+                      <div className="flex items-center justify-between">
+                        {oneOff ? (
+                          <StatusBadge tone="blue">One-time</StatusBadge>
+                        ) : a.enabled ? (
+                          <StatusBadge tone="emerald">Active</StatusBadge>
+                        ) : (
+                          <StatusBadge tone="slate">Off</StatusBadge>
+                        )}
+                        {oneOff ? (
+                          <BillingButton
+                            variant="primary"
+                            className="text-[12px] px-3 py-1.5"
+                            disabled={!canManageBilling || pendingCode === item.code}
+                            onClick={() => void buyOneOff(item)}
+                          >
+                            {pendingCode === item.code ? "Redirecting…" : "Buy now"}
+                          </BillingButton>
+                        ) : (
+                          <BillingButton
+                            variant="secondary"
+                            className="text-[12px] px-3 py-1.5"
+                            disabled={!canManageBilling || pendingCode === item.code || !recurring}
+                            onClick={() => void confirmAddon(item.code)}
+                          >
+                            {pendingCode === item.code
+                              ? "Saving…"
+                              : confirmedCode === item.code
+                                ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Saved</span>
+                                : "Confirm change"}
+                          </BillingButton>
+                        )}
+                      </div>
+                    </>
+                  )
+                })()}
               </div>
             </BillingCard>
           )

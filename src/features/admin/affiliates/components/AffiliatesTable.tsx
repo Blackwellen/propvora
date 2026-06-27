@@ -63,7 +63,7 @@ export function AffiliatesTable({ rows, allCount, available, formatPence }: Prop
               <tr key={a.id} className="hover:bg-[#FAFCFF]">
                 <td className="px-4 py-2.5">
                   <Link href={`/admin/affiliates/${a.id}`} className="group block">
-                    <span className="block text-[13px] font-semibold text-[#0B1B3F] group-hover:text-[#2563EB] truncate">{a.name ?? "—"}</span>
+                    <span className="block text-[13px] font-semibold text-[#0B1B3F] group-hover:text-[var(--brand)] truncate">{a.name ?? "—"}</span>
                     <span className="block text-[11px] text-slate-400 truncate">{a.email ?? ""} · {a.origin}</span>
                   </Link>
                 </td>

@@ -50,8 +50,8 @@ function Toggle({
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30",
-        checked ? "bg-[#2563EB]" : "bg-slate-200"
+        "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30",
+        checked ? "bg-[var(--brand)]" : "bg-slate-200"
       )}
     >
       <span
@@ -225,7 +225,7 @@ export default function CalendarNotificationsSettingsPage() {
                     className={cn(
                       "px-4 py-2 rounded-lg border text-sm font-medium transition-all",
                       defaultView === opt
-                        ? "border-[#2563EB] bg-blue-50 text-[#2563EB]"
+                        ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
                         : "border-slate-200 text-slate-600 hover:bg-slate-50"
                     )}
                   >
@@ -246,7 +246,7 @@ export default function CalendarNotificationsSettingsPage() {
                 id="week-start"
                 value={weekStart}
                 onChange={(e) => setWeekStart(e.target.value as WeekStart)}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--color-brand-400)]"
               >
                 {WEEK_START_OPTIONS.map((opt) => (
                   <option key={opt} value={opt}>
@@ -295,7 +295,7 @@ export default function CalendarNotificationsSettingsPage() {
                 <select
                   value={emailFrequency}
                   onChange={(e) => setEmailFrequency(e.target.value as FrequencyOption)}
-                  className="border border-slate-200 rounded-md px-2.5 py-1.5 text-xs text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+                  className="border border-slate-200 rounded-md px-2.5 py-1.5 text-xs text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--color-brand-400)]"
                 >
                   {FREQUENCY_OPTIONS.map((opt) => (
                     <option key={opt} value={opt}>
@@ -322,7 +322,7 @@ export default function CalendarNotificationsSettingsPage() {
               {!smsEnabled && (
                 <button
                   type="button"
-                  className="text-xs text-[#2563EB] hover:underline font-medium"
+                  className="text-xs text-[var(--brand)] hover:underline font-medium"
                 >
                   Configure
                 </button>
@@ -359,7 +359,7 @@ export default function CalendarNotificationsSettingsPage() {
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+                  className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--color-brand-400)]"
                 />
               </div>
               <div className="flex items-center gap-3">
@@ -370,7 +370,7 @@ export default function CalendarNotificationsSettingsPage() {
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+                  className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--color-brand-400)]"
                 />
               </div>
             </div>
@@ -380,7 +380,7 @@ export default function CalendarNotificationsSettingsPage() {
                 className={cn(
                   "w-4 h-4 rounded border-2 flex items-center justify-center transition-all",
                   showOutsideHours
-                    ? "border-[#2563EB] bg-[#2563EB]"
+                    ? "border-[var(--brand)] bg-[var(--brand)]"
                     : "border-slate-300 bg-white"
                 )}
                 onClick={() => setShowOutsideHours((v) => !v)}
@@ -413,7 +413,7 @@ export default function CalendarNotificationsSettingsPage() {
                     className={cn(
                       "w-9 h-9 rounded-lg text-xs font-medium transition-all border",
                       workingDays.has(day)
-                        ? "bg-[#2563EB] text-white border-[#2563EB]"
+                        ? "bg-[var(--brand)] text-white border-[var(--brand)]"
                         : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
                     )}
                   >
@@ -460,7 +460,7 @@ export default function CalendarNotificationsSettingsPage() {
               <label className="text-sm font-medium text-slate-700">
                 AI confidence threshold
               </label>
-              <span className="text-sm font-semibold text-[#2563EB]">{aiConfidence}%</span>
+              <span className="text-sm font-semibold text-[var(--brand)]">{aiConfidence}%</span>
             </div>
             <input
               type="range"
@@ -469,7 +469,7 @@ export default function CalendarNotificationsSettingsPage() {
               step={5}
               value={aiConfidence}
               onChange={(e) => setAiConfidence(Number(e.target.value))}
-              className="w-full h-1.5 rounded-full appearance-none bg-slate-200 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#2563EB] [&::-webkit-slider-thumb]:cursor-pointer accent-[#2563EB]"
+              className="w-full h-1.5 rounded-full appearance-none bg-slate-200 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--brand)] [&::-webkit-slider-thumb]:cursor-pointer accent-[var(--brand)]"
             />
             <div className="flex justify-between mt-1">
               <span className="text-xs text-slate-400">0%</span>
@@ -543,7 +543,7 @@ export default function CalendarNotificationsSettingsPage() {
                       ) : (
                         <button
                           type="button"
-                          className="inline-flex items-center gap-1 text-xs font-medium text-[#2563EB] hover:text-[#1d4ed8] transition-colors"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
                         >
                           <Link className="w-3 h-3" />
                           Connect

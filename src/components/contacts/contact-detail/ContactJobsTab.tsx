@@ -50,7 +50,7 @@ export function WorkHistoryTab({ contact }: { contact: ContactDetail }) {
                 <td className="px-4 py-3"><StatusChip status={job.status} /></td>
                 <td className="px-4 py-3 text-right">
                   {job.id ? (
-                    <Link href={`/property-manager/work/jobs/${job.id}`} className="text-xs text-blue-600 hover:underline">View</Link>
+                    <Link href={`/property-manager/work/jobs/${job.id}`} className="text-xs text-[var(--brand)] hover:underline">View</Link>
                   ) : (
                     <span className="text-xs text-slate-300">—</span>
                   )}

@@ -295,7 +295,7 @@ export default function Step02Basics() {
                     placeholder="LS6 2AH"
                     className="flex-1 h-10 px-3 rounded-xl border border-slate-200 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 min-w-0"
                   />
-                  <button className="h-10 px-2.5 rounded-xl border border-slate-200 text-[12px] font-semibold text-[#2563EB] hover:bg-blue-50 transition-colors whitespace-nowrap">
+                  <button className="h-10 px-2.5 rounded-xl border border-slate-200 text-[12px] font-semibold text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors whitespace-nowrap">
                     Lookup
                   </button>
                 </div>

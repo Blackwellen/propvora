@@ -7,7 +7,7 @@ import { MoneySectionShell, MoneyEmptyState } from "@/components/money/MoneySect
 export const dynamic = "force-dynamic"
 
 const TYPE_TONE: Record<string, string> = {
-  stay: "bg-blue-50 text-blue-700",
+  stay: "bg-[var(--brand-soft)] text-[var(--brand)]",
   supplier: "bg-violet-50 text-violet-700",
   marketplace: "bg-amber-50 text-amber-700",
 }
@@ -73,7 +73,7 @@ export default async function DisputesPage() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Link href={`/property-manager/money/disputes/${d.id}`} className="text-xs font-semibold text-[#2563EB] hover:underline">
+                    <Link href={`/property-manager/money/disputes/${d.id}`} className="text-xs font-semibold text-[var(--brand)] hover:underline">
                       Open
                     </Link>
                   </td>

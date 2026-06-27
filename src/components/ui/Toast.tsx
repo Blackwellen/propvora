@@ -43,7 +43,7 @@ const toastVariants = cva(
         success:     "bg-[#ECFDF5] border-[#10B981]/30 text-[#065f46]",
         error:       "bg-[#FEF2F2] border-[#EF4444]/30 text-[#991b1b]",
         warning:     "bg-[#FFFBEB] border-[#F59E0B]/30 text-[#92400e]",
-        info:        "bg-[#EFF6FF] border-[#2563EB]/30 text-[#1e40af]",
+        info:        "bg-[var(--brand-soft)] border-[var(--brand)]/30 text-[#1e40af]",
       },
     },
     defaultVariants: { variant: "default" },
@@ -55,7 +55,7 @@ const toastIcons = {
   success: <CheckCircle className="w-5 h-5 text-[#10B981] shrink-0 mt-0.5" />,
   error:   <AlertCircle className="w-5 h-5 text-[#EF4444] shrink-0 mt-0.5" />,
   warning: <AlertTriangle className="w-5 h-5 text-[#F59E0B] shrink-0 mt-0.5" />,
-  info:    <Info className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" />,
+  info:    <Info className="w-5 h-5 text-[var(--brand)] shrink-0 mt-0.5" />,
 }
 
 const Toast = React.forwardRef<
@@ -83,7 +83,7 @@ const ToastClose = React.forwardRef<
     ref={ref}
     className={cn(
       "shrink-0 rounded-md p-1 text-current/50 hover:text-current transition-colors",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30",
       className
     )}
     {...props}

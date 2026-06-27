@@ -30,7 +30,7 @@ import MobileFilterSheet, { type FilterGroup } from "@/components/mobile/MobileF
 /* 13 Operational Profiles (shared constant)                            */
 /* ------------------------------------------------------------------ */
 const ALL_PROFILES = [
-  { key: "HMO",                    label: "HMO",                    shortLabel: "HMO",        color: "#1D4ED8" },
+  { key: "HMO",                    label: "HMO",                    shortLabel: "HMO",        color: "#1d4ed8" },
   { key: "Long-Term Let",          label: "Long-Term Let",          shortLabel: "LTL",        color: "#059669" },
   { key: "Serviced Accommodation", label: "Serviced Accommodation", shortLabel: "SA",         color: "#7C3AED" },
   { key: "Rent-to-Rent",           label: "Rent-to-Rent",           shortLabel: "R2R",        color: "#EA580C" },
@@ -377,7 +377,7 @@ function TenanciesListPageInner() {
               placeholder="Search tenant, property, unit..."
               value={search}
               onChange={e => { setSearch(e.target.value); setPage(1) }}
-              className="w-full h-9 pl-9 pr-4 rounded-xl text-[12.5px] bg-slate-50 border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+              className="w-full h-9 pl-9 pr-4 rounded-xl text-[12.5px] bg-slate-50 border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
             />
           </div>
           <button
@@ -385,23 +385,23 @@ function TenanciesListPageInner() {
             className={cn(
               "flex items-center gap-1.5 h-9 px-3 rounded-xl border text-[12px] font-semibold transition-all shadow-sm whitespace-nowrap",
               showAdv || activeFilters > 0
-                ? "bg-blue-50 border-blue-200 text-[#2563EB]"
+                ? "bg-[var(--brand-soft)] border-[var(--color-brand-100)] text-[var(--brand)]"
                 : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
             )}
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />Filters
             {activeFilters > 0 && (
-              <span className="ml-0.5 w-4 h-4 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">{activeFilters}</span>
+              <span className="ml-0.5 w-4 h-4 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold flex items-center justify-center">{activeFilters}</span>
             )}
           </button>
           {/* View switcher (Cards / List) */}
           <div className="flex items-center gap-0.5 h-9 px-0.5 rounded-xl border border-slate-200 bg-slate-50 shadow-sm" role="group" aria-label="View type">
             <button onClick={() => setView("cards")} aria-label="Card view" aria-pressed={view === "cards"}
-              className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-all", view === "cards" ? "bg-white shadow-sm text-[#2563EB]" : "text-slate-400 hover:text-slate-600")}>
+              className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-all", view === "cards" ? "bg-white shadow-sm text-[var(--brand)]" : "text-slate-400 hover:text-slate-600")}>
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button onClick={() => setView("list")} aria-label="List view" aria-pressed={view === "list"}
-              className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-all", view === "list" ? "bg-white shadow-sm text-[#2563EB]" : "text-slate-400 hover:text-slate-600")}>
+              className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-all", view === "list" ? "bg-white shadow-sm text-[var(--brand)]" : "text-slate-400 hover:text-slate-600")}>
               <List className="w-4 h-4" />
             </button>
           </div>
@@ -448,7 +448,7 @@ function TenanciesListPageInner() {
               <div>
                 <FLabel>Property</FLabel>
                 <select value={filterProp} onChange={e => { setFilterProp(e.target.value); setPage(1) }}
-                  className="w-full h-8 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white px-2 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] shadow-sm">
+                  className="w-full h-8 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white px-2 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] shadow-sm">
                   <option value="all">All properties</option>
                   {propertyOptions.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
@@ -461,7 +461,7 @@ function TenanciesListPageInner() {
                     value={filterCity}
                     onChange={e => { setFilterCity(e.target.value); setPage(1) }}
                     placeholder="e.g. London"
-                    className="w-full h-8 pl-7 pr-2 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] shadow-sm"
+                    className="w-full h-8 pl-7 pr-2 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] shadow-sm"
                   />
                 </div>
               </div>
@@ -474,7 +474,7 @@ function TenanciesListPageInner() {
                     value={filterMinRent}
                     onChange={e => { setFilterMinRent(e.target.value); setPage(1) }}
                     placeholder="0"
-                    className="w-full h-8 pl-6 pr-2 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] shadow-sm"
+                    className="w-full h-8 pl-6 pr-2 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] shadow-sm"
                   />
                 </div>
               </div>
@@ -487,7 +487,7 @@ function TenanciesListPageInner() {
                     value={filterMaxRent}
                     onChange={e => { setFilterMaxRent(e.target.value); setPage(1) }}
                     placeholder="Any"
-                    className="w-full h-8 pl-6 pr-2 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] shadow-sm"
+                    className="w-full h-8 pl-6 pr-2 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] shadow-sm"
                   />
                 </div>
               </div>
@@ -511,7 +511,7 @@ function TenanciesListPageInner() {
       <p className="hidden md:block text-[12.5px] text-slate-500 mb-4">
         Showing {filtered.length} of {allTenancies.length} tenancies
         {activeFilters > 0 && (
-          <button onClick={clearAll} className="ml-2 text-[#2563EB] hover:underline">Clear filters</button>
+          <button onClick={clearAll} className="ml-2 text-[var(--brand)] hover:underline">Clear filters</button>
         )}
       </p>
 
@@ -567,7 +567,7 @@ function TenanciesListPageInner() {
               return (
                 <button key={i} onClick={() => setPage(pageNum)}
                   className={cn("w-8 h-8 rounded-lg text-sm font-semibold",
-                    page === pageNum ? "bg-[#2563EB] text-white" : "text-slate-500 hover:bg-slate-100")}>
+                    page === pageNum ? "bg-[var(--brand)] text-white" : "text-slate-500 hover:bg-slate-100")}>
                   {pageNum}
                 </button>
               )

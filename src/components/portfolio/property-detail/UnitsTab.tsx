@@ -64,7 +64,7 @@ export function UnitsTab({ unitsList, propertyId }: { unitsList: Unit[]; propert
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search units…"
-            className="w-full pl-8 pr-3 py-2 text-[13px] border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+            className="w-full pl-8 pr-3 py-2 text-[13px] border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--color-brand-400)]"
           />
         </div>
         <select
@@ -86,7 +86,7 @@ export function UnitsTab({ unitsList, propertyId }: { unitsList: Unit[]; propert
           <SlidersHorizontal size={13} /> More filters
         </button>
         <div className="ml-auto flex items-center gap-2">
-          <Link href={`/property-manager/portfolio/units/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+          <Link href={`/property-manager/portfolio/units/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-3 py-2 rounded-lg transition-colors">
             <Plus size={13} /> Add Unit
           </Link>
         </div>

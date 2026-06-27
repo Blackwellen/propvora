@@ -13,7 +13,7 @@ export function TasksFilterDropdown({ label, options, value, onChange }: TasksFi
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 text-[12.5px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50 appearance-none cursor-pointer"
+        className="border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 text-[12.5px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]/50 appearance-none cursor-pointer"
         aria-label={label}
       >
         {options.map(o => (

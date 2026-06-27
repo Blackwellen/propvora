@@ -112,7 +112,7 @@ export function StatusPill({ label, color }: { label: string; color: "emerald" |
     emerald: "bg-emerald-50 text-emerald-700 border border-emerald-200",
     amber: "bg-amber-50 text-amber-700 border border-amber-200",
     red: "bg-red-50 text-red-700 border border-red-200",
-    blue: "bg-blue-50 text-blue-700 border border-blue-200",
+    blue: "bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]",
     violet: "bg-violet-50 text-violet-700 border border-violet-200",
     slate: "bg-slate-100 text-slate-600 border border-slate-200",
   }
@@ -122,7 +122,7 @@ export function StatusPill({ label, color }: { label: string; color: "emerald" |
         "bg-emerald-500": color === "emerald",
         "bg-amber-500": color === "amber",
         "bg-red-500": color === "red",
-        "bg-blue-500": color === "blue",
+        "bg-[var(--brand)]": color === "blue",
         "bg-violet-500": color === "violet",
         "bg-slate-400": color === "slate",
       })} />
@@ -151,7 +151,7 @@ export function EditPen({ onClick }: { onClick?: () => void }) {
     <button
       onClick={onClick}
       aria-label="Edit field"
-      className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity ml-1.5 p-0.5 rounded hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+      className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity ml-1.5 p-0.5 rounded hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
     >
       <Edit2 className="w-3 h-3 text-slate-400" />
     </button>

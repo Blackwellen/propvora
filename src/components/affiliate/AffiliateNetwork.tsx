@@ -28,7 +28,7 @@ function bandBadge(band: number | null) {
   const colours: Record<number, string> = {
     1: "bg-slate-100 text-slate-600",
     2: "bg-sky-50 text-sky-700",
-    3: "bg-blue-50 text-blue-700",
+    3: "bg-[var(--brand-soft)] text-[var(--brand)]",
     4: "bg-violet-50 text-violet-700",
     5: "bg-amber-50 text-amber-700",
   }
@@ -101,7 +101,7 @@ export function AffiliateNetwork({ basePath }: { basePath: string }) {
       <div className="text-center py-16">
         <p className="text-sm text-slate-500">
           You haven&apos;t enrolled yet.{" "}
-          <Link href={basePath} className="text-[#2563EB] hover:underline">Join the programme</Link>.
+          <Link href={basePath} className="text-[var(--brand)] hover:underline">Join the programme</Link>.
         </p>
       </div>
     )
@@ -171,7 +171,7 @@ export function AffiliateNetwork({ basePath }: { basePath: string }) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { label: "Sub-affiliates in network", value: String(subs.length),        colour: "text-violet-700",  icon: Users },
-          { label: "Their total referrals",     value: String(totalSubReferrals),   colour: "text-[#2563EB]",   icon: TrendingUp },
+          { label: "Their total referrals",     value: String(totalSubReferrals),   colour: "text-[var(--brand)]",   icon: TrendingUp },
           { label: "You earned (earn-through)", value: formatPence(totalSubEarned), colour: "text-[#059669]",   icon: Trophy },
         ].map((kpi) => {
           const Icon = kpi.icon

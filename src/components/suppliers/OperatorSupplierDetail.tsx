@@ -76,7 +76,7 @@ export function OperatorSupplierDetail({ supplier: s, session, properties = [] }
 
       {/* Hero */}
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="relative h-40 sm:h-48 bg-gradient-to-br from-[#1D4ED8] to-[#2563EB]">
+        <div className="relative h-40 sm:h-48 bg-gradient-to-br from-[var(--brand-strong)] to-[var(--brand)]">
           {s.images[0] && <Image src={s.images[0]} alt={s.title} fill className="object-cover" sizes="(max-width:1024px) 100vw, 1280px" priority />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
           <div className="absolute bottom-3 left-4 sm:left-6 right-4 flex flex-wrap items-end justify-between gap-3">
@@ -109,7 +109,7 @@ export function OperatorSupplierDetail({ supplier: s, session, properties = [] }
               {visible.map((sec) => {
                 const SecIcon = sec.icon
                 return (
-                  <button key={sec.id} onClick={() => { setActive(sec.id); document.getElementById(`sec-${sec.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" }) }} className={cn("inline-flex items-center gap-1.5 shrink-0 h-8 px-2.5 rounded-lg text-[12px] font-semibold transition-colors", active === sec.id ? "bg-[#2563EB] text-white" : "text-slate-500 hover:bg-slate-100")}>
+                  <button key={sec.id} onClick={() => { setActive(sec.id); document.getElementById(`sec-${sec.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" }) }} className={cn("inline-flex items-center gap-1.5 shrink-0 h-8 px-2.5 rounded-lg text-[12px] font-semibold transition-colors", active === sec.id ? "bg-[var(--brand)] text-white" : "text-slate-500 hover:bg-slate-100")}>
                     <SecIcon className="w-3.5 h-3.5" /> {sec.label}
                   </button>
                 )
@@ -174,7 +174,7 @@ export function OperatorSupplierDetail({ supplier: s, session, properties = [] }
               {s.coverage.length > 0 ? (
                 <div className="flex flex-wrap gap-1.5">
                   {s.coverage.map((z) => (
-                    <span key={z.id} className="inline-flex items-center gap-1 rounded-lg bg-[#EFF6FF] border border-blue-100 px-2.5 py-1 text-[12px] font-medium text-[#2563EB]">
+                    <span key={z.id} className="inline-flex items-center gap-1 rounded-lg bg-[var(--brand-soft)] border border-[var(--color-brand-100)] px-2.5 py-1 text-[12px] font-medium text-[var(--brand)]">
                       <MapPin className="w-3 h-3" /> {z.areaType === "national" ? "Nationwide" : z.value ?? z.areaType}{z.radiusKm != null ? ` (${z.radiusKm}km)` : ""}
                     </span>
                   ))}
@@ -250,7 +250,7 @@ export function OperatorSupplierDetail({ supplier: s, session, properties = [] }
               {s.acceptsEmergency ? "Accepts emergency call-outs and " : ""}
               {s.responseTimeHours != null ? `typically responds to quote requests within ${s.responseTimeHours} hours.` : "responds to quote requests directly — request a quote to confirm timing."}
             </p>
-            {s.instantBook && <p className="mt-2 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[#2563EB]"><Zap className="w-3.5 h-3.5" /> Instant booking available</p>}
+            {s.instantBook && <p className="mt-2 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--brand)]"><Zap className="w-3.5 h-3.5" /> Instant booking available</p>}
           </Card>
 
           {/* Portfolio */}
@@ -292,7 +292,7 @@ export function OperatorSupplierDetail({ supplier: s, session, properties = [] }
             <p className="text-[12px] text-slate-500 mb-3">Request a quote — no payment is taken until you agree pricing.</p>
 
             {canCheckout && (
-              <Link href={`/marketplace/checkout/${s.id}`} className="w-full inline-flex items-center justify-center gap-2 h-11 mb-2.5 rounded-xl bg-[#2563EB] text-white text-[14px] font-semibold shadow-[0_2px_12px_rgba(37,99,235,0.3)] hover:bg-[#1d4ed8] transition-colors">
+              <Link href={`/marketplace/checkout/${s.id}`} className="w-full inline-flex items-center justify-center gap-2 h-11 mb-2.5 rounded-xl bg-[var(--brand)] text-white text-[14px] font-semibold shadow-[0_2px_12px_rgba(37,99,235,0.3)] hover:bg-[var(--brand-strong)] transition-colors">
                 <CalendarCheck className="w-4 h-4" /> Book this package
               </Link>
             )}
@@ -302,7 +302,7 @@ export function OperatorSupplierDetail({ supplier: s, session, properties = [] }
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-[#EFF6FF] flex items-center justify-center text-[#2563EB] font-bold text-[16px] shrink-0">{(s.displayName ?? s.title).charAt(0).toUpperCase() || <Building2 className="w-5 h-5" />}</div>
+              <div className="w-11 h-11 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center text-[var(--brand)] font-bold text-[16px] shrink-0">{(s.displayName ?? s.title).charAt(0).toUpperCase() || <Building2 className="w-5 h-5" />}</div>
               <div className="min-w-0">
                 <p className="text-[13.5px] font-bold text-slate-900 truncate">{s.displayName ?? s.title}</p>
                 {s.rating != null && s.rating > 0 ? <p className="text-[11.5px] text-slate-400 inline-flex items-center gap-1"><Star className="w-3 h-3 fill-amber-400 text-amber-400" /> {s.rating.toFixed(1)} · {s.reviewCount ?? 0} reviews</p> : <p className="text-[11.5px] text-slate-400">New to Propvora</p>}
@@ -442,7 +442,7 @@ function QuoteRequest({
           <select
             value={propertyId}
             onChange={(e) => setPropertyId(e.target.value)}
-            className="mt-1 w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+            className="mt-1 w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
           >
             <option value="">Select a property (optional)</option>
             {properties.map((p) => (
@@ -452,7 +452,7 @@ function QuoteRequest({
         </label>
       )}
 
-      <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} placeholder="Describe the job, timing and location…" className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 resize-none" />
+      <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} placeholder="Describe the job, timing and location…" className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 resize-none" />
 
       {structured && (
         <>
@@ -469,7 +469,7 @@ function QuoteRequest({
                     urgency === opt.value
                       ? opt.value === "emergency"
                         ? "border-red-500 bg-red-50 text-red-700"
-                        : "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]"
+                        : "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
                       : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
                   )}
                 >
@@ -485,7 +485,7 @@ function QuoteRequest({
               type="date"
               value={preferredDate}
               onChange={(e) => setPreferredDate(e.target.value)}
-              className="mt-1 w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              className="mt-1 w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
             />
           </label>
 
@@ -499,7 +499,7 @@ function QuoteRequest({
                 value={budgetMin}
                 onChange={(e) => setBudgetMin(e.target.value)}
                 placeholder="Min"
-                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
               />
               <input
                 type="number"
@@ -508,7 +508,7 @@ function QuoteRequest({
                 value={budgetMax}
                 onChange={(e) => setBudgetMax(e.target.value)}
                 placeholder="Max"
-                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
               />
             </div>
           </div>
@@ -516,7 +516,7 @@ function QuoteRequest({
       )}
 
       {!session?.signedIn && (
-        <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Your email" className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" />
+        <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Your email" className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20" />
       )}
       {error && <p className="text-[12px] text-red-600 flex items-center gap-1.5"><AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error}</p>}
       <Button variant="primary" size="lg" className="w-full" onClick={send} disabled={phase === "sending"}>
@@ -559,7 +559,7 @@ function CredRow({ ok, label, detail }: { ok: boolean; label: string; detail: st
   )
 }
 function Badge({ tone, icon, children }: { tone: "blue" | "emerald" | "red"; icon: React.ReactNode; children: React.ReactNode }) {
-  const cls = tone === "blue" ? "bg-white/95 text-[#2563EB]" : tone === "emerald" ? "bg-emerald-600/95 text-white" : "bg-red-600/95 text-white"
+  const cls = tone === "blue" ? "bg-white/95 text-[var(--brand)]" : tone === "emerald" ? "bg-emerald-600/95 text-white" : "bg-red-600/95 text-white"
   return <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-bold shadow-sm", cls)}>{icon}{children}</span>
 }
 

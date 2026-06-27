@@ -39,7 +39,7 @@ export function ContactRelationshipsSection({
           </div>
         ) : (
           <div className="flex items-end">
-            <button type="button" onClick={() => setShowSecondaryPhone(true)} className="flex items-center gap-1 text-xs text-[#2563EB] hover:text-blue-800 transition-colors">
+            <button type="button" onClick={() => setShowSecondaryPhone(true)} className="flex items-center gap-1 text-xs text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
               <Plus className="w-3.5 h-3.5" /> Add secondary phone
             </button>
           </div>
@@ -52,7 +52,7 @@ export function ContactRelationshipsSection({
           </div>
         ) : (
           <div className="flex items-end">
-            <button type="button" onClick={() => setShowWebsite(true)} className="flex items-center gap-1 text-xs text-[#2563EB] hover:text-blue-800 transition-colors">
+            <button type="button" onClick={() => setShowWebsite(true)} className="flex items-center gap-1 text-xs text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
               <Plus className="w-3.5 h-3.5" /> Add website
             </button>
           </div>
@@ -68,7 +68,7 @@ export function ContactRelationshipsSection({
                 {PREFERRED_CONTACT_OPTIONS.map(opt => (
                   <button key={opt} type="button" onClick={() => field.onChange(opt)}
                     className={cn("px-3 py-1.5 rounded-lg text-sm font-medium border transition-all",
-                      field.value === opt ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                      field.value === opt ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
                     )}>
                     {opt}
                   </button>

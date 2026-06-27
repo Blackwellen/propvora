@@ -31,7 +31,7 @@ export function LandlordPortalPropertyCard({ property, href }: LandlordPortalPro
   return (
     <Link href={href} className="block">
       <PortalCard className="overflow-hidden hover:shadow-[0_10px_30px_rgba(37,99,235,0.10)] hover:border-[#CFE0FB] transition-all h-full">
-        <div className="h-28 bg-gradient-to-br from-[#1E3A8A] to-[#2563EB] flex items-center justify-center">
+        <div className="h-28 bg-gradient-to-br from-[#1E3A8A] to-[var(--brand)] flex items-center justify-center">
           <Home className="w-9 h-9 text-white/40" />
         </div>
         <div className="p-4">
@@ -52,7 +52,7 @@ export function LandlordPortalPropertyCard({ property, href }: LandlordPortalPro
               </span>{" "}
               <span className="text-xs text-slate-400">pcm</span>
             </span>
-            <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-[#2563EB]">
+            <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-[var(--brand)]">
               View details <ChevronRight className="w-3.5 h-3.5" />
             </span>
           </div>

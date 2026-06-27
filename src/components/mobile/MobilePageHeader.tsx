@@ -77,7 +77,7 @@ export default function MobilePageHeader({
                 onChange={(e) => onSearchChange!(e.target.value)}
                 placeholder={searchPlaceholder}
                 aria-label={searchPlaceholder}
-                className="w-full h-11 pl-9 pr-3 rounded-xl text-[14px] bg-white border border-[#E2EAF6] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all shadow-sm"
+                className="w-full h-11 pl-9 pr-3 rounded-xl text-[14px] bg-white border border-[#E2EAF6] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all shadow-sm"
               />
             </div>
           )}
@@ -86,9 +86,9 @@ export default function MobilePageHeader({
               onClick={onOpenFilters}
               aria-label="Filters"
               className={cn(
-                "relative h-11 w-11 shrink-0 rounded-xl border flex items-center justify-center transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+                "relative h-11 w-11 shrink-0 rounded-xl border flex items-center justify-center transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40",
                 activeFilterCount > 0
-                  ? "bg-[#2563EB] border-[#2563EB] text-white"
+                  ? "bg-[var(--brand)] border-[var(--brand)] text-white"
                   : "bg-white border-[#E2EAF6] text-slate-600 hover:bg-[#F0F7FF]"
               )}
             >

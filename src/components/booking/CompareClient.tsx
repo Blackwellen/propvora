@@ -41,7 +41,7 @@ export default function CompareClient({ pool }: { pool: PublicListingCard[] }) {
     return (
       <div className="mt-7 rounded-2xl border border-dashed border-[#D6E0F0] bg-white py-14 text-center">
         <h3 className="text-[15px] font-semibold text-[#0B1B3F]">No stays to compare yet</h3>
-        <Link href="/stay/search" className="mt-3 inline-block text-[13px] font-semibold text-[#1D4ED8] hover:underline">
+        <Link href="/stay/search" className="mt-3 inline-block text-[13px] font-semibold text-[var(--brand-strong)] hover:underline">
           Browse stays
         </Link>
       </div>
@@ -73,7 +73,7 @@ export default function CompareClient({ pool }: { pool: PublicListingCard[] }) {
                   <div className="flex items-start justify-between gap-2">
                     <Link
                       href={`/stay/${encodeURIComponent(l.slug ?? l.id)}`}
-                      className="text-[14px] font-bold text-[#0B1B3F] hover:text-[#1D4ED8]"
+                      className="text-[14px] font-bold text-[#0B1B3F] hover:text-[var(--brand-strong)]"
                     >
                       {l.title}
                     </Link>
@@ -109,7 +109,7 @@ export default function CompareClient({ pool }: { pool: PublicListingCard[] }) {
                 <td key={l.id} className="p-4">
                   <Link
                     href={`/stay/${encodeURIComponent(l.slug ?? l.id)}`}
-                    className="inline-flex h-9 items-center rounded-lg bg-[#1D4ED8] px-3.5 text-[12.5px] font-semibold text-white hover:bg-[#1A45BE]"
+                    className="inline-flex h-9 items-center rounded-lg bg-[var(--brand-strong)] px-3.5 text-[12.5px] font-semibold text-white hover:bg-[#1A45BE]"
                   >
                     View &amp; book
                   </Link>

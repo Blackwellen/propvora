@@ -72,8 +72,8 @@ type KpiItem =
     }
 
 const LEGEND = [
-  { color: "bg-blue-500", label: "Task" },
-  { color: "bg-blue-400", label: "Job" },
+  { color: "bg-[var(--brand)]", label: "Task" },
+  { color: "bg-[var(--color-brand-400)]", label: "Job" },
   { color: "bg-red-400", label: "At Risk" },
   { color: "bg-emerald-500", label: "Complete" },
   { color: "bg-slate-300", label: "Not Started" },
@@ -128,7 +128,7 @@ function barColorClass(status: GanttRow["status"], type: "job" | "task") {
   if (status === "complete") return "bg-emerald-500"
   if (status === "at_risk") return "bg-red-400"
   if (status === "not_started") return "bg-slate-300"
-  return type === "task" ? "bg-blue-500" : "bg-blue-400"
+  return type === "task" ? "bg-[var(--brand)]" : "bg-[var(--color-brand-400)]"
 }
 
 // ─── Sub-components ─────────────────────────────────────────────────────────
@@ -217,7 +217,7 @@ function GanttHeader({ columns }: { columns: { month: string; weeks: string[] }[
         {/* Today marker label */}
         <div className="relative h-0">
           <div
-            className="absolute top-[-30px] text-[10px] font-bold bg-[#2563EB] text-white px-1.5 py-0.5 rounded-sm"
+            className="absolute top-[-30px] text-[10px] font-bold bg-[var(--brand)] text-white px-1.5 py-0.5 rounded-sm"
             style={{ left: "8%" }}
           >
             Today
@@ -231,7 +231,7 @@ function GanttHeader({ columns }: { columns: { month: string; weeks: string[] }[
 function GanttRowItem({ row, index, onOpen }: { row: GanttRow; index: number; onOpen: (href: string) => void }) {
   const statusColors: Record<GanttRow["status"], string> = {
     complete: "bg-emerald-100 text-emerald-700",
-    in_progress: "bg-blue-100 text-blue-700",
+    in_progress: "bg-[var(--color-brand-100)] text-[var(--brand)]",
     at_risk: "bg-red-100 text-red-700",
     not_started: "bg-slate-100 text-slate-600",
   }
@@ -270,7 +270,7 @@ function GanttRowItem({ row, index, onOpen }: { row: GanttRow; index: number; on
           className="w-52 px-3 py-2.5 flex items-center gap-1.5 min-w-0 text-left hover:bg-slate-100 transition-colors"
         >
           {row.type === "job" ? (
-            <Briefcase className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+            <Briefcase className="w-3.5 h-3.5 text-[var(--brand)] shrink-0" />
           ) : (
             <CheckSquare className="w-3.5 h-3.5 text-violet-500 shrink-0" />
           )}
@@ -283,7 +283,7 @@ function GanttRowItem({ row, index, onOpen }: { row: GanttRow; index: number; on
           <span className="text-[12px] text-slate-600 truncate">{row.property}</span>
         </div>
         <div className="w-28 px-3 py-2.5 flex items-center gap-1.5">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[9px] text-white font-bold shrink-0">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--brand)] to-[var(--brand-strong)] flex items-center justify-center text-[9px] text-white font-bold shrink-0">
             {row.assigneeInitials}
           </div>
           {row.supplierInitials && (
@@ -318,7 +318,7 @@ function GanttRowItem({ row, index, onOpen }: { row: GanttRow; index: number; on
         className="flex-1 relative py-2.5 flex items-center overflow-hidden text-left cursor-pointer"
       >
         {/* Today vertical line */}
-        <div className="absolute top-0 bottom-0 w-px bg-[#2563EB] z-10" style={{ left: "8%" }} />
+        <div className="absolute top-0 bottom-0 w-px bg-[var(--brand)] z-10" style={{ left: "8%" }} />
 
         {/* Gantt bar */}
         <div
@@ -572,12 +572,12 @@ export default function GanttPage() {
     const completionRate = tasks.length > 0 ? Math.round((doneTasks / tasks.length) * 100) : 0
 
     return [
-      { label: "Open Work", value: openWork, sub: "Live count", icon: Briefcase, bg: "bg-blue-50", color: "text-blue-600" },
+      { label: "Open Work", value: openWork, sub: "Live count", icon: Briefcase, bg: "bg-[var(--brand-soft)]", color: "text-[var(--brand)]" },
       { label: "Overdue", value: overdue, sub: overdue > 0 ? "Action needed" : "All on time", icon: AlertTriangle, bg: "bg-red-50", color: "text-red-600" },
       { label: "Waiting Supplier", value: waiting, sub: "Chase required", icon: Clock, bg: "bg-amber-50", color: "text-amber-600" },
       { label: "Revenue Blocking", value: revenueBlocking, sub: "Disputed jobs", icon: TrendingDown, bg: "bg-red-50", color: "text-red-600" },
       { label: "Invoice Pending", value: invoicePending, sub: "Awaiting payment", icon: Receipt, bg: "bg-violet-50", color: "text-violet-600" },
-      { label: "Due This Week", value: dueThisWeek, sub: "Next 7 days", icon: CalendarIcon, bg: "bg-blue-50", color: "text-blue-600" },
+      { label: "Due This Week", value: dueThisWeek, sub: "Next 7 days", icon: CalendarIcon, bg: "bg-[var(--brand-soft)]", color: "text-[var(--brand)]" },
       { label: "Scheduled Jobs", value: scheduledJobs, sub: "Upcoming", icon: Briefcase, bg: "bg-emerald-50", color: "text-emerald-600" },
       { label: "Completion Rate", value: completionRate, sub: "Tasks completed", isRing: true, ringColor: "#2563EB" },
     ]
@@ -678,7 +678,7 @@ export default function GanttPage() {
           <>
             <Link
               href="/property-manager/work/tasks/new"
-              className="flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] text-white rounded-lg text-[13px] font-medium hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 bg-[var(--brand)] text-white rounded-lg text-[13px] font-medium hover:bg-[var(--brand-strong)] transition-colors"
             >
               <Plus className="w-4 h-4" /> Create Task
             </Link>
@@ -738,7 +738,7 @@ export default function GanttPage() {
             ) : (
               <span
                 key={v.label}
-                className="px-3 py-1.5 rounded-md text-[12px] font-medium bg-white text-[#2563EB] shadow-sm"
+                className="px-3 py-1.5 rounded-md text-[12px] font-medium bg-white text-[var(--brand)] shadow-sm"
               >
                 {v.label}
               </span>
@@ -786,7 +786,7 @@ export default function GanttPage() {
             className={cn(
               "px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all",
               z === zoom
-                ? "bg-blue-50 text-[#2563EB] border border-[#BFDBFE]"
+                ? "bg-[var(--brand-soft)] text-[var(--brand)] border border-[#BFDBFE]"
                 : "text-slate-500 hover:text-slate-700 border border-transparent"
             )}
           >
@@ -826,7 +826,7 @@ export default function GanttPage() {
               complete: "Complete", in_progress: "In Progress", at_risk: "At Risk", not_started: "Not Started",
             }
             const statusColors: Record<GanttRow["status"], string> = {
-              complete: "bg-emerald-100 text-emerald-700", in_progress: "bg-blue-100 text-blue-700",
+              complete: "bg-emerald-100 text-emerald-700", in_progress: "bg-[var(--color-brand-100)] text-[var(--brand)]",
               at_risk: "bg-red-100 text-red-700", not_started: "bg-slate-100 text-slate-600",
             }
             return (
@@ -834,12 +834,12 @@ export default function GanttPage() {
                 key={row.id}
                 type="button"
                 onClick={() => router.push(row.href)}
-                className="w-full text-left bg-white rounded-2xl border border-[#E8EEF8] shadow-sm p-3.5 active:scale-[0.99] transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+                className="w-full text-left bg-white rounded-2xl border border-[#E8EEF8] shadow-sm p-3.5 active:scale-[0.99] transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-1.5 min-w-0">
                     {row.type === "job" ? (
-                      <Briefcase className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                      <Briefcase className="w-3.5 h-3.5 text-[var(--brand)] shrink-0" />
                     ) : (
                       <CheckSquare className="w-3.5 h-3.5 text-violet-500 shrink-0" />
                     )}
@@ -893,7 +893,7 @@ export default function GanttPage() {
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-[13px] font-semibold text-slate-700">Milestones</h3>
-            <Link href="/property-manager/work/jobs" className="text-[11px] text-[#2563EB] hover:underline">View all →</Link>
+            <Link href="/property-manager/work/jobs" className="text-[11px] text-[var(--brand)] hover:underline">View all →</Link>
           </div>
           <div className="space-y-3">
             {milestones.length === 0 ? (

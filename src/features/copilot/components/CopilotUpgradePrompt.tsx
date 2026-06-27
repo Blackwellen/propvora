@@ -59,7 +59,7 @@ export default function CopilotUpgradePrompt({ isOpen, onClose }: CopilotUpgrade
 
       {/* Body */}
       <div className="p-6 flex flex-col items-center text-center gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-100 to-blue-50 flex items-center justify-center">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-100 to-[var(--brand-soft)] flex items-center justify-center">
           <Sparkles className="w-7 h-7 text-violet-600" />
         </div>
 
@@ -77,7 +77,7 @@ export default function CopilotUpgradePrompt({ isOpen, onClose }: CopilotUpgrade
           <Link
             href="/property-manager/workspace-settings/billing"
             onClick={onClose}
-            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white text-[13px] font-semibold text-center hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[var(--brand)] to-[#7C3AED] text-white text-[13px] font-semibold text-center hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
           >
             <Zap className="w-4 h-4" />
             View plans &amp; upgrade
@@ -96,16 +96,16 @@ export default function CopilotUpgradePrompt({ isOpen, onClose }: CopilotUpgrade
         <Link
           href="/contact"
           onClick={onClose}
-          className="group flex-1 flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3 py-2 hover:border-blue-200 hover:bg-[#F8FBFF] transition-all"
+          className="group flex-1 flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3 py-2 hover:border-[var(--color-brand-100)] hover:bg-[#F8FBFF] transition-all"
         >
-          <div className="w-7 h-7 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
-            <LifeBuoy className="w-4 h-4 text-[#2563EB]" />
+          <div className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+            <LifeBuoy className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[12px] font-semibold text-slate-800 leading-tight">Contact support</p>
             <p className="text-[10px] text-slate-400 leading-tight">We aim to reply within 12 hours</p>
           </div>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#2563EB] shrink-0" />
+          <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[var(--brand)] shrink-0" />
         </Link>
         <Link
           href="/help"

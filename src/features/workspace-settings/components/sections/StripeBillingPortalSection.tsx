@@ -25,7 +25,7 @@ export function StripeBillingPortalSection(_props: StripeBillingPortalSectionPro
             )
           }
         }}
-        className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#2563EB] text-[#2563EB] text-[13px] font-semibold hover:bg-blue-50 transition-colors"
+        className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[var(--brand)] text-[var(--brand)] text-[13px] font-semibold hover:bg-[var(--brand-soft)] transition-colors"
       >
         <ExternalLink className="w-4 h-4" />
         Open billing portal

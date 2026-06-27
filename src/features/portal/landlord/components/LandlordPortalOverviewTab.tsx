@@ -238,7 +238,7 @@ export function LandlordPortalOverviewTab({
                     href={h}
                     className="flex items-center gap-2 rounded-xl border border-[#EEF3FB] hover:bg-[#F8FBFF] px-3 py-2.5 text-sm font-semibold text-[#071B4D]"
                   >
-                    <Icon className="w-4 h-4 text-[#2563EB]" />
+                    <Icon className="w-4 h-4 text-[var(--brand)]" />
                     {l}
                     <ChevronRight className="w-4 h-4 text-slate-300 ml-auto" />
                   </Link>

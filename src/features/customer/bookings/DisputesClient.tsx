@@ -25,7 +25,7 @@ export default function DisputesClient({ disputes = [] }: { disputes?: CustomerD
   const KPIS = [
     { id: "open", label: "Open disputes", value: String(open.length), sub: "Require attention", icon: AlertTriangle, bg: "bg-amber-50 text-amber-600" },
     { id: "await", label: "Awaiting response", value: String(disputes.filter((d) => d.status.startsWith("Awaiting")).length), sub: "From host or Propvora", icon: Clock, bg: "bg-violet-50 text-violet-600" },
-    { id: "evidence", label: "Evidence submitted", value: String(disputes.reduce((s, d) => s + d.evidenceCount, 0)), sub: "Across all disputes", icon: FileText, bg: "bg-blue-50 text-blue-600" },
+    { id: "evidence", label: "Evidence submitted", value: String(disputes.reduce((s, d) => s + d.evidenceCount, 0)), sub: "Across all disputes", icon: FileText, bg: "bg-[var(--brand-soft)] text-[var(--brand)]" },
     { id: "refund", label: "Refund in progress", value: refundInProgress.length ? formatPence(refundInProgress.reduce((s, d) => s + d.claimedPence, 0), "GBP") : "—", sub: refundInProgress.length ? "Across active refunds" : "No active refunds", icon: PoundSterling, bg: "bg-emerald-50 text-emerald-600" },
     { id: "resolved", label: "Resolved cases", value: String(past.length), sub: "Last 12 months", icon: CheckCircle2, bg: "bg-emerald-50 text-emerald-600" },
   ]
@@ -41,7 +41,7 @@ export default function DisputesClient({ disputes = [] }: { disputes?: CustomerD
         <Link href="/customer/bookings" className="px-3.5 py-2.5 text-[13.5px] font-semibold text-slate-500 hover:text-slate-800">All bookings</Link>
         <Link href="/customer/bookings?tab=stays" className="px-3.5 py-2.5 text-[13.5px] font-semibold text-slate-500 hover:text-slate-800">Stays</Link>
         <Link href="/customer/bookings?tab=lets" className="px-3.5 py-2.5 text-[13.5px] font-semibold text-slate-500 hover:text-slate-800">Lets</Link>
-        <span className="px-3.5 py-2.5 text-[13.5px] font-semibold text-blue-600 border-b-2 border-blue-600 -mb-px">Disputes</span>
+        <span className="px-3.5 py-2.5 text-[13.5px] font-semibold text-[var(--brand)] border-b-2 border-[var(--brand)] -mb-px">Disputes</span>
         <Link href="/customer/bookings/completed" className="px-3.5 py-2.5 text-[13.5px] font-semibold text-slate-500 hover:text-slate-800">Completed</Link>
       </div>
 
@@ -64,7 +64,7 @@ export default function DisputesClient({ disputes = [] }: { disputes?: CustomerD
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input placeholder="Search disputes" className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-blue-100" />
+          <input placeholder="Search disputes" className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-[var(--color-brand-100)]" />
         </div>
         <Drop>Status: All</Drop><Drop>Type: All</Drop><Drop>Date: Newest</Drop>
         <button className="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-2 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 ml-auto">More filters</button>
@@ -102,7 +102,7 @@ function DisputeRow({ d, active, onClick, past }: { d: Dispute; active: boolean;
   return (
     <button
       onClick={onClick}
-      className={cn("w-full text-left flex items-center gap-3 p-3 rounded-xl transition-colors", active ? "outline outline-2 -outline-offset-2 outline-blue-500 bg-blue-50/30" : "hover:bg-slate-50")}
+      className={cn("w-full text-left flex items-center gap-3 p-3 rounded-xl transition-colors", active ? "outline outline-2 -outline-offset-2 outline-[var(--brand)] bg-[var(--brand-soft)]/30" : "hover:bg-slate-50")}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={d.image} alt="" className="w-16 h-14 rounded-lg object-cover shrink-0" />
@@ -139,7 +139,7 @@ function DisputePanel({ d, toast }: { d: Dispute; toast: (m: string, k?: "succes
       </div>
       <div className="flex items-center justify-between mt-1.5">
         <h3 className="text-[16px] font-bold text-slate-900">{d.property}</h3>
-        <Link href={`/customer/bookings/${d.bookingRef}`} className="text-[12px] font-semibold text-blue-600 inline-flex items-center gap-1">View booking <ExternalLink className="w-3.5 h-3.5" /></Link>
+        <Link href={`/customer/bookings/${d.bookingRef}`} className="text-[12px] font-semibold text-[var(--brand)] inline-flex items-center gap-1">View booking <ExternalLink className="w-3.5 h-3.5" /></Link>
       </div>
       <p className="text-[12px] text-slate-400">Booking ref. {d.bookingRef} · {d.dateRange}</p>
 
@@ -229,7 +229,7 @@ function Drop({ children }: { children: React.ReactNode }) {
 function Mini({ label, value }: { label: string; value: string }) {
   return <div><p className="text-[10px] text-slate-400 leading-tight">{label}</p><p className="text-[12px] font-semibold text-slate-800 mt-0.5">{value}</p></div>
 }
-const TL_TONE: Record<string, string> = { emerald: "bg-emerald-100 text-emerald-600", blue: "bg-blue-100 text-blue-600", amber: "bg-amber-100 text-amber-600", slate: "bg-slate-100 text-slate-400" }
+const TL_TONE: Record<string, string> = { emerald: "bg-emerald-100 text-emerald-600", blue: "bg-[var(--color-brand-100)] text-[var(--brand)]", amber: "bg-amber-100 text-amber-600", slate: "bg-slate-100 text-slate-400" }
 const TL_KIND_TONE: Record<string, string> = { info: "slate", action: "blue", evidence: "blue", decision: "emerald", warning: "amber" }
 const TL_ICON: Record<string, typeof Clock> = { info: Clock, action: ArrowUpRight, evidence: FileText, decision: CheckCircle2, warning: AlertTriangle }
 function TL({ icon: Icon, tone, title, sub, detail, children, last }: { icon: typeof Clock; tone: string; title: string; sub?: string; detail?: string; children?: React.ReactNode; last?: boolean }) {
@@ -248,7 +248,7 @@ function TL({ icon: Icon, tone, title, sub, detail, children, last }: { icon: ty
 }
 function Msg({ who, when, text, support }: { who: string; when: string; text: string; support?: boolean }) {
   return (
-    <div className={cn("rounded-xl p-2.5", support ? "bg-blue-50/60" : "bg-slate-50")}>
+    <div className={cn("rounded-xl p-2.5", support ? "bg-[var(--brand-soft)]/60" : "bg-slate-50")}>
       <div className="flex items-center justify-between"><p className="text-[11.5px] font-semibold text-slate-700">{who}</p><p className="text-[10.5px] text-slate-400">{when}</p></div>
       <p className="text-[12px] text-slate-600 mt-0.5">{text}</p>
     </div>

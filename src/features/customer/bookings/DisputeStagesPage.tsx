@@ -55,9 +55,9 @@ export default function DisputeStagesPage({ d, bookingId }: { d: CustomerDispute
                 {i < disputeStages.length - 1 && <span className={cn("absolute top-[14px] left-1/2 w-full h-0.5", done ? "bg-emerald-400" : "bg-slate-200")} />}
                 <span className={cn(
                   "w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold z-10 shrink-0",
-                  done ? "bg-emerald-500 text-white" : current ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400"
+                  done ? "bg-emerald-500 text-white" : current ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-400"
                 )}>{done ? <CheckCircle2 className="w-4 h-4" /> : i + 1}</span>
-                <p className={cn("text-[11.5px] font-semibold mt-2", current ? "text-blue-600" : done ? "text-slate-700" : "text-slate-400")}>{s}</p>
+                <p className={cn("text-[11.5px] font-semibold mt-2", current ? "text-[var(--brand)]" : done ? "text-slate-700" : "text-slate-400")}>{s}</p>
                 <p className="text-[10.5px] text-slate-400 mt-0.5">{stageDates[i]}</p>
               </li>
             )
@@ -65,8 +65,8 @@ export default function DisputeStagesPage({ d, bookingId }: { d: CustomerDispute
         </ol>
       </div>
 
-      <div className="bg-blue-50/70 border border-blue-100 rounded-xl px-4 py-3 flex items-center gap-2.5">
-        <Info className="w-4 h-4 text-blue-500 shrink-0" />
+      <div className="bg-[var(--brand-soft)]/70 border border-[var(--color-brand-100)] rounded-xl px-4 py-3 flex items-center gap-2.5">
+        <Info className="w-4 h-4 text-[var(--brand)] shrink-0" />
         <p className="text-[12.5px] text-slate-600">{d.past ? "This case has been resolved. See the timeline for the outcome." : "The host and Propvora have been notified. We’ll update you as the case progresses."}</p>
       </div>
 
@@ -98,7 +98,7 @@ export default function DisputeStagesPage({ d, bookingId }: { d: CustomerDispute
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-3"><p className="text-[13px] font-bold text-slate-900">Evidence submitted ({d.evidenceCount})</p></div>
             {d.evidenceCount === 0 ? (
-              <button onClick={() => toast("Evidence uploader — coming soon", "info")} className="w-full h-16 rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-[11px] text-slate-400 hover:border-blue-300 hover:text-blue-500"><Upload className="w-4 h-4 mb-0.5" /> Upload evidence</button>
+              <button onClick={() => toast("Evidence uploader — coming soon", "info")} className="w-full h-16 rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-[11px] text-slate-400 hover:border-[var(--color-brand-300)] hover:text-[var(--brand)]"><Upload className="w-4 h-4 mb-0.5" /> Upload evidence</button>
             ) : (
               <p className="text-[12.5px] text-slate-500">{d.evidenceCount} item{d.evidenceCount === 1 ? "" : "s"} submitted to this case.</p>
             )}
@@ -126,7 +126,7 @@ export default function DisputeStagesPage({ d, bookingId }: { d: CustomerDispute
               <RowLR l="Amount disputed" r={formatPence(d.claimedPence, "GBP")} />
               {d.resolvedNote && <p className="text-[11.5px] text-emerald-600 pt-1">{d.resolvedNote}</p>}
             </div>
-            <button onClick={() => toast("Messaging support…", "info")} className="mt-3 w-full bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl py-2.5 text-[13px] font-semibold">Message support</button>
+            <button onClick={() => toast("Messaging support…", "info")} className="mt-3 w-full bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-xl py-2.5 text-[13px] font-semibold">Message support</button>
           </div>
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
             <p className="text-[13px] font-bold text-slate-900 mb-3">Case timeline</p>
@@ -168,7 +168,7 @@ export default function DisputeStagesPage({ d, bookingId }: { d: CustomerDispute
 
 /* helpers */
 function SumRow({ l, r, link }: { l: string; r: string; link?: boolean }) {
-  return <div className="flex items-center justify-between gap-3"><dt className="text-[12px] text-slate-500 shrink-0">{l}</dt><dd className={cn("text-[12px] font-semibold text-right truncate", link ? "text-blue-600" : "text-slate-800")}>{r}</dd></div>
+  return <div className="flex items-center justify-between gap-3"><dt className="text-[12px] text-slate-500 shrink-0">{l}</dt><dd className={cn("text-[12px] font-semibold text-right truncate", link ? "text-[var(--brand)]" : "text-slate-800")}>{r}</dd></div>
 }
 function RowLR({ l, r }: { l: string; r: string }) {
   return <div className="flex items-center justify-between text-[12px]"><span className="text-slate-500">{l}</span><span className="text-slate-700 font-medium">{r}</span></div>
@@ -176,7 +176,7 @@ function RowLR({ l, r }: { l: string; r: string }) {
 function ThreadMsg({ who, when, text, support }: { who: string; when: string; text: string; support?: boolean }) {
   return (
     <div className="flex gap-2.5">
-      <span className={cn("w-8 h-8 rounded-full shrink-0", support ? "bg-blue-100" : "bg-slate-200")} />
+      <span className={cn("w-8 h-8 rounded-full shrink-0", support ? "bg-[var(--color-brand-100)]" : "bg-slate-200")} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between"><p className="text-[12px] font-semibold text-slate-700">{who}</p><p className="text-[10.5px] text-slate-400">{when}</p></div>
         <p className="text-[12px] text-slate-600 mt-0.5">{text}</p>
@@ -184,7 +184,7 @@ function ThreadMsg({ who, when, text, support }: { who: string; when: string; te
     </div>
   )
 }
-const STAGE_TONE: Record<string, string> = { emerald: "bg-emerald-100 text-emerald-600", blue: "bg-blue-100 text-blue-600", slate: "bg-slate-100 text-slate-400" }
+const STAGE_TONE: Record<string, string> = { emerald: "bg-emerald-100 text-emerald-600", blue: "bg-[var(--color-brand-100)] text-[var(--brand)]", slate: "bg-slate-100 text-slate-400" }
 function Stage({ icon: Icon, tone, title, sub, detail, last }: { icon: typeof Clock; tone: string; title: string; sub?: string; detail?: string; last?: boolean }) {
   return (
     <li className="relative flex gap-3">
@@ -192,7 +192,7 @@ function Stage({ icon: Icon, tone, title, sub, detail, last }: { icon: typeof Cl
       <span className={cn("w-7 h-7 rounded-full flex items-center justify-center shrink-0 z-10", STAGE_TONE[tone])}><Icon className="w-3.5 h-3.5" /></span>
       <div className="flex-1 min-w-0 pb-1">
         <p className="text-[12.5px] font-semibold text-slate-800">{title}</p>
-        {sub && <p className="text-[11.5px] text-blue-600">{sub}</p>}
+        {sub && <p className="text-[11.5px] text-[var(--brand)]">{sub}</p>}
         {detail && <p className="text-[11.5px] text-slate-400">{detail}</p>}
       </div>
     </li>

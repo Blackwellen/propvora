@@ -40,7 +40,7 @@ export function ActivityTab({ workspaceId, supplierId }: ActivityTabProps) {
         <div className="relative px-5 py-4 pl-8 before:absolute before:left-[22px] before:top-5 before:bottom-5 before:w-0.5 before:bg-slate-100">
           {events.map((ev) => (
             <div key={ev.id} className="relative mb-4 last:mb-0">
-              <div className="absolute -left-[18px] w-3 h-3 rounded-full bg-[#2563EB] border-2 border-white mt-1" />
+              <div className="absolute -left-[18px] w-3 h-3 rounded-full bg-[var(--brand)] border-2 border-white mt-1" />
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="text-[13px] font-semibold text-slate-800">{ev.title}</p>

@@ -121,7 +121,7 @@ export function Donut({
 /* Horizontal labelled bar list */
 export function BarList({
   items,
-  color = "bg-blue-500",
+  color = "bg-[var(--brand)]",
 }: {
   items: { label: string; value: number; sub?: string }[]
   color?: string

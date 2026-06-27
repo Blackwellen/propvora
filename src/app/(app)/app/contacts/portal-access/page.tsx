@@ -17,7 +17,7 @@ import ShareLinksPanel from "./ShareLinksPanel"
 
 // ─── Avatar helpers ────────────────────────────────────────────────────────────
 const AVATAR_BG = [
-  "bg-blue-500","bg-emerald-500","bg-violet-500","bg-amber-500",
+  "bg-[var(--brand)]","bg-emerald-500","bg-violet-500","bg-amber-500",
   "bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500",
 ]
 function avatarBg(name: string): string {
@@ -50,7 +50,7 @@ interface PortalLink {
 // ─── Status badge config ───────────────────────────────────────────────────────
 const STATUS_CONFIG: Record<PortalStatus, { cls: string; label: string }> = {
   active:  { cls: "bg-emerald-100 text-emerald-700", label: "Active" },
-  pending: { cls: "bg-blue-100 text-blue-700",       label: "Pending" },
+  pending: { cls: "bg-[var(--color-brand-100)] text-[var(--brand)]",       label: "Pending" },
   expired: { cls: "bg-slate-100 text-slate-500",     label: "Expired" },
   revoked: { cls: "bg-red-100 text-red-700",         label: "Revoked" },
 }
@@ -59,7 +59,7 @@ const TYPE_BADGE_CLS: Record<string, string> = {
   supplier:  "bg-orange-100 text-orange-700",
   applicant: "bg-sky-100 text-sky-700",
   tenant:    "bg-emerald-100 text-emerald-700",
-  landlord:  "bg-blue-100 text-blue-700",
+  landlord:  "bg-[var(--color-brand-100)] text-[var(--brand)]",
 }
 
 // ─── Create link modal ─────────────────────────────────────────────────────────
@@ -137,7 +137,7 @@ function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) 
               id="create-link-contact"
               value={contactId}
               onChange={(e) => setContactId(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-all max-h-60"
+              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] bg-white transition-all max-h-60"
             >
               <option value="">Select a contact…</option>
               {contacts.map((c) => <option key={c.id} value={c.id}>{c.display_name}</option>)}
@@ -150,7 +150,7 @@ function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) 
               id="create-link-purpose"
               value={purpose}
               onChange={(e) => setPurpose(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-all"
+              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] bg-white transition-all"
             >
               <option value="">Select purpose...</option>
               <option value="invoice_upload">Invoice upload</option>
@@ -168,7 +168,7 @@ function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) 
               id="create-link-expiry"
               value={expiry}
               onChange={(e) => setExpiry(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-all"
+              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] bg-white transition-all"
             >
               <option value="">Select expiry...</option>
               <option value="7">7 days</option>
@@ -192,7 +192,7 @@ function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) 
           <button
             onClick={handleSubmit}
             disabled={!contactId || !purpose || !expiry || saving}
-            className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-[var(--brand)] rounded-lg hover:bg-[var(--brand-strong)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {saving ? "Creating…" : "Create Link"}
           </button>
@@ -215,7 +215,7 @@ function CreateLinkModal({ workspaceId, onClose, onSuccess }: CreateModalProps) 
       <div role="dialog" aria-modal="true" aria-labelledby="create-link-title" className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
           <h2 id="create-link-title" className="text-base font-bold text-slate-900">Create Portal Link</h2>
-          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded">
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 rounded">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -402,7 +402,7 @@ export default function PortalAccessPage() {
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm shrink-0"
+            className="inline-flex items-center gap-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm shrink-0"
           >
             <Plus className="w-4 h-4" />
             Create Portal Link
@@ -420,8 +420,8 @@ export default function PortalAccessPage() {
           <ContactsKpiCard
             label="Pending / Created"
             value={pendingCount}
-            icon={<Clock className="w-5 h-5 text-blue-600" />}
-            accentColor="bg-blue-50"
+            icon={<Clock className="w-5 h-5 text-[var(--brand)]" />}
+            accentColor="bg-[var(--brand-soft)]"
           />
           <ContactsKpiCard
             label="Expired"
@@ -459,7 +459,7 @@ export default function PortalAccessPage() {
                     onClick={() => setActiveFilter(f.key)}
                     className={cn(
                       "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
-                      activeFilter === f.key ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                      activeFilter === f.key ? "bg-white text-[var(--brand)] shadow-sm" : "text-slate-500 hover:text-slate-700"
                     )}
                   >
                     {f.label}
@@ -474,7 +474,7 @@ export default function PortalAccessPage() {
                   aria-haspopup="menu"
                   aria-expanded={typeDropOpen}
                   aria-label="Filter by contact type"
-                  className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                  className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
                 >
                   {TYPE_OPTIONS.find((o) => o.key === typeFilter)?.label ?? "All Types"}
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
@@ -491,7 +491,7 @@ export default function PortalAccessPage() {
                           onClick={() => { setTypeFilter(o.key); setTypeDropOpen(false) }}
                           className={cn(
                             "w-full text-left px-3 py-2 text-xs hover:bg-slate-50 transition-colors",
-                            typeFilter === o.key ? "text-blue-600 font-medium" : "text-slate-600"
+                            typeFilter === o.key ? "text-[var(--brand)] font-medium" : "text-slate-600"
                           )}
                         >
                           {o.label}
@@ -511,11 +511,11 @@ export default function PortalAccessPage() {
                           onClick={() => { setTypeFilter(o.key); setTypeDropOpen(false) }}
                           className={cn(
                             "flex items-center justify-between w-full text-left px-3 min-h-[48px] text-[15px] rounded-xl transition-colors",
-                            typeFilter === o.key ? "text-blue-600 font-semibold bg-blue-50" : "text-slate-700 hover:bg-slate-50"
+                            typeFilter === o.key ? "text-[var(--brand)] font-semibold bg-[var(--brand-soft)]" : "text-slate-700 hover:bg-slate-50"
                           )}
                         >
                           {o.label}
-                          {typeFilter === o.key && <CheckCircle2 className="w-4 h-4 text-blue-600" />}
+                          {typeFilter === o.key && <CheckCircle2 className="w-4 h-4 text-[var(--brand)]" />}
                         </button>
                       ))}
                     </div>
@@ -534,10 +534,10 @@ export default function PortalAccessPage() {
                   placeholder="Search links..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-8 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-48 transition-all"
+                  className="pl-8 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] w-48 transition-all"
                 />
                 {search && (
-                  <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded">
+                  <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 rounded">
                     <X className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -571,7 +571,7 @@ export default function PortalAccessPage() {
                   actions: (l) => (
                     <button
                       onClick={() => handleCopy(l.id)}
-                      className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#2563EB] px-2 py-1"
+                      className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--brand)] px-2 py-1"
                     >
                       {copiedId === l.id ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />} Copy link
                     </button>
@@ -598,7 +598,7 @@ export default function PortalAccessPage() {
                       <tr>
                         <td colSpan={8} className="px-4 py-12 text-center">
                           <div className="flex items-center justify-center gap-2 text-slate-400">
-                            <div className="w-4 h-4 rounded-full border-2 border-slate-300 border-t-blue-500 animate-spin" />
+                            <div className="w-4 h-4 rounded-full border-2 border-slate-300 border-t-[var(--brand)] animate-spin" />
                             <span className="text-sm">Loading portal links…</span>
                           </div>
                         </td>
@@ -653,7 +653,7 @@ export default function PortalAccessPage() {
                                 onClick={() => handleCopy(link.id)}
                                 title="Copy Link"
                                 aria-label={`Copy portal link for ${link.contactName}`}
-                                className="p-1.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                                className="p-1.5 rounded-md text-slate-400 hover:text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
                               >
                                 {copiedId === link.id ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                               </button>
@@ -675,7 +675,7 @@ export default function PortalAccessPage() {
                                 disabled={isRevoked || isExpired}
                                 title={isRevoked || isExpired ? "Link is no longer active" : "Open portal link"}
                                 aria-label={`Open portal link for ${link.contactName}`}
-                                className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 <ExternalLink className="w-4 h-4" />
                               </button>
@@ -704,14 +704,14 @@ export default function PortalAccessPage() {
             {/* Portal Security */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
-                <Shield className="w-4 h-4 text-blue-600" />
+                <Shield className="w-4 h-4 text-[var(--brand)]" />
                 <h3 className="text-sm font-bold text-slate-900">Portal Security</h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {SECURITY_FEATURES.map((feat) => (
                   <div key={feat.title} className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
-                      <feat.icon className="w-4 h-4 text-blue-600" />
+                    <div className="w-8 h-8 rounded-lg bg-[var(--color-brand-100)] flex items-center justify-center shrink-0">
+                      <feat.icon className="w-4 h-4 text-[var(--brand)]" />
                     </div>
                     <div>
                       <p className="text-xs font-semibold text-slate-800">{feat.title}</p>
@@ -731,13 +731,13 @@ export default function PortalAccessPage() {
             {/* Create Link Wizard */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
-                <Globe className="w-4 h-4 text-blue-600" />
+                <Globe className="w-4 h-4 text-[var(--brand)]" />
                 <span className="text-sm font-bold text-slate-800">Create Link Wizard</span>
               </div>
               <p className="text-xs text-slate-500 mb-4">Generate a new secure portal link for any contact or supplier instantly.</p>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 text-white text-sm font-medium px-4 py-2.5 hover:bg-blue-700 transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--brand)] text-white text-sm font-medium px-4 py-2.5 hover:bg-[var(--brand-strong)] transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Create Link

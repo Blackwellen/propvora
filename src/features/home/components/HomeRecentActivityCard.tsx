@@ -32,7 +32,7 @@ const ENTITY_ICONS: Record<string, typeof Activity> = {
 const ENTITY_STYLES: Record<string, string> = {
   tenancy: "bg-green-50 text-green-600",
   job: "bg-orange-50 text-orange-600",
-  document: "bg-blue-50 text-blue-600",
+  document: "bg-[var(--brand-soft)] text-[var(--brand)]",
   invoice: "bg-emerald-50 text-emerald-600",
   compliance: "bg-violet-50 text-violet-600",
   property: "bg-indigo-50 text-indigo-600",
@@ -55,7 +55,7 @@ export function HomeRecentActivityCard({ activities }: HomeRecentActivityCardPro
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5 flex flex-col gap-3 h-full">
       <div className="flex items-center justify-between">
         <h3 className="text-[13px] font-semibold text-slate-900">Recent activity</h3>
-        <Link href="/property-manager/portfolio/timeline" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/portfolio/timeline" className="text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
           View all →
         </Link>
       </div>
@@ -105,7 +105,7 @@ export function HomeRecentActivityCard({ activities }: HomeRecentActivityCardPro
 
       {activities.length > 0 && (
         <div className="pt-2 border-t border-slate-100">
-          <Link href="/property-manager/portfolio/timeline" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+          <Link href="/property-manager/portfolio/timeline" className="text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
             See more activity →
           </Link>
         </div>

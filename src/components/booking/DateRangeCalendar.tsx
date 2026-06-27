@@ -124,7 +124,7 @@ export default function DateRangeCalendar({
           onClick={() => canGoPrev && setCursor(addMonths(cursor, -1))}
           disabled={!canGoPrev}
           aria-label="Previous month"
-          className="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+          className="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
         >
           <ChevronLeft className="w-4.5 h-4.5" />
         </button>
@@ -139,7 +139,7 @@ export default function DateRangeCalendar({
           type="button"
           onClick={() => setCursor(addMonths(cursor, 1))}
           aria-label="Next month"
-          className="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+          className="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
         >
           <ChevronRight className="w-4.5 h-4.5" />
         </button>
@@ -180,16 +180,16 @@ export default function DateRangeCalendar({
                         aria-pressed={selected}
                         aria-label={iso}
                         className={cn(
-                          "relative w-10 h-10 sm:w-9 sm:h-9 rounded-full text-[13px] font-medium flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+                          "relative w-10 h-10 sm:w-9 sm:h-9 rounded-full text-[13px] font-medium flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40",
                           disabled &&
                             "text-slate-300 line-through decoration-slate-300 cursor-not-allowed",
                           !disabled &&
                             !selected &&
                             !inRange &&
-                            "text-[#0B1B3F] hover:bg-blue-50",
-                          inRange && "bg-blue-50 text-[#1D4ED8] rounded-none",
+                            "text-[#0B1B3F] hover:bg-[var(--brand-soft)]",
+                          inRange && "bg-[var(--brand-soft)] text-[var(--brand-strong)] rounded-none",
                           selected &&
-                            "bg-[#1D4ED8] text-white hover:bg-[#1D4ED8] shadow-sm"
+                            "bg-[var(--brand-strong)] text-white hover:bg-[var(--brand-strong)] shadow-sm"
                         )}
                       >
                         {dayNum}

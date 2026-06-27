@@ -129,7 +129,7 @@ function ReviewInner({ dispute, source }: { dispute: Dispute; source: 'live' | '
 
       {/* actions */}
       <div className="flex flex-wrap items-center gap-2">
-        <button onClick={() => fire('Review notes saved')} className="inline-flex items-center gap-1.5 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700">
+        <button onClick={() => fire('Review notes saved')} className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-[var(--brand-strong)]">
           <Save className="w-4 h-4" /> Save review notes
         </button>
         <button onClick={() => setDrawer('clarify')} className="inline-flex items-center gap-1.5 border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
@@ -145,7 +145,7 @@ function ReviewInner({ dispute, source }: { dispute: Dispute; source: 'live' | '
 
       <StubDrawer open={drawer === 'clarify'} title="Request clarification" onClose={() => setDrawer(null)}>
         <textarea rows={4} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm" placeholder="What clarification do you need?" />
-        <button onClick={() => { fire('Clarification requested'); setDrawer(null) }} className="mt-3 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700">Send request</button>
+        <button onClick={() => { fire('Clarification requested'); setDrawer(null) }} className="mt-3 bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-[var(--brand-strong)]">Send request</button>
       </StubDrawer>
       <StubDrawer open={drawer === 'calc'} title="Settlement calculation" onClose={() => setDrawer(null)}>
         <ul className="space-y-2 text-sm">
@@ -170,7 +170,7 @@ function Kv({ label, value }: { label: string; value: string }) {
 }
 
 const TONES: Record<string, string> = {
-  blue: 'text-blue-700 bg-blue-50',
+  blue: 'text-[var(--brand)] bg-[var(--brand-soft)]',
   amber: 'text-amber-700 bg-amber-50',
   violet: 'text-violet-700 bg-violet-50',
   emerald: 'text-emerald-700 bg-emerald-50',

@@ -31,7 +31,7 @@ export interface WorkspaceJurisdiction {
   settings: WorkspaceSettings
 }
 
-const GB_DEFAULTS: Required<Omit<WorkspaceSettings, 'region' | 'reportingCurrency' | 'supportedPortalLocales'>> = {
+const GB_DEFAULTS: Required<Omit<WorkspaceSettings, 'region' | 'reportingCurrency' | 'supportedPortalLocales' | 'nav'>> = {
   countryCode: 'GB',
   currency: 'GBP',
   locale: 'en-GB',

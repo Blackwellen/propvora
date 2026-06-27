@@ -42,7 +42,7 @@ export function PlanningTabNav() {
         <select
           value={activeHref}
           onChange={(e) => router.push(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
           aria-label="Navigate section"
         >
           {PLANNING_TABS.map((tab) => (

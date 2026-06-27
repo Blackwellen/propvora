@@ -26,7 +26,7 @@ export default async function ApplicantViewingsPage({ params }: { params: Promis
     const meta = VIEWING_STATUS_META[v.status] ?? VIEWING_STATUS_META.scheduled
     return (
       <div key={v.id} className="flex items-center gap-3 rounded-xl border border-[#EEF3FB] px-4 py-3">
-        <span className="w-9 h-9 rounded-lg bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center shrink-0"><CalendarClock className="w-4 h-4" /></span>
+        <span className="w-9 h-9 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center shrink-0"><CalendarClock className="w-4 h-4" /></span>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-[#071B4D]">{formatDate(v.scheduled_at, { weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
           <p className="text-xs text-slate-400 truncate flex items-center gap-1.5">{v.vacancyTitle ?? "Viewing"}{v.duration_minutes ? <span className="flex items-center gap-0.5"><Clock className="w-3 h-3" />{v.duration_minutes} min</span> : null}</p>

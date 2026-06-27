@@ -72,7 +72,7 @@ export default function FeeRulesEditor({ initialRules }: { initialRules: FeeRule
         <span className="text-sm text-slate-500">{initialRules.length} rule(s)</span>
         <button
           onClick={() => setAdding((v) => !v)}
-          className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-3.5 py-2 text-sm font-semibold"
+          className="inline-flex items-center gap-1.5 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-xl px-3.5 py-2 text-sm font-semibold"
         >
           <Plus className="w-4 h-4" /> New rule
         </button>
@@ -99,7 +99,7 @@ export default function FeeRulesEditor({ initialRules }: { initialRules: FeeRule
           <div className="col-span-2 sm:col-span-4 flex items-center justify-end gap-2 pt-2">
             {error && <span className="text-xs text-red-600 mr-auto">{error}</span>}
             <button onClick={() => setAdding(false)} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
-            <button onClick={create} disabled={busy} className="px-4 py-2 text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1d4ed8] rounded-lg disabled:opacity-60">
+            <button onClick={create} disabled={busy} className="px-4 py-2 text-sm font-semibold text-white bg-[var(--brand)] hover:bg-[var(--brand-strong)] rounded-lg disabled:opacity-60">
               {busy ? "Saving…" : "Create rule"}
             </button>
           </div>
@@ -161,7 +161,7 @@ function Input({ label, value, onChange, type = "text", placeholder }: { label: 
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
       />
     </div>
   )

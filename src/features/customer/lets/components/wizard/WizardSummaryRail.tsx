@@ -65,8 +65,8 @@ export default function WizardSummaryRail({ steps, currentStep, app }: Props) {
         </div>
       </div>
 
-      <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-3 flex items-start gap-2.5">
-        <ShieldCheck className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+      <div className="bg-[var(--brand-soft)]/70 border border-[var(--color-brand-100)] rounded-2xl p-3 flex items-start gap-2.5">
+        <ShieldCheck className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
         <p className="text-[11.5px] text-slate-600">
           Your data is encrypted and only shared with the landlord and referencing partner for this application.
         </p>

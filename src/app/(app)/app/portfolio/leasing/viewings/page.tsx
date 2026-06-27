@@ -87,7 +87,7 @@ function formatWeekRange(dates: Date[]): string {
 function statusColor(s: string) {
   if (s === "completed") return "bg-emerald-100 border-emerald-300 text-emerald-800"
   if (s === "cancelled" || s === "no_show") return "bg-red-100 border-red-300 text-red-800"
-  return "bg-blue-100 border-blue-300 text-blue-800"
+  return "bg-[var(--color-brand-100)] border-[var(--color-brand-300)] text-[var(--brand-strong)]"
 }
 
 function statusLabel(s: string): "Scheduled" | "Completed" | "Cancelled" | "No Show" {
@@ -228,7 +228,7 @@ export default function ViewingsPage() {
     title: (v) => v.property,
     subtitle: (v) => v.datetime,
     badge: (v) => (
-      <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
+      <span className="bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)] px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
         {v.status}
       </span>
     ),
@@ -271,14 +271,14 @@ export default function ViewingsPage() {
             </button>
           </div>
           <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
-            <button onClick={() => setCalView("calendar")} className={cn("px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 transition-colors", calView === "calendar" ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-slate-50")}>
+            <button onClick={() => setCalView("calendar")} className={cn("px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 transition-colors", calView === "calendar" ? "bg-[var(--brand)] text-white" : "text-slate-600 hover:bg-slate-50")}>
               <Calendar className="w-3.5 h-3.5" /> Calendar
             </button>
-            <button onClick={() => setCalView("list")} className={cn("px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 transition-colors", calView === "list" ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-slate-50")}>
+            <button onClick={() => setCalView("list")} className={cn("px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 transition-colors", calView === "list" ? "bg-[var(--brand)] text-white" : "text-slate-600 hover:bg-slate-50")}>
               <List className="w-3.5 h-3.5" /> List
             </button>
           </div>
-          <button onClick={() => setShowModal(true)} className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+          <button onClick={() => setShowModal(true)} className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
             <Plus className="w-3.5 h-3.5" /> Schedule Viewing
           </button>
         </div>
@@ -354,7 +354,7 @@ export default function ViewingsPage() {
                         <td className="px-4 py-3 text-[12px] text-slate-600"><span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-slate-400" />{v.property || "—"}</span></td>
                         <td className="px-4 py-3 text-[12px] text-slate-600"><span className="flex items-center gap-1"><User className="w-3 h-3 text-slate-400" />{v.prospect}</span></td>
                         <td className="px-4 py-3 text-[12px] text-slate-600"><span className="flex items-center gap-1"><Clock className="w-3 h-3 text-slate-400" />{v.duration}</span></td>
-                        <td className="px-4 py-3"><span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full text-[10px] font-medium">{v.status}</span></td>
+                        <td className="px-4 py-3"><span className="bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)] px-2 py-0.5 rounded-full text-[10px] font-medium">{v.status}</span></td>
                         <td className="px-4 py-3 text-[12px] text-slate-500">{v.feedback || "—"}</td>
                       </tr>
                     ))}
@@ -377,14 +377,14 @@ export default function ViewingsPage() {
             <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
               <div>
                 <label className="block text-[12px] font-medium text-slate-700 mb-1">Prospect</label>
-                <select value={form.prospect_id} onChange={e => setForm(f => ({ ...f, prospect_id: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" required>
+                <select value={form.prospect_id} onChange={e => setForm(f => ({ ...f, prospect_id: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] bg-white" required>
                   <option value="">Select prospect…</option>
                   {prospects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-[12px] font-medium text-slate-700 mb-1">Vacancy (optional)</label>
-                <select value={form.vacancy_id} onChange={e => setForm(f => ({ ...f, vacancy_id: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <select value={form.vacancy_id} onChange={e => setForm(f => ({ ...f, vacancy_id: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] bg-white">
                   <option value="">No specific vacancy</option>
                   {vacancies.map(v => <option key={v.id} value={v.id}>{v.address}</option>)}
                 </select>
@@ -392,18 +392,18 @@ export default function ViewingsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[12px] font-medium text-slate-700 mb-1">Date</label>
-                  <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                  <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" required />
                 </div>
                 <div>
                   <label className="block text-[12px] font-medium text-slate-700 mb-1">Time</label>
-                  <select value={form.time} onChange={e => setForm(f => ({ ...f, time: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <select value={form.time} onChange={e => setForm(f => ({ ...f, time: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] bg-white">
                     {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
               </div>
               <div>
                 <label className="block text-[12px] font-medium text-slate-700 mb-1">Duration</label>
-                <select value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <select value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] bg-white">
                   <option value="30">30 minutes</option>
                   <option value="45">45 minutes</option>
                   <option value="60">60 minutes</option>
@@ -412,10 +412,10 @@ export default function ViewingsPage() {
               </div>
               <div>
                 <label className="block text-[12px] font-medium text-slate-700 mb-1">Notes</label>
-                <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} placeholder="Access instructions, key code, etc." className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none placeholder:text-slate-400" />
+                <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} placeholder="Access instructions, key code, etc." className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] resize-none placeholder:text-slate-400" />
               </div>
               <div className="flex items-center gap-2 pt-2">
-                <button type="submit" disabled={saving} className="bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 text-xs font-medium px-4 py-2 rounded-lg transition-colors">
+                <button type="submit" disabled={saving} className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-50 text-xs font-medium px-4 py-2 rounded-lg transition-colors">
                   {saving ? "Saving…" : "Schedule Viewing"}
                 </button>
                 <button type="button" onClick={() => setShowModal(false)} className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-4 py-2 rounded-lg transition-colors">Cancel</button>

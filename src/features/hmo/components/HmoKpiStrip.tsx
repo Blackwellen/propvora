@@ -22,7 +22,7 @@ export function HmoKpiStrip({ data }: HmoKpiStripProps) {
     : 0
 
   const kpis = [
-    { label: "HMO Properties",   value: String(data.totalHmos),      sub: "Managed HMOs",         color: "text-[#2563EB]",   bg: "bg-blue-50",    icon: Building2   },
+    { label: "HMO Properties",   value: String(data.totalHmos),      sub: "Managed HMOs",         color: "text-[var(--brand)]",   bg: "bg-[var(--brand-soft)]",    icon: Building2   },
     { label: "Total Rooms",       value: String(data.totalRooms),     sub: "Across all HMOs",      color: "text-slate-700",   bg: "bg-slate-100",  icon: Home        },
     { label: "Occupied Rooms",    value: String(data.occupiedRooms),  sub: `${occupancyRate}% rate`,color: "text-emerald-600", bg: "bg-emerald-50", icon: Users       },
     { label: "Licences Valid",    value: String(data.licenceValid),   sub: "Active HMO licences",  color: "text-emerald-600", bg: "bg-emerald-50", icon: ShieldCheck },

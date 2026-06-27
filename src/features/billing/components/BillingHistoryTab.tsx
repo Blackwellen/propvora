@@ -106,7 +106,7 @@ export function BillingHistoryTab() {
             <button
               key={f.id}
               onClick={() => setFilter(f.id)}
-              className={`rounded-xl px-3 py-1.5 text-[12px] font-medium transition-colors ${filter === f.id ? "bg-blue-600 text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+              className={`rounded-xl px-3 py-1.5 text-[12px] font-medium transition-colors ${filter === f.id ? "bg-[var(--brand)] text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
             >
               {f.label}
             </button>
@@ -143,7 +143,7 @@ export function BillingHistoryTab() {
                     <td className="py-2.5"><StatusBadge tone={STATUS_TONE[r.status] ?? "slate"}>{r.status}</StatusBadge></td>
                     <td className="py-2.5">
                       <div className="flex items-center justify-end gap-1.5">
-                        <button onClick={() => downloadRow(r)} title={r.docType === "receipt" ? "Download receipt" : "Download invoice"} className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-[12px] font-medium">
+                        <button onClick={() => downloadRow(r)} title={r.docType === "receipt" ? "Download receipt" : "Download invoice"} className="inline-flex items-center gap-1 text-[var(--brand)] hover:text-[var(--brand)] text-[12px] font-medium">
                           {r.docType === "receipt" ? <Receipt className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
                           {r.docType === "receipt" ? "Receipt" : "Invoice"}
                         </button>
@@ -174,7 +174,7 @@ export function BillingHistoryTab() {
         <ol className="relative border-l border-slate-200 ml-2 space-y-4">
           {events.map((e) => (
             <li key={e.id} className="ml-4">
-              <span className="absolute -left-1.5 w-3 h-3 rounded-full bg-blue-500" />
+              <span className="absolute -left-1.5 w-3 h-3 rounded-full bg-[var(--brand)]" />
               <div className="flex items-center justify-between gap-3">
                 <p className="text-[13px] font-medium text-slate-800">{e.summary}</p>
                 <span className="text-[12px] text-slate-400 whitespace-nowrap">{formatBillingDate(e.occurredAt)}</span>

@@ -47,7 +47,7 @@ export function InvoiceDetailRightRail({
         {isDraft && (
           <button
             onClick={onSend}
-            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors"
           >
             <Send className="w-4 h-4" /> Send Invoice
           </button>
@@ -98,10 +98,10 @@ export function InvoiceDetailRightRail({
       {/* Related */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2.5">
         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Related</p>
-        <Link href="#" className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="#" className="flex items-center gap-2 text-sm text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
           <Building2 className="w-3.5 h-3.5" /> {property}
         </Link>
-        <Link href="#" className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="#" className="flex items-center gap-2 text-sm text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
           <User className="w-3.5 h-3.5" /> {recipient}
         </Link>
         <Link href="#" className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 transition-colors">

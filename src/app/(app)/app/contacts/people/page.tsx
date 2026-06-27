@@ -125,7 +125,7 @@ const PEOPLE_TYPES = new Set([
 /* HELPERS                                                              */
 /* ================================================================== */
 
-const AVATAR_BG = ["bg-blue-500","bg-emerald-500","bg-violet-500","bg-amber-500","bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500"]
+const AVATAR_BG = ["bg-[var(--brand)]","bg-emerald-500","bg-violet-500","bg-amber-500","bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500"]
 
 function avatarBg(name: string): string {
   let h = 0
@@ -162,7 +162,7 @@ const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
   tenant:              { label: "Tenant",       cls: "bg-emerald-100 text-emerald-700" },
   post_tenant:         { label: "Past Tenant",  cls: "bg-slate-100 text-slate-600" },
   applicant:           { label: "Applicant",    cls: "bg-sky-100 text-sky-700" },
-  landlord:            { label: "Landlord",     cls: "bg-blue-100 text-blue-700" },
+  landlord:            { label: "Landlord",     cls: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   guarantor:           { label: "Guarantor",    cls: "bg-violet-100 text-violet-700" },
   local_authority:     { label: "Local Auth",   cls: "bg-teal-100 text-teal-700" },
   housing_association: { label: "Housing Assoc",cls: "bg-teal-100 text-teal-700" },
@@ -218,7 +218,7 @@ function PersonListRow({ contact }: { contact: Contact }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-semibold text-slate-900 group-hover:text-[#2563EB] transition-colors">{contact.full_name}</span>
+          <span className="text-sm font-semibold text-slate-900 group-hover:text-[var(--brand)] transition-colors">{contact.full_name}</span>
           <TypeBadge type={contact.contact_type} />
           {contact.city && (
             <span className="hidden sm:flex items-center gap-0.5 text-xs text-slate-400">
@@ -274,7 +274,7 @@ function PersonTableRow({ contact }: { contact: Contact }) {
             {getInitials(contact.full_name)}
           </div>
           <div>
-            <Link href={`/property-manager/contacts/${contact.id}`} className="text-sm font-semibold text-slate-900 hover:text-[#2563EB] transition-colors whitespace-nowrap">
+            <Link href={`/property-manager/contacts/${contact.id}`} className="text-sm font-semibold text-slate-900 hover:text-[var(--brand)] transition-colors whitespace-nowrap">
               {contact.full_name}
             </Link>
             <InlineEditCell
@@ -348,7 +348,7 @@ function PersonTableRow({ contact }: { contact: Contact }) {
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-1">
-          <Link href={`/property-manager/contacts/${contact.id}`} className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-[#2563EB] transition-colors">
+          <Link href={`/property-manager/contacts/${contact.id}`} className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-[var(--brand)] transition-colors">
             <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
           <PersonActionMenu contact={contact} />
@@ -429,7 +429,7 @@ function Pagination({ total, page, onPage }: { total: number; page: number; onPa
               onClick={() => onPage(p)}
               className={cn(
                 "w-8 h-8 rounded-lg text-xs font-medium transition-colors",
-                p === page ? "bg-[#2563EB] text-white" : "border border-slate-200 bg-white hover:bg-slate-50 text-slate-600"
+                p === page ? "bg-[var(--brand)] text-white" : "border border-slate-200 bg-white hover:bg-slate-50 text-slate-600"
               )}
             >
               {p}
@@ -595,7 +595,7 @@ export default function PeoplePage() {
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-[#2563EB] text-white hover:bg-[#1d4ed8] transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
           >
             <UserPlus className="w-4 h-4" />
             Add Person
@@ -636,9 +636,9 @@ export default function PeoplePage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
-              <KpiCard icon={Users}    label="Total People"  value={kpiData.total}        iconColour="#2563EB" bg="bg-blue-50"    sub={`${kpiData.total} contacts`} />
+              <KpiCard icon={Users}    label="Total People"  value={kpiData.total}        iconColour="#2563EB" bg="bg-[var(--brand-soft)]"    sub={`${kpiData.total} contacts`} />
               <KpiCard icon={Home}     label="Tenants"       value={kpiData.tenants}      iconColour="#10B981" bg="bg-emerald-50" />
-              <KpiCard icon={Building2}label="Landlords"     value={kpiData.landlords}    iconColour="#2563EB" bg="bg-blue-50"    />
+              <KpiCard icon={Building2}label="Landlords"     value={kpiData.landlords}    iconColour="#2563EB" bg="bg-[var(--brand-soft)]"    />
               <KpiCard icon={UserPlus} label="Applicants"    value={kpiData.applicants}   iconColour="#0EA5E9" bg="bg-sky-50"     />
               <KpiCard icon={Clock}    label="Past Tenants"  value={kpiData.past_tenants} iconColour="#64748B" bg="bg-slate-50"   />
               <KpiCard icon={User}     label="Other"         value={kpiData.other}        iconColour="#8B5CF6" bg="bg-violet-50"  />
@@ -658,10 +658,10 @@ export default function PeoplePage() {
                 placeholder="Search peopleâ€¦"
                 value={searchQuery}
                 onChange={e => handleSearch(e.target.value)}
-                className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+                className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
               />
               {searchQuery && (
-                <button onClick={() => handleSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 rounded">
+                <button onClick={() => handleSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 rounded">
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -676,7 +676,7 @@ export default function PeoplePage() {
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap",
                     activeFilter === tab.key
-                      ? "bg-[#2563EB] text-white shadow-sm"
+                      ? "bg-[var(--brand)] text-white shadow-sm"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   )}
                 >
@@ -692,7 +692,7 @@ export default function PeoplePage() {
                   aria-label="Sort people"
                   value={sortBy}
                   onChange={e => setSortBy(e.target.value as SortKey)}
-                  className="h-9 pl-3 pr-7 rounded-lg border border-slate-200 text-xs text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] cursor-pointer appearance-none"
+                  className="h-9 pl-3 pr-7 rounded-lg border border-slate-200 text-xs text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] cursor-pointer appearance-none"
                 >
                   <option value="name">Sort: Name</option>
                   <option value="recent">Sort: Recent</option>
@@ -715,7 +715,7 @@ export default function PeoplePage() {
                     aria-pressed={viewMode === mode}
                     className={cn(
                       "p-1.5 rounded-md transition-colors",
-                      viewMode === mode ? "bg-white text-[#2563EB] shadow-sm" : "text-slate-400 hover:text-slate-600"
+                      viewMode === mode ? "bg-white text-[var(--brand)] shadow-sm" : "text-slate-400 hover:text-slate-600"
                     )}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -752,7 +752,7 @@ export default function PeoplePage() {
                   <p className="text-sm text-slate-400 mt-1">Try adjusting your search or filters</p>
                   <button
                     onClick={() => { setActiveFilter("all"); setSearchQuery("") }}
-                    className="mt-3 text-sm text-[#2563EB] hover:underline"
+                    className="mt-3 text-sm text-[var(--brand)] hover:underline"
                   >
                     Clear filters
                   </button>
@@ -807,7 +807,7 @@ export default function PeoplePage() {
                 <div className="py-20 text-center">
                   <Users className="w-10 h-10 text-slate-200 mx-auto mb-3" />
                   <p className="text-sm font-medium text-slate-400">No people match your filters</p>
-                  <button onClick={() => { setActiveFilter("all"); setSearchQuery("") }} className="mt-2 text-xs text-[#2563EB] hover:underline">Clear filters</button>
+                  <button onClick={() => { setActiveFilter("all"); setSearchQuery("") }} className="mt-2 text-xs text-[var(--brand)] hover:underline">Clear filters</button>
                 </div>
               ) : (
                 paginated.map(c => <PersonListRow key={c.id} contact={c} />)
@@ -851,7 +851,7 @@ export default function PeoplePage() {
                       <tr>
                         <td colSpan={7} className="py-20 text-center text-sm text-slate-400">
                           No people match your filters.{" "}
-                          <button onClick={() => { setActiveFilter("all"); setSearchQuery("") }} className="text-[#2563EB] hover:underline">Clear filters</button>
+                          <button onClick={() => { setActiveFilter("all"); setSearchQuery("") }} className="text-[var(--brand)] hover:underline">Clear filters</button>
                         </td>
                       </tr>
                     ) : (

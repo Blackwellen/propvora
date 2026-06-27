@@ -155,10 +155,10 @@ export default function LandlordStatementsPage() {
               <p className="text-xs font-medium text-slate-700 mt-0.5">Expected / Outstanding</p>
             </Card>
             <Card className="p-4 rounded-2xl border-slate-200">
-              <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] flex items-center justify-center mb-3">
-                <TrendingUp className="w-4 h-4 text-[#2563EB]" />
+              <div className="w-9 h-9 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center mb-3">
+                <TrendingUp className="w-4 h-4 text-[var(--brand)]" />
               </div>
-              <p className="text-xl font-bold text-[#2563EB]">{formatMoney(ytd)}</p>
+              <p className="text-xl font-bold text-[var(--brand)]">{formatMoney(ytd)}</p>
               <p className="text-xs font-medium text-slate-700 mt-0.5">Received This Year</p>
             </Card>
           </div>
@@ -172,7 +172,7 @@ export default function LandlordStatementsPage() {
                 className={cn(
                   "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
                   statusFilter === s
-                    ? "bg-[#2563EB] text-white"
+                    ? "bg-[var(--brand)] text-white"
                     : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
                 )}
               >
@@ -238,15 +238,15 @@ export default function LandlordStatementsPage() {
           </Card>
           </ResponsiveTable>
 
-          <div className="rounded-2xl bg-[#EFF6FF] border border-blue-100 p-3 flex items-start gap-2">
-            <Receipt className="w-4 h-4 text-[#2563EB] mt-0.5 shrink-0" />
+          <div className="rounded-2xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)] p-3 flex items-start gap-2">
+            <Receipt className="w-4 h-4 text-[var(--brand)] mt-0.5 shrink-0" />
             <p className="text-xs text-[#1e40af]">
               Statements show rent and income against your properties only. Supplier costs and internal management
               margins are never shown in your portal.
             </p>
           </div>
 
-          <Link href="/landlord-portal/properties" className="inline-flex items-center gap-1 text-xs text-[#2563EB] hover:underline">
+          <Link href="/landlord-portal/properties" className="inline-flex items-center gap-1 text-xs text-[var(--brand)] hover:underline">
             View by property <ChevronRight className="w-3 h-3" />
           </Link>
         </>

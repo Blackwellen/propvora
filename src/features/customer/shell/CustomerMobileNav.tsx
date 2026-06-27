@@ -33,7 +33,7 @@ export default function CustomerMobileNav({ unreadMessages = 0 }: { unreadMessag
                 href={item.href}
                 className={cn(
                   "flex flex-col items-center justify-center gap-0.5 py-2 text-[10.5px] font-semibold transition-colors",
-                  active ? "text-[#2563EB]" : "text-slate-500"
+                  active ? "text-[var(--brand)]" : "text-slate-500"
                 )}
               >
                 <span className="relative">

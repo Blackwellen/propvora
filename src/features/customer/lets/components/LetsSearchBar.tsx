@@ -33,7 +33,7 @@ function Chip({
   return (
     <button
       type="button"
-      className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1 text-[12px] font-medium text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+      className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1 text-[12px] font-medium text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
     >
       {Icon && <Icon className="w-3.5 h-3.5" aria-hidden="true" />}
       {children}
@@ -87,7 +87,7 @@ export default function LetsSearchBar() {
         <Chip>Parking</Chip>
         <Chip>Garden</Chip>
         <button
-          className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-600 ml-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+          className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-600 ml-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
           aria-label="More filters"
         >
           <SlidersHorizontal className="w-3.5 h-3.5" aria-hidden="true" /> More filters

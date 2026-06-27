@@ -30,7 +30,7 @@ export default function PropertyRentToRentPage() {
         </div>
         <Link
           href={`/property-manager/portfolio/properties/${propertyId}/overview`}
-          className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1"
+          className="text-[13px] font-semibold text-[var(--brand)] hover:underline flex items-center gap-1"
         >
           <ChevronLeft size={14} /> Back to Overview
         </Link>

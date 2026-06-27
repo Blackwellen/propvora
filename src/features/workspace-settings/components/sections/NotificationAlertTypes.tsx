@@ -17,7 +17,7 @@ export interface AlertToggle {
 }
 
 const DEFAULT_ALERTS: AlertToggle[] = [
-  { key: "leaseRenewals", label: "Lease renewals", description: "Upcoming lease expirations and renewal windows", icon: <FileText className="w-4 h-4" />, iconBg: "bg-blue-100 text-blue-600" },
+  { key: "leaseRenewals", label: "Lease renewals", description: "Upcoming lease expirations and renewal windows", icon: <FileText className="w-4 h-4" />, iconBg: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   { key: "maintenanceRequests", label: "Maintenance requests", description: "New and updated maintenance and repair requests", icon: <Wrench className="w-4 h-4" />, iconBg: "bg-amber-100 text-amber-600" },
   { key: "incidentAlerts", label: "Incident alerts", description: "Critical incidents requiring immediate attention", icon: <AlertTriangle className="w-4 h-4" />, iconBg: "bg-red-100 text-red-600" },
   { key: "rentPayments", label: "Rent & payments", description: "Payment received, failed or overdue notifications", icon: <DollarSign className="w-4 h-4" />, iconBg: "bg-emerald-100 text-emerald-600" },

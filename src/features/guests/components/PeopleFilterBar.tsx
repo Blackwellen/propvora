@@ -45,13 +45,13 @@ export function PeopleFilterBar({
           placeholder="Search people…"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+          className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
         />
         {searchQuery && (
           <button
             onClick={() => onSearchChange("")}
             aria-label="Clear search"
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 rounded"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 rounded"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -67,7 +67,7 @@ export function PeopleFilterBar({
             className={cn(
               "px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap",
               activeFilter === tab.key
-                ? "bg-[#2563EB] text-white shadow-sm"
+                ? "bg-[var(--brand)] text-white shadow-sm"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             )}
           >
@@ -83,7 +83,7 @@ export function PeopleFilterBar({
             aria-label="Sort people"
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value as SortKey)}
-            className="h-9 pl-3 pr-7 rounded-lg border border-slate-200 text-xs text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] cursor-pointer appearance-none"
+            className="h-9 pl-3 pr-7 rounded-lg border border-slate-200 text-xs text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] cursor-pointer appearance-none"
           >
             <option value="name">Sort: Name</option>
             <option value="recent">Sort: Recent</option>
@@ -112,7 +112,7 @@ export function PeopleFilterBar({
               aria-pressed={viewMode === mode}
               className={cn(
                 "p-1.5 rounded-md transition-colors",
-                viewMode === mode ? "bg-white text-[#2563EB] shadow-sm" : "text-slate-400 hover:text-slate-600"
+                viewMode === mode ? "bg-white text-[var(--brand)] shadow-sm" : "text-slate-400 hover:text-slate-600"
               )}
             >
               <Icon className="w-3.5 h-3.5" />

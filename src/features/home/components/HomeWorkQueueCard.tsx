@@ -14,7 +14,7 @@ function DueBadge({ label, variant }: { label: string; variant: DueVariant }) {
   const styles: Record<DueVariant, string> = {
     red: "bg-red-50 text-red-700 border border-red-200",
     amber: "bg-amber-50 text-amber-700 border border-amber-200",
-    blue: "bg-blue-50 text-blue-700 border border-blue-200",
+    blue: "bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]",
     slate: "bg-slate-100 text-slate-600 border border-slate-200",
   }
   return (
@@ -28,7 +28,7 @@ const WORK_ICONS = [Wrench, Zap, Droplets, ShieldCheck, Wrench]
 const ICON_STYLES = [
   "bg-red-50 text-red-600",
   "bg-amber-50 text-amber-600",
-  "bg-blue-50 text-blue-600",
+  "bg-[var(--brand-soft)] text-[var(--brand)]",
   "bg-emerald-50 text-emerald-600",
   "bg-slate-50 text-slate-600",
 ]
@@ -38,7 +38,7 @@ export function HomeWorkQueueCard({ items }: HomeWorkQueueCardProps) {
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5 flex flex-col gap-3 h-full">
       <div className="flex items-center justify-between">
         <h3 className="text-[13px] font-semibold text-slate-900">Work queue</h3>
-        <Link href="/property-manager/work" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/work" className="text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
           View all →
         </Link>
       </div>
@@ -53,7 +53,7 @@ export function HomeWorkQueueCard({ items }: HomeWorkQueueCardProps) {
               <p className="text-[13px] font-medium text-slate-600">No open work orders</p>
               <p className="text-[12px] text-slate-400 mt-0.5">New jobs will appear here</p>
             </div>
-            <Link href="/property-manager/work" className="text-[12px] font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+            <Link href="/property-manager/work" className="text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
               Go to work queue →
             </Link>
           </div>
@@ -71,7 +71,7 @@ export function HomeWorkQueueCard({ items }: HomeWorkQueueCardProps) {
                   <IconComp style={{ width: 14, height: 14 }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+                  <p className="text-[13px] font-medium text-slate-900 truncate group-hover:text-[var(--brand)] transition-colors">
                     {item.title}
                   </p>
                   {(item.property || item.unit) && (
@@ -88,7 +88,7 @@ export function HomeWorkQueueCard({ items }: HomeWorkQueueCardProps) {
       </div>
 
       <div className="pt-2 border-t border-slate-100">
-        <Link href="/property-manager/work" className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/work" className="text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
           View all work orders →
         </Link>
       </div>

@@ -58,7 +58,7 @@ export function SupplierResponseHealthPanel({ supplierHealth }: SupplierResponse
       </div>
       <Link
         href="/property-manager/work/suppliers"
-        className="mt-3 flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+        className="mt-3 flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
       >
         View Suppliers <ChevronRight className="w-3 h-3" />
       </Link>

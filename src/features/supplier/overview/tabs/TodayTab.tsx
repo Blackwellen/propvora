@@ -2,13 +2,13 @@
 
 import Link from "next/link"
 import {
-  FileText, CalendarClock, ClipboardCheck, Wallet, Star, Navigation,
+  FileText, CalendarClock, ClipboardCheck, Wallet, Star,
   PlusCircle, Upload, User, Calendar, Clock, AlertTriangle, MessageSquare,
-  ArrowUpRight, MoreHorizontal, Inbox, ChevronRight, Map,
+  ArrowUpRight, Inbox, ChevronRight, Map,
 } from "lucide-react"
 import { formatPence } from "@/lib/marketplace/money"
 import {
-  KpiRow, Panel, ScoreRing, CheckRow, Pill, OverviewLink, useToast,
+  KpiRow, Panel, ScoreRing, CheckRow, Pill, OverviewLink,
   OverviewSkeleton, OverviewError, type OverviewKpi, type Accent,
 } from "../ui/primitives"
 import { clockTime, shortDate, timeAgo } from "../ui/util"
@@ -33,14 +33,13 @@ function trustBand(pct: number): string {
 
 const AGENDA_TONE: Record<string, { dot: string; pill: Accent; label: string }> = {
   done: { dot: "bg-emerald-500", pill: "emerald", label: "Done" },
-  in_progress: { dot: "bg-blue-500", pill: "blue", label: "On site" },
+  in_progress: { dot: "bg-[var(--brand)]", pill: "blue", label: "On site" },
   upcoming: { dot: "bg-slate-300", pill: "slate", label: "Scheduled" },
   overdue: { dot: "bg-red-500", pill: "red", label: "Overdue" },
 }
 
 export function TodayTab() {
   const { data, loading, error, reload } = useTodayData()
-  const { toast } = useToast()
 
   if (loading) return <OverviewSkeleton />
   if (error && !data) return <OverviewError onRetry={reload} />
@@ -85,7 +84,7 @@ export function TodayTab() {
                     <Link href={a.href} className="group flex items-start gap-2.5 rounded-xl -mx-2 px-2 py-1 hover:bg-slate-50">
                       <span className="text-[12px] font-bold text-slate-500 w-10 shrink-0 pt-0.5">{a.time}</span>
                       <span className="flex-1 min-w-0">
-                        <span className="block text-[13px] font-semibold text-slate-800 truncate group-hover:text-blue-600">{a.title}</span>
+                        <span className="block text-[13px] font-semibold text-slate-800 truncate group-hover:text-[var(--brand)]">{a.title}</span>
                         <span className="block text-[11px] text-slate-400 truncate">{a.subtitle}</span>
                       </span>
                       <Pill accent={pill as Accent}>{label}</Pill>
@@ -114,7 +113,7 @@ export function TodayTab() {
                 <p className="mt-1 text-2xl font-bold text-slate-900 leading-none">{formatPence(data.earnings.weekPence, cur)}</p>
               </div>
             </div>
-            <Link href="/supplier?tab=earnings" className="mt-3 inline-block text-[12px] font-semibold text-blue-600 hover:text-blue-700">View full earnings →</Link>
+            <Link href="/supplier?tab=earnings" className="mt-3 inline-block text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">View full earnings →</Link>
           </Panel>
         </div>
 
@@ -150,15 +149,9 @@ export function TodayTab() {
                 </div>
 
                 <div className="mt-4 flex items-center gap-2">
-                  <button onClick={() => toast("Route handoff coming soon", "info")} className="inline-flex items-center gap-1.5 bg-[#2563EB] text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-[#1d4ed8] transition-colors">
-                    <Navigation className="w-4 h-4" /> Start route
-                  </button>
-                  <Link href={next.jobHref} className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-slate-50 transition-colors">
+                  <Link href={next.jobHref} className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors">
                     Open job <ArrowUpRight className="w-4 h-4" />
                   </Link>
-                  <button onClick={() => toast("More actions coming soon", "info")} className="w-[42px] h-[42px] rounded-xl border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </button>
                 </div>
               </div>
             </section>
@@ -173,18 +166,18 @@ export function TodayTab() {
               <ul className="space-y-2.5">
                 {data.priorityAlerts.map((al) => (
                   <li key={al.id} className="flex items-start gap-2.5">
-                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${al.tone === "red" ? "bg-red-50 text-red-500" : al.tone === "amber" ? "bg-amber-50 text-amber-500" : al.tone === "violet" ? "bg-violet-50 text-violet-500" : "bg-blue-50 text-blue-500"}`}>
+                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${al.tone === "red" ? "bg-red-50 text-red-500" : al.tone === "amber" ? "bg-amber-50 text-amber-500" : al.tone === "violet" ? "bg-violet-50 text-violet-500" : "bg-[var(--brand-soft)] text-[var(--brand)]"}`}>
                       <AlertTriangle className="w-3.5 h-3.5" />
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] font-semibold text-slate-800 leading-snug">{al.title}</p>
                       <p className="text-[11px] text-slate-500 leading-snug mt-0.5">{al.body}</p>
                     </div>
-                    <Link href={al.href} className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 shrink-0 self-center whitespace-nowrap">{al.ctaLabel}</Link>
+                    <Link href={al.href} className="text-[11px] font-semibold text-[var(--brand)] hover:text-[var(--brand)] shrink-0 self-center whitespace-nowrap">{al.ctaLabel}</Link>
                   </li>
                 ))}
               </ul>
-              <Link href="/supplier?tab=compliance" className="mt-3 inline-block text-[12px] font-semibold text-blue-600 hover:text-blue-700">View all alerts →</Link>
+              <Link href="/supplier?tab=compliance" className="mt-3 inline-block text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">View all alerts →</Link>
             </Panel>
 
             <Panel title="Quick actions">
@@ -195,9 +188,9 @@ export function TodayTab() {
                   return (
                     <Link key={q.id} href={q.href} className="relative flex flex-col items-center gap-1.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all text-center">
                       {badge ? (
-                        <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">{badge}</span>
+                        <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold flex items-center justify-center">{badge}</span>
                       ) : null}
-                      <span className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center"><Icon className="w-4 h-4 text-blue-600" /></span>
+                      <span className="w-9 h-9 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center"><Icon className="w-4 h-4 text-[var(--brand)]" /></span>
                       <span className="text-[11px] font-medium text-slate-700 leading-tight">{q.label}</span>
                     </Link>
                   )
@@ -205,13 +198,13 @@ export function TodayTab() {
               </div>
               {quick[3] && (
                 <Link href={quick[3].href} className="mt-2.5 flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all">
-                  <span className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0"><Upload className="w-4 h-4 text-blue-600" /></span>
+                  <span className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0"><Upload className="w-4 h-4 text-[var(--brand)]" /></span>
                   <span className="text-[12.5px] font-medium text-slate-700">{quick[3].label}</span>
                 </Link>
               )}
               {quick[4] && (
                 <Link href={quick[4].href} className="mt-2.5 flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all">
-                  <span className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0"><User className="w-4 h-4 text-blue-600" /></span>
+                  <span className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0"><User className="w-4 h-4 text-[var(--brand)]" /></span>
                   <span className="flex-1 min-w-0">
                     <span className="block text-[12.5px] font-medium text-slate-700">{quick[4].label}</span>
                     <span className="block text-[11px] text-slate-400">See how property managers see you</span>
@@ -252,22 +245,20 @@ export function TodayTab() {
           <Panel>
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-sm font-semibold text-slate-900">Availability</h2>
-              <button
-                onClick={() => toast(data.availability.available ? "Marked unavailable (demo)" : "Marked available (demo)", "info")}
-                role="switch"
-                aria-checked={data.availability.available}
-                aria-label="Toggle availability"
+              <Link
+                href="/supplier/availability"
+                aria-label="Edit availability"
                 className={`relative w-11 h-6 rounded-full transition-colors ${data.availability.available ? "bg-emerald-500" : "bg-slate-300"}`}
               >
                 <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${data.availability.available ? "left-[22px]" : "left-0.5"}`} />
-              </button>
+              </Link>
             </div>
             <p className={`text-[13px] font-semibold ${data.availability.available ? "text-emerald-600" : "text-slate-500"}`}>{data.availability.available ? "Online and available" : "Unavailable"}</p>
             <p className="text-[12px] text-slate-500 mt-0.5">{data.availability.available ? "You're visible to property managers and receiving requests." : "You're hidden from new requests while unavailable."}</p>
             <div className="mt-3 space-y-2 border-t border-slate-100 pt-3">
               <div className="flex items-center justify-between">
                 <span className="text-[12px] text-slate-500">Today&apos;s hours</span>
-                <Link href="/supplier/availability" className="text-[12px] font-semibold text-blue-600 hover:text-blue-700">Edit</Link>
+                <Link href="/supplier/availability" className="text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">Edit</Link>
               </div>
               <p className="text-[13px] font-semibold text-slate-800 -mt-1">{data.availability.hours}</p>
             </div>
@@ -308,7 +299,7 @@ export function TodayTab() {
           </Panel>
 
           {/* Profile & trust ring */}
-          <Panel title="Profile & trust score" action={<Link href="/supplier/profile" className="text-[12px] font-semibold text-blue-600 hover:text-blue-700">View public profile</Link>}>
+          <Panel title="Profile & trust score" action={<Link href="/supplier/profile" className="text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">View public profile</Link>}>
             {data.trust.scorePct > 0 ? (
               <>
                 <div className="flex items-center gap-4">

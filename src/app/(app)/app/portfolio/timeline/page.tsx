@@ -41,7 +41,7 @@ const STATUS_CFG: Record<GanttStatus, { label: string; bar: string; text: string
   active:   { label: "Active",   bar: "bg-emerald-400",  text: "text-emerald-700" },
   pending:  { label: "Pending",  bar: "bg-amber-400",    text: "text-amber-700" },
   notice:   { label: "Notice",   bar: "bg-red-400",      text: "text-red-700" },
-  upcoming: { label: "Upcoming", bar: "bg-blue-300",     text: "text-blue-700" },
+  upcoming: { label: "Upcoming", bar: "bg-[var(--color-brand-300)]",     text: "text-[var(--brand)]" },
   expired:  { label: "Expired",  bar: "bg-slate-300",    text: "text-slate-600" },
 }
 
@@ -219,7 +219,7 @@ export default function PortfolioTimelinePage() {
             placeholder="Search tenancies…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-9 pl-9 pr-4 w-52 rounded-xl text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all shadow-sm"
+            className="h-9 pl-9 pr-4 w-52 rounded-xl text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all shadow-sm"
           />
         </div>
 
@@ -331,8 +331,8 @@ export default function PortfolioTimelinePage() {
 
                     {/* Today line */}
                     {todayPct != null && (
-                      <div className="absolute top-0 bottom-0 w-px bg-[#2563EB] z-10" style={{ left: `${todayPct}%` }}>
-                        <div className="absolute -top-px -left-1.5 w-3 h-3 rounded-full bg-[#2563EB]" />
+                      <div className="absolute top-0 bottom-0 w-px bg-[var(--brand)] z-10" style={{ left: `${todayPct}%` }}>
+                        <div className="absolute -top-px -left-1.5 w-3 h-3 rounded-full bg-[var(--brand)]" />
                       </div>
                     )}
 
@@ -372,7 +372,7 @@ export default function PortfolioTimelinePage() {
             ))}
           </div>
           <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-            <div className="w-px h-3 bg-[#2563EB]" />
+            <div className="w-px h-3 bg-[var(--brand)]" />
             Today
           </div>
         </div>

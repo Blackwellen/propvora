@@ -332,82 +332,73 @@ BEGIN
   -- 7. AUTOMATIONS — definitions (operator + supplier) enabled, source=template
   -- =================================================================
   IF NOT EXISTS (SELECT 1 FROM automation_definitions WHERE workspace_id=v_op AND (trigger->>'seed')='enterprise_full_v1') THEN
-    -- We add definitions one at a time so we can attach run history.
+    -- Definitions use the REAL engine shape: trigger.type is a CATALOGUE trigger
+    -- the engine evaluates against live data; actions[].action_type is a SAFE
+    -- catalogue action the executor runs. Run history is NOT fabricated — the
+    -- daily cron + "Run now" generate REAL automation_v2_runs against this seed's
+    -- own live data (overdue rent, due-soon compliance, ending tenancies, etc.).
+    -- (Previously these used trigger.type='schedule'/'event' + non-catalogue
+    -- actions like send_email/notify/reconcile, so the engine matched 0 and never
+    -- ran — and fake succeeded/failed/skipped/running runs were seeded to hide it.)
 
     -- 1) Rent overdue chaser (operator)
     v_def := gen_random_uuid();
     INSERT INTO automation_definitions (id,workspace_id,name,description,trigger,conditions,actions,enabled,source,created_by)
     VALUES (v_def,v_op,'Rent overdue → chase tenant',
-      'When rent is 3+ days overdue, send a reminder and create a follow-up task.',
-      '{"seed":"enterprise_full_v1","type":"schedule","event":"rent.overdue","cron":"0 9 * * *"}'::jsonb,
-      '{"all":[{"field":"days_overdue","op":"gte","value":3}]}'::jsonb,
-      '[{"type":"send_email","template":"rent_reminder"},{"type":"create_task","title":"Chase overdue rent"}]'::jsonb,
+      'When rent is overdue, draft a reminder and create a follow-up task.',
+      jsonb_build_object('seed','enterprise_full_v1','kind','scheduled','type','rent_overdue','config','{}'::jsonb),
+      '{}'::jsonb,
+      '[{"action_type":"draft_message","config":{"subject":"Overdue rent — {{summary}}"}},{"action_type":"create_task","config":{"title":"Chase overdue rent — {{summary}}","priority":"high"}}]'::jsonb,
       true,'template',v_user);
-    INSERT INTO automation_v2_runs (workspace_id,definition_id,status,trigger_context,started_at,finished_at,created_at) VALUES
-      (v_op,v_def,'succeeded','{"seed":"enterprise_full_v1","tenancy":"42 Sycamore"}'::jsonb,now()-interval '5 days',now()-interval '5 days'+interval '4 seconds',now()-interval '5 days'),
-      (v_op,v_def,'succeeded','{"seed":"enterprise_full_v1","tenancy":"22 Park Road"}'::jsonb,now()-interval '2 days',now()-interval '2 days'+interval '3 seconds',now()-interval '2 days'),
-      (v_op,v_def,'skipped','{"seed":"enterprise_full_v1","reason":"already_resolved"}'::jsonb,now()-interval '1 day',now()-interval '1 day',now()-interval '1 day');
 
     -- 2) Compliance expiry reminder (operator)
     v_def := gen_random_uuid();
     INSERT INTO automation_definitions (id,workspace_id,name,description,trigger,conditions,actions,enabled,source,created_by)
     VALUES (v_def,v_op,'Compliance due in 30 days → alert',
       'Alert 30 days before any compliance certificate expires and raise a task.',
-      '{"seed":"enterprise_full_v1","type":"schedule","event":"compliance.due_soon","cron":"0 8 * * 1"}'::jsonb,
-      '{"all":[{"field":"days_to_due","op":"lte","value":30}]}'::jsonb,
-      '[{"type":"notify","channel":"in_app"},{"type":"create_task","title":"Book compliance renewal"}]'::jsonb,
+      jsonb_build_object('seed','enterprise_full_v1','kind','scheduled','type','compliance_due_soon','config',jsonb_build_object('within_days',30)),
+      '{}'::jsonb,
+      '[{"action_type":"create_notification","config":{"title":"Compliance due soon — {{summary}}","severity":"warning"}},{"action_type":"create_task","config":{"title":"Book compliance renewal — {{summary}}","priority":"high","due_in_days":14}}]'::jsonb,
       true,'template',v_user);
-    INSERT INTO automation_v2_runs (workspace_id,definition_id,status,trigger_context,started_at,finished_at,created_at) VALUES
-      (v_op,v_def,'succeeded','{"seed":"enterprise_full_v1","item":"Gas safety — 22 Park Road"}'::jsonb,now()-interval '6 days',now()-interval '6 days'+interval '2 seconds',now()-interval '6 days'),
-      (v_op,v_def,'succeeded','{"seed":"enterprise_full_v1","item":"EICR — 88 Hawthorn"}'::jsonb,now()-interval '6 days',now()-interval '6 days'+interval '2 seconds',now()-interval '6 days');
 
-    -- 3) New maintenance job → notify supplier (operator)
+    -- 3) New maintenance request → triage task (operator)
     v_def := gen_random_uuid();
     INSERT INTO automation_definitions (id,workspace_id,name,description,trigger,conditions,actions,enabled,source,created_by)
-    VALUES (v_def,v_op,'New job → request supplier quote',
-      'When a maintenance job is created, request a quote from the preferred supplier.',
-      '{"seed":"enterprise_full_v1","type":"event","event":"job.created"}'::jsonb,
-      '{"all":[{"field":"category","op":"in","value":["plumbing","electrical","general"]}]}'::jsonb,
-      '[{"type":"request_quote"},{"type":"notify","channel":"email"}]'::jsonb,
+    VALUES (v_def,v_op,'New maintenance request → triage task',
+      'When a maintenance request is submitted, raise a triage task to assign a supplier.',
+      jsonb_build_object('seed','enterprise_full_v1','kind','event','type','maintenance_request_submitted','config','{}'::jsonb),
+      '{}'::jsonb,
+      '[{"action_type":"create_task","config":{"title":"Triage maintenance request — {{summary}}","priority":"normal"}}]'::jsonb,
       true,'template',v_user);
-    INSERT INTO automation_v2_runs (workspace_id,definition_id,status,trigger_context,started_at,finished_at,created_at) VALUES
-      (v_op,v_def,'succeeded','{"seed":"enterprise_full_v1","job":"Boiler repair — 14 Oak Lane"}'::jsonb,now()-interval '4 days',now()-interval '4 days'+interval '5 seconds',now()-interval '4 days'),
-      (v_op,v_def,'failed','{"seed":"enterprise_full_v1","job":"EICR remedial","error":"supplier_no_response"}'::jsonb,now()-interval '3 days',now()-interval '3 days'+interval '1 second',now()-interval '3 days');
 
     -- 4) Tenancy ending → renewal workflow (operator)
     v_def := gen_random_uuid();
     INSERT INTO automation_definitions (id,workspace_id,name,description,trigger,conditions,actions,enabled,source,created_by)
     VALUES (v_def,v_op,'Tenancy ending in 60 days → renewal',
       'Start the renewal workflow 60 days before a fixed term ends.',
-      '{"seed":"enterprise_full_v1","type":"schedule","event":"tenancy.ending","cron":"0 7 * * *"}'::jsonb,
-      '{"all":[{"field":"days_to_end","op":"lte","value":60}]}'::jsonb,
-      '[{"type":"create_task","title":"Prepare renewal offer"},{"type":"send_email","template":"renewal_offer"}]'::jsonb,
+      jsonb_build_object('seed','enterprise_full_v1','kind','scheduled','type','tenancy_ending','config',jsonb_build_object('within_days',60)),
+      '{}'::jsonb,
+      '[{"action_type":"create_task","config":{"title":"Prepare renewal offer — {{summary}}","due_in_days":14}}]'::jsonb,
       true,'template',v_user);
-    INSERT INTO automation_v2_runs (workspace_id,definition_id,status,trigger_context,started_at,finished_at,created_at) VALUES
-      (v_op,v_def,'succeeded','{"seed":"enterprise_full_v1","tenancy":"Beech House"}'::jsonb,now()-interval '7 days',now()-interval '7 days'+interval '3 seconds',now()-interval '7 days');
 
-    -- 5) Rent received → reconcile + receipt (operator)
+    -- 5) Rent received → receipt draft (operator)
     v_def := gen_random_uuid();
     INSERT INTO automation_definitions (id,workspace_id,name,description,trigger,conditions,actions,enabled,source,created_by)
-    VALUES (v_def,v_op,'Rent received → reconcile & receipt',
-      'On matched rent payment, reconcile the transaction and email a receipt.',
-      '{"seed":"enterprise_full_v1","type":"event","event":"payment.received"}'::jsonb,
-      '{"all":[{"field":"payment_type","op":"eq","value":"income"}]}'::jsonb,
-      '[{"type":"reconcile"},{"type":"send_email","template":"rent_receipt"}]'::jsonb,
+    VALUES (v_def,v_op,'Rent received → receipt draft',
+      'On a matched rent payment, draft a receipt and note it on the record.',
+      jsonb_build_object('seed','enterprise_full_v1','kind','event','type','rent_payment_received','config','{}'::jsonb),
+      '{}'::jsonb,
+      '[{"action_type":"draft_message","config":{"subject":"Rent receipt — {{summary}}"}},{"action_type":"add_note","config":{"body":"Rent payment received and reconciled — {{summary}}"}}]'::jsonb,
       true,'template',v_user);
-    INSERT INTO automation_v2_runs (workspace_id,definition_id,status,trigger_context,started_at,finished_at,created_at) VALUES
-      (v_op,v_def,'succeeded','{"seed":"enterprise_full_v1","payment":"RENT-OAK"}'::jsonb,now()-interval '5 days',now()-interval '5 days'+interval '1 second',now()-interval '5 days'),
-      (v_op,v_def,'succeeded','{"seed":"enterprise_full_v1","payment":"RENT-RIV"}'::jsonb,now()-interval '7 days',now()-interval '7 days'+interval '1 second',now()-interval '7 days'),
-      (v_op,v_def,'running','{"seed":"enterprise_full_v1","payment":"RENT-LIG"}'::jsonb,now()-interval '20 minutes',NULL,now()-interval '20 minutes');
 
     -- 6) Disabled draft example (operator)
     v_def := gen_random_uuid();
     INSERT INTO automation_definitions (id,workspace_id,name,description,trigger,conditions,actions,enabled,source,created_by)
     VALUES (v_def,v_op,'Monthly owner statement (draft)',
-      'Generate and email monthly owner statements. Currently disabled while drafting.',
-      '{"seed":"enterprise_full_v1","type":"schedule","event":"owner.statement","cron":"0 6 1 * *"}'::jsonb,
+      'Draft a landlord report. Disabled while drafting.',
+      jsonb_build_object('seed','enterprise_full_v1','kind','scheduled','type','tenancy_ending','config',jsonb_build_object('within_days',365)),
       '{}'::jsonb,
-      '[{"type":"generate_document","template":"owner_statement"},{"type":"send_email","template":"owner_statement"}]'::jsonb,
+      '[{"action_type":"create_landlord_report","config":{"title":"Monthly owner statement"}}]'::jsonb,
       false,'template',v_user);
   END IF;
 
@@ -415,23 +406,19 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM automation_definitions WHERE workspace_id=v_sup AND (trigger->>'seed')='enterprise_full_v1') THEN
     v_def := gen_random_uuid();
     INSERT INTO automation_definitions (id,workspace_id,name,description,trigger,conditions,actions,enabled,source,created_by)
-    VALUES (v_def,v_sup,'New job request → auto-acknowledge',
-      'Acknowledge new job requests within minutes and notify the team.',
-      '{"seed":"enterprise_full_v1","type":"event","event":"job_request.created"}'::jsonb,
-      '{}'::jsonb,'[{"type":"send_email","template":"job_ack"},{"type":"notify","channel":"in_app"}]'::jsonb,
+    VALUES (v_def,v_sup,'New maintenance request → acknowledge',
+      'Acknowledge new maintenance requests and notify the team.',
+      jsonb_build_object('seed','enterprise_full_v1','kind','event','type','maintenance_request_submitted','config','{}'::jsonb),
+      '{}'::jsonb,'[{"action_type":"create_notification","config":{"title":"New maintenance request — {{summary}}","severity":"info"}},{"action_type":"create_task","config":{"title":"Acknowledge request — {{summary}}"}}]'::jsonb,
       true,'template',v_user);
-    INSERT INTO automation_v2_runs (workspace_id,definition_id,status,trigger_context,started_at,finished_at,created_at) VALUES
-      (v_sup,v_def,'succeeded','{"seed":"enterprise_full_v1"}'::jsonb,now()-interval '2 days',now()-interval '2 days'+interval '2 seconds',now()-interval '2 days');
 
     v_def := gen_random_uuid();
     INSERT INTO automation_definitions (id,workspace_id,name,description,trigger,conditions,actions,enabled,source,created_by)
-    VALUES (v_def,v_sup,'Job completed → send invoice',
-      'When a job is marked complete, generate and send the invoice automatically.',
-      '{"seed":"enterprise_full_v1","type":"event","event":"job.completed"}'::jsonb,
-      '{}'::jsonb,'[{"type":"generate_document","template":"invoice"},{"type":"send_email","template":"invoice"}]'::jsonb,
+    VALUES (v_def,v_sup,'Job completed → follow-up task',
+      'When a job is marked complete, raise a follow-up/invoice-draft task.',
+      jsonb_build_object('seed','enterprise_full_v1','kind','event','type','job_completed','config','{}'::jsonb),
+      '{}'::jsonb,'[{"action_type":"create_task","config":{"title":"Raise invoice for completed job — {{summary}}"}}]'::jsonb,
       true,'template',v_user);
-    INSERT INTO automation_v2_runs (workspace_id,definition_id,status,trigger_context,started_at,finished_at,created_at) VALUES
-      (v_sup,v_def,'succeeded','{"seed":"enterprise_full_v1"}'::jsonb,now()-interval '1 day',now()-interval '1 day'+interval '2 seconds',now()-interval '1 day');
   END IF;
 
   -- =================================================================

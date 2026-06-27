@@ -55,7 +55,7 @@ export function TenanciesTab({ propertyId, tenanciesList, unitsList }: { propert
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-[13px] text-slate-500 min-w-0">No tenancies yet for this property.</p>
-          <Link href={`/property-manager/portfolio/tenancies/new?propertyId=${propertyId}`} className="shrink-0 whitespace-nowrap flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+          <Link href={`/property-manager/portfolio/tenancies/new?propertyId=${propertyId}`} className="shrink-0 whitespace-nowrap flex items-center gap-1.5 text-[13px] font-semibold bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-3 py-2 rounded-lg transition-colors">
             <Plus size={13} className="shrink-0" /> New Tenancy
           </Link>
         </div>
@@ -73,7 +73,7 @@ export function TenanciesTab({ propertyId, tenanciesList, unitsList }: { propert
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search tenancies…"
-            className="w-full pl-8 pr-3 py-2 text-[13px] border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+            className="w-full pl-8 pr-3 py-2 text-[13px] border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--color-brand-400)]"
           />
         </div>
         <select
@@ -87,7 +87,7 @@ export function TenanciesTab({ propertyId, tenanciesList, unitsList }: { propert
           <SlidersHorizontal size={13} /> More filters
         </button>
         <div className="ml-auto flex items-center gap-2">
-          <Link href={`/property-manager/portfolio/tenancies/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+          <Link href={`/property-manager/portfolio/tenancies/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-3 py-2 rounded-lg transition-colors">
             <Plus size={13} /> New Tenancy
           </Link>
         </div>
@@ -108,7 +108,7 @@ export function TenanciesTab({ propertyId, tenanciesList, unitsList }: { propert
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <p className="font-semibold text-blue-600 text-[13px]">{t.reference ?? t.id.slice(0, 8)}</p>
+                <p className="font-semibold text-[var(--brand)] text-[13px]">{t.reference ?? t.id.slice(0, 8)}</p>
                 <StatusPill status={t.status} />
               </div>
               <p className="text-[11px] text-slate-600">{unitMap[t.unit_id ?? ""] ?? "—"}</p>
@@ -137,7 +137,7 @@ export function TenanciesTab({ propertyId, tenanciesList, unitsList }: { propert
               {filtered.map((t) => (
                 <tr key={t.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors group cursor-pointer">
                   <td className="px-4 py-3">
-                    <Link href={`/property-manager/portfolio/tenancies/${t.id}`} className="font-medium text-blue-600 hover:underline">
+                    <Link href={`/property-manager/portfolio/tenancies/${t.id}`} className="font-medium text-[var(--brand)] hover:underline">
                       {t.reference ?? t.id.slice(0, 8)}
                     </Link>
                   </td>

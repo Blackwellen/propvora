@@ -223,7 +223,7 @@ function TabOverview({ event, onSave, editable, propertyOptions }: { event: Cale
             <dd>{editable ? (
               <input type="datetime-local" defaultValue={toLocalInput(event.start_at)}
                 onBlur={(e) => { if (e.target.value) onSave("start_at", new Date(e.target.value).toISOString()) }}
-                className="text-[13px] border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] bg-white text-slate-900" />
+                className="text-[13px] border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] bg-white text-slate-900" />
             ) : (
               <span className="text-sm text-slate-800 font-medium">{event.start_at ? fmtDate(event.start_at) : "—"}</span>
             )}</dd>
@@ -233,7 +233,7 @@ function TabOverview({ event, onSave, editable, propertyOptions }: { event: Cale
             <dd>{editable ? (
               <input type="datetime-local" defaultValue={toLocalInput(event.end_at)}
                 onBlur={(e) => { if (e.target.value) onSave("end_at", new Date(e.target.value).toISOString()) }}
-                className="text-[13px] border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] bg-white text-slate-900" />
+                className="text-[13px] border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] bg-white text-slate-900" />
             ) : (
               <span className="text-sm text-slate-800 font-medium">{event.end_at ? fmtDate(event.end_at) : "—"}</span>
             )}</dd>
@@ -299,7 +299,7 @@ function TabSchedule({ event }: { event: CalendarEventRow }) {
         <h3 className="text-sm font-semibold text-slate-800 mb-4">Event Dates</h3>
         <div className="space-y-3">
           <div className="flex items-start gap-3">
-            <div className="w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 bg-blue-500" />
+            <div className="w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 bg-[var(--brand)]" />
             <div>
               <p className="text-sm font-medium text-slate-800">Starts</p>
               <p className="text-xs text-slate-500">{event.start_at ? fmtDate(event.start_at) : "—"}</p>
@@ -452,8 +452,8 @@ function TabDocuments({ event }: { event: CalendarEventRow }) {
     <div className="space-y-2">
       {docs.map((doc) => (
         <div key={doc.id} className="rounded-xl border border-slate-200 bg-white p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-            <FileText className="w-4 h-4 text-blue-600" />
+          <div className="w-9 h-9 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+            <FileText className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-slate-800 truncate">{doc.name}</p>
@@ -515,7 +515,7 @@ function TabActivity({ event }: { event: CalendarEventRow }) {
         <div className="space-y-5">
           {items.map((item) => (
             <div key={item.id} className="flex items-start gap-3">
-              <div className="w-2.5 h-2.5 rounded-full absolute -left-[5px] mt-1.5 bg-[#2563EB]" />
+              <div className="w-2.5 h-2.5 rounded-full absolute -left-[5px] mt-1.5 bg-[var(--brand)]" />
               <div className="pl-2">
                 <p className="text-sm font-medium text-slate-800">{item.action}</p>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -748,7 +748,7 @@ export default function EventDetailPage() {
       <div className="space-y-0">
         <CalendarTabNav />
         <div className="px-6 py-16 text-center">
-          <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto" />
+          <div className="animate-spin w-6 h-6 border-2 border-[var(--brand)] border-t-transparent rounded-full mx-auto" />
           <p className="text-sm text-slate-500 mt-3">Loading event...</p>
         </div>
       </div>
@@ -763,7 +763,7 @@ export default function EventDetailPage() {
           <AlertCircle className="w-10 h-10 text-slate-300 mx-auto mb-3" />
           <p className="text-sm font-medium text-slate-700">Event not found</p>
           <p className="text-xs text-slate-400 mt-1">This event may have been deleted or the calendar table is not yet set up.</p>
-          <a href={sectionLink("/property-manager/calendar")} className="mt-4 inline-block text-sm text-blue-600 hover:underline">Back to Calendar</a>
+          <a href={sectionLink("/property-manager/calendar")} className="mt-4 inline-block text-sm text-[var(--brand)] hover:underline">Back to Calendar</a>
         </div>
       </div>
     )
@@ -794,7 +794,7 @@ export default function EventDetailPage() {
       {/* Breadcrumb */}
       <div className="hidden md:block px-6 pt-5 pb-0">
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
-          <a href={sectionLink("/property-manager/calendar")} className="hover:text-[#2563EB]">Calendar</a>
+          <a href={sectionLink("/property-manager/calendar")} className="hover:text-[var(--brand)]">Calendar</a>
           <ChevronRight className="w-3 h-3" />
           <span className="text-slate-900 font-medium">{event.title}</span>
         </nav>
@@ -802,15 +802,15 @@ export default function EventDetailPage() {
 
       <div className="px-6 py-5 space-y-5">
         {/* Hero card */}
-        <div className="rounded-xl border border-slate-200 bg-white p-6 border-l-4" style={{ borderLeftColor: "var(--brand)" }}>
+        <div className="rounded-xl border border-slate-200 bg-white p-6 border-l-4" style={{ borderLeftColor: "#2563EB" }}>
           <div className="flex flex-col lg:flex-row lg:items-start gap-5">
             <div className="flex items-start gap-4 flex-1 min-w-0">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                <CalendarDays className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                <CalendarDays className="w-6 h-6 text-[var(--brand)]" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 capitalize">{eventTypeLabel}</span>
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] capitalize">{eventTypeLabel}</span>
                   {event.status && <StatusBadge status={event.status} />}
                 </div>
                 <h1 className="text-2xl font-bold text-slate-900">{event.title}</h1>
@@ -878,7 +878,7 @@ export default function EventDetailPage() {
                       className={cn(
                         "flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium rounded-t-lg border-b-2 -mb-px whitespace-nowrap transition-all",
                         active
-                          ? "border-[#2563EB] text-[#2563EB] bg-[#EFF6FF]/60"
+                          ? "border-[var(--brand)] text-[var(--brand)] bg-[var(--brand-soft)]/60"
                           : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
                       )}
                     >

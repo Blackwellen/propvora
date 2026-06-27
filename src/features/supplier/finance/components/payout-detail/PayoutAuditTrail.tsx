@@ -21,7 +21,7 @@ export function PayoutAuditTrail({ entries }: PayoutAuditTrailProps) {
         {entries.map((a, i) => (
           <li key={a.id} className="flex gap-3">
             <div className="flex flex-col items-center">
-              <span className="w-2 h-2 rounded-full bg-[#2563EB] mt-1.5" />
+              <span className="w-2 h-2 rounded-full bg-[var(--brand)] mt-1.5" />
               {i < entries.length - 1 && <span className="flex-1 w-px bg-slate-200 my-1" />}
             </div>
             <div className="pb-1">

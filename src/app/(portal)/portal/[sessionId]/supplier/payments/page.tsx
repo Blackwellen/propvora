@@ -44,7 +44,7 @@ export default async function SupplierPaymentsPage({ params }: { params: Promise
       <PortalKpiStrip kpis={kpis} cols={5} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <PortalSectionCard title="Payout method" icon={Building2}><div className="flex items-center gap-3"><span className="w-10 h-10 rounded-xl bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center"><Building2 className="w-5 h-5" /></span><div><p className="text-sm font-semibold text-[#071B4D]">Bank transfer (BACS)</p><p className="text-xs text-slate-400">Signed in via secure account</p></div></div></PortalSectionCard>
+        <PortalSectionCard title="Payout method" icon={Building2}><div className="flex items-center gap-3"><span className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center"><Building2 className="w-5 h-5" /></span><div><p className="text-sm font-semibold text-[#071B4D]">Bank transfer (BACS)</p><p className="text-xs text-slate-400">Signed in via secure account</p></div></div></PortalSectionCard>
         <PortalSectionCard title="Next scheduled payout" icon={Wallet}><div className="flex items-center justify-between"><div><p className="text-xs text-slate-400">Amount</p><p className="text-lg font-bold text-[#071B4D]">{formatMoney(awaiting)}</p></div><StatusChip tone="blue">On approval</StatusChip></div></PortalSectionCard>
       </div>
 
@@ -62,7 +62,7 @@ export default async function SupplierPaymentsPage({ params }: { params: Promise
                       <td className="px-4 py-3 font-medium text-[#071B4D]">{inv.invoice_number || `PAY-${inv.id.slice(0, 6).toUpperCase()}`}</td>
                       <td className="px-4 py-3 text-right font-semibold text-[#071B4D]">{formatMoney(inv.amount, inv.currency ?? "GBP")}</td>
                       <td className="px-4 py-3"><StatusChip tone={tone} dot>{inv.status === "paid" ? "Paid" : "Scheduled"}</StatusChip></td>
-                      <td className="px-4 py-3 text-right"><Link href={`${base}/payments/${inv.id}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-[#2563EB]">View <ChevronRight className="w-3.5 h-3.5" /></Link></td>
+                      <td className="px-4 py-3 text-right"><Link href={`${base}/payments/${inv.id}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-[var(--brand)]">View <ChevronRight className="w-3.5 h-3.5" /></Link></td>
                     </tr>
                   )})}
                 </tbody>

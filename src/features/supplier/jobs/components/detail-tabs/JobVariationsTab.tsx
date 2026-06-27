@@ -10,7 +10,7 @@ export function JobVariationsTab() {
       <p className="text-sm text-slate-500">
         Extra work beyond the agreed scope should be quoted separately so it is approved and paid correctly. Raise a new
         quote from{" "}
-        <Link href="/supplier/quotes" className="font-semibold text-[#2563EB]">
+        <Link href="/supplier/quotes" className="font-semibold text-[var(--brand)]">
           Quotes
         </Link>{" "}
         and reference this job.

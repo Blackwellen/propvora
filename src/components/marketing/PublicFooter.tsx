@@ -18,9 +18,8 @@ const footerLinks = {
     { label: "About", href: "/about" },
     { label: "Roadmap", href: "/roadmap" },
     { label: "Contact", href: "/contact" },
-    { label: "Help Centre", href: "/help" },
-    { label: "Legal", href: "/legal" },
-  ],
+    { label: "Blackwellen", href: "https://blackwellen.com", external: true },
+  ] as { label: string; href: string; external?: boolean }[],
   legal: [
     { label: "Terms of Service", href: "/legal/terms" },
     { label: "Privacy Policy", href: "/legal/privacy" },
@@ -91,16 +90,29 @@ export default async function PublicFooter() {
           <div>
             <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4">{tr("footerCompany")}</h3>
             <ul className="space-y-2.5">
-              {footerLinks.company.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-slate-500 hover:text-slate-900 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              {footerLinks.company.map((link) =>
+                link.external ? (
+                  <li key={link.href}>
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-slate-500 hover:text-slate-900 transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ) : (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-slate-500 hover:text-slate-900 transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ),
+              )}
             </ul>
           </div>
 
@@ -128,7 +140,16 @@ export default async function PublicFooter() {
         {/* Bottom bar */}
         <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-slate-400 text-sm">
-            © 2026 Blackwellen Ltd, trading as Propvora. All rights reserved.
+            © 2026{" "}
+            <a
+              href="https://blackwellen.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-slate-700 transition-colors"
+            >
+              Blackwellen Ltd
+            </a>
+            , trading as Propvora. All rights reserved.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
             <span className="text-slate-400 text-xs">Reg. England &amp; Wales No. 16482166</span>

@@ -80,7 +80,7 @@ export default async function ApplicantApplicationPage({ params }: { params: Pro
                   const active = i === currentStage
                   return (
                     <li key={stage.key} className="flex items-center gap-3">
-                      <span className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[11px] font-bold ${done ? "bg-emerald-500 text-white" : active ? "bg-[#2563EB] text-white" : "bg-slate-100 text-slate-400"}`}>
+                      <span className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[11px] font-bold ${done ? "bg-emerald-500 text-white" : active ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-400"}`}>
                         {done ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
                       </span>
                       <span className={`text-sm ${active ? "font-semibold text-[#071B4D]" : done ? "text-slate-600" : "text-slate-400"}`}>{stage.label}</span>

@@ -42,8 +42,8 @@ export default function ListingKpiCards({ listings = [] }: { listings?: Listing[
       label: 'Direct-booking enabled',
       value: String(directCount),
       icon: Globe,
-      iconBg: 'bg-blue-50',
-      iconColor: 'text-blue-600',
+      iconBg: 'bg-[var(--brand-soft)]',
+      iconColor: 'text-[var(--brand)]',
     },
     {
       label: 'Occupancy (MTD avg)',

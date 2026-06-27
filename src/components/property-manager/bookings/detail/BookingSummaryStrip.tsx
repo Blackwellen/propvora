@@ -50,7 +50,7 @@ export default function BookingSummaryStrip({ booking }: BookingSummaryStripProp
         <div className="px-4 py-4">
           <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mb-2">Dates</p>
           <div className="flex items-center gap-1">
-            <CalendarCheck className="w-4 h-4 text-blue-500 shrink-0" />
+            <CalendarCheck className="w-4 h-4 text-[var(--brand)] shrink-0" />
             <div>
               <p className="text-sm font-semibold text-slate-900">
                 {booking.check_in_date} → {booking.check_out_date}

@@ -86,7 +86,7 @@ export default function ReportRepairWizard({ sessionId, base, propertyLabel }: {
               return (
                 <div key={s.key} className="flex items-center gap-1 flex-1">
                   <button onClick={() => done && setStep(i)} disabled={!done && !active} className="flex flex-col items-center gap-1 shrink-0">
-                    <span className={cn("w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold", active ? "bg-[#2563EB] text-white ring-4 ring-blue-100" : done ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400")}>{done ? <CheckCircle2 className="w-4 h-4" /> : <s.icon className="w-3.5 h-3.5" />}</span>
+                    <span className={cn("w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold", active ? "bg-[var(--brand)] text-white ring-4 ring-[var(--color-brand-100)]" : done ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400")}>{done ? <CheckCircle2 className="w-4 h-4" /> : <s.icon className="w-3.5 h-3.5" />}</span>
                     <span className={cn("text-[10px] font-semibold whitespace-nowrap", active ? "text-[#071B4D]" : "text-slate-400")}>{s.label}</span>
                   </button>
                   {i < STEPS.length - 1 && <span className={cn("flex-1 h-0.5", done ? "bg-emerald-500" : "bg-slate-200")} />}
@@ -97,7 +97,7 @@ export default function ReportRepairWizard({ sessionId, base, propertyLabel }: {
         </PortalCard>
 
         <PortalCard className="p-5 space-y-5">
-          <div className="flex items-center gap-2"><span className="w-9 h-9 rounded-xl bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center"><Icon className="w-5 h-5" /></span><h2 className="text-lg font-bold text-[#071B4D]">{step === 2 ? "Tell us more about the issue" : STEPS[step].label}</h2></div>
+          <div className="flex items-center gap-2"><span className="w-9 h-9 rounded-xl bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center"><Icon className="w-5 h-5" /></span><h2 className="text-lg font-bold text-[#071B4D]">{step === 2 ? "Tell us more about the issue" : STEPS[step].label}</h2></div>
 
           {error && <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-100 px-3 py-2 text-sm text-red-700"><AlertTriangle className="w-4 h-4" />{error}</div>}
 
@@ -105,8 +105,8 @@ export default function ReportRepairWizard({ sessionId, base, propertyLabel }: {
             <div className="space-y-4">
               <Field label="Category" required><select value={d.category} onChange={(e) => set("category", e.target.value)} className={INPUT}><option value="">Select a category…</option>{CATEGORIES.map((c) => <option key={c}>{c}</option>)}</select></Field>
               <Field label="Specific issue" required><input value={d.specificIssue} onChange={(e) => set("specificIssue", e.target.value)} placeholder="e.g. Leaking kitchen tap" className={INPUT} /></Field>
-              <Field label="Urgency level"><div className="flex gap-2 flex-wrap">{URGENCY.map((u) => <button key={u.v} onClick={() => set("urgency", u.v)} className={cn("h-9 px-3 rounded-xl text-sm font-semibold border", d.urgency === u.v ? "border-[#2563EB] bg-blue-50 text-[#2563EB]" : "border-[#E2EAF6] text-slate-600")}>{u.label}</button>)}</div></Field>
-              <label className="flex items-center justify-between rounded-xl border border-[#E2EAF6] px-4 py-3"><span className="text-sm font-medium text-slate-700">Is this a safety risk? <span className="block text-xs text-slate-400">Gas, electrical or flooding</span></span><input type="checkbox" checked={d.safetyRisk} onChange={(e) => set("safetyRisk", e.target.checked)} className="w-5 h-5 accent-[#2563EB]" /></label>
+              <Field label="Urgency level"><div className="flex gap-2 flex-wrap">{URGENCY.map((u) => <button key={u.v} onClick={() => set("urgency", u.v)} className={cn("h-9 px-3 rounded-xl text-sm font-semibold border", d.urgency === u.v ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-[#E2EAF6] text-slate-600")}>{u.label}</button>)}</div></Field>
+              <label className="flex items-center justify-between rounded-xl border border-[#E2EAF6] px-4 py-3"><span className="text-sm font-medium text-slate-700">Is this a safety risk? <span className="block text-xs text-slate-400">Gas, electrical or flooding</span></span><input type="checkbox" checked={d.safetyRisk} onChange={(e) => set("safetyRisk", e.target.checked)} className="w-5 h-5 accent-[var(--brand)]" /></label>
             </div>
           )}
           {step === 1 && <Field label="Where is the issue?"><input value={d.location} onChange={(e) => set("location", e.target.value)} placeholder="e.g. Kitchen, en-suite bathroom" className={INPUT} /></Field>}
@@ -117,7 +117,7 @@ export default function ReportRepairWizard({ sessionId, base, propertyLabel }: {
                 <Field label="When did this start?"><input type="date" value={d.startedAt} onChange={(e) => set("startedAt", e.target.value)} className={INPUT} /></Field>
                 <Field label="How often?"><select value={d.frequency} onChange={(e) => set("frequency", e.target.value)} className={INPUT}><option value="">Select…</option>{FREQUENCY.map((f) => <option key={f}>{f}</option>)}</select></Field>
               </div>
-              <Field label="Symptoms"><div className="flex gap-2 flex-wrap">{SYMPTOMS.map((s) => <button key={s} onClick={() => toggleSymptom(s)} className={cn("h-8 px-3 rounded-lg text-xs font-semibold border", d.symptoms.includes(s) ? "border-[#2563EB] bg-blue-50 text-[#2563EB]" : "border-[#E2EAF6] text-slate-600")}>{s}</button>)}</div></Field>
+              <Field label="Symptoms"><div className="flex gap-2 flex-wrap">{SYMPTOMS.map((s) => <button key={s} onClick={() => toggleSymptom(s)} className={cn("h-8 px-3 rounded-lg text-xs font-semibold border", d.symptoms.includes(s) ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-[#E2EAF6] text-slate-600")}>{s}</button>)}</div></Field>
             </div>
           )}
           {step === 3 && (
@@ -127,7 +127,7 @@ export default function ReportRepairWizard({ sessionId, base, propertyLabel }: {
             </div>
           )}
           {step === 4 && (
-            <button className="w-full rounded-2xl border-2 border-dashed border-slate-300 hover:border-[#2563EB] hover:bg-blue-50/30 py-12 flex flex-col items-center gap-2"><div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center"><Upload className="w-6 h-6" /></div><p className="text-sm font-semibold text-slate-700">Add photos (optional)</p><p className="text-xs text-slate-400">Helps your manager assess the issue faster</p></button>
+            <button className="w-full rounded-2xl border-2 border-dashed border-slate-300 hover:border-[var(--brand)] hover:bg-[var(--brand-soft)]/30 py-12 flex flex-col items-center gap-2"><div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center"><Upload className="w-6 h-6" /></div><p className="text-sm font-semibold text-slate-700">Add photos (optional)</p><p className="text-xs text-slate-400">Helps your manager assess the issue faster</p></button>
           )}
           {step === 5 && (
             <div className="rounded-2xl border border-[#E2EAF6] divide-y divide-[#EEF3FB]">
@@ -144,7 +144,7 @@ export default function ReportRepairWizard({ sessionId, base, propertyLabel }: {
           <div className="flex items-center gap-2">
             <button onClick={saveDraft} className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl text-sm font-semibold border border-[#E2EAF6] bg-white text-slate-600 hover:bg-slate-50"><Save className="w-4 h-4" /> {savedAt ? `Saved ${savedAt}` : "Save draft"}</button>
             {step < STEPS.length - 1 ? (
-              <button onClick={() => setStep((s) => s + 1)} disabled={!valid} className="inline-flex items-center gap-1.5 h-10 px-5 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-[#1d4ed8] disabled:opacity-50">Continue <ChevronRight className="w-4 h-4" /></button>
+              <button onClick={() => setStep((s) => s + 1)} disabled={!valid} className="inline-flex items-center gap-1.5 h-10 px-5 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-50">Continue <ChevronRight className="w-4 h-4" /></button>
             ) : (
               <button onClick={submit} disabled={submitting} className="inline-flex items-center gap-1.5 h-10 px-5 rounded-xl text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50">{submitting && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}<CheckCircle2 className="w-4 h-4" /> Submit request</button>
             )}
@@ -167,7 +167,7 @@ export default function ReportRepairWizard({ sessionId, base, propertyLabel }: {
   )
 }
 
-const INPUT = "w-full rounded-xl border border-[#E2EAF6] bg-white px-3 py-2.5 text-sm text-[#071B4D] outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
+const INPUT = "w-full rounded-xl border border-[#E2EAF6] bg-white px-3 py-2.5 text-sm text-[#071B4D] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--color-brand-100)]"
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return <label className="block"><span className="text-sm font-medium text-slate-700">{label}{required && <span className="text-red-500 ml-0.5">*</span>}</span><div className="mt-1.5">{children}</div></label>
 }

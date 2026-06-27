@@ -18,7 +18,7 @@ export type StatAccent =
   | "blue" | "emerald" | "amber" | "orange" | "red" | "violet" | "sky" | "slate"
 
 const ACCENT: Record<StatAccent, { chip: string; value: string }> = {
-  blue: { chip: "bg-[#EFF6FF] text-[#2563EB]", value: "text-[#2563EB]" },
+  blue: { chip: "bg-[var(--brand-soft)] text-[var(--brand)]", value: "text-[var(--brand)]" },
   emerald: { chip: "bg-emerald-50 text-emerald-600", value: "text-emerald-600" },
   amber: { chip: "bg-amber-50 text-amber-600", value: "text-amber-600" },
   orange: { chip: "bg-orange-50 text-orange-600", value: "text-orange-600" },
@@ -34,7 +34,7 @@ const BADGE: Record<StatBadgeTone, string> = {
   amber: "bg-amber-50 text-amber-700",
   orange: "bg-orange-50 text-orange-700",
   red: "bg-red-50 text-red-700",
-  blue: "bg-[#EFF6FF] text-[#2563EB]",
+  blue: "bg-[var(--brand-soft)] text-[var(--brand)]",
   slate: "bg-slate-100 text-slate-600",
   violet: "bg-[#F5F3FF] text-[#7C3AED]",
 }
@@ -68,7 +68,7 @@ export interface StatCardProps {
 const SHELL =
   "bg-white rounded-2xl border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-all duration-200"
 const HOVER =
-  "hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 hover:border-blue-100/60"
+  "hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 hover:border-[var(--color-brand-100)]/60"
 
 export function StatCard({
   icon: Icon, iconNode, label, value, accent = "blue", chipClass, colorValue, valueClass,

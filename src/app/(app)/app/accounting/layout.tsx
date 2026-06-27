@@ -1,6 +1,18 @@
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
+import { isFeatureEnabled } from "@/lib/flags"
 import { AccountingTabNav } from "@/components/accounting/AccountingTabNav"
 
-export default function AccountingLayout({ children }: { children: React.ReactNode }) {
+// Full double-entry GL is a V2 surface (accountingGl, default OFF). Gate the
+// route server-side so direct-URL access is blocked, not just hidden from nav.
+export const dynamic = "force-dynamic"
+
+export default async function AccountingLayout({ children }: { children: React.ReactNode }) {
+  if (process.env.NEXT_PUBLIC_QA_ALL_FLAGS !== "true") {
+    const supabase = await createClient()
+    const enabled = await isFeatureEnabled("accountingGl", { supabase })
+    if (!enabled) redirect("/property-manager/money")
+  }
   return (
     <div className="flex flex-col min-h-screen bg-[#F6FAFF] -mx-6 -mt-6">
       {/* Section eyebrow + persistent tab rail. The page-specific title is the

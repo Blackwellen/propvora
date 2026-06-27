@@ -211,7 +211,7 @@ export function AutomationCanvasPageInner({ workspaceId }: Props) {
                   <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 shadow-[0_4px_20px_rgba(15,23,42,0.10)]">
                     <button
                       onClick={() => setShowAddNode(true)}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--brand)] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[var(--brand-strong)] transition"
                     >
                       <Plus className="h-3.5 w-3.5" /> Add node
                     </button>

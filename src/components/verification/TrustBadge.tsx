@@ -12,7 +12,7 @@ import { type VerificationPhase, phaseMeta } from "./status"
 
 const TONE: Record<string, { wrap: string; icon: string }> = {
   emerald: { wrap: "bg-emerald-50 text-emerald-700 border-emerald-100", icon: "text-emerald-600" },
-  blue: { wrap: "bg-blue-50 text-blue-700 border-blue-100", icon: "text-blue-600" },
+  blue: { wrap: "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]", icon: "text-[var(--brand)]" },
   amber: { wrap: "bg-amber-50 text-amber-700 border-amber-100", icon: "text-amber-600" },
   slate: { wrap: "bg-slate-100 text-slate-600 border-slate-200", icon: "text-slate-500" },
   red: { wrap: "bg-red-50 text-red-700 border-red-100", icon: "text-red-600" },

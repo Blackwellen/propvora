@@ -105,7 +105,7 @@ export default function ShareLinksPanel({ workspaceId }: { workspaceId: string |
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Link2 className="w-4 h-4 text-blue-600" />
+          <Link2 className="w-4 h-4 text-[var(--brand)]" />
           <div>
             <h3 className="text-sm font-bold text-slate-900">Recipient share links</h3>
             <p className="text-xs text-slate-500">Resource-scoped /p/ links with granular capabilities and expiry.</p>
@@ -114,7 +114,7 @@ export default function ShareLinksPanel({ workspaceId }: { workspaceId: string |
         <button
           onClick={() => { setMinted(null); setShowModal(true) }}
           disabled={!workspaceId}
-          className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors shrink-0 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors shrink-0 disabled:opacity-50"
         >
           <Plus className="w-3.5 h-3.5" />
           New share link
@@ -158,7 +158,7 @@ export default function ShareLinksPanel({ workspaceId }: { workspaceId: string |
                       {caps.length === 0 ? (
                         <span className="text-[11px] text-slate-400">View only</span>
                       ) : caps.map((c) => (
-                        <span key={c} className="inline-flex rounded-full bg-blue-50 text-blue-700 px-2 py-0.5 text-[10px] font-semibold capitalize">{c}</span>
+                        <span key={c} className="inline-flex rounded-full bg-[var(--brand-soft)] text-[var(--brand)] px-2 py-0.5 text-[10px] font-semibold capitalize">{c}</span>
                       ))}
                     </div>
                   </div>
@@ -209,7 +209,7 @@ export default function ShareLinksPanel({ workspaceId }: { workspaceId: string |
                         {caps.length === 0 ? (
                           <span className="text-[11px] text-slate-400">View only</span>
                         ) : caps.map((c) => (
-                          <span key={c} className="inline-flex rounded-full bg-blue-50 text-blue-700 px-2 py-0.5 text-[10px] font-semibold capitalize">{c}</span>
+                          <span key={c} className="inline-flex rounded-full bg-[var(--brand-soft)] text-[var(--brand)] px-2 py-0.5 text-[10px] font-semibold capitalize">{c}</span>
                         ))}
                       </div>
                     </td>
@@ -311,7 +311,7 @@ function MintModal({
             </div>
             <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2">
               <input readOnly value={minted.url} className="flex-1 bg-transparent text-xs text-slate-700 outline-none truncate" />
-              <button onClick={() => onCopy(minted.url)} className="inline-flex items-center gap-1 rounded-md bg-blue-600 text-white text-xs font-medium px-2.5 py-1.5 hover:bg-blue-700">
+              <button onClick={() => onCopy(minted.url)} className="inline-flex items-center gap-1 rounded-md bg-[var(--brand)] text-white text-xs font-medium px-2.5 py-1.5 hover:bg-[var(--brand-strong)]">
                 {copied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                 {copied ? "Copied" : "Copy"}
               </button>
@@ -323,7 +323,7 @@ function MintModal({
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">What are you sharing?</label>
-              <select value={resourceType} onChange={(e) => setResourceType(e.target.value)} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white">
+              <select value={resourceType} onChange={(e) => setResourceType(e.target.value)} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] bg-white">
                 {RESOURCE_OPTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
               </select>
             </div>
@@ -331,7 +331,7 @@ function MintModal({
             {!isCollection && (
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">Resource ID(s)</label>
-                <input value={resourceIds} onChange={(e) => setResourceIds(e.target.value)} placeholder="Paste the document / invoice / job ID" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+                <input value={resourceIds} onChange={(e) => setResourceIds(e.target.value)} placeholder="Paste the document / invoice / job ID" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]" />
                 <p className="text-[11px] text-slate-400 mt-1">The link only exposes the IDs you list, verified against your workspace.</p>
               </div>
             )}
@@ -341,7 +341,7 @@ function MintModal({
               <div className="space-y-1.5">
                 {CAPABILITY_OPTIONS.map((c) => (
                   <label key={c.key} className="flex items-center gap-2 text-sm text-slate-700">
-                    <input type="checkbox" checked={caps.includes(c.key)} onChange={() => toggleCap(c.key)} className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                    <input type="checkbox" checked={caps.includes(c.key)} onChange={() => toggleCap(c.key)} className="rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]" />
                     {c.label}
                   </label>
                 ))}
@@ -352,26 +352,26 @@ function MintModal({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">Expiry</label>
-                <select value={expiry} onChange={(e) => setExpiry(Number(e.target.value))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white">
+                <select value={expiry} onChange={(e) => setExpiry(Number(e.target.value))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] bg-white">
                   {EXPIRY_OPTIONS.map((o) => <option key={o.v} value={o.v}>{o.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">Recipient label</label>
-                <input value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="e.g. ACME Ltd" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+                <input value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="e.g. ACME Ltd" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]" />
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">Title (optional)</label>
-              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What the recipient sees at the top" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What the recipient sees at the top" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]" />
             </div>
 
             {error && <p className="text-xs text-red-500">{error}</p>}
 
             <div className="flex gap-3 pt-1">
               <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50">Cancel</button>
-              <button onClick={submit} disabled={saving} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">
+              <button onClick={submit} disabled={saving} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-[var(--brand)] rounded-lg hover:bg-[var(--brand-strong)] disabled:opacity-50">
                 {saving && <Loader2 className="w-4 h-4 animate-spin" />}
                 {saving ? "Creating…" : "Create link"}
               </button>

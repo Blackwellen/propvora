@@ -140,7 +140,7 @@ function LicenceCard({ licence, propertyId }: { licence: HmoLicence; propertyId:
         expired ? "bg-red-50 border-red-200" : urgent ? "bg-amber-50 border-amber-200" : "bg-slate-50 border-slate-200"
       )}>
         <div className="flex items-center gap-2.5">
-          <Shield size={16} className={expired ? "text-red-500" : urgent ? "text-amber-600" : "text-blue-600"} />
+          <Shield size={16} className={expired ? "text-red-500" : urgent ? "text-amber-600" : "text-[var(--brand)]"} />
           <InlineEditSelect
             value={licence.licence_type}
             onSave={(v) => patch("licence_type", v)}
@@ -280,7 +280,7 @@ function LicenceCard({ licence, propertyId }: { licence: HmoLicence; propertyId:
       <div className="px-5 py-3 border-t border-slate-100 flex items-center justify-between">
         <Link
           href={`/property-manager/legal?tab=hmo-licences&id=${licence.id}`}
-          className="text-[12px] text-blue-600 hover:underline flex items-center gap-1"
+          className="text-[12px] text-[var(--brand)] hover:underline flex items-center gap-1"
         >
           <ExternalLink size={12} />
           Manage in Legal
@@ -336,8 +336,8 @@ function JurisdictionPanel({ tabKey, label }: { tabKey: string; label: string })
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-8 flex flex-col items-center text-center gap-4">
-      <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-        <Shield size={22} className="text-blue-600" />
+      <div className="w-12 h-12 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+        <Shield size={22} className="text-[var(--brand)]" />
       </div>
       <div>
         <p className="text-[15px] font-bold text-slate-900 mb-1">{c.heading}</p>
@@ -346,7 +346,7 @@ function JurisdictionPanel({ tabKey, label }: { tabKey: string; label: string })
       {c.linkLabel && c.linkHref && (
         <Link
           href={c.linkHref}
-          className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue-600 hover:underline"
+          className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--brand)] hover:underline"
         >
           <ExternalLink size={13} />
           {c.linkLabel}
@@ -405,7 +405,7 @@ function HmoTabGB({ propertyId, workspaceId }: { propertyId: string; workspaceId
         <div className="flex items-center gap-2 shrink-0">
           <Link
             href={`/property-manager/legal?tab=hmo-licences&property=${propertyId}`}
-            className="shrink-0 whitespace-nowrap text-[12px] text-blue-600 hover:underline flex items-center gap-1"
+            className="shrink-0 whitespace-nowrap text-[12px] text-[var(--brand)] hover:underline flex items-center gap-1"
           >
             <ExternalLink size={12} className="shrink-0" />
             View all in Legal
@@ -444,8 +444,8 @@ function HmoTabGB({ propertyId, workspaceId }: { propertyId: string; workspaceId
       {/* Licences or empty state */}
       {licences.length === 0 ? (
         <div className="bg-white rounded-xl border border-dashed border-slate-300 p-10 flex flex-col items-center text-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-            <Shield size={22} className="text-blue-600" />
+          <div className="w-12 h-12 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+            <Shield size={22} className="text-[var(--brand)]" />
           </div>
           <div>
             <p className="text-[14px] font-bold text-slate-900 mb-1">No HMO licences recorded</p>
@@ -465,7 +465,7 @@ function HmoTabGB({ propertyId, workspaceId }: { propertyId: string; workspaceId
               href="https://www.gov.uk/house-in-multiple-occupation-licence"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[12px] text-blue-600 hover:underline flex items-center gap-1"
+              className="text-[12px] text-[var(--brand)] hover:underline flex items-center gap-1"
             >
               <ExternalLink size={12} />
               GOV.UK guidance
@@ -481,11 +481,11 @@ function HmoTabGB({ propertyId, workspaceId }: { propertyId: string; workspaceId
       )}
 
       {/* Legal section nudge */}
-      <div className="bg-blue-50 rounded-xl border border-blue-200 p-4 flex items-start gap-3">
-        <Building2 size={16} className="text-blue-600 shrink-0 mt-0.5" />
+      <div className="bg-[var(--brand-soft)] rounded-xl border border-[var(--color-brand-100)] p-4 flex items-start gap-3">
+        <Building2 size={16} className="text-[var(--brand)] shrink-0 mt-0.5" />
         <div>
-          <p className="text-[12px] font-semibold text-blue-800 mb-0.5">Full HMO licence management in Legal</p>
-          <p className="text-[12px] text-blue-700">
+          <p className="text-[12px] font-semibold text-[var(--brand-strong)] mb-0.5">Full HMO licence management in Legal</p>
+          <p className="text-[12px] text-[var(--brand)]">
             Attach licence documents, track renewal history, and manage HMO licences across all properties from the{" "}
             <Link href="/property-manager/legal?tab=hmo-licences" className="underline font-semibold">Legal section</Link>.
           </p>

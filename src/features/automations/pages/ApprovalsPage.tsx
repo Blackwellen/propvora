@@ -138,7 +138,7 @@ export default function ApprovalsPage() {
       {/* Tabs */}
       <div className="mt-4 flex flex-wrap items-center gap-1 border-b border-slate-200">
         {TABS.map((t) => (
-          <button key={t.id} onClick={() => setTab(t.id)} className={`border-b-2 px-3.5 py-2.5 text-sm transition ${tab === t.id ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}>
+          <button key={t.id} onClick={() => setTab(t.id)} className={`border-b-2 px-3.5 py-2.5 text-sm transition ${tab === t.id ? "border-[var(--brand)] font-semibold text-[var(--brand)]" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}>
             {t.label} <span className="ml-1 text-slate-400">{t.count}</span>{t.dot && <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-red-500" />}
           </button>
         ))}
@@ -238,7 +238,7 @@ export default function ApprovalsPage() {
         <textarea
           value={rejectNote}
           onChange={(e) => setRejectNote(e.target.value)}
-          className="h-24 w-full rounded-lg border border-slate-200 p-2.5 text-sm focus:border-blue-400 focus:outline-none"
+          className="h-24 w-full rounded-lg border border-slate-200 p-2.5 text-sm focus:border-[var(--color-brand-400)] focus:outline-none"
           placeholder="Why is this being rejected?"
         />
       </Modal>

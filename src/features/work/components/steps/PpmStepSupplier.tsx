@@ -42,7 +42,7 @@ export function PpmStepSupplier({ data, onChange }: PpmStepSupplierProps) {
 
       <label className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-slate-300 transition-colors">
         <span className="flex items-center gap-2 text-sm text-slate-700">
-          <Wrench className="w-4 h-4 text-blue-600" /> Auto-generate a job when this plan is due
+          <Wrench className="w-4 h-4 text-[var(--brand)]" /> Auto-generate a job when this plan is due
         </span>
         <button
           type="button"
@@ -52,7 +52,7 @@ export function PpmStepSupplier({ data, onChange }: PpmStepSupplierProps) {
           onClick={() => onChange({ autoGenerateJob: !data.autoGenerateJob })}
           className={cn(
             "relative w-11 h-6 rounded-full transition-colors shrink-0",
-            data.autoGenerateJob ? "bg-blue-600" : "bg-slate-200",
+            data.autoGenerateJob ? "bg-[var(--brand)]" : "bg-slate-200",
           )}
         >
           <span

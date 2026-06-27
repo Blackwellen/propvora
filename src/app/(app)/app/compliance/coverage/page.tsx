@@ -234,7 +234,7 @@ export default function CoveragePage() {
     <tr key={row.id} className="hover:bg-slate-50/40 transition-colors cursor-pointer" onClick={() => router.push(`/property-manager/portfolio/properties/${row.id}`)}>
       <td className="px-4 py-3 sticky left-0 bg-white z-10">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shrink-0 bg-blue-600">{row.initials}</div>
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shrink-0 bg-[var(--brand)]">{row.initials}</div>
           <div>
             <p className="font-medium text-slate-800 text-xs leading-snug">{row.name}</p>
             {row.location && <p className="text-[11px] text-slate-400">{row.location}</p>}
@@ -280,14 +280,14 @@ export default function CoveragePage() {
       <DashboardContainer>
         {noProperties ? (
           <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-5">
-              <Building2 className="w-8 h-8 text-blue-500" />
+            <div className="w-16 h-16 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center mb-5">
+              <Building2 className="w-8 h-8 text-[var(--brand)]" />
             </div>
             <h2 className="text-lg font-semibold text-slate-900 mb-2">No coverage data yet</h2>
             <p className="text-sm text-slate-500 max-w-sm leading-relaxed mb-6">
               Add your first property to compute compliance coverage across your portfolio.
             </p>
-            <button onClick={() => router.push("/property-manager/portfolio/properties/new")} className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors">
+            <button onClick={() => router.push("/property-manager/portfolio/properties/new")} className="inline-flex items-center gap-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors">
               <Plus className="w-4 h-4" /> Add your first property
             </button>
           </div>
@@ -300,7 +300,7 @@ export default function CoveragePage() {
               <ComplianceKpiCard label="Critical Properties" value={loading ? "—" : kpis.criticalProps} subtitle="Below 60% coverage" icon={Building2} iconBg="bg-red-100" iconColor="text-red-600" />
               <ComplianceKpiCard label="Missing Items" value={loading ? "—" : kpis.missing} subtitle="No record on file" icon={XCircle} iconBg="bg-amber-100" iconColor="text-amber-600" />
               <ComplianceKpiCard label="Overdue Requirements" value={loading ? "—" : kpis.overdue} subtitle="Require action" icon={Clock} iconBg="bg-red-100" iconColor="text-red-600" />
-              <ComplianceKpiCard label="Expiring Soon" value={loading ? "—" : kpis.upcoming} subtitle="Warning state" icon={Calendar} iconBg="bg-blue-100" iconColor="text-blue-600" />
+              <ComplianceKpiCard label="Expiring Soon" value={loading ? "—" : kpis.upcoming} subtitle="Warning state" icon={Calendar} iconBg="bg-[var(--color-brand-100)]" iconColor="text-[var(--brand)]" />
             </div>
 
             {/* Toolbar */}
@@ -318,9 +318,9 @@ export default function CoveragePage() {
               <div className="flex-1" />
               <button
                 onClick={() => setShowPct(!showPct)}
-                className={`flex items-center gap-2 border rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${showPct ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
+                className={`flex items-center gap-2 border rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${showPct ? "border-[var(--color-brand-300)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
               >
-                <span className={`w-8 h-4 rounded-full relative transition-colors ${showPct ? "bg-blue-500" : "bg-slate-300"}`}>
+                <span className={`w-8 h-4 rounded-full relative transition-colors ${showPct ? "bg-[var(--brand)]" : "bg-slate-300"}`}>
                   <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform ${showPct ? "translate-x-4" : "translate-x-0.5"}`} />
                 </span>
                 Show status labels
@@ -337,7 +337,7 @@ export default function CoveragePage() {
                     <CheckCircle className="w-8 h-8 text-slate-300 mx-auto mb-3" />
                     <p className="text-sm font-medium text-slate-700">No compliance requirements tracked yet</p>
                     <p className="text-xs text-slate-400 mt-1 mb-4">Add compliance items to your properties to populate the coverage matrix.</p>
-                    <button onClick={() => router.push("/property-manager/compliance/certificates/new")} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
+                    <button onClick={() => router.push("/property-manager/compliance/certificates/new")} className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-[var(--brand-strong)]">
                       <Plus className="w-3.5 h-3.5" /> Add certificate
                     </button>
                   </div>

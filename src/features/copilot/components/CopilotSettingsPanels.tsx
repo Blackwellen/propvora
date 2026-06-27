@@ -94,7 +94,7 @@ export function CopilotAutonomyPanel() {
   }
 
   return (
-    <Card icon={<Shield className="h-4 w-4 text-blue-600" />} title="AI autonomy" desc={`How much the Copilot can do on its own. Your plan allows up to level ${perm?.planMaxLevel ?? 0}.`}>
+    <Card icon={<Shield className="h-4 w-4 text-[var(--brand)]" />} title="AI autonomy" desc={`How much the Copilot can do on its own. Your plan allows up to level ${perm?.planMaxLevel ?? 0}.`}>
       {!perm ? (
         <div className="flex items-center justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-slate-300" /></div>
       ) : (
@@ -104,8 +104,8 @@ export function CopilotAutonomyPanel() {
             const selected = pending === lvl.level
             return (
               <button key={lvl.level} type="button" disabled={over || !perm.canEdit} onClick={() => setPending(lvl.level)}
-                className={`flex w-full items-start gap-3 rounded-xl border px-3.5 py-2.5 text-left transition-all ${selected ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-white hover:bg-slate-50"} ${over ? "opacity-40 cursor-not-allowed" : ""}`}>
-                <Gauge className={`h-4 w-4 mt-0.5 shrink-0 ${selected ? "text-blue-600" : "text-slate-400"}`} />
+                className={`flex w-full items-start gap-3 rounded-xl border px-3.5 py-2.5 text-left transition-all ${selected ? "border-[var(--color-brand-300)] bg-[var(--brand-soft)]" : "border-slate-200 bg-white hover:bg-slate-50"} ${over ? "opacity-40 cursor-not-allowed" : ""}`}>
+                <Gauge className={`h-4 w-4 mt-0.5 shrink-0 ${selected ? "text-[var(--brand)]" : "text-slate-400"}`} />
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-[12.5px] font-[700] text-slate-800">L{lvl.level} · {lvl.name}</span>
@@ -119,7 +119,7 @@ export function CopilotAutonomyPanel() {
           {perm.canEdit ? (
             <div className="pt-2">
               <button type="button" onClick={save} disabled={saving || pending === perm.effectiveLevel}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-[12.5px] font-[600] text-white hover:bg-blue-700 disabled:opacity-50">
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-3.5 py-2 text-[12.5px] font-[600] text-white hover:bg-[var(--brand-strong)] disabled:opacity-50">
                 {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />} Save autonomy level
               </button>
             </div>

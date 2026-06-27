@@ -25,8 +25,8 @@ export function BillingCard({
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-center gap-2.5 min-w-0">
             {Icon && (
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-blue-600/10 shrink-0">
-                <Icon className="w-4 h-4 text-blue-600" />
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-[var(--brand)]/10 shrink-0">
+                <Icon className="w-4 h-4 text-[var(--brand)]" />
               </div>
             )}
             <div className="min-w-0">
@@ -54,7 +54,7 @@ export function Row({ label, value }: { label: React.ReactNode; value: React.Rea
 type Tone = "blue" | "emerald" | "amber" | "red" | "slate"
 
 const TONE: Record<Tone, string> = {
-  blue: "bg-blue-50 text-blue-700 border-blue-100",
+  blue: "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",
   emerald: "bg-emerald-50 text-emerald-700 border-emerald-100",
   amber: "bg-amber-50 text-amber-700 border-amber-100",
   red: "bg-red-50 text-red-700 border-red-100",
@@ -91,7 +91,7 @@ export function Toggle({
       onClick={() => onChange(!checked)}
       className={cn(
         "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-        checked ? "bg-blue-600" : "bg-slate-300",
+        checked ? "bg-[var(--brand)]" : "bg-slate-300",
       )}
     >
       <span
@@ -173,8 +173,8 @@ export function BillingButton({
   const base =
     "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-[13px] font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
   const styles: Record<string, string> = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700",
-    secondary: "border border-blue-600 text-blue-600 hover:bg-blue-50",
+    primary: "bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)]",
+    secondary: "border border-[var(--brand)] text-[var(--brand)] hover:bg-[var(--brand-soft)]",
     ghost: "border border-slate-200 text-slate-600 hover:bg-slate-50",
     danger: "bg-red-600 text-white hover:bg-red-700",
   }

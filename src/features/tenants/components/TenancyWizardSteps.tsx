@@ -61,7 +61,7 @@ export function StepProperty({ data, onChange, properties, units }: StepProperty
         <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-1">
           {properties.length === 0 ? (
             <div className="py-6 text-center text-slate-500 text-sm border-2 border-dashed border-slate-200 rounded-2xl">
-              No properties — <Link href="/property-manager/portfolio/properties/new" className="text-[#2563EB] underline">add one first</Link>
+              No properties — <Link href="/property-manager/portfolio/properties/new" className="text-[var(--brand)] underline">add one first</Link>
             </div>
           ) : properties.map((p) => (
             <button
@@ -69,15 +69,15 @@ export function StepProperty({ data, onChange, properties, units }: StepProperty
               onClick={() => onChange({ property_id: p.id, unit_id: "" })}
               className={cn(
                 "flex items-center gap-3 p-3 rounded-xl border text-left transition-all",
-                data.property_id === p.id ? "border-[#2563EB] bg-blue-50" : "border-slate-200 hover:border-slate-300"
+                data.property_id === p.id ? "border-[var(--brand)] bg-[var(--brand-soft)]" : "border-slate-200 hover:border-slate-300"
               )}
             >
-              <Building2 className={cn("w-4 h-4 shrink-0", data.property_id === p.id ? "text-[#2563EB]" : "text-slate-400")} />
+              <Building2 className={cn("w-4 h-4 shrink-0", data.property_id === p.id ? "text-[var(--brand)]" : "text-slate-400")} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-900 truncate">{p.name}</p>
                 {p.address_line1 && <p className="text-xs text-slate-500 truncate">{p.address_line1}</p>}
               </div>
-              {data.property_id === p.id && <Check className="w-4 h-4 text-[#2563EB] shrink-0" />}
+              {data.property_id === p.id && <Check className="w-4 h-4 text-[var(--brand)] shrink-0" />}
             </button>
           ))}
         </div>
@@ -90,7 +90,7 @@ export function StepProperty({ data, onChange, properties, units }: StepProperty
               onClick={() => onChange({ unit_id: "" })}
               className={cn(
                 "px-3 py-2 rounded-lg border text-sm font-medium transition-all text-left",
-                !data.unit_id ? "border-[#2563EB] bg-blue-50 text-[#2563EB]" : "border-slate-200 text-slate-600 hover:border-slate-300"
+                !data.unit_id ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 text-slate-600 hover:border-slate-300"
               )}
             >
               Whole property (no specific unit)
@@ -101,7 +101,7 @@ export function StepProperty({ data, onChange, properties, units }: StepProperty
                 onClick={() => onChange({ unit_id: u.id })}
                 className={cn(
                   "px-3 py-2 rounded-lg border text-sm font-medium transition-all text-left",
-                  data.unit_id === u.id ? "border-[#2563EB] bg-blue-50 text-[#2563EB]" : "border-slate-200 text-slate-600 hover:border-slate-300"
+                  data.unit_id === u.id ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 text-slate-600 hover:border-slate-300"
                 )}
               >
                 {u.unit_name}
@@ -134,7 +134,7 @@ export function StepTenant({ data, onChange }: { data: TenancyWizardData; onChan
             placeholder={f.placeholder}
             value={(data as unknown as Record<string, string>)[f.key]}
             onChange={(e) => onChange({ [f.key]: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
           />
         </div>
       ))}
@@ -155,7 +155,7 @@ export function StepDates({ data, onChange }: { data: TenancyWizardData; onChang
               onClick={() => onChange({ tenancy_type: t.key })}
               className={cn(
                 "px-3 py-2.5 rounded-xl border text-sm font-medium transition-all text-left",
-                data.tenancy_type === t.key ? "border-[#2563EB] bg-blue-50 text-[#2563EB]" : "border-slate-200 text-slate-700 hover:border-slate-300"
+                data.tenancy_type === t.key ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 text-slate-700 hover:border-slate-300"
               )}
             >
               {data.tenancy_type === t.key && <Check className="w-3 h-3 inline mr-1" />}
@@ -173,7 +173,7 @@ export function StepDates({ data, onChange }: { data: TenancyWizardData; onChang
             type="date"
             value={data.start_date}
             onChange={(e) => onChange({ start_date: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
           />
         </div>
         <div>
@@ -183,7 +183,7 @@ export function StepDates({ data, onChange }: { data: TenancyWizardData; onChang
             value={data.end_date}
             min={data.start_date}
             onChange={(e) => onChange({ end_date: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
           />
           <p className="text-xs text-slate-500 mt-1">Leave blank for periodic</p>
         </div>
@@ -207,7 +207,7 @@ export function StepFinancials({ data, onChange }: { data: TenancyWizardData; on
               type="number" min={0} placeholder="550"
               value={data.rent_amount || ""}
               onChange={(e) => onChange({ rent_amount: Number(e.target.value) })}
-              className="w-full h-10 pl-7 pr-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+              className="w-full h-10 pl-7 pr-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
             />
           </div>
         </div>
@@ -216,7 +216,7 @@ export function StepFinancials({ data, onChange }: { data: TenancyWizardData; on
           <select
             value={data.rent_frequency}
             onChange={(e) => onChange({ rent_frequency: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all bg-white"
+            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all bg-white"
           >
             {RENT_FREQUENCIES.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
           </select>
@@ -231,7 +231,7 @@ export function StepFinancials({ data, onChange }: { data: TenancyWizardData; on
               type="number" min={0}
               value={data.deposit_amount || ""}
               onChange={(e) => onChange({ deposit_amount: Number(e.target.value) })}
-              className="w-full h-10 pl-7 pr-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+              className="w-full h-10 pl-7 pr-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
             />
           </div>
         </div>
@@ -240,7 +240,7 @@ export function StepFinancials({ data, onChange }: { data: TenancyWizardData; on
           <select
             value={data.deposit_held_by}
             onChange={(e) => onChange({ deposit_held_by: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all bg-white"
+            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all bg-white"
           >
             {DEPOSIT_HOLDERS.map((h) => <option key={h.key} value={h.key}>{h.label}</option>)}
           </select>
@@ -253,7 +253,7 @@ export function StepFinancials({ data, onChange }: { data: TenancyWizardData; on
             type="text" placeholder="e.g. DPS-12345678"
             value={data.deposit_scheme}
             onChange={(e) => onChange({ deposit_scheme: e.target.value })}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
           />
         </div>
       )}
@@ -271,7 +271,7 @@ export function StepFinancials({ data, onChange }: { data: TenancyWizardData; on
           rows={2} placeholder="Any additional notes…"
           value={data.notes}
           onChange={(e) => onChange({ notes: e.target.value })}
-          className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all resize-none"
+          className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all resize-none"
         />
       </div>
     </div>
@@ -283,13 +283,13 @@ export function StepDocuments() {
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-slate-500">Upload tenancy documents (optional — you can do this from the tenancy detail page).</p>
-      <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center hover:border-[#2563EB]/40 hover:bg-blue-50/20 transition-all cursor-pointer">
+      <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center hover:border-[var(--brand)]/40 hover:bg-[var(--brand-soft)]/20 transition-all cursor-pointer">
         <FileText className="w-10 h-10 text-slate-200 mx-auto mb-3" />
         <p className="text-sm font-medium text-slate-600">Drop files here or click to upload</p>
         <p className="text-xs text-slate-500 mt-1">Tenancy agreement, deposit protection, move-in photos…</p>
         <Button variant="soft" size="sm" className="mt-4">Browse files</Button>
       </div>
-      <div className="p-3 rounded-xl bg-blue-50 text-xs text-[#2563EB]">
+      <div className="p-3 rounded-xl bg-[var(--brand-soft)] text-xs text-[var(--brand)]">
         Document upload will be available after the tenancy is created.
       </div>
     </div>

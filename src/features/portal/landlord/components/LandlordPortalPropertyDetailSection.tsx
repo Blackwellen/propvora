@@ -176,7 +176,7 @@ export function LandlordPortalPropertyDetailSection({
           <ol className="space-y-2.5">
             {lastPay && (
               <li className="flex gap-3">
-                <span className="w-2 h-2 rounded-full bg-[#2563EB] mt-1.5 shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-[var(--brand)] mt-1.5 shrink-0" />
                 <div>
                   <p className="text-sm text-slate-700">Rent received</p>
                   <p className="text-[11px] text-slate-400">{formatDate(lastPay.created_at)}</p>

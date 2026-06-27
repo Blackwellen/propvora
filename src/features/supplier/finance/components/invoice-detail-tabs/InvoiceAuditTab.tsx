@@ -33,7 +33,7 @@ export function InvoiceAuditTab({ events, submittedAt, approvedAt, paidAt }: Inv
         <ol className="space-y-3">
           {events.map((e, i) => (
             <li key={e.id ?? i} className="flex gap-3">
-              <span className="w-2 h-2 rounded-full bg-[#2563EB] mt-1.5 shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-[var(--brand)] mt-1.5 shrink-0" />
               <div>
                 <p className="text-sm text-slate-700">{e.label ?? "Update"}</p>
                 <p className="text-[11px] text-slate-400">{shortDate(e.created_at)}</p>

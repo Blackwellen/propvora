@@ -25,7 +25,7 @@ export function CompletedTab() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard icon={CheckCircle2} iconBg="bg-emerald-50" iconColor="text-emerald-600" value={kpis.completedThisMonth} label="Completed this month" />
-        <KpiCard icon={Banknote} iconBg="bg-blue-50" iconColor="text-blue-600" value={formatPence(kpis.paidOutPence)} label="Paid out" />
+        <KpiCard icon={Banknote} iconBg="bg-[var(--brand-soft)]" iconColor="text-[var(--brand)]" value={formatPence(kpis.paidOutPence)} label="Paid out" />
         <KpiCard icon={Timer} iconBg="bg-violet-50" iconColor="text-violet-600" value={`${kpis.avgCompletionDays}d`} label="Avg completion time" />
         <KpiCard icon={Star} iconBg="bg-amber-50" iconColor="text-amber-600" value={kpis.ratedJobs} label="Rated jobs" />
       </div>
@@ -52,7 +52,7 @@ export function CompletedTab() {
               <tbody>
                 {loading ? Array.from({ length: 3 }).map((_, i) => <tr key={i}><td colSpan={9} className="px-4 py-4"><div className="h-5 bg-slate-50 rounded animate-pulse" /></td></tr>)
                   : rows.map(r => (
-                    <tr key={r.id} onClick={() => setSelectedId(r.id)} className={cn("border-b border-slate-50 cursor-pointer hover:bg-slate-50", selectedId === r.id && "bg-blue-50/40")}>
+                    <tr key={r.id} onClick={() => setSelectedId(r.id)} className={cn("border-b border-slate-50 cursor-pointer hover:bg-slate-50", selectedId === r.id && "bg-[var(--brand-soft)]/40")}>
                       <td className="px-4 py-3 font-semibold text-slate-800">{r.orderRef}</td>
                       <td className="px-4 py-3"><p className="font-medium text-slate-800">{r.propertyLabel}</p><p className="text-xs text-slate-500">{r.location}</p></td>
                       <td className="px-4 py-3 text-slate-600">{r.orderType}</td>

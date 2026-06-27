@@ -30,7 +30,7 @@ export default function CheckoutHowItWorks() {
       <ol className="space-y-5">
         {STEPS.map(({ icon: Icon, title, body }, i) => (
           <li key={i} className="flex items-start gap-4">
-            <span className="w-9 h-9 rounded-xl bg-blue-50 text-[#1D4ED8] flex items-center justify-center shrink-0">
+            <span className="w-9 h-9 rounded-xl bg-[var(--brand-soft)] text-[var(--brand-strong)] flex items-center justify-center shrink-0">
               <Icon className="w-4.5 h-4.5" />
             </span>
             <span>

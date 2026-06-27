@@ -163,7 +163,7 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
                 placeholder="Search contacts by name, email or company…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
               />
             </div>
 
@@ -190,10 +190,10 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
                     onClick={() => setContactId(c.id)}
                     className={cn(
                       "w-full flex items-center gap-3 px-3.5 py-2.5 text-left transition-colors",
-                      contactId === c.id ? "bg-blue-50" : "hover:bg-slate-50"
+                      contactId === c.id ? "bg-[var(--brand-soft)]" : "hover:bg-slate-50"
                     )}
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
                       {(c.full_name ?? "?").slice(0, 2).toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -205,7 +205,7 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
                       </p>
                     </div>
                     {contactId === c.id && (
-                      <span className="text-[11px] font-semibold text-blue-600">Selected</span>
+                      <span className="text-[11px] font-semibold text-[var(--brand)]">Selected</span>
                     )}
                   </button>
                 ))
@@ -222,7 +222,7 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
               <button
                 onClick={() => setStep(2)}
                 disabled={!contactId}
-                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white bg-[#2563EB] hover:bg-[#1d4ed8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white bg-[var(--brand)] hover:bg-[var(--brand-strong)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Continue
               </button>
@@ -242,7 +242,7 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
             </h3>
             {selectedContact && (
               <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
                   {(selectedContact.full_name ?? "?").slice(0, 2).toUpperCase()}
                 </div>
                 <div className="min-w-0">
@@ -261,7 +261,7 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
               <select
                 value={profileKey}
                 onChange={(e) => setProfileKey(e.target.value)}
-                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
               >
                 {availableProfiles.map((p) => (
                   <option key={p.key} value={p.key}>{p.label}</option>
@@ -278,7 +278,7 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
                   const p = DEFAULT_PORTAL_PURPOSES.find((x) => x.key === e.target.value)
                   if (p) setExpiryDays(p.defaultExpiryDays)
                 }}
-                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
               >
                 {DEFAULT_PORTAL_PURPOSES.map((p) => (
                   <option key={p.key} value={p.key}>{p.label}</option>
@@ -296,7 +296,7 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
                     className={cn(
                       "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors",
                       expiryDays === d
-                        ? "bg-blue-50 border-blue-300 text-blue-700"
+                        ? "bg-[var(--brand-soft)] border-[var(--color-brand-300)] text-[var(--brand)]"
                         : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                     )}
                   >
@@ -306,9 +306,9 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
               </div>
             </div>
 
-            <div className="flex items-start gap-2 p-3 rounded-xl bg-blue-50/60 border border-blue-100">
-              <ShieldCheck className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
-              <p className="text-[11px] text-blue-800 leading-relaxed">
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-[var(--brand-soft)]/60 border border-[var(--color-brand-100)]">
+              <ShieldCheck className="w-4 h-4 text-[var(--brand)] mt-0.5 shrink-0" />
+              <p className="text-[11px] text-[var(--brand-strong)] leading-relaxed">
                 The magic-link token is generated securely server-side and stored hashed only.
                 The raw token is never stored or shown here. Recipients access the secure portal
                 at <span className="font-mono text-[10px]">/portal?token=…</span> — revoke instantly from the grant detail page.
@@ -332,7 +332,7 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
               <button
                 onClick={handleSubmit}
                 disabled={submitting || !contactId}
-                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white bg-[#2563EB] hover:bg-[#1d4ed8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white bg-[var(--brand)] hover:bg-[var(--brand-strong)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>
@@ -376,7 +376,7 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
                     readOnly
                     value={result.magicLink}
                     onFocus={(e) => e.currentTarget.select()}
-                    className="flex-1 min-w-0 px-3 py-2.5 text-[12px] font-mono border border-slate-200 rounded-xl bg-slate-50 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="flex-1 min-w-0 px-3 py-2.5 text-[12px] font-mono border border-slate-200 rounded-xl bg-slate-50 text-slate-700 outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]"
                     aria-label="Recipient magic link"
                   />
                   <button
@@ -385,7 +385,7 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
                       "shrink-0 inline-flex items-center gap-1.5 px-3 rounded-xl text-[13px] font-semibold transition-colors",
                       copied
                         ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        : "bg-[#2563EB] hover:bg-[#1d4ed8] text-white"
+                        : "bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white"
                     )}
                     aria-label="Copy magic link"
                   >
@@ -424,7 +424,7 @@ export function GrantPortalAccessModal({ workspaceId, onClose, onSuccess }: Prop
                 onClick={() => {
                   if (result) router.push(`/property-manager/portals/access/${result.id}`)
                 }}
-                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white bg-[#2563EB] hover:bg-[#1d4ed8] transition-colors inline-flex items-center justify-center gap-1.5"
+                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white bg-[var(--brand)] hover:bg-[var(--brand-strong)] transition-colors inline-flex items-center justify-center gap-1.5"
               >
                 <ExternalLink className="w-4 h-4" /> View grant
               </button>

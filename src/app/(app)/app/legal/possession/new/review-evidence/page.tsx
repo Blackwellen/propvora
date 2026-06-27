@@ -108,7 +108,7 @@ function ReviewEvidenceInner() {
                     </p>
                   </div>
                   {ev.document_path && (
-                    <a href={ev.document_path} target="_blank" rel="noopener noreferrer" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium shrink-0">
+                    <a href={ev.document_path} target="_blank" rel="noopener noreferrer" className="text-[11px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium shrink-0">
                       View ↗
                     </a>
                   )}

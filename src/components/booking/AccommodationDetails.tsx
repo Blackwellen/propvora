@@ -88,7 +88,7 @@ export function AccommodationDetails({
       {sections.bills && (
         <section>
           <h2 className="flex items-center gap-2 text-[16px] font-semibold text-[#0B1B3F] mb-3">
-            <Banknote className="w-4 h-4 text-[#1D4ED8]" /> Bills
+            <Banknote className="w-4 h-4 text-[var(--brand-strong)]" /> Bills
           </h2>
           {includedBills.length > 0 ? (
             <ul className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2">
@@ -116,7 +116,7 @@ export function AccommodationDetails({
       {sections.deposit && (details.depositPence != null || schemeLabel || details.depositDeclaration) && (
         <section className="rounded-xl border border-[#EEF3FB] px-4 py-3.5">
           <h2 className="flex items-center gap-2 text-[14px] font-semibold text-[#0B1B3F] mb-1.5">
-            <ShieldCheck className="w-4 h-4 text-[#1D4ED8]" /> Deposit
+            <ShieldCheck className="w-4 h-4 text-[var(--brand-strong)]" /> Deposit
           </h2>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-[13.5px] text-slate-600">
             {details.depositPence != null && (
@@ -168,7 +168,7 @@ export function AccommodationDetails({
       {sections.floorPlan && details.floorPlanUrl && (
         <section>
           <h2 className="flex items-center gap-2 text-[16px] font-semibold text-[#0B1B3F] mb-3">
-            <MapIcon className="w-4 h-4 text-[#1D4ED8]" /> Floor plan
+            <MapIcon className="w-4 h-4 text-[var(--brand-strong)]" /> Floor plan
           </h2>
           <a
             href={details.floorPlanUrl}

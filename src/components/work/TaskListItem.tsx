@@ -24,7 +24,7 @@ export interface TaskItem {
 const priorityConfig = {
   critical: { label: "Critical", variant: "danger" as const, dot: "bg-[#EF4444]" },
   high: { label: "High", variant: "warning" as const, dot: "bg-[#F59E0B]" },
-  medium: { label: "Medium", variant: "primary" as const, dot: "bg-[#2563EB]" },
+  medium: { label: "Medium", variant: "primary" as const, dot: "bg-[var(--brand)]" },
   low: { label: "Low", variant: "default" as const, dot: "bg-slate-400" },
 }
 
@@ -59,7 +59,7 @@ export function TaskListItem({ task }: { task: TaskItem }) {
       <div className="flex-1 min-w-0">
         <Link
           href={`/property-manager/work/${task.type}s/${task.id}`}
-          className="text-sm font-medium text-slate-900 hover:text-[#2563EB] transition-colors line-clamp-1"
+          className="text-sm font-medium text-slate-900 hover:text-[var(--brand)] transition-colors line-clamp-1"
         >
           {task.title}
         </Link>
@@ -77,7 +77,7 @@ export function TaskListItem({ task }: { task: TaskItem }) {
       {task.propertyName && (
         <Link
           href={`/property-manager/portfolio/properties/${task.propertyId}`}
-          className="hidden md:flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-50 text-[#2563EB] text-xs font-medium hover:bg-blue-100 transition-colors shrink-0"
+          className="hidden md:flex items-center gap-1 px-2 py-1 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] text-xs font-medium hover:bg-[var(--color-brand-100)] transition-colors shrink-0"
           onClick={(e) => e.stopPropagation()}
         >
           <Building2 className="w-3 h-3" />
@@ -107,7 +107,7 @@ export function TaskListItem({ task }: { task: TaskItem }) {
 
       {/* Assignee avatar */}
       {task.assigneeInitials && (
-        <div className="w-7 h-7 rounded-full bg-[#2563EB] flex items-center justify-center text-white text-xs font-semibold shrink-0 hidden md:flex">
+        <div className="w-7 h-7 rounded-full bg-[var(--brand)] flex items-center justify-center text-white text-xs font-semibold shrink-0 hidden md:flex">
           {task.assigneeInitials}
         </div>
       )}

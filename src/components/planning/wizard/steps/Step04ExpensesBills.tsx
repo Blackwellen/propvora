@@ -219,7 +219,7 @@ function ExpenseRow({ item, viewMode, onUpdate, onRemove }: ExpenseRowProps) {
         className={cn(
           "h-8 px-2 rounded-lg text-[11.5px] font-bold border transition-all",
           item.isFixed
-            ? "bg-blue-50 text-blue-700 border-blue-200"
+            ? "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]"
             : "bg-amber-50 text-amber-700 border-amber-200"
         )}
       >
@@ -327,7 +327,7 @@ function BillRow({ item, viewMode, onUpdate, onRemove }: BillRowProps) {
         className={cn(
           "h-8 px-2 rounded-lg text-[11.5px] font-bold border transition-all",
           item.isFixed
-            ? "bg-blue-50 text-blue-700 border-blue-200"
+            ? "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]"
             : "bg-amber-50 text-amber-700 border-amber-200"
         )}
       >
@@ -847,7 +847,7 @@ export default function Step04ExpensesBills() {
             </div>
 
             {/* AI Recommendations */}
-            <div className="bg-gradient-to-br from-violet-50 to-blue-50 rounded-2xl border border-violet-200/60 p-4">
+            <div className="bg-gradient-to-br from-violet-50 to-[var(--brand-soft)] rounded-2xl border border-violet-200/60 p-4">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-6 h-6 rounded-lg bg-[#7C3AED] flex items-center justify-center">
                   <Sparkles className="w-3 h-3 text-white" />
@@ -907,7 +907,7 @@ export default function Step04ExpensesBills() {
               <span className="text-[12px] font-bold text-slate-900">{s.value}</span>
             </div>
           ))}
-          <button className="mt-2 text-[11.5px] font-semibold text-[#2563EB] hover:text-blue-700">
+          <button className="mt-2 text-[11.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">
             View full expense report →
           </button>
         </div>

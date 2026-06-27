@@ -86,7 +86,7 @@ export default function ForecastPage() {
     subtitle: (s) => s.description ?? undefined,
     leading: (s) => s.is_base ? <Star className="w-4 h-4 fill-amber-400 text-amber-400 shrink-0 mt-1" /> : undefined,
     badge: (s) => (
-      <span className={cn("px-2.5 py-0.5 rounded-full text-[11px] font-semibold", s.is_base ? "bg-[#EFF6FF] text-[#2563EB]" : "bg-slate-100 text-slate-600")}>
+      <span className={cn("px-2.5 py-0.5 rounded-full text-[11px] font-semibold", s.is_base ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "bg-slate-100 text-slate-600")}>
         {s.is_base ? "Base Plan" : "Variant"}
       </span>
     ),
@@ -162,8 +162,8 @@ export default function ForecastPage() {
           <div className="p-12 text-center text-sm text-slate-500">Loading scenarios…</div>
         ) : scenarios.length === 0 ? (
           <div className="p-12 flex flex-col items-center justify-center gap-3 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-              <LineChart className="w-5 h-5 text-[#2563EB]" />
+            <div className="w-12 h-12 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center">
+              <LineChart className="w-5 h-5 text-[var(--brand)]" />
             </div>
             <p className="text-sm font-semibold text-slate-700">No forecast scenarios yet</p>
             <p className="text-xs text-slate-500 max-w-md">
@@ -204,7 +204,7 @@ export default function ForecastPage() {
                     <td className="px-4 py-3.5 text-[13px] text-slate-600">{s.period_months} months</td>
                     <td className="px-4 py-3.5 text-[13px] text-slate-600">{s.currency}</td>
                     <td className="px-4 py-3.5">
-                      <span className={cn("px-2.5 py-0.5 rounded-full text-[11px] font-semibold", s.is_base ? "bg-[#EFF6FF] text-[#2563EB]" : "bg-slate-100 text-slate-600")}>
+                      <span className={cn("px-2.5 py-0.5 rounded-full text-[11px] font-semibold", s.is_base ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "bg-slate-100 text-slate-600")}>
                         {s.is_base ? "Base Plan" : "Variant"}
                       </span>
                     </td>
@@ -225,9 +225,9 @@ export default function ForecastPage() {
         )}
       </div>
 
-      <div className="flex items-start gap-2.5 p-3.5 rounded-lg bg-blue-50 border border-blue-100">
-        <LineChart className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
-        <p className="text-xs text-blue-700">
+      <div className="flex items-start gap-2.5 p-3.5 rounded-lg bg-[var(--brand-soft)] border border-[var(--color-brand-100)]">
+        <LineChart className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
+        <p className="text-xs text-[var(--brand)]">
           Forecast vs actual variance is derived from posted journal lines in the{" "}
           <Link href={sectionLink("/property-manager/accounting/reports")} className="font-semibold underline">Financial Reports</Link>.
           Detailed monthly projections appear once a scenario has line-item assumptions configured.

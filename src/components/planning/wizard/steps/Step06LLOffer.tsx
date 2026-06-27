@@ -389,17 +389,17 @@ export default function Step06LLOffer() {
                   </select>
                 </div>
                 {state.offerRentFreeMonths > 0 && (
-                  <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
-                    <p className="text-[11.5px] text-blue-700 font-semibold">
+                  <div className="bg-[var(--brand-soft)] rounded-xl p-3 border border-[var(--color-brand-100)]">
+                    <p className="text-[11.5px] text-[var(--brand)] font-semibold">
                       Equivalent saving
                     </p>
-                    <p className="text-[14px] font-bold text-[#2563EB]">
+                    <p className="text-[14px] font-bold text-[var(--brand)]">
                       £
                       {(
                         state.offerRentFreeMonths * state.offerRentMonthly
                       ).toLocaleString()}
                     </p>
-                    <p className="text-[11px] text-blue-500 mt-0.5">
+                    <p className="text-[11px] text-[var(--brand)] mt-0.5">
                       Based on £{state.offerRentMonthly.toLocaleString()} /month
                     </p>
                   </div>
@@ -726,7 +726,7 @@ export default function Step06LLOffer() {
               </OfferField>
 
               {/* AI Offer Assistant */}
-              <div className="bg-gradient-to-br from-violet-50 to-blue-50 rounded-2xl border border-violet-200/60 p-5">
+              <div className="bg-gradient-to-br from-violet-50 to-[var(--brand-soft)] rounded-2xl border border-violet-200/60 p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-7 h-7 rounded-xl bg-[#7C3AED] flex items-center justify-center shrink-0">
                     <Sparkles className="w-3.5 h-3.5 text-white" />
@@ -938,7 +938,7 @@ export default function Step06LLOffer() {
             <p className="text-[13px] font-bold text-slate-900">
               Messaging Template Preview
             </p>
-            <button className="flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:text-blue-700">
+            <button className="flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">
               <Copy className="w-3 h-3" />
               Copy
             </button>
@@ -963,7 +963,7 @@ Best regards,
             <p className="text-[13px] font-bold text-slate-900">
               Offer Summary to Send
             </p>
-            <button className="flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:text-blue-700">
+            <button className="flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">
               <Download className="w-3 h-3" />
               Download
             </button>

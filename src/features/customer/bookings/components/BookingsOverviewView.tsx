@@ -21,7 +21,7 @@ export default function BookingsOverviewView({ rows, selectedId, onSelect }: Pro
           <div
             key={b.id}
             onClick={() => onSelect(b.id)}
-            className={cn("flex items-center gap-4 p-4 cursor-pointer transition-colors", active ? "bg-blue-50/40 outline outline-2 -outline-offset-2 outline-blue-500 rounded-xl" : "hover:bg-slate-50")}
+            className={cn("flex items-center gap-4 p-4 cursor-pointer transition-colors", active ? "bg-[var(--brand-soft)]/40 outline outline-2 -outline-offset-2 outline-[var(--brand)] rounded-xl" : "hover:bg-slate-50")}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={b.image} alt="" className="w-24 h-18 rounded-xl object-cover shrink-0" style={{ height: "4.5rem" }} />

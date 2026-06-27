@@ -9,7 +9,7 @@ function Card({ children }: { children: React.ReactNode }) {
 function TrustRow({ icon: Icon, title, sub }: { icon: typeof ShieldCheck; title: string; sub: string }) {
   return (
     <li className="flex items-start gap-3">
-      <span className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+      <span className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center shrink-0">
         <Icon className="w-4 h-4" />
       </span>
       <div className="flex-1 min-w-0">
@@ -29,7 +29,7 @@ export default function TrustSafetyRail() {
         <TrustRow icon={ShieldCheck} title="Secure payments" sub="Your payments are protected" />
         <TrustRow icon={Settings2} title="Verified hosts" sub="All hosts are checked and verified" />
       </ul>
-      <Link href="/customer/help" className="mt-3 inline-block text-[12.5px] font-semibold text-blue-600 hover:text-blue-700">
+      <Link href="/customer/help" className="mt-3 inline-block text-[12.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">
         Learn more about safety →
       </Link>
     </Card>

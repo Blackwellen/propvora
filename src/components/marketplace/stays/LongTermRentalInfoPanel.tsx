@@ -29,21 +29,21 @@ export default function LongTermRentalInfoPanel() {
         <p className="text-sm text-slate-500 mb-3">Need something shorter?</p>
         <Link
           href="/stays"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand)] hover:text-[var(--brand)] transition-colors"
         >
           Browse short stays
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
 
-      <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-        <p className="text-xs font-semibold text-blue-700 mb-1">Looking to list a property?</p>
-        <p className="text-xs text-blue-600 mb-3">
+      <div className="bg-[var(--brand-soft)] rounded-xl p-4 border border-[var(--color-brand-100)]">
+        <p className="text-xs font-semibold text-[var(--brand)] mb-1">Looking to list a property?</p>
+        <p className="text-xs text-[var(--brand)] mb-3">
           Reach thousands of verified tenants looking for quality rentals.
         </p>
         <Link
           href="/register"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[var(--brand)] hover:bg-[var(--brand-strong)] px-3 py-1.5 rounded-lg transition-colors"
         >
           List a property
         </Link>

@@ -40,7 +40,7 @@ export function EvidencePhaseCard({ phaseLabel, slots, capturedFiles, onPickSlot
               className={`text-left rounded-xl border p-3 transition-all ${
                 captured
                   ? "border-emerald-200 bg-emerald-50/40"
-                  : "border-dashed border-slate-300 hover:border-[#2563EB]"
+                  : "border-dashed border-slate-300 hover:border-[var(--brand)]"
               }`}
             >
               <div

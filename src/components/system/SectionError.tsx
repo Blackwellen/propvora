@@ -72,7 +72,7 @@ export default function SectionError({
           <button
             type="button"
             onClick={() => reset()}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-strong)]"
           >
             <RotateCw className="h-4 w-4" />
             Try again
@@ -83,7 +83,7 @@ export default function SectionError({
           Need a hand? Email{" "}
           <a
             href="mailto:support@propvora.com"
-            className="font-medium text-blue-600 hover:text-blue-700"
+            className="font-medium text-[var(--brand)] hover:text-[var(--brand)]"
           >
             support@propvora.com
           </a>

@@ -17,7 +17,7 @@ export default function BookingQuickActionsPanel({ booking }: BookingQuickAction
       {/* Card 1: Quick actions */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
         <div className="flex items-center gap-2 mb-3">
-          <span className="w-5 h-5 rounded bg-blue-50 text-blue-700 flex items-center justify-center text-[10px] font-bold">1</span>
+          <span className="w-5 h-5 rounded bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-[10px] font-bold">1</span>
           <h3 className="font-semibold text-slate-800 text-sm">Quick actions</h3>
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -46,7 +46,7 @@ export default function BookingQuickActionsPanel({ booking }: BookingQuickAction
       {/* Card 2: Financial snapshot */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
         <div className="flex items-center gap-2 mb-3">
-          <span className="w-5 h-5 rounded bg-blue-50 text-blue-700 flex items-center justify-center text-[10px] font-bold">2</span>
+          <span className="w-5 h-5 rounded bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-[10px] font-bold">2</span>
           <h3 className="font-semibold text-slate-800 text-sm">Financial snapshot</h3>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -75,7 +75,7 @@ export default function BookingQuickActionsPanel({ booking }: BookingQuickAction
       {/* Card 3: Important dates */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
         <div className="flex items-center gap-2 mb-3">
-          <span className="w-5 h-5 rounded bg-blue-50 text-blue-700 flex items-center justify-center text-[10px] font-bold">3</span>
+          <span className="w-5 h-5 rounded bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-[10px] font-bold">3</span>
           <h3 className="font-semibold text-slate-800 text-sm">Important dates</h3>
         </div>
         <div className="space-y-2.5">
@@ -99,14 +99,14 @@ export default function BookingQuickActionsPanel({ booking }: BookingQuickAction
       {/* Card 4: Housekeeping */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
         <div className="flex items-center gap-2 mb-3">
-          <span className="w-5 h-5 rounded bg-blue-50 text-blue-700 flex items-center justify-center text-[10px] font-bold">4</span>
+          <span className="w-5 h-5 rounded bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-[10px] font-bold">4</span>
           <h3 className="font-semibold text-slate-800 text-sm">Housekeeping / maintenance</h3>
         </div>
         <div className="space-y-2">
           {[
-            { label: 'Cleaner', value: 'Anna Smith', badge: 'Assigned', badgeColor: 'text-blue-600 bg-blue-50' },
-            { label: 'Turnaround', value: '21 Jun, 12:00 PM', badge: 'Scheduled', badgeColor: 'text-blue-600 bg-blue-50' },
-            { label: 'Inspection', value: '24 Jun, 11:30 AM', badge: 'Scheduled', badgeColor: 'text-blue-600 bg-blue-50' },
+            { label: 'Cleaner', value: 'Anna Smith', badge: 'Assigned', badgeColor: 'text-[var(--brand)] bg-[var(--brand-soft)]' },
+            { label: 'Turnaround', value: '21 Jun, 12:00 PM', badge: 'Scheduled', badgeColor: 'text-[var(--brand)] bg-[var(--brand-soft)]' },
+            { label: 'Inspection', value: '24 Jun, 11:30 AM', badge: 'Scheduled', badgeColor: 'text-[var(--brand)] bg-[var(--brand-soft)]' },
             { label: 'Maintenance', value: 'None reported', badge: null, badgeColor: '' },
           ].map(({ label, value, badge, badgeColor }) => (
             <div key={label} className="flex items-start justify-between gap-2">
@@ -127,7 +127,7 @@ export default function BookingQuickActionsPanel({ booking }: BookingQuickAction
       {/* Card 5: Communication shortcuts */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
         <div className="flex items-center gap-2 mb-3">
-          <span className="w-5 h-5 rounded bg-blue-50 text-blue-700 flex items-center justify-center text-[10px] font-bold">5</span>
+          <span className="w-5 h-5 rounded bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-[10px] font-bold">5</span>
           <h3 className="font-semibold text-slate-800 text-sm">Communication shortcuts</h3>
         </div>
         <div className="grid grid-cols-2 gap-2">

@@ -167,6 +167,58 @@ export const CREDIT_PACKS: CreditGrant[] = [
   },
 ]
 
+/**
+ * Credits granted per ONE unit of a one-off add-on (catalog key → class grant).
+ * A purchase of N units grants N× these amounts. Keyed by the canonical billing
+ * catalog key so the Stripe price is the single source of truth for money.
+ */
+export const ONE_OFF_PACK_GRANTS: Record<string, Partial<Record<CreditClass, number>>> = {
+  ai_credits_1k: { action: 1_000 },
+  intelligence_pack_1k: { intelligence: 1_000 },
+  action_pack_1k: { action: 1_000 },
+}
+
+/** Is this catalog key a one-off credit pack we know how to grant? */
+export function isGrantableOneOffPack(catalogKey: string): boolean {
+  return catalogKey in ONE_OFF_PACK_GRANTS
+}
+
+/**
+ * Grant the credits for a completed one-off pack purchase. Inserts one
+ * ai_credit_balances row per credit class (the balance reader SUMS all rows, so
+ * each purchase stacks on top of the plan + prior packs). Service-role only;
+ * called from the verified Stripe webhook AFTER payment. Best-effort: a missing
+ * table never throws (the payment already succeeded).
+ */
+export async function grantCreditPack(
+  admin: ReturnType<typeof createAdminClient>,
+  workspaceId: string,
+  catalogKey: string,
+  units = 1,
+): Promise<boolean> {
+  const grant = ONE_OFF_PACK_GRANTS[catalogKey]
+  const qty = Math.max(1, Math.floor(units))
+  if (!grant || !workspaceId) return false
+  try {
+    const { start, end } = periodBounds()
+    const rows = Object.entries(grant)
+      .filter(([, amt]) => (amt ?? 0) > 0)
+      .map(([credit_class, amt]) => ({
+        workspace_id: workspaceId,
+        credit_class,
+        allowance: (amt as number) * qty,
+        source: catalogKey,
+        period_start: start,
+        period_end: end,
+      }))
+    if (!rows.length) return false
+    await admin.from("ai_credit_balances").insert(rows)
+    return true
+  } catch {
+    return false
+  }
+}
+
 // ── Estimation ───────────────────────────────────────────────────────────────
 
 /**

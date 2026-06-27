@@ -176,11 +176,11 @@ export default function BookingCheckout({ listing, slug }: BookingCheckoutProps)
       onClick={() => isMobile && setDateSheetOpen(true)}
       className={cn(
         "w-full text-left rounded-xl border border-[#D6E0F0] px-3.5 py-3 flex items-center gap-3 transition-colors",
-        isMobile && "hover:border-[#1D4ED8] active:bg-blue-50",
+        isMobile && "hover:border-[var(--brand-strong)] active:bg-[var(--brand-soft)]",
         !isMobile && "cursor-default"
       )}
     >
-      <CalendarDays className="w-5 h-5 text-[#1D4ED8] shrink-0" />
+      <CalendarDays className="w-5 h-5 text-[var(--brand-strong)] shrink-0" />
       <span className="flex-1 min-w-0">
         {datesChosen ? (
           <span className="block text-[13.5px] font-semibold text-[#0B1B3F] truncate">
@@ -283,7 +283,7 @@ export default function BookingCheckout({ listing, slug }: BookingCheckoutProps)
                 type="button"
                 disabled={!datesChosen || quoteLoading || !quote?.ready}
                 onClick={() => setStep("details")}
-                className="w-full h-12 rounded-xl bg-[#1D4ED8] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+                className="w-full h-12 rounded-xl bg-[var(--brand-strong)] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
               >
                 Continue to guest details
               </button>
@@ -353,7 +353,7 @@ export default function BookingCheckout({ listing, slug }: BookingCheckoutProps)
                 datesChosen && quote?.ready ? setStep("details") : setDateSheetOpen(true)
               }
               disabled={quoteLoading}
-              className="h-12 px-6 rounded-xl bg-[#1D4ED8] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-60 transition-colors flex items-center justify-center gap-2 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+              className="h-12 px-6 rounded-xl bg-[var(--brand-strong)] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-60 transition-colors flex items-center justify-center gap-2 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
             >
               {quoteLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -384,7 +384,7 @@ export default function BookingCheckout({ listing, slug }: BookingCheckoutProps)
               type="button"
               onClick={() => setDateSheetOpen(false)}
               disabled={!datesChosen}
-              className="w-full h-12 rounded-xl bg-[#1D4ED8] text-white text-[14.5px] font-semibold disabled:opacity-50 transition-colors"
+              className="w-full h-12 rounded-xl bg-[var(--brand-strong)] text-white text-[14.5px] font-semibold disabled:opacity-50 transition-colors"
             >
               {datesChosen
                 ? `Confirm ${nights} night${nights === 1 ? "" : "s"}`

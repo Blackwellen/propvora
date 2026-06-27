@@ -40,8 +40,8 @@ export function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancy
         {hasContact ? (
           <div className="flex flex-wrap gap-3">
             {t.tenantEmail && (
-              <a href={`mailto:${t.tenantEmail}`} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                <Mail className="w-4 h-4 text-blue-600" />
+              <a href={`mailto:${t.tenantEmail}`} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-[var(--color-brand-300)] hover:bg-[var(--brand-soft)] transition-colors">
+                <Mail className="w-4 h-4 text-[var(--brand)]" />
                 <div>
                   <div className="text-[13px] font-semibold text-slate-800">{t.tenantEmail}</div>
                   <div className="text-[11px] text-slate-500">Send email</div>
@@ -49,8 +49,8 @@ export function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancy
               </a>
             )}
             {t.tenantPhone && (
-              <a href={`tel:${t.tenantPhone}`} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                <Phone className="w-4 h-4 text-blue-600" />
+              <a href={`tel:${t.tenantPhone}`} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-[var(--color-brand-300)] hover:bg-[var(--brand-soft)] transition-colors">
+                <Phone className="w-4 h-4 text-[var(--brand)]" />
                 <div>
                   <div className="text-[13px] font-semibold text-slate-800">{t.tenantPhone}</div>
                   <div className="text-[11px] text-slate-500">Call tenant</div>
@@ -69,7 +69,7 @@ export function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancy
 
       <SectionCard className="flex flex-col overflow-hidden">
         <div className="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2">
-          <MessageCircle className="w-4 h-4 text-blue-600" />
+          <MessageCircle className="w-4 h-4 text-[var(--brand)]" />
           <h3 className="text-[14px] font-bold text-slate-900">Message Thread</h3>
           {messages.length > 0 && (
             <span className="text-[11px] font-semibold text-slate-500">{messages.length} message{messages.length === 1 ? "" : "s"}</span>
@@ -110,7 +110,7 @@ export function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancy
                     {!m.mine && (
                       grouped
                         ? <div className="w-7 shrink-0" />
-                        : <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">{nameInitials(senderLabel)}</div>
+                        : <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-[var(--brand)] flex items-center justify-center text-[9px] font-bold text-white shrink-0">{nameInitials(senderLabel)}</div>
                     )}
                     <div className={cn("flex flex-col min-w-0", m.mine ? "items-end" : "items-start")}>
                       {!grouped && (
@@ -119,7 +119,7 @@ export function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancy
                       <div className={cn(
                         "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm",
                         m.mine
-                          ? cn("bg-blue-600 text-white", grouped ? "rounded-br-md" : "rounded-br-sm")
+                          ? cn("bg-[var(--brand)] text-white", grouped ? "rounded-br-md" : "rounded-br-sm")
                           : cn("bg-white border border-slate-200 text-slate-800", grouped ? "rounded-bl-md" : "rounded-bl-sm")
                       )}>
                         {m.content}
@@ -146,12 +146,12 @@ export function CommunicationsTab({ t, tenancyId }: { t: TenancyDisplay; tenancy
               }}
               rows={2}
               placeholder="Write a message…  (Ctrl/⌘ + Enter to send)"
-              className="flex-1 resize-none border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+              className="flex-1 resize-none border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]/50"
             />
             <button
               onClick={handleSend}
               disabled={!draft.trim() || sendMessage.isPending || !workspace?.id}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
             >
               <Send className="w-4 h-4" />
               <span className="hidden sm:inline">{sendMessage.isPending ? "Sending…" : "Send"}</span>

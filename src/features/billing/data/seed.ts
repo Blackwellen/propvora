@@ -105,18 +105,20 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
   {
     code: "ai_pack",
     name: "AI usage pack",
-    description: "Top up AI copilot credits for the month.",
-    unitPricePence: 1900,
+    description: "Top up AI credits — a one-time purchase, added to your balance.",
+    unitPricePence: 1500,
     unit: "credit_pack",
     defaultQty: 1,
     hasQuantity: true,
     available: true,
-    minPlan: "business",
+    minPlan: "starter",
     releaseStage: "V1",
+    // Priced as N × the £15 / 1,000-credit pack (ai_credits_1k) — the Stripe
+    // price is the source of truth; these mirror it for the selector preview.
     creditPacks: [
-      { label: "1,000 credits", credits: 1000, pricePence: 1900 },
-      { label: "5,000 credits", credits: 5000, pricePence: 7900 },
-      { label: "20,000 credits", credits: 20000, pricePence: 24900 },
+      { label: "1,000 credits", credits: 1000, pricePence: 1500 },
+      { label: "5,000 credits", credits: 5000, pricePence: 7500 },
+      { label: "20,000 credits", credits: 20000, pricePence: 30000 },
     ],
   },
   {
@@ -188,7 +190,7 @@ export const SEED_CANCELLATION_REASONS: string[] = [
   "Missing features I need",
   "Switching to another product",
   "No longer managing properties",
-  "Temporary pause â€” I'll be back",
+  "Temporary pause — I'll be back",
   "Other",
 ]
 

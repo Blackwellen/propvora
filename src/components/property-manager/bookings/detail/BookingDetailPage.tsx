@@ -68,7 +68,7 @@ function SimpleModal({
           </button>
           <button
             onClick={onClose}
-            className="flex-1 bg-blue-600 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="flex-1 bg-[var(--brand)] text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-[var(--brand-strong)] transition-colors"
           >
             Confirm
           </button>
@@ -100,7 +100,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
         </p>
         <Link
           href="/property-manager/bookings"
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          className="text-sm text-[var(--brand)] hover:text-[var(--brand)] font-medium"
         >
           ← Back to Bookings
         </Link>
@@ -164,7 +164,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
           </button>
           <button
             onClick={() => setShowCheckinModal(true)}
-            className="flex items-center gap-1.5 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-1.5 bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-[var(--brand-strong)] transition-colors"
           >
             <DoorOpen className="w-4 h-4" />
             Check in
@@ -187,7 +187,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
           {/* A. Stay overview */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-bold">A</div>
+              <div className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">A</div>
               <h3 className="font-semibold text-slate-800">Stay overview</h3>
             </div>
             <div className="grid grid-cols-2 gap-5">
@@ -254,7 +254,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
                   <p className="text-sm text-slate-600 italic">
                     "Arriving late evening. Looking forward to the stay for a weekend getaway."
                   </p>
-                  <button className="text-xs text-blue-600 hover:text-blue-700 mt-1">Edit</button>
+                  <button className="text-xs text-[var(--brand)] hover:text-[var(--brand)] mt-1">Edit</button>
                 </div>
               </div>
             </div>
@@ -263,7 +263,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
           {/* B. Guest profile */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-bold">B</div>
+              <div className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">B</div>
               <h3 className="font-semibold text-slate-800">Guest profile</h3>
             </div>
             <div className="grid grid-cols-2 gap-6">
@@ -332,7 +332,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
           {/* D. Payment & charges */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-bold">D</div>
+              <div className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">D</div>
               <h3 className="font-semibold text-slate-800">Payment & charges</h3>
             </div>
             <div className="grid grid-cols-2 gap-6">
@@ -376,7 +376,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-500">Payment method</span>
                   <div className="flex items-center gap-1.5">
-                    <span className="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">VISA</span>
+                    <span className="bg-[var(--brand)] text-white text-[10px] font-bold px-1.5 py-0.5 rounded">VISA</span>
                     <span className="text-sm text-slate-700">**** 4242</span>
                   </div>
                 </div>
@@ -386,7 +386,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-500">Invoice / receipt</span>
-                  <button className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors">
+                  <button className="flex items-center gap-1 text-sm text-[var(--brand)] hover:text-[var(--brand)] transition-colors">
                     <Download className="w-3.5 h-3.5" />
                     View receipt
                   </button>
@@ -409,7 +409,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
           {/* E. Operations & readiness */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-bold">E</div>
+              <div className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">E</div>
               <h3 className="font-semibold text-slate-800">Operations & readiness</h3>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -418,7 +418,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
                   {item.status === 'completed' ? (
                     <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                   ) : item.status === 'scheduled' ? (
-                    <Clock className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                    <Clock className="w-5 h-5 text-[var(--brand)] shrink-0 mt-0.5" />
                   ) : (
                     <AlertCircle className="w-5 h-5 text-slate-300 shrink-0 mt-0.5" />
                   )}
@@ -427,7 +427,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
                     {item.note && (
                       <p className={`text-xs ${
                         item.status === 'completed' ? 'text-emerald-600' :
-                        item.status === 'scheduled' ? 'text-blue-600' :
+                        item.status === 'scheduled' ? 'text-[var(--brand)]' :
                         'text-slate-400'
                       }`}>{item.note}</p>
                     )}
@@ -440,7 +440,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
           {/* F. Stay rules, access & logistics */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-bold">F</div>
+              <div className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">F</div>
               <h3 className="font-semibold text-slate-800">Stay rules, access & logistics</h3>
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -459,7 +459,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
                   <p className="text-xs text-slate-400">{label}</p>
                   <p className="text-sm text-slate-700 font-medium">
                     {value === 'View guide →' ? (
-                      <button className="text-blue-600 hover:text-blue-700 transition-colors">{value}</button>
+                      <button className="text-[var(--brand)] hover:text-[var(--brand)] transition-colors">{value}</button>
                     ) : value}
                   </p>
                 </div>
@@ -471,10 +471,10 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-bold">G</div>
+                <div className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center text-xs font-bold">G</div>
                 <h3 className="font-semibold text-slate-800">Notes & activity</h3>
               </div>
-              <select className="border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <select className="border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
                 <option>All activity</option>
                 <option>Payments</option>
                 <option>Messages</option>
@@ -484,8 +484,8 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
             <div className="space-y-4">
               {ACTIVITY_LOG.map((item) => (
                 <div key={item.time} className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                    <CreditCard className="w-4 h-4 text-blue-600" />
+                  <div className="w-8 h-8 rounded-full bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                    <CreditCard className="w-4 h-4 text-[var(--brand)]" />
                   </div>
                   <div>
                     <p className="text-xs text-slate-400">{item.time}</p>
@@ -494,7 +494,7 @@ export default function BookingDetailPage({ bookingId }: BookingDetailPageProps)
                 </div>
               ))}
             </div>
-            <button className="text-sm text-blue-600 hover:text-blue-700 transition-colors mt-4">
+            <button className="text-sm text-[var(--brand)] hover:text-[var(--brand)] transition-colors mt-4">
               View all activity →
             </button>
           </div>

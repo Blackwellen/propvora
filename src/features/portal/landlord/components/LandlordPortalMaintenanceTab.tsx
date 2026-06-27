@@ -136,7 +136,7 @@ export function LandlordPortalMaintenanceTab({
                         <td className="px-4 py-3 text-right">
                           <Link
                             href={`${base}/maintenance/${j.id}`}
-                            className="inline-flex items-center gap-0.5 text-xs font-semibold text-[#2563EB]"
+                            className="inline-flex items-center gap-0.5 text-xs font-semibold text-[var(--brand)]"
                           >
                             View <ChevronRight className="w-3.5 h-3.5" />
                           </Link>

@@ -51,7 +51,7 @@ export function BillingDetailsSection({
                 value={form[field.key]}
                 onChange={(e) => onUpdate(field.key, e.target.value)}
                 placeholder={field.placeholder}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
               />
             </div>
           ))}
@@ -62,7 +62,7 @@ export function BillingDetailsSection({
               type="text"
               value={form.address}
               onChange={(e) => onUpdate("address", e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
             />
           </div>
           <div>
@@ -71,7 +71,7 @@ export function BillingDetailsSection({
               type="text"
               value={form.city}
               onChange={(e) => onUpdate("city", e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
             />
           </div>
           <div>
@@ -80,7 +80,7 @@ export function BillingDetailsSection({
               type="text"
               value={form.postcode}
               onChange={(e) => onUpdate("postcode", e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
             />
           </div>
           <div className="sm:col-span-2">
@@ -88,7 +88,7 @@ export function BillingDetailsSection({
             <select
               value={form.country}
               onChange={(e) => onUpdate("country", e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
             >
               <option>United Kingdom</option>
               <option>United States</option>
@@ -104,7 +104,7 @@ export function BillingDetailsSection({
         <button
           onClick={onSave}
           disabled={loading || saveStatus === "saving"}
-          className="px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "Saved" : "Save billing details"}
         </button>

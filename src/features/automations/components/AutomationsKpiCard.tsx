@@ -6,7 +6,7 @@ import type { LucideIcon } from "lucide-react"
 export type KpiTone = "blue" | "violet" | "emerald" | "amber" | "red" | "slate"
 
 const TONES: Record<KpiTone, string> = {
-  blue: "bg-blue-50 text-blue-600",
+  blue: "bg-[var(--brand-soft)] text-[var(--brand)]",
   violet: "bg-violet-50 text-violet-600",
   emerald: "bg-emerald-50 text-emerald-600",
   amber: "bg-amber-50 text-amber-600",
@@ -60,7 +60,7 @@ export default function AutomationsKpiCard({
       {progress != null && (
         <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
           <div
-            className={`h-full rounded-full ${tone === "red" ? "bg-red-500" : tone === "amber" ? "bg-amber-500" : tone === "emerald" ? "bg-emerald-500" : tone === "violet" ? "bg-violet-500" : "bg-blue-500"}`}
+            className={`h-full rounded-full ${tone === "red" ? "bg-red-500" : tone === "amber" ? "bg-amber-500" : tone === "emerald" ? "bg-emerald-500" : tone === "violet" ? "bg-violet-500" : "bg-[var(--brand)]"}`}
             style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
           />
         </div>

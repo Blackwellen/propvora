@@ -48,7 +48,7 @@ export default function EmergencyCTAPanel({ service }: { service: PublicEmergenc
           <div className="w-2 h-2 bg-emerald-500 rounded-full" />
           <MapPin className="h-3 w-3" />
           <span>M2 4BG</span>
-          <button className="text-blue-600 underline ml-1">Change</button>
+          <button className="text-[var(--brand)] underline ml-1">Change</button>
         </div>
       </div>
 

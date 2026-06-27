@@ -47,7 +47,7 @@ export default function MessageThreadView({
             const mine = m.sender_role === "customer"
             return (
               <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${mine ? "bg-[#2563EB] text-white" : "bg-slate-100 text-slate-800"}`}>
+                <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${mine ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-800"}`}>
                   <p className="text-sm whitespace-pre-line">{m.body}</p>
                   <p className={`mt-1 text-[10.5px] ${mine ? "text-white/70" : "text-slate-400"}`}>
                     {m.sender_name || (mine ? "You" : "Host")} · {timeAgo(m.created_at)}

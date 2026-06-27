@@ -40,7 +40,7 @@ export default async function FxPage() {
                   <td className="px-4 py-3 text-slate-500">{r.as_of}</td>
                   <td className="px-4 py-3 text-slate-500 capitalize">{r.source}</td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold ${r.workspace_id ? "bg-blue-50 text-blue-700" : "bg-slate-100 text-slate-600"}`}>
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold ${r.workspace_id ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "bg-slate-100 text-slate-600"}`}>
                       {r.workspace_id ? "Workspace" : "Global"}
                     </span>
                   </td>

@@ -211,7 +211,7 @@ export function CatalogueTab() {
             <SupplierCardHeader title="Public preview" action={<SupplierButton variant="ghost" size="sm" onClick={() => push("Open public profile (TODO)")}><Eye className="w-3.5 h-3.5" /> View public profile</SupplierButton>} />
             <div className="p-4 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 text-white flex items-center justify-center font-bold">{data.supplier.name[0]}</div>
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--brand)] to-violet-500 text-white flex items-center justify-center font-bold">{data.supplier.name[0]}</div>
                 <div>
                   <p className="text-sm font-semibold text-slate-900 flex items-center gap-1">{data.supplier.name}{data.supplier.verified && <SupplierStatusBadge tone="emerald">Verified</SupplierStatusBadge>}</p>
                   {data.supplier.reviews > 0 ? (

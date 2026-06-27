@@ -55,6 +55,7 @@ export async function POST(
     const messageBody = typeof b.body === "string" ? b.body.trim() : ""
     if (!workspaceId) return NextResponse.json({ error: "workspaceId is required" }, { status: 400 })
     if (!messageBody) return NextResponse.json({ error: "body is required" }, { status: 400 })
+    if (messageBody.length > 10_000) return NextResponse.json({ error: "Message is too long (max 10,000 characters)." }, { status: 400 })
     if (!(await isSupplierWorkspaceMember(supabase, workspaceId, user.id))) {
       return NextResponse.json({ error: "Not a member of this workspace" }, { status: 403 })
     }

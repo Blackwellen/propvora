@@ -164,14 +164,14 @@ export default function CustomerShell({
                   className={cn(
                     "relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-colors",
                     active
-                      ? "bg-[#EFF6FF] text-[#1d4ed8]"
+                      ? "bg-[var(--brand-soft)] text-[var(--brand-strong)]"
                       : "text-[#334155] hover:bg-slate-100 hover:text-[#0D1B2A]"
                   )}
                 >
-                  <Icon className={cn("w-4 h-4 shrink-0", active ? "text-[#2563EB]" : "text-slate-400")} />
+                  <Icon className={cn("w-4 h-4 shrink-0", active ? "text-[var(--brand)]" : "text-slate-400")} />
                   <span>{label}</span>
                   {badge > 0 && (
-                    <span className="ml-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">
+                    <span className="ml-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold flex items-center justify-center">
                       {badge > 9 ? "9+" : badge}
                     </span>
                   )}
@@ -186,11 +186,11 @@ export default function CustomerShell({
             <Link
               href="/user/notifications"
               aria-label={`Notifications${unreadNotifications > 0 ? `, ${unreadNotifications} unread` : ""}`}
-              className="relative w-[44px] h-[44px] rounded-2xl bg-white border border-[#E2EAF6] flex items-center justify-center text-[#071B4D] hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+              className="relative w-[44px] h-[44px] rounded-2xl bg-white border border-[#E2EAF6] flex items-center justify-center text-[#071B4D] hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
             >
               <Bell className="w-5 h-5" />
               {unreadNotifications > 0 && (
-                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#2563EB] ring-2 ring-white" />
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[var(--brand)] ring-2 ring-white" />
               )}
             </Link>
 
@@ -202,14 +202,14 @@ export default function CustomerShell({
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
                 aria-label="Open account menu"
-                className="flex items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 transition-transform hover:scale-[1.04]"
+                className="flex items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 transition-transform hover:scale-[1.04]"
               >
                 {avatarUrl ? (
                   <span className="w-[42px] h-[42px] rounded-full overflow-hidden shrink-0 ring-2 ring-white shadow-sm">
                     <Image src={avatarUrl} alt={customerName} width={42} height={42} className="object-cover w-full h-full" />
                   </span>
                 ) : (
-                  <span className="w-[42px] h-[42px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[13px] font-bold shrink-0 ring-2 ring-white shadow-sm">
+                  <span className="w-[42px] h-[42px] rounded-full bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center text-white text-[13px] font-bold shrink-0 ring-2 ring-white shadow-sm">
                     {initialsOf(customerName)}
                   </span>
                 )}
@@ -247,13 +247,13 @@ export default function CustomerShell({
                           role="menuitem"
                           className={cn(
                             "flex items-center gap-3 px-4 py-2.5 text-[13px] transition-colors focus-visible:outline-none focus-visible:bg-slate-50",
-                            isActive ? "text-[#2563EB] bg-[#EFF6FF]" : "text-slate-700 hover:bg-slate-50"
+                            isActive ? "text-[var(--brand)] bg-[var(--brand-soft)]" : "text-slate-700 hover:bg-slate-50"
                           )}
                         >
-                          <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-[#2563EB]" : "text-slate-400")} />
+                          <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-[var(--brand)]" : "text-slate-400")} />
                           <span className="flex-1">{item.label}</span>
                           {"badge" in item && (item.badge as number) > 0 && (
-                            <span className="min-w-[18px] h-[18px] px-1.5 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">
+                            <span className="min-w-[18px] h-[18px] px-1.5 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold flex items-center justify-center">
                               {(item.badge as number) > 9 ? "9+" : item.badge}
                             </span>
                           )}

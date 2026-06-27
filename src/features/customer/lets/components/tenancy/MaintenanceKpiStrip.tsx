@@ -2,7 +2,7 @@ import { AlertTriangle, CheckCircle2, Clock, Loader, Wrench } from "lucide-react
 import { cn } from "@/lib/utils"
 
 const KPIS = [
-  { id: "open", label: "Open requests", value: "4", icon: Wrench, bg: "bg-blue-50 text-blue-600" },
+  { id: "open", label: "Open requests", value: "4", icon: Wrench, bg: "bg-[var(--brand-soft)] text-[var(--brand)]" },
   { id: "progress", label: "In progress", value: "2", icon: Loader, bg: "bg-amber-50 text-amber-600" },
   { id: "emergency", label: "Emergency issues", value: "1", icon: AlertTriangle, bg: "bg-rose-50 text-rose-500" },
   { id: "awaiting", label: "Awaiting landlord", value: "1", icon: Clock, bg: "bg-violet-50 text-violet-600" },

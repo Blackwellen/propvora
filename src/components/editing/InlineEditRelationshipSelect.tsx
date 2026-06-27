@@ -163,7 +163,7 @@ export function InlineEditRelationshipSelect({
           <button
             type="button"
             onClick={() => void choose("")}
-            className="w-full text-left px-3 py-2 text-[13px] text-slate-500 italic hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563EB]/40 rounded-md"
+            className="w-full text-left px-3 py-2 text-[13px] text-slate-500 italic hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)]/40 rounded-md"
           >
             Clear selection
           </button>
@@ -181,7 +181,7 @@ export function InlineEditRelationshipSelect({
                 onClick={() => void choose(o.value)}
                 className={cn(
                   "w-full text-left px-3 py-2 rounded-md flex items-start justify-between gap-2",
-                  "hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563EB]/40 transition-colors",
+                  "hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)]/40 transition-colors",
                   isMobile && "min-h-[44px]"
                 )}
               >
@@ -191,7 +191,7 @@ export function InlineEditRelationshipSelect({
                     <span className="block text-[11.5px] text-slate-400 truncate">{o.sublabel}</span>
                   )}
                 </span>
-                {selected && <Check className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />}
+                {selected && <Check className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />}
               </button>
             </li>
           )
@@ -244,7 +244,7 @@ export function InlineEditRelationshipSelect({
         aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={editing}
-        className="inline-flex items-center gap-1 text-left rounded-md cursor-pointer px-0.5 -mx-0.5 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30"
+        className="inline-flex items-center gap-1 text-left rounded-md cursor-pointer px-0.5 -mx-0.5 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30"
       >
         <DisplayText />
       </button>
@@ -253,13 +253,13 @@ export function InlineEditRelationshipSelect({
         onClick={enterEdit}
         aria-label={ariaLabel}
         className={cn(
-          "shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-[#2563EB] hover:bg-[#2563EB]/8 transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30",
+          "shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-[var(--brand)] hover:bg-[var(--brand)]/8 transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30",
           isMobile ? "w-9 h-9" : "w-6 h-6"
         )}
       >
         {saving ? (
-          <span className="w-3.5 h-3.5 border-2 border-[#2563EB]/30 border-t-[#2563EB] rounded-full animate-spin motion-reduce:animate-none" />
+          <span className="w-3.5 h-3.5 border-2 border-[var(--brand)]/30 border-t-[var(--brand)] rounded-full animate-spin motion-reduce:animate-none" />
         ) : (
           <Pencil className={isMobile ? "w-4 h-4" : "w-3.5 h-3.5"} />
         )}
@@ -277,7 +277,7 @@ export function InlineEditRelationshipSelect({
               type="button"
               onClick={cancel}
               aria-label="Cancel"
-              className="w-6 h-6 rounded-md flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30"
+              className="w-6 h-6 rounded-md flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30"
             >
               <X className="w-3.5 h-3.5" />
             </button>

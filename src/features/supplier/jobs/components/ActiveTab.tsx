@@ -24,7 +24,7 @@ type ViewId = "cards" | "table" | "kanban" | "map"
 
 const KANBAN_COLS: KanbanColumn[] = [
   { key: "assigned", label: "New", accent: "text-slate-600", dot: "bg-slate-400" },
-  { key: "accepted", label: "Accepted", accent: "text-blue-600", dot: "bg-blue-500" },
+  { key: "accepted", label: "Accepted", accent: "text-[var(--brand)]", dot: "bg-[var(--brand)]" },
   { key: "in_progress", label: "In progress", accent: "text-sky-600", dot: "bg-sky-500" },
 ]
 
@@ -141,7 +141,7 @@ export function ActiveTab({ jobs }: { jobs: SupplierJob[] }) {
               <div className="mt-3 space-y-1.5">
                 {jobs.map((j) => (
                   <button key={j.id} onClick={() => setSelectedId(j.id)} className="flex items-center gap-2 w-full text-left text-sm hover:bg-slate-50 rounded-lg px-2 py-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-blue-500" />
+                    <MapPin className="w-3.5 h-3.5 text-[var(--brand)]" />
                     <span className="font-medium text-slate-700">{j.address.line1}, {j.address.postcode}</span>
                     <span className="ml-auto text-xs text-slate-400">{shortDate(j.appointmentAt)}</span>
                   </button>
@@ -154,7 +154,7 @@ export function ActiveTab({ jobs }: { jobs: SupplierJob[] }) {
                 const sla = slaLabel(j)
                 return (
                   <button key={j.id} onClick={() => setSelectedId(j.id)} className="text-left">
-                    <SupplierCard className={cn("p-4 h-full transition-all hover:shadow-md", selected?.id === j.id ? "ring-2 ring-blue-500/40" : "")}>
+                    <SupplierCard className={cn("p-4 h-full transition-all hover:shadow-md", selected?.id === j.id ? "ring-2 ring-[var(--brand)]/40" : "")}>
                       <div className="flex items-start justify-between gap-2">
                         <ProgressRing value={j.progressPct} tone={j.onTrack ? "emerald" : "amber"} />
                         <SupplierStatusBadge tone={j.onTrack ? "emerald" : "amber"}>
@@ -188,7 +188,7 @@ export function ActiveTab({ jobs }: { jobs: SupplierJob[] }) {
                       <tr
                         key={j.id}
                         onClick={() => setSelectedId(j.id)}
-                        className={cn("cursor-pointer transition-colors hover:bg-slate-50/60", selected?.id === j.id ? "bg-blue-50/40" : "")}
+                        className={cn("cursor-pointer transition-colors hover:bg-slate-50/60", selected?.id === j.id ? "bg-[var(--brand-soft)]/40" : "")}
                       >
                         <Td>
                           <p className="font-semibold text-slate-800">{j.title}</p>
@@ -266,27 +266,27 @@ export function ActiveTab({ jobs }: { jobs: SupplierJob[] }) {
                 {selected.messages.length === 0 ? (
                   <p className="text-xs text-slate-400">No messages yet.</p>
                 ) : selected.messages.slice(-3).map((m) => (
-                  <div key={m.id} className={cn("rounded-xl px-3 py-2 text-xs", m.direction === "outbound" ? "bg-blue-50 text-blue-900 ml-6" : "bg-slate-50 text-slate-700 mr-6")}>
+                  <div key={m.id} className={cn("rounded-xl px-3 py-2 text-xs", m.direction === "outbound" ? "bg-[var(--brand-soft)] text-[var(--brand-strong)] ml-6" : "bg-slate-50 text-slate-700 mr-6")}>
                     <p>{m.body}</p>
                     <p className="text-[10px] text-slate-400 mt-0.5">{m.authorName} · {timeAgo(m.createdAt)}</p>
                   </div>
                 ))}
                 <div className="flex gap-1.5">
-                  <input value={msgDraft} onChange={(e) => setMsgDraft(e.target.value)} placeholder="Message customer…" className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <input value={msgDraft} onChange={(e) => setMsgDraft(e.target.value)} placeholder="Message customer…" className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
                   <SupplierButton size="sm" onClick={() => { if (msgDraft.trim()) { push("emerald", "Message sent. (TODO: persist)"); setMsgDraft("") } }}>Send</SupplierButton>
                 </div>
               </div>
             </PanelSection>
 
             <PanelSection title="Notes">
-              <textarea value={noteDraft} onChange={(e) => setNoteDraft(e.target.value)} placeholder="Add an on-site note…" rows={2} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <textarea value={noteDraft} onChange={(e) => setNoteDraft(e.target.value)} placeholder="Add an on-site note…" rows={2} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
               <SupplierButton size="sm" variant="outline" className="w-full" onClick={() => { if (noteDraft.trim()) { push("emerald", "Note added. (TODO: persist)"); setNoteDraft("") } }}>
                 <StickyNote className="w-3.5 h-3.5" /> Add note
               </SupplierButton>
             </PanelSection>
 
             <div className="grid grid-cols-2 gap-2 pt-1">
-              <Link href={`/supplier/jobs/${selected.id}`} className="inline-flex items-center justify-center gap-1.5 h-9 rounded-lg bg-[#2563EB] text-white text-xs font-semibold hover:bg-[#1d4ed8]">
+              <Link href={`/supplier/jobs/${selected.id}`} className="inline-flex items-center justify-center gap-1.5 h-9 rounded-lg bg-[var(--brand)] text-white text-xs font-semibold hover:bg-[var(--brand-strong)]">
                 Open job <ChevronRight className="w-3.5 h-3.5" />
               </Link>
               <button onClick={() => push("blue", "Evidence uploader opened. (TODO)")} className="inline-flex items-center justify-center gap-1.5 h-9 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50">

@@ -25,11 +25,11 @@ export function PerformanceTab({ jobs }: PerformanceTabProps) {
     : 0
 
   const stats: { label: string; value: string; icon: React.ElementType; bg: string; color: string }[] = [
-    { label: "Total Jobs",      value: String(total),                        icon: LayoutGrid,  bg: "bg-blue-50",    color: "text-blue-600"    },
+    { label: "Total Jobs",      value: String(total),                        icon: LayoutGrid,  bg: "bg-[var(--brand-soft)]",    color: "text-[var(--brand)]"    },
     { label: "Completed",       value: String(completed),                    icon: CheckCircle, bg: "bg-emerald-50", color: "text-emerald-600" },
     { label: "Active",          value: String(active),                       icon: Briefcase,   bg: "bg-amber-50",   color: "text-amber-600"   },
     { label: "Total Quoted",    value: `£${totalQuoted.toLocaleString()}`,   icon: FileText,    bg: "bg-violet-50",  color: "text-violet-600"  },
-    { label: "Total Invoiced",  value: `£${totalInvoiced.toLocaleString()}`, icon: Receipt,     bg: "bg-blue-50",    color: "text-blue-600"    },
+    { label: "Total Invoiced",  value: `£${totalInvoiced.toLocaleString()}`, icon: Receipt,     bg: "bg-[var(--brand-soft)]",    color: "text-[var(--brand)]"    },
     { label: "Avg Job Value",   value: total > 0 ? `£${avgJobValue.toLocaleString()}` : "—", icon: TrendingUp, bg: "bg-emerald-50", color: "text-emerald-600" },
   ]
 
@@ -40,7 +40,7 @@ export function PerformanceTab({ jobs }: PerformanceTabProps) {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
       <div className="flex items-center gap-2 mb-4">
-        <TrendingUp className="w-4 h-4 text-[#2563EB]" />
+        <TrendingUp className="w-4 h-4 text-[var(--brand)]" />
         <h3 className="text-sm font-semibold text-slate-900">Performance Summary</h3>
       </div>
 

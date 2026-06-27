@@ -99,8 +99,8 @@ export function BookingsOverviewClient({
         value: upcoming.length,
         sub: "Future arrivals",
         icon: CalendarDays,
-        iconBg: "bg-blue-50",
-        iconColor: "text-blue-600",
+        iconBg: "bg-[var(--brand-soft)]",
+        iconColor: "text-[var(--brand)]",
       },
       {
         label: "Active stays",
@@ -199,14 +199,14 @@ export function BookingsOverviewClient({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search guest, listing or reference…"
-            className="w-full h-9 pl-9 pr-3 rounded-lg text-sm bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+            className="w-full h-9 pl-9 pr-3 rounded-lg text-sm bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
           />
         </div>
         <div className="relative">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as "all" | ReservationStatus)}
-            className="h-9 pl-3 pr-8 rounded-lg text-sm bg-white border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+            className="h-9 pl-3 pr-8 rounded-lg text-sm bg-white border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
           >
             <option value="all">All statuses</option>
             {STATUS_ORDER.map((s) => (
@@ -221,7 +221,7 @@ export function BookingsOverviewClient({
           <select
             value={listingFilter}
             onChange={(e) => setListingFilter(e.target.value)}
-            className="h-9 pl-3 pr-8 rounded-lg text-sm bg-white border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+            className="h-9 pl-3 pr-8 rounded-lg text-sm bg-white border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
           >
             <option value="all">All listings</option>
             {listings.map((l) => (
@@ -237,7 +237,7 @@ export function BookingsOverviewClient({
           value={fromDate}
           onChange={(e) => setFromDate(e.target.value)}
           aria-label="From date"
-          className="h-9 px-3 rounded-lg text-sm bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          className="h-9 px-3 rounded-lg text-sm bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
         />
         <span className="text-slate-400 text-sm">→</span>
         <input
@@ -245,7 +245,7 @@ export function BookingsOverviewClient({
           value={toDate}
           onChange={(e) => setToDate(e.target.value)}
           aria-label="To date"
-          className="h-9 px-3 rounded-lg text-sm bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          className="h-9 px-3 rounded-lg text-sm bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
         />
       </div>
 
@@ -262,7 +262,7 @@ export function BookingsOverviewClient({
             bookings.length === 0 ? (
               <Link
                 href="/property-manager/bookings/listings"
-                className="inline-flex items-center gap-2 h-9 px-4 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
               >
                 <Settings2 className="w-4 h-4" />
                 Manage listings
@@ -362,7 +362,7 @@ export function BookingsOverviewClient({
               onClick={() => setView("calendar")}
               className={cn(
                 "inline-flex items-center gap-1.5 px-3.5 h-8 rounded-lg text-[13px] font-semibold transition-colors",
-                view === "calendar" ? "bg-white text-[#2563EB] shadow-sm" : "text-slate-500 hover:text-slate-700"
+                view === "calendar" ? "bg-white text-[var(--brand)] shadow-sm" : "text-slate-500 hover:text-slate-700"
               )}
             >
               <CalendarDays className="w-4 h-4" /> Calendar
@@ -371,7 +371,7 @@ export function BookingsOverviewClient({
               onClick={() => setView("list")}
               className={cn(
                 "inline-flex items-center gap-1.5 px-3.5 h-8 rounded-lg text-[13px] font-semibold transition-colors",
-                view === "list" ? "bg-white text-[#2563EB] shadow-sm" : "text-slate-500 hover:text-slate-700"
+                view === "list" ? "bg-white text-[var(--brand)] shadow-sm" : "text-slate-500 hover:text-slate-700"
               )}
             >
               <ListIcon className="w-4 h-4" /> List

@@ -67,7 +67,7 @@ export default function WorkspaceDirectoryTable({ rows }: { rows: AdminWorkspace
                 <td className="px-4 py-2.5">
                   <Link
                     href={`/admin/marketplace/workspaces/${w.id}`}
-                    className="text-xs font-medium text-slate-800 hover:text-[#2563EB]"
+                    className="text-xs font-medium text-slate-800 hover:text-[var(--brand)]"
                   >
                     {w.name}
                   </Link>
@@ -79,7 +79,7 @@ export default function WorkspaceDirectoryTable({ rows }: { rows: AdminWorkspace
                 <td className="px-4 py-2.5 text-xs font-semibold text-slate-700">{w.marketplaceTxns}</td>
                 <td className="px-4 py-2.5 text-xs text-slate-400 whitespace-nowrap">{fmtDate(w.createdAt)}</td>
                 <td className="px-4 py-2.5 text-right">
-                  <Link href={`/admin/marketplace/workspaces/${w.id}`} className="text-slate-300 hover:text-[#2563EB]">
+                  <Link href={`/admin/marketplace/workspaces/${w.id}`} className="text-slate-300 hover:text-[var(--brand)]">
                     <ChevronRight className="w-4 h-4 inline" />
                   </Link>
                 </td>

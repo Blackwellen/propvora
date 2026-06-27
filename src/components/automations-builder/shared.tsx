@@ -51,7 +51,7 @@ export function UpgradePrompt({
       </p>
       <Link
         href="/property-manager/settings/billing"
-        className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-blue-700"
+        className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-[var(--brand-strong)]"
       >
         View plans <ArrowRight className="h-4 w-4" />
       </Link>
@@ -74,7 +74,7 @@ export function BuilderHeader({
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
-        <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 text-white shadow-[0_4px_16px_rgba(99,102,241,0.30)]">
+        <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-[var(--brand)] to-violet-500 text-white shadow-[0_4px_16px_rgba(99,102,241,0.30)]">
           <Icon className="h-5 w-5" />
         </div>
         <div>
@@ -117,5 +117,5 @@ export function SegTabs<T extends string>({
 }
 
 export const fieldClass =
-  "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+  "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-[var(--color-brand-400)] focus:bg-white focus:ring-2 focus:ring-[var(--color-brand-100)]"
 export const labelClass = "mb-1 block text-xs font-medium text-slate-600"

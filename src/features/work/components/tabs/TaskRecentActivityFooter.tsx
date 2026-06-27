@@ -20,7 +20,7 @@ export function TaskRecentActivityFooter({ activity }: TaskRecentActivityFooterP
         {activity.map((item) => (
           <div key={item.id} className="bg-slate-50 rounded-xl p-3 min-w-[200px] flex-shrink-0">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-[var(--brand)] text-white text-[9px] font-bold flex items-center justify-center">
                 {item.initials}
               </div>
               <p className="text-xs font-semibold text-slate-700">{item.user}</p>

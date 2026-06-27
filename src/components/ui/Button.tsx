@@ -20,11 +20,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: [
-          "text-white bg-blue-600",
-          "shadow-[0_2px_10px_rgba(37,99,235,0.32)]",
-          "hover:bg-blue-700 hover:shadow-[0_5px_18px_rgba(37,99,235,0.45)]",
-          "active:bg-blue-800",
-          "focus-visible:ring-blue-600",
+          // Brand-token driven so workspace white-label colour repaints every
+          // primary button live (var(--brand) is injected by BrandingStyle).
+          "text-[var(--on-brand)] bg-[var(--brand)]",
+          "shadow-sm",
+          "hover:bg-[var(--brand-strong)] hover:shadow-md",
+          "active:bg-[var(--brand-strong)]",
+          "focus-visible:ring-[var(--brand)]",
         ],
         secondary: [
           "text-white bg-gradient-to-b from-[#1E3A5F] to-[#0D1B2A]",
@@ -34,19 +36,19 @@ const buttonVariants = cva(
           "focus-visible:ring-slate-900",
         ],
         soft: [
-          "bg-[#EFF6FF] text-[#2563EB]",
-          "hover:bg-[#dbeafe] hover:shadow-[0_3px_10px_rgba(37,99,235,0.14)] active:bg-[#bfdbfe]",
-          "focus-visible:ring-[#2563EB]",
+          "bg-[var(--brand-soft)] text-[var(--brand)]",
+          "hover:brightness-95 hover:shadow-sm active:brightness-90",
+          "focus-visible:ring-[var(--brand)]",
         ],
         outline: [
           "border border-[#E2E8F0] bg-white text-slate-700 shadow-xs",
-          "hover:bg-slate-50 hover:border-[#B9D2F3] hover:shadow-sm active:bg-slate-100",
-          "focus-visible:ring-[#2563EB]",
+          "hover:bg-slate-50 hover:border-[var(--brand)] hover:shadow-sm active:bg-slate-100",
+          "focus-visible:ring-[var(--brand)]",
         ],
         ghost: [
           "bg-transparent text-slate-600",
           "hover:bg-slate-100 active:bg-slate-200",
-          "focus-visible:ring-[#2563EB]",
+          "focus-visible:ring-[var(--brand)]",
         ],
         destructive: [
           "text-white bg-gradient-to-b from-[#f87171] to-[#EF4444]",
@@ -85,7 +87,7 @@ const buttonVariants = cva(
         icon: [
           "bg-transparent text-slate-600",
           "hover:bg-slate-100 active:bg-slate-200",
-          "focus-visible:ring-[#2563EB]",
+          "focus-visible:ring-[var(--brand)]",
         ],
       },
       size: {

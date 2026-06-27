@@ -20,6 +20,38 @@ export interface BrandColours {
   secondary: string
   accent: string
   background: string
+  /** Optional brand font family name (e.g. "Poppins"). Empty/undefined = system default. */
+  font?: string
+}
+
+/** Curated brand-font options (Google Fonts) offered in the branding editor. */
+export const BRAND_FONT_OPTIONS: { value: string; label: string }[] = [
+  { value: "", label: "System default" },
+  { value: "Inter", label: "Inter" },
+  { value: "Poppins", label: "Poppins" },
+  { value: "Roboto", label: "Roboto" },
+  { value: "Montserrat", label: "Montserrat" },
+  { value: "Lato", label: "Lato" },
+  { value: "Open Sans", label: "Open Sans" },
+  { value: "Nunito Sans", label: "Nunito Sans" },
+  { value: "Work Sans", label: "Work Sans" },
+  { value: "Source Sans 3", label: "Source Sans 3" },
+]
+
+const BRAND_FONT_NAMES = new Set(BRAND_FONT_OPTIONS.map((o) => o.value).filter(Boolean))
+
+/** Validate a brand font against the curated allow-list (prevents arbitrary injection). */
+export function normaliseBrandFont(input: unknown): string | undefined {
+  if (typeof input !== "string") return undefined
+  const v = input.trim()
+  return BRAND_FONT_NAMES.has(v) ? v : undefined
+}
+
+/** Google Fonts stylesheet href for a curated font, or null for system default. */
+export function brandFontHref(font: string | undefined): string | null {
+  if (!font || !BRAND_FONT_NAMES.has(font)) return null
+  const fam = font.replace(/ /g, "+")
+  return `https://fonts.googleapis.com/css2?family=${fam}:wght@400;500;600;700&display=swap`
 }
 
 /** Propvora defaults — used when a workspace has not set a brand colour. */
@@ -116,6 +148,7 @@ export function resolveBrand(
     secondary: normaliseHex(bc.secondary) ?? DEFAULT_BRAND.secondary,
     accent: normaliseHex(bc.accent) ?? DEFAULT_BRAND.accent,
     background: normaliseHex(bc.background) ?? DEFAULT_BRAND.background,
+    font: normaliseBrandFont(bc.font),
   }
 }
 
@@ -125,10 +158,14 @@ export function resolveBrand(
  * the `--color-brand-*` scale, focus ring, etc.).
  */
 export function brandCssVars(palette: BrandColours): Record<string, string> {
-  const { primary, secondary, accent } = palette
+  const { primary, secondary, accent, font } = palette
   const onPrimary = readableOn(primary)
   const onAccent = readableOn(accent)
   return {
+    // Brand font — falls back to the app's default sans stack when unset.
+    "--brand-font": font
+      ? `'${font}', var(--font-sans, system-ui), -apple-system, sans-serif`
+      : "var(--font-sans, system-ui, -apple-system, sans-serif)",
     "--brand": primary,
     "--brand-strong": secondary,
     "--brand-hover": shade(primary, -0.12),

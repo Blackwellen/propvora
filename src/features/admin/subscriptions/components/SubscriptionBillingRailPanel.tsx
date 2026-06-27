@@ -28,7 +28,7 @@ export function SubscriptionBillingRailPanel({ kpis }: Props) {
           <HealthRow label="Stripe linked" ok={kpis.stripeLinked} pendingLabel="Not wired" />
           <HealthRow label="Amounts populated" ok={kpis.mrrPence != null} pendingLabel="No amounts" />
         </ul>
-        <Link href="/admin/stripe-events" className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:underline">
+        <Link href="/admin/stripe-events" className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:underline">
           Stripe events <ChevronRight className="w-3.5 h-3.5" />
         </Link>
       </AdminSectionCard>

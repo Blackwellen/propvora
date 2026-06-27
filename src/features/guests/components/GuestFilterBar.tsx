@@ -16,7 +16,7 @@ export function GuestFilterBar({ query, onQueryChange }: GuestFilterBarProps) {
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
         placeholder="Search by guest, email or property…"
-        className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-9 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-9 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
       />
       {query && (
         <button

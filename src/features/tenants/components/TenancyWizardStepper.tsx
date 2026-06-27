@@ -25,7 +25,7 @@ export function TenancyWizardStepper({ steps, currentStep, onStepClick }: Tenanc
           >
             <div className={cn(
               "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
-              s.number === currentStep  ? "bg-[#2563EB] text-white shadow-md shadow-blue-200"
+              s.number === currentStep  ? "bg-[var(--brand)] text-white shadow-md shadow-[var(--color-brand-100)]"
               : s.number < currentStep ? "bg-[#10B981] text-white"
               : "bg-slate-100 text-slate-400"
             )}>
@@ -33,7 +33,7 @@ export function TenancyWizardStepper({ steps, currentStep, onStepClick }: Tenanc
             </div>
             <span className={cn(
               "text-[10px] whitespace-nowrap",
-              s.number === currentStep  ? "text-[#2563EB] font-semibold"
+              s.number === currentStep  ? "text-[var(--brand)] font-semibold"
               : s.number < currentStep ? "text-[#10B981]"
               : "text-slate-400"
             )}>

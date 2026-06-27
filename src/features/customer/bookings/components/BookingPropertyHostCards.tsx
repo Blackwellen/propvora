@@ -24,7 +24,7 @@ export default function BookingPropertyHostCards({ b }: Props) {
             <p className="text-[11.5px] text-slate-500 mt-0.5 flex items-center gap-1"><Star className="w-3 h-3 fill-amber-400 text-amber-400" /> 4.9 (128 reviews)</p>
           </div>
         </div>
-        <Link href="/customer/stays" className="mt-2 inline-flex items-center gap-1 text-[12px] font-semibold text-blue-600">View property listing <ChevronRight className="w-3.5 h-3.5" /></Link>
+        <Link href="/customer/stays" className="mt-2 inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)]">View property listing <ChevronRight className="w-3.5 h-3.5" /></Link>
       </Card>
       <Card title="Hosted by" icon={Star}>
         <div className="flex items-center justify-between">

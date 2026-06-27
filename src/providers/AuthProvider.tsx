@@ -12,6 +12,9 @@ import { useQueryClient } from "@tanstack/react-query"
 import type { User, Session } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/client"
 import { switchWorkspace as switchWorkspaceAction } from "@/lib/actions/workspace"
+import type { WhiteLabelSettings } from "@/lib/branding/white-label-core"
+
+export type { WhiteLabelSettings } from "@/lib/branding/white-label-core"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -29,6 +32,13 @@ export interface WorkspaceSettings {
   locale?: string
   dateFormat?: string
   timezone?: string
+  /** Menu Builder config — hidden sidebar modules + default landing page. */
+  nav?: {
+    /** Module keys hidden from the sidebar (e.g. "calendar", "compliance"). */
+    hiddenModules?: string[]
+    /** Default landing path after login (e.g. "/property-manager/work"). */
+    defaultLanding?: string
+  }
 }
 
 export interface Workspace {
@@ -40,6 +50,9 @@ export interface Workspace {
   business_type: string | null
   operation_interests: string[]
   plan: string
+  /** Subscription state — active | trialing | past_due | canceled | suspended | free.
+   *  Drives the sidebar plan-card status pill and route enforcement in the shell. */
+  plan_status: string | null
   trial_ends_at: string | null
   owner_id: string
   /** Authoritative operating jurisdiction (ISO-3166-1 alpha-2) — set via
@@ -51,6 +64,10 @@ export interface Workspace {
   default_language: string | null
   /** i18n / locale preferences stored in JSONB settings column. */
   settings: WorkspaceSettings | null
+  /** Workspace brand logo (R2 key or URL) — falls back to the Propvora logo. */
+  logo_url: string | null
+  /** White-label config (Pro/Agency) — brand name, hide-Propvora, support email, portal name. */
+  white_label_settings: WhiteLabelSettings | null
 }
 
 interface AuthContextValue {
@@ -102,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         let wsQuery = supabase
           .from("workspaces")
-          .select("id, name, slug, type, business_type, operation_interests, plan, plan_status, trial_ends_at, owner_id:owner_user_id, business_country_code, default_currency, default_language, settings")
+          .select("id, name, slug, type, business_type, operation_interests, plan, plan_status, trial_ends_at, owner_id:owner_user_id, business_country_code, default_currency, default_language, settings, logo_url, white_label_settings")
 
         if (profile?.current_workspace_id) {
           wsQuery = wsQuery.eq("id", profile.current_workspace_id)

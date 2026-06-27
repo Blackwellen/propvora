@@ -75,7 +75,7 @@ function StepDot({ step, current, done }: { step: number; current: number; done:
       <div
         className={cn(
           "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all",
-          isActive ? "bg-blue-600 text-white" : isPast ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-400"
+          isActive ? "bg-[var(--brand)] text-white" : isPast ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-400"
         )}
       >
         {isPast && !isActive ? <Check className="w-4 h-4" /> : step}
@@ -95,7 +95,7 @@ function ProgressBar({ current }: { current: number }) {
       </div>
       <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
         <div
-          className="h-full bg-blue-600 transition-all duration-300"
+          className="h-full bg-[var(--brand)] transition-all duration-300"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -124,7 +124,7 @@ function Step1({ state, setState, error }: { state: WizardState; setState: (s: P
               className={cn(
                 "flex items-start gap-3 p-4 border rounded-xl cursor-pointer transition-all",
                 state.transaction_type === t.value
-                  ? "border-blue-500 bg-blue-50"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)]"
                   : "border-slate-200 bg-white hover:border-slate-300"
               )}
             >
@@ -134,7 +134,7 @@ function Step1({ state, setState, error }: { state: WizardState; setState: (s: P
                 value={t.value}
                 checked={state.transaction_type === t.value}
                 onChange={(e) => setState({ transaction_type: e.target.value })}
-                className="mt-0.5 accent-blue-600"
+                className="mt-0.5 accent-[var(--brand)]"
               />
               <div>
                 <p className="text-sm font-semibold text-slate-900">{t.label}</p>
@@ -205,7 +205,7 @@ function Step3({ state, setState, error }: { state: WizardState; setState: (s: P
               className={cn(
                 "flex items-center gap-2 p-3 border rounded-xl cursor-pointer transition-all text-sm",
                 state.pricing_model === m.value
-                  ? "border-blue-500 bg-blue-50 text-blue-700 font-medium"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand-strong)] font-medium"
                   : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
               )}
             >
@@ -215,7 +215,7 @@ function Step3({ state, setState, error }: { state: WizardState; setState: (s: P
                 value={m.value}
                 checked={state.pricing_model === m.value}
                 onChange={(e) => setState({ pricing_model: e.target.value })}
-                className="accent-blue-600"
+                className="accent-[var(--brand)]"
               />
               {m.label}
             </label>
@@ -310,7 +310,7 @@ function Step4({ state, setState }: { state: WizardState; setState: (s: Partial<
             </button>
           </div>
         ) : (
-          <label className="flex flex-col items-center justify-center gap-2 h-40 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-blue-300 hover:bg-blue-50/50 transition-colors">
+          <label className="flex flex-col items-center justify-center gap-2 h-40 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-[var(--color-brand-300)] hover:bg-[var(--brand-soft)]/50 transition-colors">
             <input type="file" accept="image/*" className="sr-only" onChange={handleCover} />
             <Upload className="w-8 h-8 text-slate-300" />
             <span className="text-sm text-slate-500">Click to upload cover image</span>
@@ -334,7 +334,7 @@ function Step4({ state, setState }: { state: WizardState; setState: (s: Partial<
               </button>
             </div>
           ))}
-          <label className="aspect-square rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-blue-300 hover:bg-blue-50/50 transition-colors">
+          <label className="aspect-square rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-[var(--color-brand-300)] hover:bg-[var(--brand-soft)]/50 transition-colors">
             <input type="file" accept="image/*" multiple className="sr-only" onChange={handleGallery} />
             <Upload className="w-5 h-5 text-slate-300 mb-1" />
             <span className="text-[10px] text-slate-400">Add</span>
@@ -386,7 +386,7 @@ function Step5({ coverageAreas }: { coverageAreas: CoverageArea[] }) {
               </span>
             ))}
           </div>
-          <Link href="/supplier/coverage" target="_blank" className="inline-block mt-3 text-sm text-blue-600 hover:underline">
+          <Link href="/supplier/coverage" target="_blank" className="inline-block mt-3 text-sm text-[var(--brand)] hover:underline">
             Manage coverage areas →
           </Link>
         </div>

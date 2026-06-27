@@ -156,7 +156,7 @@ export default function BookingWidget({
               <button
                 type="button"
                 onClick={() => setCalendarOpen(v => !v)}
-                className="flex gap-2.5 p-3.5 text-left transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="flex gap-2.5 p-3.5 text-left transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
               >
                 <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
                 <div>
@@ -169,7 +169,7 @@ export default function BookingWidget({
               <button
                 type="button"
                 onClick={() => setCalendarOpen(v => !v)}
-                className="flex gap-2.5 p-3.5 text-left transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="flex gap-2.5 p-3.5 text-left transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
               >
                 <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
                 <div>
@@ -185,7 +185,7 @@ export default function BookingWidget({
             <button
               type="button"
               onClick={() => setCalendarOpen(v => !v)}
-              className="flex w-full gap-2.5 p-3.5 text-left transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="flex w-full gap-2.5 p-3.5 text-left transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
             >
               <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
               <div>
@@ -220,7 +220,7 @@ export default function BookingWidget({
               <button
                 type="button"
                 onClick={() => setGuestsOpen(v => !v)}
-                className="flex w-full items-center justify-between p-3.5 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="flex w-full items-center justify-between p-3.5 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
               >
                 <div className="flex items-center gap-2">
                   <div className="text-[11px] font-[700] uppercase tracking-wide text-slate-500">Guests</div>
@@ -317,7 +317,7 @@ export default function BookingWidget({
         <button
           type="button"
           onClick={() => setCalendarOpen(true)}
-          className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl bg-[#2563EB] text-white text-[14.5px] font-semibold shadow-[0_2px_12px_rgba(37,99,235,0.32)] hover:bg-[#1d4ed8] transition-colors"
+          className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl bg-[var(--brand)] text-white text-[14.5px] font-semibold shadow-[0_2px_12px_rgba(37,99,235,0.32)] hover:bg-[var(--brand-strong)] transition-colors"
         >
           <Calendar className="w-4.5 h-4.5" aria-hidden="true" />
           {isStay ? 'Check availability' : 'Select a date'}
@@ -326,7 +326,7 @@ export default function BookingWidget({
         <button
           type="button"
           onClick={handleBook}
-          className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl bg-[#2563EB] text-white text-[14.5px] font-semibold shadow-[0_2px_12px_rgba(37,99,235,0.32)] hover:bg-[#1d4ed8] transition-colors"
+          className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl bg-[var(--brand)] text-white text-[14.5px] font-semibold shadow-[0_2px_12px_rgba(37,99,235,0.32)] hover:bg-[var(--brand-strong)] transition-colors"
         >
           <Zap className="w-4.5 h-4.5" aria-hidden="true" />
           {isStay ? 'Reserve now' : 'Book this service'}
@@ -335,7 +335,7 @@ export default function BookingWidget({
         <button
           type="button"
           onClick={handleBook}
-          className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl border border-[#2563EB] text-[#2563EB] text-[14.5px] font-semibold hover:bg-blue-50 transition-colors"
+          className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl border border-[var(--brand)] text-[var(--brand)] text-[14.5px] font-semibold hover:bg-[var(--brand-soft)] transition-colors"
         >
           <CalendarCheck className="w-4.5 h-4.5" aria-hidden="true" />
           {isStay ? 'Request to book' : 'Request this service'}

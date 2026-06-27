@@ -38,6 +38,17 @@ const nextConfig: NextConfig = {
   // Marking these packages as server-external loads them natively at runtime
   // (they are pure Node.js) and avoids the ENOENT crash.
   serverExternalPackages: ["isomorphic-dompurify", "jsdom", "dompurify", "@sentry/nextjs"],
+  // Hide the floating Next.js dev-tools indicator (the bottom-left "Next.js
+  // circle"). Dev-only UI, but suppressed so it never appears over the landing
+  // page during local QA / screenshots. No production effect.
+  devIndicators: false,
+  // Opt-in skip of the in-build type/lint pass for memory-constrained local
+  // builds (the build's TS worker OOMs on this host). Defaults OFF — full check
+  // runs on CI/Vercel and any build without the flag. Only safe because types are
+  // verified separately via `tsc --noEmit` and `eslint`. Mirrors BUILD_CPUS.
+  ...(process.env.SKIP_TS_CHECK === "true"
+    ? { typescript: { ignoreBuildErrors: true }, eslint: { ignoreDuringBuilds: true } }
+    : {}),
   experimental: {
     optimizePackageImports: ["lucide-react"],
     // Static-generation worker count. Defaults to one-per-core (~27 on this
@@ -57,6 +68,10 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.r2.dev" },
       // Unsplash CDN (demo/seed images)
       { protocol: "https", hostname: "images.unsplash.com" },
+      // OAuth provider avatars (Google sign-in profile photos). Without this,
+      // next/image throws "hostname not configured" and trips the route error
+      // boundary on any page that renders the user's Google avatar (FIX-652).
+      { protocol: "https", hostname: "*.googleusercontent.com" },
     ],
   },
   headers: async () => [

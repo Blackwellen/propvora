@@ -67,7 +67,7 @@ export default function CalendarViewsSwitcher() {
             className={cn(
               "inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all duration-150 border",
               active
-                ? "bg-[#2563EB] text-white border-[#2563EB] shadow-sm"
+                ? "bg-[var(--brand)] text-white border-[var(--brand)] shadow-sm"
                 : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-slate-800 hover:bg-slate-50"
             )}
           >

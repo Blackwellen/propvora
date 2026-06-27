@@ -233,7 +233,7 @@ export default function MarketplaceCheckout({ config }: { config: MarketplaceChe
             <Image src={config.thumbUrl} alt="" fill className="object-cover" sizes="80px" />
           </div>
         ) : (
-          <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-xl bg-[#EFF5FF] text-[#2563EB]">
+          <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-xl bg-[#EFF5FF] text-[var(--brand)]">
             <MapPin className="h-5 w-5" />
           </div>
         )}
@@ -318,7 +318,7 @@ export default function MarketplaceCheckout({ config }: { config: MarketplaceChe
       {config.trustChips && config.trustChips.length > 0 ? (
         <div className="flex flex-wrap gap-1.5 border-t border-[#EEF2F9] px-4 py-3">
           {config.trustChips.map((chip) => (
-            <span key={chip} className="inline-flex items-center gap-1 rounded-full bg-[#F1F6FF] px-2 py-0.5 text-[11px] font-semibold text-[#1D4ED8]">
+            <span key={chip} className="inline-flex items-center gap-1 rounded-full bg-[#F1F6FF] px-2 py-0.5 text-[11px] font-semibold text-[var(--brand-strong)]">
               <ShieldCheck className="h-3 w-3" /> {chip}
             </span>
           ))}
@@ -344,7 +344,7 @@ export default function MarketplaceCheckout({ config }: { config: MarketplaceChe
                 <strong className="font-semibold text-[#0B1B3F]">{email || "your email"}</strong>. Your card
                 was charged <strong className="font-semibold text-[#0B1B3F]">{formatPence(totals.total, currency)}</strong>.
               </p>
-              <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#F1F6FF] px-3 py-1.5 text-[12.5px] font-semibold text-[#1D4ED8]">
+              <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#F1F6FF] px-3 py-1.5 text-[12.5px] font-semibold text-[var(--brand-strong)]">
                 <Tag className="h-3.5 w-3.5" /> Reference {reference}
               </div>
             </div>
@@ -354,7 +354,7 @@ export default function MarketplaceCheckout({ config }: { config: MarketplaceChe
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
             href={config.successHref ?? config.backHref}
-            className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-5 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-[#1D4ED8]"
+            className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--brand)] px-5 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-[var(--brand-strong)]"
           >
             {config.successHrefLabel ?? "View my bookings"} <ArrowRight className="h-4 w-4" />
           </Link>
@@ -377,7 +377,7 @@ export default function MarketplaceCheckout({ config }: { config: MarketplaceChe
       {/* Back link */}
       <Link
         href={config.backHref}
-        className="inline-flex w-fit items-center gap-1.5 text-[13px] font-semibold text-slate-500 transition-colors hover:text-[#1D4ED8]"
+        className="inline-flex w-fit items-center gap-1.5 text-[13px] font-semibold text-slate-500 transition-colors hover:text-[var(--brand-strong)]"
       >
         <ArrowLeft className="h-3.5 w-3.5" /> {config.backLabel ?? "Back"}
       </Link>
@@ -479,7 +479,7 @@ export default function MarketplaceCheckout({ config }: { config: MarketplaceChe
                 <button
                   type="button"
                   onClick={applyPromo}
-                  className="inline-flex h-[42px] items-center gap-1.5 rounded-xl border border-[#D8E1F0] bg-white px-4 text-[13px] font-semibold text-[#2563EB] hover:bg-[#EFF5FF]"
+                  className="inline-flex h-[42px] items-center gap-1.5 rounded-xl border border-[#D8E1F0] bg-white px-4 text-[13px] font-semibold text-[var(--brand)] hover:bg-[#EFF5FF]"
                 >
                   <Tag className="h-3.5 w-3.5" /> Apply
                 </button>
@@ -498,7 +498,7 @@ export default function MarketplaceCheckout({ config }: { config: MarketplaceChe
               <ol className="flex flex-col gap-3">
                 {config.whatNext.map((stepText, i) => (
                   <li key={stepText} className="flex items-start gap-3">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EFF5FF] text-[12px] font-bold text-[#2563EB]">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EFF5FF] text-[12px] font-bold text-[var(--brand)]">
                       {i + 1}
                     </span>
                     <span className="min-w-0 break-words pt-0.5 text-[13px] text-slate-600">{stepText}</span>

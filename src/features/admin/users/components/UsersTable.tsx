@@ -68,11 +68,11 @@ export function UsersTable({ rows, allCount, filteredCount, searchParams: sp, pa
               <tr key={u.id} className="hover:bg-[#FAFCFF]">
                 <td className="px-4 py-2.5">
                   <Link href={`/admin/users/${u.id}`} className="flex items-center gap-2.5 group">
-                    <span className="w-8 h-8 rounded-full bg-[#2563EB] text-white text-[11px] font-bold flex items-center justify-center shrink-0">
+                    <span className="w-8 h-8 rounded-full bg-[var(--brand)] text-white text-[11px] font-bold flex items-center justify-center shrink-0">
                       {initials(u.name, u.email)}
                     </span>
                     <span className="min-w-0">
-                      <span className="block text-[13px] font-semibold text-[#0B1B3F] group-hover:text-[#2563EB] truncate">{u.name ?? "—"}</span>
+                      <span className="block text-[13px] font-semibold text-[#0B1B3F] group-hover:text-[var(--brand)] truncate">{u.name ?? "—"}</span>
                       <span className="block text-[11px] text-slate-400 truncate">{u.email ?? ""}</span>
                     </span>
                   </Link>

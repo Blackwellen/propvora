@@ -27,7 +27,7 @@ export function TenantPortalMaintenanceWizardStep1({
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}
           placeholder="e.g. Leaking kitchen tap"
-          className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-blue-100"
+          className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-[var(--color-brand-100)]"
         />
       </div>
       <div>
@@ -39,7 +39,7 @@ export function TenantPortalMaintenanceWizardStep1({
           onChange={(e) => onDescriptionChange(e.target.value)}
           rows={3}
           placeholder="Where is it, when did it start, any access notes…"
-          className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none resize-none focus:ring-2 focus:ring-blue-100"
+          className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none resize-none focus:ring-2 focus:ring-[var(--color-brand-100)]"
         />
       </div>
       <button

@@ -45,10 +45,10 @@ export function toneForStatus(status: string): StatusTone {
 // ─── Input classes ────────────────────────────────────────────────────────────
 
 export const supplierInputClass =
-  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent transition-all"
 
 export const supplierTextareaClass =
-  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent transition-all resize-none"
 
 // ─── Page Header ─────────────────────────────────────────────────────────────
 
@@ -236,7 +236,7 @@ export function SupplierTabs({ active, onChange, tabs, className }: SupplierTabs
             className={cn(
               "relative inline-flex items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium transition-colors -mb-px border-b-2 whitespace-nowrap shrink-0",
               isActive
-                ? "text-blue-600 border-blue-600"
+                ? "text-[var(--brand)] border-[var(--brand)]"
                 : "text-slate-500 border-transparent hover:text-slate-700"
             )}
           >
@@ -245,7 +245,7 @@ export function SupplierTabs({ active, onChange, tabs, className }: SupplierTabs
               <span
                 className={cn(
                   "ml-1.5 inline-flex items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-semibold",
-                  isActive ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500"
+                  isActive ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "bg-slate-100 text-slate-500"
                 )}
               >
                 {t.count}
@@ -278,7 +278,7 @@ const toneClasses: Record<StatusTone, string> = {
   sky:     "bg-sky-50 text-sky-700 border-sky-200",
   slate:   "bg-slate-100 text-slate-600 border-slate-200",
   red:     "bg-red-50 text-red-700 border-red-200",
-  blue:    "bg-blue-50 text-blue-700 border-blue-200",
+  blue:    "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",
   violet:  "bg-violet-50 text-violet-700 border-violet-200",
 }
 
@@ -327,10 +327,10 @@ export function SupplierButton({
   type = "button",
   className,
 }: SupplierButtonProps) {
-  const base = "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+  const base = "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] disabled:opacity-50 disabled:cursor-not-allowed"
   const sizes = { sm: "px-3 py-1.5 text-sm gap-1.5", md: "px-4 py-2 text-sm gap-2" }
   const variants = {
-    primary:   "bg-[#2563EB] text-white hover:bg-[#1d4ed8]",
+    primary:   "bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)]",
     outline:   "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50",
     secondary: "bg-slate-100 text-slate-700 hover:bg-slate-200",
     ghost:     "bg-transparent text-slate-600 hover:bg-slate-100",
@@ -438,7 +438,7 @@ const bannerClasses: Record<StatusTone, string> = {
   red:     "bg-red-50 border border-red-200 text-red-800",
   amber:   "bg-amber-50 border border-amber-200 text-amber-800",
   sky:     "bg-sky-50 border border-sky-200 text-sky-800",
-  blue:    "bg-blue-50 border border-blue-200 text-blue-800",
+  blue:    "bg-[var(--brand-soft)] border border-[var(--color-brand-100)] text-[var(--brand-strong)]",
   violet:  "bg-violet-50 border border-violet-200 text-violet-800",
   slate:   "bg-slate-50 border border-slate-200 text-slate-700",
 }
@@ -485,7 +485,7 @@ export function SupplierUpgradeCard({
 }: SupplierUpgradeCardProps) {
   return (
     <SupplierCard className="p-8 flex flex-col items-center text-center max-w-xl mx-auto">
-      <div className="mb-4 w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center text-white shadow-sm">
+      <div className="mb-4 w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-[var(--brand)] flex items-center justify-center text-white shadow-sm">
         <Sparkles className="w-6 h-6" />
       </div>
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 text-[11px] font-semibold border border-violet-200 mb-3">
@@ -505,7 +505,7 @@ export function SupplierUpgradeCard({
       )}
       <Link
         href={href}
-        className="inline-flex items-center gap-2 bg-gradient-to-br from-violet-600 to-blue-600 hover:opacity-90 text-white rounded-lg px-5 py-2.5 text-sm font-semibold transition-opacity"
+        className="inline-flex items-center gap-2 bg-gradient-to-br from-violet-600 to-[var(--brand)] hover:opacity-90 text-white rounded-lg px-5 py-2.5 text-sm font-semibold transition-opacity"
       >
         <Sparkles className="w-4 h-4" /> {ctaLabel}
       </Link>
@@ -594,7 +594,7 @@ export function SupplierViewLink({ href, label, className }: SupplierViewLinkPro
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center gap-1 text-[12px] font-medium text-blue-600 hover:text-blue-700 transition-colors",
+        "inline-flex items-center gap-1 text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand)] transition-colors",
         className
       )}
     >

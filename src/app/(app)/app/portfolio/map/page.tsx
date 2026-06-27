@@ -75,7 +75,7 @@ export function formatCurrency(n: number) {
 }
 
 const TYPE_GRADIENTS: Record<string, string> = {
-  HMO:          "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
+  HMO:          "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)",
   BTL:          "linear-gradient(135deg, #059669 0%, #10B981 100%)",
   SA:           "linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)",
   R2R:          "linear-gradient(135deg, #EA580C 0%, #F97316 100%)",
@@ -100,9 +100,9 @@ function PropertyListCard({ property, selected, onClick }: { property: MapProper
     <button
       onClick={onClick}
       className={cn(
-        "w-full text-left p-3 rounded-xl border transition-all duration-150 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30",
+        "w-full text-left p-3 rounded-xl border transition-all duration-150 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30",
         selected
-          ? "border-[#2563EB] bg-blue-50/70 shadow-sm ring-1 ring-[#2563EB]/20"
+          ? "border-[var(--brand)] bg-[var(--brand-soft)]/70 shadow-sm ring-1 ring-[var(--brand)]/20"
           : "border-transparent hover:border-slate-200 hover:bg-slate-50/80"
       )}
     >
@@ -256,13 +256,13 @@ export default function PortfolioMapPage() {
                 placeholder="Search properties..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-9 pl-8 pr-3 rounded-lg text-sm bg-slate-50 border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+                className="w-full h-9 pl-8 pr-3 rounded-lg text-sm bg-slate-50 border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
               />
             </div>
             <button
               onClick={() => setShowFilters((v) => !v)}
               aria-label="Toggle filters"
-              className={cn("w-9 h-9 rounded-lg flex items-center justify-center border transition-colors shrink-0", showFilters ? "bg-[#2563EB] border-[#2563EB] text-white" : "border-slate-200 text-slate-400 hover:text-slate-600 hover:border-slate-300")}
+              className={cn("w-9 h-9 rounded-lg flex items-center justify-center border transition-colors shrink-0", showFilters ? "bg-[var(--brand)] border-[var(--brand)] text-white" : "border-slate-200 text-slate-400 hover:text-slate-600 hover:border-slate-300")}
             >
               <SlidersHorizontal className="w-4 h-4" />
             </button>
@@ -308,7 +308,7 @@ export default function PortfolioMapPage() {
               <p className="text-xs text-slate-500 text-center">No properties match your filters</p>
               <button
                 onClick={() => { setSearch(""); setFilterStatus("all"); setFilterHealth("all") }}
-                className="text-xs text-[#2563EB] hover:underline min-h-[44px]"
+                className="text-xs text-[var(--brand)] hover:underline min-h-[44px]"
               >
                 Clear filters
               </button>
@@ -437,7 +437,7 @@ export default function PortfolioMapPage() {
             {/* Floating "N results" button — opens the list sheet (phones only). */}
             <button
               onClick={() => setListSheetOpen(true)}
-              className="lg:hidden absolute left-1/2 -translate-x-1/2 bottom-4 z-[400] inline-flex items-center gap-2 h-11 px-5 rounded-full bg-[#2563EB] text-white text-sm font-semibold shadow-[0_6px_24px_rgba(37,99,235,0.4)] active:scale-95 transition-transform"
+              className="lg:hidden absolute left-1/2 -translate-x-1/2 bottom-4 z-[400] inline-flex items-center gap-2 h-11 px-5 rounded-full bg-[var(--brand)] text-white text-sm font-semibold shadow-[0_6px_24px_rgba(37,99,235,0.4)] active:scale-95 transition-transform"
             >
               <List className="w-4 h-4" />
               {filtered.length} result{filtered.length !== 1 ? "s" : ""}

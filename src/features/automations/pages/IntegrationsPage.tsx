@@ -47,7 +47,7 @@ type ConnectedRow = IntegrationRow & { provider?: string }
 const ENV_CLS: Record<string, string> = {
   Production: "bg-emerald-50 text-emerald-700",
   Staging: "bg-amber-50 text-amber-700",
-  Development: "bg-blue-50 text-blue-700",
+  Development: "bg-[var(--brand-soft)] text-[var(--brand)]",
 }
 
 const EVENT_GROUPS = ["property.*", "tenancy.*", "compliance.*", "work.*", "finance.*", "contact.*", "automation.*"]
@@ -166,7 +166,7 @@ function ApiKeyModal({
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="Paste your API key here"
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none font-mono"
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-[var(--color-brand-400)] focus:outline-none font-mono"
             autoComplete="off"
           />
           <p className="mt-1 text-[11px] text-slate-400">
@@ -179,7 +179,7 @@ function ApiKeyModal({
             href={integration.docsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
+            className="inline-flex items-center gap-1 text-xs text-[var(--brand)] hover:underline"
           >
             <ExternalLink className="h-3.5 w-3.5" />
             View {integration.name} developer docs
@@ -251,7 +251,7 @@ function CatalogCard({
         ) : (
           <button
             onClick={() => onConnect(item)}
-            className="w-full rounded-lg bg-blue-600 px-2 py-1.5 text-[11px] font-semibold text-white hover:bg-blue-700 transition"
+            className="w-full rounded-lg bg-[var(--brand)] px-2 py-1.5 text-[11px] font-semibold text-white hover:bg-[var(--brand-strong)] transition"
           >
             {item.connectType === "oauth" ? "Connect with OAuth" : "Connect with API key"}
           </button>
@@ -390,7 +390,7 @@ function WebhooksTabContent() {
             )}
           </Card>
           <Card>
-            <CardHeader title="Recent event deliveries" action={<button className="text-xs font-medium text-blue-600 hover:underline">View all deliveries →</button>} />
+            <CardHeader title="Recent event deliveries" action={<button className="text-xs font-medium text-[var(--brand)] hover:underline">View all deliveries →</button>} />
             <AutomationsDataTable columns={deliveryCols} rows={data.deliveries} selectable pageSize={5} total={data.deliveries.length} />
           </Card>
         </div>
@@ -434,7 +434,7 @@ function WebhooksTabContent() {
                           <button
                             disabled={rotatingId === active.id}
                             onClick={handleRotateSecret}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline disabled:opacity-50"
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:underline disabled:opacity-50"
                           >
                             <RefreshCw className={`h-3 w-3 ${rotatingId === active.id ? "animate-spin" : ""}`} />
                             {rotatingId === active.id ? "Rotating…" : "Rotate secret"}
@@ -447,7 +447,7 @@ function WebhooksTabContent() {
                         <button
                           disabled={rotatingId === active.id}
                           onClick={handleRotateSecret}
-                          className="ml-2 font-semibold text-blue-600 hover:underline disabled:opacity-50"
+                          className="ml-2 font-semibold text-[var(--brand)] hover:underline disabled:opacity-50"
                         >
                           {rotatingId === active.id ? "Generating…" : "Generate secret"}
                         </button>
@@ -459,7 +459,7 @@ function WebhooksTabContent() {
                       <div className="text-[11px] font-semibold uppercase text-slate-400">Sample payload</div>
                       <button
                         onClick={() => handleCopy(JSON.stringify({ event: "property.updated", id: "evt_sample", workspace_id: "ws_xxx", timestamp: new Date().toISOString(), data: { property_id: "PR-0042" } }, null, 2), "Payload")}
-                        className="text-xs font-medium text-blue-600 hover:underline"
+                        className="text-xs font-medium text-[var(--brand)] hover:underline"
                       >
                         Copy
                       </button>
@@ -534,7 +534,7 @@ function WebhooksTabContent() {
               value={newEp.name}
               onChange={(e) => setNewEp((s) => ({ ...s, name: e.target.value }))}
               placeholder="e.g. Production webhook"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-[var(--color-brand-400)] focus:outline-none"
             />
           </div>
           <div>
@@ -543,7 +543,7 @@ function WebhooksTabContent() {
               value={newEp.url}
               onChange={(e) => setNewEp((s) => ({ ...s, url: e.target.value }))}
               placeholder="https://your-server.com/webhook"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm focus:border-blue-400 focus:outline-none"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm focus:border-[var(--color-brand-400)] focus:outline-none"
             />
             <p className="mt-1 text-[11px] text-slate-400">Must be an HTTPS endpoint. POST requests with JSON payloads will be sent here.</p>
           </div>
@@ -552,7 +552,7 @@ function WebhooksTabContent() {
             <select
               value={newEp.environment}
               onChange={(e) => setNewEp((s) => ({ ...s, environment: e.target.value }))}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-[var(--color-brand-400)] focus:outline-none"
             >
               {ENVIRONMENTS.map((env) => <option key={env}>{env}</option>)}
             </select>
@@ -564,7 +564,7 @@ function WebhooksTabContent() {
                 <button
                   key={g}
                   onClick={() => setNewEp((s) => ({ ...s, eventGroups: s.eventGroups.includes(g) ? s.eventGroups.filter((x) => x !== g) : [...s.eventGroups, g] }))}
-                  className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${newEp.eventGroups.includes(g) ? "border-blue-200 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
+                  className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${newEp.eventGroups.includes(g) ? "border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
                 >
                   {g}
                 </button>
@@ -578,7 +578,7 @@ function WebhooksTabContent() {
               onChange={(e) => setNewEp((s) => ({ ...s, secret: e.target.value }))}
               type="password"
               placeholder="Leave blank to auto-generate"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-[var(--color-brand-400)] focus:outline-none"
             />
           </div>
         </div>
@@ -694,7 +694,7 @@ export default function IntegrationsPage() {
             aria-controls={`integrations-panel-${t.toLowerCase().replace(/\s+/g, "-")}`}
             id={`integrations-tab-${t.toLowerCase().replace(/\s+/g, "-")}`}
             onClick={() => setSubtab(t)}
-            className={`shrink-0 border-b-2 px-3 py-2.5 text-sm transition ${subtab === t ? "border-blue-600 font-semibold text-blue-700" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}
+            className={`shrink-0 border-b-2 px-3 py-2.5 text-sm transition ${subtab === t ? "border-[var(--brand)] font-semibold text-[var(--brand)]" : "border-transparent font-medium text-slate-500 hover:text-slate-800"}`}
           >
             {t}
             {t === "Integrations" && connected.length > 0 && (
@@ -715,11 +715,11 @@ export default function IntegrationsPage() {
           </div>
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <Card>
-              <CardHeader title="Connected apps" action={<button onClick={() => setSubtab("Integrations")} className="text-xs font-medium text-blue-600 hover:underline">View all →</button>} />
+              <CardHeader title="Connected apps" action={<button onClick={() => setSubtab("Integrations")} className="text-xs font-medium text-[var(--brand)] hover:underline">View all →</button>} />
               {connected.length === 0 ? (
                 <div className="p-6 text-sm text-slate-400">
                   No integrations connected yet.{" "}
-                  <button onClick={() => setSubtab("Integrations")} className="font-semibold text-blue-600 hover:underline">Browse catalogue →</button>
+                  <button onClick={() => setSubtab("Integrations")} className="font-semibold text-[var(--brand)] hover:underline">Browse catalogue →</button>
                 </div>
               ) : (
                 <div className="divide-y divide-slate-100">
@@ -778,13 +778,13 @@ export default function IntegrationsPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search integrations…"
-                className="w-48 rounded-lg border border-slate-200 pl-8 pr-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+                className="w-48 rounded-lg border border-slate-200 pl-8 pr-3 py-2 text-sm focus:border-[var(--color-brand-400)] focus:outline-none"
               />
             </div>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 focus:border-blue-400 focus:outline-none"
+              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 focus:border-[var(--color-brand-400)] focus:outline-none"
             >
               {categories.map((c) => <option key={c}>{c}</option>)}
             </select>
@@ -871,7 +871,7 @@ export default function IntegrationsPage() {
                 {connected.filter((c) => c.health !== "healthy").map((c) => (
                   <div key={c.id} className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm">
                     <span className="text-slate-700">{c.name}</span>
-                    <button onClick={() => handleTest(c.id ?? c.name.toLowerCase())} className="text-xs font-medium text-blue-600 hover:underline">
+                    <button onClick={() => handleTest(c.id ?? c.name.toLowerCase())} className="text-xs font-medium text-[var(--brand)] hover:underline">
                       Test connection
                     </button>
                   </div>
@@ -884,7 +884,7 @@ export default function IntegrationsPage() {
           </Card>
           {connected.length > 0 && (
             <Card className="lg:col-span-2">
-              <CardHeader title="All connections" action={<button onClick={() => refresh?.()} className="text-xs font-medium text-blue-600 hover:underline">Refresh</button>} />
+              <CardHeader title="All connections" action={<button onClick={() => refresh?.()} className="text-xs font-medium text-[var(--brand)] hover:underline">Refresh</button>} />
               <div className="divide-y divide-slate-100">
                 {connected.map((it) => (
                   <div key={it.id} className="flex items-center justify-between px-4 py-2.5">
@@ -924,7 +924,7 @@ export default function IntegrationsPage() {
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">Enterprise</span>
-              <a href="/property-manager/workspace/billing" className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:underline">
+              <a href="/property-manager/workspace/billing" className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand)] hover:underline">
                 Upgrade plan <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </div>
@@ -987,7 +987,7 @@ export default function IntegrationsPage() {
       {subtab === "Audit Log" && (
         <div className="mt-4">
           <Card>
-            <CardHeader title="Integration audit log" action={<button className="text-xs font-medium text-blue-600 hover:underline">Export CSV</button>} />
+            <CardHeader title="Integration audit log" action={<button className="text-xs font-medium text-[var(--brand)] hover:underline">Export CSV</button>} />
             <div className="p-6 text-center text-sm text-slate-400">
               Connect/disconnect events, credential changes, and test calls will appear here once integrations are active.
             </div>

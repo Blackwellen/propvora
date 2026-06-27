@@ -93,8 +93,8 @@ export function SupplierCard({ supplier, onTogglePreferred, rating }: SupplierCa
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h3 className="text-[13.5px] font-semibold text-slate-900">{supplier.name}</h3>
-            {supplier.preferred && <BadgeCheck className="w-4 h-4 text-[#2563EB] shrink-0" />}
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-blue-700 border-blue-200">
+            {supplier.preferred && <BadgeCheck className="w-4 h-4 text-[var(--brand)] shrink-0" />}
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]">
               {supplier.trade}
             </span>
           </div>
@@ -163,7 +163,7 @@ export function SupplierCard({ supplier, onTogglePreferred, rating }: SupplierCa
             </Link>
             <Link
               href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
-              className="flex-1 px-3 py-2.5 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors text-center"
+              className="flex-1 px-3 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[12.5px] font-semibold hover:bg-[var(--brand-strong)] transition-colors text-center"
             >
               Assign to Job
             </Link>
@@ -192,7 +192,7 @@ export function SupplierCard({ supplier, onTogglePreferred, rating }: SupplierCa
             </Link>
             <Link
               href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
-              className="px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-[12px] font-semibold hover:bg-[#1d4ed8] transition-colors whitespace-nowrap text-center"
+              className="px-3.5 py-2 rounded-xl bg-[var(--brand)] text-white text-[12px] font-semibold hover:bg-[var(--brand-strong)] transition-colors whitespace-nowrap text-center"
             >
               Assign to Job
             </Link>

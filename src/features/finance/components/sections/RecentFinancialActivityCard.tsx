@@ -17,7 +17,7 @@ export function RecentFinancialActivityCard({ activity }: RecentFinancialActivit
           <h2 className="text-base font-semibold text-slate-900">Recent Financial Activity</h2>
           <p className="text-xs text-slate-500 mt-0.5">Latest events across Money</p>
         </div>
-        <Link href="/property-manager/money/activity" className="text-xs font-medium text-[#2563EB] hover:underline flex items-center gap-1">
+        <Link href="/property-manager/money/activity" className="text-xs font-medium text-[var(--brand)] hover:underline flex items-center gap-1">
           View all activity <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>

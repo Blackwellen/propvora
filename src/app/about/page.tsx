@@ -7,6 +7,7 @@ import PublicFooter from "@/components/marketing/PublicFooter"
 export const metadata: Metadata = {
   title: "About Propvora",
   description: "Why Propvora exists and the principles behind its connected property operations platform.",
+  alternates: { canonical: "/about" },
 }
 
 const principles = [

@@ -107,7 +107,7 @@ function ResolutionInner({ dispute, source }: { dispute: Dispute; source: 'live'
                 </div>
                 <div className="text-right">
                   <p className="font-medium text-slate-900">{formatPence(r.pence, dispute.currency)}</p>
-                  <span className={`text-[11px] capitalize ${r.status === 'released' ? 'text-emerald-600' : r.status === 'scheduled' ? 'text-blue-600' : 'text-slate-400'}`}>{r.status}</span>
+                  <span className={`text-[11px] capitalize ${r.status === 'released' ? 'text-emerald-600' : r.status === 'scheduled' ? 'text-[var(--brand)]' : 'text-slate-400'}`}>{r.status}</span>
                 </div>
               </li>
             ))}
@@ -186,7 +186,7 @@ function ResolutionInner({ dispute, source }: { dispute: Dispute; source: 'live'
         <input defaultValue={(p.refund_pence / 100).toFixed(2)} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm mb-3" />
         <label className="block text-xs font-medium text-slate-600 mb-1">Rationale</label>
         <textarea rows={4} defaultValue={p.rationale} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm" />
-        <button onClick={() => { fire('Proposal amended — re-acceptance required'); setHostAccepted(false); setCounterAccepted(false); setDrawer(null) }} className="mt-3 bg-blue-600 text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-blue-700">Save amendment</button>
+        <button onClick={() => { fire('Proposal amended — re-acceptance required'); setHostAccepted(false); setCounterAccepted(false); setDrawer(null) }} className="mt-3 bg-[var(--brand)] text-white rounded-xl px-3.5 py-2 text-sm font-medium hover:bg-[var(--brand-strong)]">Save amendment</button>
       </StubDrawer>
       <FeedbackToast msg={msg} />
     </DisputeWorkflowLayout>
@@ -207,7 +207,7 @@ function AcceptRow({ label, checked, onToggle }: { label: string; checked: boole
 }
 
 const TONES: Record<string, string> = {
-  blue: 'text-blue-700 bg-blue-50',
+  blue: 'text-[var(--brand)] bg-[var(--brand-soft)]',
   amber: 'text-amber-700 bg-amber-50',
   violet: 'text-violet-700 bg-violet-50',
   emerald: 'text-emerald-700 bg-emerald-50',

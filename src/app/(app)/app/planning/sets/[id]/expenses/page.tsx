@@ -227,7 +227,7 @@ export default function ExpensesPage() {
                         </td>
                         <td className="px-4 py-3 text-xs text-slate-500">{r.category ?? "—"}</td>
                         <td className="px-4 py-3">
-                          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${r.is_variable ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"}`}>
+                          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${r.is_variable ? "bg-amber-100 text-amber-700" : "bg-[var(--color-brand-100)] text-[var(--brand)]"}`}>
                             {r.is_variable ? "Variable" : "Fixed"}
                           </span>
                         </td>

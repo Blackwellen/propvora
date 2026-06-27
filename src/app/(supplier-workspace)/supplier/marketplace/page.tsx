@@ -305,7 +305,7 @@ export default function MarketplacePage() {
             className={cn(
               "px-4 py-2 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors",
               statusFilter === f.value
-                ? "border-blue-600 text-blue-600"
+                ? "border-[var(--brand)] text-[var(--brand)]"
                 : "border-transparent text-slate-500 hover:text-slate-700"
             )}
           >

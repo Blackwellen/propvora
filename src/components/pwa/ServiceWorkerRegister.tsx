@@ -60,7 +60,7 @@ export default function ServiceWorkerRegister() {
       <div className="flex items-center gap-3 rounded-2xl bg-[#0D1B2A] text-white shadow-2xl px-4 py-3">
         <RefreshCw className="w-4 h-4 text-violet-300" />
         <span className="text-sm">A new version of Propvora is available.</span>
-        <button onClick={applyUpdate} className="rounded-lg bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5">
+        <button onClick={applyUpdate} className="rounded-lg bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-xs font-semibold px-3 py-1.5">
           Refresh
         </button>
       </div>

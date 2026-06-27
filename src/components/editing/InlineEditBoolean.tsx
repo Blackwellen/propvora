@@ -83,8 +83,8 @@ export function InlineEditBoolean({
       <span
         className={cn(
           "relative w-9 h-5 rounded-full transition-colors shrink-0",
-          "group-focus-visible:ring-2 group-focus-visible:ring-[#2563EB]/40",
-          on ? "bg-[#2563EB]" : "bg-slate-300"
+          "group-focus-visible:ring-2 group-focus-visible:ring-[var(--brand)]/40",
+          on ? "bg-[var(--brand)]" : "bg-slate-300"
         )}
       >
         <span
@@ -93,7 +93,7 @@ export function InlineEditBoolean({
             on && "translate-x-4"
           )}
         >
-          {on && <Check className="w-2.5 h-2.5 text-[#2563EB]" />}
+          {on && <Check className="w-2.5 h-2.5 text-[var(--brand)]" />}
         </span>
       </span>
       <span className="text-[13px] text-slate-700">{on ? trueLabel : falseLabel}</span>

@@ -85,7 +85,7 @@ export default function TemplateGallery() {
             onClick={() => setCategory(c)}
             className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
               category === c
-                ? "border-blue-200 bg-blue-50 text-blue-700"
+                ? "border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand)]"
                 : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
             }`}
           >
@@ -112,7 +112,7 @@ export default function TemplateGallery() {
               <button
                 onClick={() => useTemplate(t)}
                 disabled={busy === t.template_id}
-                className="inline-flex min-h-[36px] items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                className="inline-flex min-h-[36px] items-center gap-1 rounded-lg bg-[var(--brand)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[var(--brand-strong)] disabled:opacity-50"
               >
                 {installed.has(t.template_id) ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
                 {installed.has(t.template_id) ? "Added" : busy === t.template_id ? "…" : "Use"}
@@ -139,7 +139,7 @@ export default function TemplateGallery() {
                   <button
                     onClick={() => useTemplate(t)}
                     disabled={busy === t.template_id}
-                    className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-lg bg-[var(--brand)] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[var(--brand-strong)] disabled:opacity-50"
                   >
                     {installed.has(t.template_id) ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
                     {installed.has(t.template_id) ? "Added" : busy === t.template_id ? "…" : "Use template"}
@@ -154,7 +154,7 @@ export default function TemplateGallery() {
       <div className="pt-1">
         <button
           onClick={() => router.push("/property-manager/automations")}
-          className="text-sm font-medium text-blue-600 hover:text-blue-700"
+          className="text-sm font-medium text-[var(--brand)] hover:text-[var(--brand)]"
         >
           View your automations →
         </button>

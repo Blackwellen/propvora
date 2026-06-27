@@ -84,7 +84,7 @@ export default function DisputesView() {
 
         {/* KPI row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          <KpiCard label="Open disputes" value={String(kpis.open)} subtitle="Active cases" icon={AlertCircle} iconBg="bg-blue-50" iconColor="text-blue-600" />
+          <KpiCard label="Open disputes" value={String(kpis.open)} subtitle="Active cases" icon={AlertCircle} iconBg="bg-[var(--brand-soft)]" iconColor="text-[var(--brand)]" />
           <KpiCard label="Awaiting evidence" value={String(kpis.awaiting)} subtitle="Pending submissions" icon={Clock} iconBg="bg-amber-50" iconColor="text-amber-600" />
           <KpiCard label="High-risk disputes" value={String(kpis.highRisk)} subtitle="High / critical priority" icon={Flame} iconBg="bg-red-50" iconColor="text-red-600" />
           <KpiCard label="Total value at risk" value={formatPence(kpis.atRisk)} subtitle="Across open cases" icon={Wallet} iconBg="bg-violet-50" iconColor="text-violet-600" />
@@ -99,29 +99,29 @@ export default function DisputesView() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search ID, booking ref, guest, supplier, property…"
-              className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
             />
           </div>
-          <select value={property} onChange={(e) => setProperty(e.target.value)} className="border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[150px]">
+          <select value={property} onChange={(e) => setProperty(e.target.value)} className="border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] min-w-[150px]">
             <option value="all">All properties</option>
             {properties.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
-          <select value={reason} onChange={(e) => setReason(e.target.value as DisputeReason | 'all')} className="border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[150px]">
+          <select value={reason} onChange={(e) => setReason(e.target.value as DisputeReason | 'all')} className="border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] min-w-[150px]">
             <option value="all">All dispute reasons</option>
             {(Object.keys(REASON_LABELS) as DisputeReason[]).map((r) => <option key={r} value={r}>{REASON_LABELS[r]}</option>)}
           </select>
-          <select value={stage} onChange={(e) => setStage(e.target.value as DisputeStageKey | 'all')} className="border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[130px]">
+          <select value={stage} onChange={(e) => setStage(e.target.value as DisputeStageKey | 'all')} className="border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] min-w-[130px]">
             <option value="all">All stages</option>
             {DISPUTE_STAGES.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
           </select>
-          <select value={priority} onChange={(e) => setPriority(e.target.value as DisputePriority | 'all')} className="border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[130px]">
+          <select value={priority} onChange={(e) => setPriority(e.target.value as DisputePriority | 'all')} className="border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] min-w-[130px]">
             <option value="all">All priorities</option>
             {(Object.keys(PRIORITY_LABELS) as DisputePriority[]).map((p) => <option key={p} value={p}>{PRIORITY_LABELS[p]}</option>)}
           </select>
           <div className="flex items-center gap-2 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 cursor-pointer hover:bg-slate-50 transition-colors">
             <span>Date range</span>
           </div>
-          <button onClick={clearAll} className="text-sm text-blue-600 hover:text-blue-700 transition-colors whitespace-nowrap">
+          <button onClick={clearAll} className="text-sm text-[var(--brand)] hover:text-[var(--brand)] transition-colors whitespace-nowrap">
             Clear all
           </button>
         </div>
@@ -141,7 +141,7 @@ export default function DisputesView() {
                 ? 'When a guest or host raises an issue against a booking, it will appear here.'
                 : 'Try adjusting or clearing your filters.'}
               action={data.length > 0 ? (
-                <button onClick={clearAll} className="text-sm text-blue-600 hover:text-blue-700">Clear all filters</button>
+                <button onClick={clearAll} className="text-sm text-[var(--brand)] hover:text-[var(--brand)]">Clear all filters</button>
               ) : undefined}
             />
           ) : (
@@ -207,7 +207,7 @@ function DisputesTable({
                 <tr
                   key={d.id}
                   onClick={() => onSelect(d.id)}
-                  className={cn('cursor-pointer hover:bg-slate-50 transition-colors', isSelected && 'bg-sky-50 border-l-2 border-l-blue-600')}
+                  className={cn('cursor-pointer hover:bg-slate-50 transition-colors', isSelected && 'bg-sky-50 border-l-2 border-l-[var(--brand)]')}
                 >
                   <td className="px-4 py-3.5">
                     <p className="text-sm font-semibold text-slate-900">{d.reference}</p>
@@ -262,9 +262,9 @@ function DisputesTable({
       <div className="flex items-center justify-between px-4 py-3.5 border-t border-slate-100">
         <p className="text-sm text-slate-500">Showing 1 to {rows.length} of {rows.length} disputes</p>
         <div className="flex items-center gap-1">
-          <button className="w-8 h-8 rounded-lg text-sm font-medium bg-blue-600 text-white">1</button>
+          <button className="w-8 h-8 rounded-lg text-sm font-medium bg-[var(--brand)] text-white">1</button>
         </div>
-        <select className="border border-slate-200 rounded-xl px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select className="border border-slate-200 rounded-xl px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
           <option>10 / page</option>
           <option>25 / page</option>
           <option>50 / page</option>

@@ -164,7 +164,7 @@ export function ServiceCard({
           href={href}
           className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 rounded"
         >
-          <h3 className="text-sm font-bold text-slate-900 leading-tight group-hover:text-blue-700 transition-colors line-clamp-2">
+          <h3 className="text-sm font-bold text-slate-900 leading-tight group-hover:text-[var(--brand)] transition-colors line-clamp-2">
             {service.title}
           </h3>
         </Link>
@@ -198,7 +198,7 @@ export function ServiceCard({
               </span>
             )}
             {service.insured && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]">
                 <ShieldCheck className="w-3 h-3" aria-hidden="true" />
                 Insured
               </span>

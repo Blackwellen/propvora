@@ -89,7 +89,7 @@ export default function SavedListingCard({
         className={cn(
           "absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center bg-white/95 backdrop-blur shadow-sm",
           "text-rose-500 hover:bg-white hover:text-rose-600 transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/50 disabled:opacity-60"
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/50 disabled:opacity-60"
         )}
       >
         {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Heart className="w-4 h-4 fill-current" />}

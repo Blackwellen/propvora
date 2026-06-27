@@ -7,7 +7,7 @@ import type { ChangelogEntry } from "@/lib/comms/types"
 export const dynamic = "force-dynamic"
 
 const CATEGORY_STYLES: Record<string, string> = {
-  Feature: "bg-[#EFF6FF] text-[#2563EB]",
+  Feature: "bg-[var(--brand-soft)] text-[var(--brand)]",
   Improvement: "bg-[#F5F3FF] text-[#6d28d9]",
   Fix: "bg-[#ECFDF5] text-[#059669]",
   Security: "bg-[#FEF2F2] text-[#dc2626]",
@@ -32,7 +32,7 @@ export default async function AppChangelogPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[#2563EB]" />
+            <Sparkles className="w-5 h-5 text-[var(--brand)]" />
             What&apos;s new
           </h1>
           <p className="text-sm text-slate-500">Latest features, improvements and fixes.</p>
@@ -41,7 +41,7 @@ export default async function AppChangelogPage() {
           href="/changelog"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#2563EB] hover:text-[#1d4ed8]"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--brand)] hover:text-[var(--brand-strong)]"
         >
           Public page <ExternalLink className="w-3.5 h-3.5" />
         </Link>
@@ -49,8 +49,8 @@ export default async function AppChangelogPage() {
 
       {entries.length === 0 ? (
         <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm text-center py-16">
-          <div className="w-12 h-12 rounded-2xl bg-[#EFF6FF] flex items-center justify-center mx-auto mb-4">
-            <Sparkles className="w-6 h-6 text-[#2563EB]" />
+          <div className="w-12 h-12 rounded-2xl bg-[var(--brand-soft)] flex items-center justify-center mx-auto mb-4">
+            <Sparkles className="w-6 h-6 text-[var(--brand)]" />
           </div>
           <p className="text-slate-900 font-semibold">No updates yet</p>
           <p className="text-sm text-slate-500 mt-1">We&apos;ll post product updates here as they ship.</p>

@@ -124,7 +124,7 @@ function FilterDropdown({ label, options, value, onChange }: {
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 text-[12.5px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50 appearance-none cursor-pointer"
+        className="border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 text-[12.5px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]/50 appearance-none cursor-pointer"
       >
         {options.map(o => (
           <option key={o} value={o === "All" ? "" : o}>{o}</option>
@@ -151,7 +151,7 @@ const VIEW_TYPES = [
 
 const TASK_STATUS_DOT: Record<string, string> = {
   todo: "bg-slate-400",
-  in_progress: "bg-blue-500",
+  in_progress: "bg-[var(--brand)]",
   waiting: "bg-amber-500",
   blocked: "bg-red-500",
   done: "bg-emerald-500",
@@ -187,7 +187,7 @@ function KpiStrip({ tasks }: { tasks: DemoTask[] }) {
   const completionRate = total > 0 ? Math.round((doneCount / total) * 100) : 0
 
   const kpis = [
-    { label: "Open Tasks",       value: String(openCount),       sub: "Active tasks",          color: "text-[#2563EB]",     bg: "bg-blue-50" },
+    { label: "Open Tasks",       value: String(openCount),       sub: "Active tasks",          color: "text-[var(--brand)]",     bg: "bg-[var(--brand-soft)]" },
     { label: "Overdue",          value: String(overdueCount),    sub: "Need immediate action", color: "text-red-600",       bg: "bg-red-50" },
     { label: "Due Today",        value: String(dueTodayCount),   sub: "Action required today", color: "text-amber-600",     bg: "bg-amber-50" },
     { label: "Waiting Supplier", value: String(waitingCount),    sub: "Pending response",      color: "text-violet-600",    bg: "bg-violet-50" },
@@ -276,7 +276,7 @@ function TaskHealthPanel({ tasks }: { tasks: DemoTask[] }) {
           </div>
         </>
       )}
-      <Link href="/property-manager/work/tasks" className="mt-3 text-[11px] text-[#2563EB] hover:underline font-medium">View full breakdown →</Link>
+      <Link href="/property-manager/work/tasks" className="mt-3 text-[11px] text-[var(--brand)] hover:underline font-medium">View full breakdown →</Link>
     </div>
   )
 }
@@ -308,7 +308,7 @@ function UrgentItemsPanel({ tasks }: { tasks: DemoTask[] }) {
                 <p className="text-[11px] font-medium text-slate-700">{item.label}</p>
                 <p className="text-[10px] text-slate-400">{item.desc}</p>
               </div>
-              <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] hover:underline shrink-0 mt-1">View all →</Link>
+              <Link href="/property-manager/work/tasks" className="text-[10px] text-[var(--brand)] hover:underline shrink-0 mt-1">View all →</Link>
             </div>
           )
         })}
@@ -340,7 +340,7 @@ function ProductivityInsightsPanel() {
           <p className="text-[10px] text-slate-400">Trends appear after 7+ completed tasks</p>
         </div>
       </div>
-      <Link href="/property-manager/work/reports" className="mt-3 text-[11px] text-[#2563EB] hover:underline font-medium">View full insights →</Link>
+      <Link href="/property-manager/work/reports" className="mt-3 text-[11px] text-[var(--brand)] hover:underline font-medium">View full insights →</Link>
     </div>
   )
 }
@@ -363,8 +363,8 @@ function UpcomingDeadlinesPanel({ tasks }: { tasks: DemoTask[] }) {
         let chipColor = "bg-slate-100 text-slate-600"
         if (diffDays < 0) { chip = "Overdue"; chipColor = "bg-red-50 text-red-600" }
         else if (diffDays === 0) { chip = "Due today"; chipColor = "bg-amber-50 text-amber-600" }
-        else if (diffDays === 1) { chip = "Tomorrow"; chipColor = "bg-blue-50 text-blue-600" }
-        else if (diffDays <= 7) { chip = `In ${diffDays}d`; chipColor = "bg-blue-50 text-blue-600" }
+        else if (diffDays === 1) { chip = "Tomorrow"; chipColor = "bg-[var(--brand-soft)] text-[var(--brand)]" }
+        else if (diffDays <= 7) { chip = `In ${diffDays}d`; chipColor = "bg-[var(--brand-soft)] text-[var(--brand)]" }
         return {
           day: String(due.getDate()),
           month: due.toLocaleDateString("en-GB", { month: "short" }),
@@ -380,16 +380,16 @@ function UpcomingDeadlinesPanel({ tasks }: { tasks: DemoTask[] }) {
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-slate-900">Upcoming Deadlines</h3>
-        <Link href="/property-manager/work/ppm" className="text-[11px] text-[#2563EB] hover:underline">View calendar →</Link>
+        <Link href="/property-manager/work/ppm" className="text-[11px] text-[var(--brand)] hover:underline">View calendar →</Link>
       </div>
       <div className="space-y-3">
         {items.length === 0 ? (
           <p className="text-[11px] text-slate-400 py-4 text-center">No upcoming deadlines — tasks with due dates will appear here.</p>
         ) : items.map(item => (
           <div key={item.title} className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex flex-col items-center justify-center shrink-0">
-              <span className="text-base font-bold text-[#2563EB] leading-none">{item.day}</span>
-              <span className="text-[9px] text-[#2563EB]/70">{item.month}</span>
+            <div className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] flex flex-col items-center justify-center shrink-0">
+              <span className="text-base font-bold text-[var(--brand)] leading-none">{item.day}</span>
+              <span className="text-[9px] text-[var(--brand)]/70">{item.month}</span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[12.5px] font-semibold text-slate-900 truncate">{item.title}</p>
@@ -426,7 +426,7 @@ function WorkloadPanel({ tasks }: { tasks: DemoTask[] }) {
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-slate-900">Workload by Assignee</h3>
-        <Link href="/property-manager/work/tasks" className="text-[11px] text-[#2563EB] hover:underline">View team workload →</Link>
+        <Link href="/property-manager/work/tasks" className="text-[11px] text-[var(--brand)] hover:underline">View team workload →</Link>
       </div>
       {workloadData.length === 0 ? (
         <p className="text-[11px] text-slate-400 py-6 text-center">Assign tasks to team members to see workload here.</p>
@@ -482,8 +482,8 @@ function TasksCalendarView({ tasks }: { tasks: DemoTask[] }) {
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
       <div className="flex items-center justify-between gap-3 flex-wrap px-4 sm:px-5 py-3 border-b border-slate-100">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
-            <Calendar className="w-4 h-4 text-[#2563EB]" />
+          <div className="w-8 h-8 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+            <Calendar className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-slate-900 leading-tight">{monthLabel}</h3>
@@ -508,23 +508,23 @@ function TasksCalendarView({ tasks }: { tasks: DemoTask[] }) {
           const isWeekend = i % 7 >= 5
           return (
             <div key={i} className={cn("group/cell min-h-[88px] sm:min-h-[108px] border-b border-r border-slate-100 p-1.5 transition-colors",
-              !cell ? "bg-slate-50/40" : isWeekend ? "bg-slate-50/30 hover:bg-blue-50/30" : "hover:bg-blue-50/30",
-              isToday && "bg-blue-50/40"
+              !cell ? "bg-slate-50/40" : isWeekend ? "bg-slate-50/30 hover:bg-[var(--brand-soft)]/30" : "hover:bg-[var(--brand-soft)]/30",
+              isToday && "bg-[var(--brand-soft)]/40"
             )}>
               {cell && (
                 <>
                   <div className="flex items-center justify-between mb-1">
-                    <div className={cn("text-[11px] font-semibold w-6 h-6 flex items-center justify-center rounded-full tabular-nums transition-colors", isToday ? "bg-[#2563EB] text-white shadow-sm" : "text-slate-500")}>{cell.day}</div>
+                    <div className={cn("text-[11px] font-semibold w-6 h-6 flex items-center justify-center rounded-full tabular-nums transition-colors", isToday ? "bg-[var(--brand)] text-white shadow-sm" : "text-slate-500")}>{cell.day}</div>
                     {dayTasks.length > 0 && <span className="text-[9px] font-semibold text-slate-400 tabular-nums">{dayTasks.length}</span>}
                   </div>
                   <div className="space-y-1">
                     {dayTasks.slice(0, 3).map(t => (
-                      <Link key={t.id} href={`/property-manager/work/tasks/${t.id}`} className="flex items-center gap-1.5 rounded-md bg-white border border-slate-200/70 hover:border-[#2563EB]/40 hover:shadow-sm px-1.5 py-1 transition-all">
+                      <Link key={t.id} href={`/property-manager/work/tasks/${t.id}`} className="flex items-center gap-1.5 rounded-md bg-white border border-slate-200/70 hover:border-[var(--brand)]/40 hover:shadow-sm px-1.5 py-1 transition-all">
                         <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", TASK_STATUS_DOT[t.status] ?? "bg-slate-400")} />
                         <span className="text-[10px] font-medium text-slate-600 truncate">{t.title}</span>
                       </Link>
                     ))}
-                    {dayTasks.length > 3 && <p className="text-[9px] font-medium text-[#2563EB] pl-1">+{dayTasks.length - 3} more</p>}
+                    {dayTasks.length > 3 && <p className="text-[9px] font-medium text-[var(--brand)] pl-1">+{dayTasks.length - 3} more</p>}
                   </div>
                 </>
               )}
@@ -534,7 +534,7 @@ function TasksCalendarView({ tasks }: { tasks: DemoTask[] }) {
       </div>
       <div className="flex items-center justify-between gap-3 flex-wrap px-4 sm:px-5 py-2.5 border-t border-slate-100 bg-slate-50/40">
         <div className="flex items-center gap-3 flex-wrap">
-          {[["To Do","bg-slate-400"],["In Progress","bg-blue-500"],["Waiting","bg-amber-500"],["Blocked","bg-red-500"],["Done","bg-emerald-500"]].map(([label, dot]) => (
+          {[["To Do","bg-slate-400"],["In Progress","bg-[var(--brand)]"],["Waiting","bg-amber-500"],["Blocked","bg-red-500"],["Done","bg-emerald-500"]].map(([label, dot]) => (
             <div key={label} className="flex items-center gap-1.5">
               <span className={cn("w-2 h-2 rounded-full", dot)} />
               <span className="text-[10px] font-medium text-slate-500">{label}</span>
@@ -597,14 +597,14 @@ function TasksGanttView({ tasks }: { tasks: DemoTask[] }) {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
       <div className="flex items-center gap-2.5 px-5 py-3 border-b border-slate-100">
-        <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
-          <GanttChart className="w-4 h-4 text-[#2563EB]" />
+        <div className="w-8 h-8 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+          <GanttChart className="w-4 h-4 text-[var(--brand)]" />
         </div>
         <div>
           <h3 className="text-sm font-semibold text-slate-900 leading-tight">Task Gantt — 6-week view</h3>
           <p className="text-[11px] text-slate-400 tabular-nums">{scheduled.length} task{scheduled.length !== 1 ? "s" : ""} with due dates · bars show scheduled start → due date</p>
         </div>
-        <Link href="/property-manager/work/gantt" className="ml-auto text-[11.5px] font-semibold text-[#2563EB] hover:underline whitespace-nowrap">Full Gantt (jobs + tasks) →</Link>
+        <Link href="/property-manager/work/gantt" className="ml-auto text-[11.5px] font-semibold text-[var(--brand)] hover:underline whitespace-nowrap">Full Gantt (jobs + tasks) →</Link>
       </div>
       <div className="overflow-x-auto">
         <div className="min-w-[580px]">
@@ -631,11 +631,11 @@ function TasksGanttView({ tasks }: { tasks: DemoTask[] }) {
                 className="group flex items-center h-11 border-b border-slate-50 last:border-0 hover:bg-slate-50/80 transition-colors">
                 <div className="w-[200px] shrink-0 flex items-center gap-2 px-4 min-w-0">
                   <WorkPriorityBadge priority={t.priority} showLabel={false} />
-                  <span className="text-[12px] font-medium text-slate-700 truncate group-hover:text-[#2563EB] transition-colors">{t.title}</span>
+                  <span className="text-[12px] font-medium text-slate-700 truncate group-hover:text-[var(--brand)] transition-colors">{t.title}</span>
                 </div>
                 <div className="flex-1 relative h-full min-w-0">
                   {todayPct >= 0 && todayPct <= 100 && (
-                    <div className="absolute inset-y-0 w-px bg-[#2563EB]/30 z-10" style={{ left: `${todayPct}%` }} />
+                    <div className="absolute inset-y-0 w-px bg-[var(--brand)]/30 z-10" style={{ left: `${todayPct}%` }} />
                   )}
                   <div className="absolute top-2.5 bottom-2.5 rounded-md flex items-center px-1.5 overflow-hidden transition-opacity group-hover:opacity-80"
                     style={{ left: `${left}%`, width: `${width}%`, background: bg }}>
@@ -656,7 +656,7 @@ function TasksGanttView({ tasks }: { tasks: DemoTask[] }) {
                   className="group flex items-center h-10 border-b border-slate-50 last:border-0 hover:bg-slate-50/80 transition-colors">
                   <div className="w-[200px] shrink-0 flex items-center gap-2 px-4 min-w-0">
                     <WorkPriorityBadge priority={t.priority} showLabel={false} />
-                    <span className="text-[12px] font-medium text-slate-500 truncate group-hover:text-[#2563EB] transition-colors">{t.title}</span>
+                    <span className="text-[12px] font-medium text-slate-500 truncate group-hover:text-[var(--brand)] transition-colors">{t.title}</span>
                   </div>
                   <div className="flex-1 flex items-center px-3">
                     <span className="text-[10px] text-slate-400 italic">Set a due date to plot on Gantt</span>
@@ -676,7 +676,7 @@ function TasksGanttView({ tasks }: { tasks: DemoTask[] }) {
           </div>
         ))}
         <div className="ml-auto flex items-center gap-1.5">
-          <span className="w-px h-3 bg-[#2563EB]/50" />
+          <span className="w-px h-3 bg-[var(--brand)]/50" />
           <span className="text-[10px] text-slate-400">Today</span>
         </div>
       </div>
@@ -718,8 +718,8 @@ function TasksMapView({ tasks }: { tasks: DemoTask[] }) {
     <div className="space-y-4">
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <div className="flex items-center gap-2.5 px-5 py-3 border-b border-slate-100">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
-            <MapPin className="w-4 h-4 text-[#2563EB]" />
+          <div className="w-8 h-8 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+            <MapPin className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-slate-900 leading-tight">Task Locations</h3>
@@ -771,7 +771,7 @@ function TasksMapView({ tasks }: { tasks: DemoTask[] }) {
           <div className="flex flex-wrap gap-2">
             {noPropertyTasks.map(t => (
               <Link key={t.id} href={`/property-manager/work/tasks/${t.id}`}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:border-[#2563EB]/40 text-[11.5px] font-medium text-slate-700 hover:text-[#2563EB] transition-all">
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:border-[var(--brand)]/40 text-[11.5px] font-medium text-slate-700 hover:text-[var(--brand)] transition-all">
                 <span className={cn("w-1.5 h-1.5 rounded-full", TASK_STATUS_DOT[t.status] ?? "bg-slate-400")} />
                 {t.title}
               </Link>
@@ -807,7 +807,7 @@ function TaskCard({ task, compact = false }: { task: DemoTask; compact?: boolean
       </div>
       <div className="flex items-center justify-between mt-3">
         <div className="flex items-center gap-1.5">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[10px] text-white font-bold">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--brand)] to-[var(--brand-strong)] flex items-center justify-center text-[10px] text-white font-bold">
             {task.assigneeInitials}
           </div>
           <span className="text-[11px] text-slate-500 truncate max-w-[90px]">{task.assigneeName}</span>
@@ -1072,10 +1072,10 @@ export default function TasksPage() {
           <h1 className="text-2xl font-bold text-slate-900">Tasks</h1>
           <p className="text-sm text-slate-500 mt-0.5">Work management workspace</p>
           <div className="flex items-center gap-3 mt-1.5">
-            <Link href="/property-manager/work/gantt" className="text-[11.5px] font-semibold text-[#2563EB] hover:underline flex items-center gap-1">
+            <Link href="/property-manager/work/gantt" className="text-[11.5px] font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
               <GanttChart className="w-3.5 h-3.5" /> View in Gantt →
             </Link>
-            <Link href="/property-manager/calendar" className="text-[11.5px] font-semibold text-[#2563EB] hover:underline flex items-center gap-1">
+            <Link href="/property-manager/calendar" className="text-[11.5px] font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5" /> Open Calendar →
             </Link>
           </div>
@@ -1088,7 +1088,7 @@ export default function TasksPage() {
               placeholder="Search tasks..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="pl-8 pr-3 h-8 w-44 rounded-lg border border-slate-200 bg-white text-[12.5px] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50"
+              className="pl-8 pr-3 h-8 w-44 rounded-lg border border-slate-200 bg-white text-[12.5px] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]/50"
             />
           </div>
           <SavedViewsMenu
@@ -1107,7 +1107,7 @@ export default function TasksPage() {
           )}
           <Link
             href="/property-manager/work/tasks/new"
-            className="h-8 px-3 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
+            className="h-8 px-3 rounded-lg bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" /> Create Task
           </Link>
@@ -1143,7 +1143,7 @@ export default function TasksPage() {
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[12.5px] font-medium transition-all",
                   isActive
-                    ? "bg-[#EFF6FF] border-[#BFDBFE] text-[#2563EB]"
+                    ? "bg-[var(--brand-soft)] border-[#BFDBFE] text-[var(--brand)]"
                     : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                 )}
               >
@@ -1182,12 +1182,12 @@ export default function TasksPage() {
           onChange={setCategoryFilter}
         />
         {hasFilters && (
-          <button onClick={clearFilters} className="text-[12.5px] font-medium text-[#2563EB] hover:underline px-2">Clear</button>
+          <button onClick={clearFilters} className="text-[12.5px] font-medium text-[var(--brand)] hover:underline px-2">Clear</button>
         )}
         <button
           onClick={saveCurrentView}
           disabled={!workspaceId || createSavedView.isPending}
-          className="ml-auto text-[12.5px] font-medium text-[#2563EB] hover:underline px-2 disabled:opacity-50"
+          className="ml-auto text-[12.5px] font-medium text-[var(--brand)] hover:underline px-2 disabled:opacity-50"
         >
           {createSavedView.isPending ? "Saving…" : "Save View"}
         </button>
@@ -1201,11 +1201,11 @@ export default function TasksPage() {
 
           {/* Bulk action bar */}
           {selectedIds.length > 0 && (
-            <div className="flex items-center gap-3 px-4 py-2.5 bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl">
-              <span className="text-sm font-medium text-[#2563EB]">{selectedIds.length} tasks selected</span>
+            <div className="flex items-center gap-3 px-4 py-2.5 bg-[var(--brand-soft)] border border-[#BFDBFE] rounded-xl">
+              <span className="text-sm font-medium text-[var(--brand)]">{selectedIds.length} tasks selected</span>
               <div className="w-px h-4 bg-[#BFDBFE]" />
               {usingLive ? (
-                <label className="flex items-center gap-1.5 text-[12.5px] font-medium text-[#2563EB]">
+                <label className="flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--brand)]">
                   Set status
                   <select
                     disabled={bulkBusy}
@@ -1222,10 +1222,10 @@ export default function TasksPage() {
               ) : (
                 <span className="text-[12px] text-slate-500">Bulk status changes apply to live tasks</span>
               )}
-              {bulkBusy && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#2563EB]" />}
+              {bulkBusy && <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--brand)]" />}
               <button
                 onClick={exportSelected}
-                className="text-[12.5px] font-medium text-[#2563EB] hover:underline flex items-center gap-1"
+                className="text-[12.5px] font-medium text-[var(--brand)] hover:underline flex items-center gap-1"
               >
                 <Download className="w-3.5 h-3.5" /> Export Selected
               </button>
@@ -1321,7 +1321,7 @@ export default function TasksPage() {
                         key={task.id}
                         className={cn(
                           "border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer",
-                          selectedIds.includes(task.id) && "bg-blue-50/40"
+                          selectedIds.includes(task.id) && "bg-[var(--brand-soft)]/40"
                         )}
                         onClick={() => router.push(`/property-manager/work/tasks/${task.id}`)}
                       >
@@ -1365,7 +1365,7 @@ export default function TasksPage() {
                         <td className="px-4 py-3.5 hidden xl:table-cell text-xs text-slate-500">{task.unit}</td>
                         <td className="px-4 py-3.5 hidden lg:table-cell">
                           <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-[10px] text-white font-bold shrink-0">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--brand)] to-[var(--brand-strong)] flex items-center justify-center text-[10px] text-white font-bold shrink-0">
                               {task.assigneeInitials}
                             </div>
                             <span className="text-xs text-slate-600 hidden xl:block">{task.assigneeName}</span>
@@ -1465,7 +1465,7 @@ export default function TasksPage() {
                       return (
                         <button key={p} onClick={() => setPage(p)}
                           className={cn("w-7 h-7 rounded-lg text-[11px] font-semibold transition-colors",
-                            page === p ? "bg-[#2563EB] text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                            page === p ? "bg-[var(--brand)] text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"
                           )}>
                           {p}
                         </button>

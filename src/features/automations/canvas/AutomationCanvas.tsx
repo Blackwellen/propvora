@@ -67,7 +67,7 @@ function EmptyCanvasState({
   return (
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
       <div className="pointer-events-auto flex flex-col items-center gap-5 rounded-2xl border border-slate-200 bg-white/95 px-10 py-10 shadow-[0_8px_40px_rgba(15,23,42,0.08)]">
-        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-violet-500 to-blue-600 shadow-[0_4px_16px_rgba(99,102,241,0.30)]">
+        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-violet-500 to-[var(--brand)] shadow-[0_4px_16px_rgba(99,102,241,0.30)]">
           <Zap className="h-7 w-7 text-white" />
         </div>
         <div className="text-center">
@@ -79,7 +79,7 @@ function EmptyCanvasState({
         <div className="flex flex-col gap-2.5 w-full">
           <button
             onClick={onAddTrigger}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)] hover:bg-blue-700 transition"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)] hover:bg-[var(--brand-strong)] transition"
           >
             <Plus className="h-4 w-4" />
             Choose trigger

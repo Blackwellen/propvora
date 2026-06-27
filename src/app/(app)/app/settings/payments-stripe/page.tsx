@@ -66,7 +66,7 @@ function Toggle({
       className={cn(
         "relative w-11 h-6 rounded-full transition-colors focus:outline-none shrink-0",
         enabled && !disabled
-          ? "bg-blue-600"
+          ? "bg-[var(--brand)]"
           : disabled
           ? "bg-slate-200 cursor-not-allowed opacity-60"
           : "bg-slate-200"
@@ -230,7 +230,7 @@ export default function PaymentsStripePage() {
                   onClick={handleConnect}
                   disabled={showConnectFlow}
                   className={cn(
-                    "w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition-colors",
+                    "w-full flex items-center justify-center gap-2 py-3 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white font-semibold rounded-xl text-sm transition-colors",
                     showConnectFlow && "opacity-70 cursor-wait"
                   )}
                 >
@@ -247,7 +247,7 @@ export default function PaymentsStripePage() {
                 <p className="text-center text-xs text-slate-400 mt-3">
                   Already have an account?{" "}
                   <button
-                    className="text-blue-600 hover:underline"
+                    className="text-[var(--brand)] hover:underline"
                     onClick={() => showToast("Redirecting to Stripe sign in...")}
                   >
                     Sign in to Stripe →
@@ -415,7 +415,7 @@ export default function PaymentsStripePage() {
             <ol className="flex flex-col gap-3">
               {SETUP_STEPS.map((step, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="w-6 h-6 rounded-full bg-[var(--color-brand-100)] text-[var(--brand)] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
                     {i + 1}
                   </span>
                   <span className="text-sm text-slate-700 leading-snug">
@@ -489,7 +489,7 @@ export default function PaymentsStripePage() {
               <h3 className="text-sm font-semibold text-slate-900">
                 Webhook Events
               </h3>
-              <button className="text-xs text-blue-600 hover:underline">
+              <button className="text-xs text-[var(--brand)] hover:underline">
                 View webhook log →
               </button>
             </div>
@@ -526,7 +526,7 @@ export default function PaymentsStripePage() {
 
             <button
               onClick={() => showToast("Opening webhook configuration...")}
-              className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+              className="text-sm text-[var(--brand)] hover:underline flex items-center gap-1"
             >
               Configure webhook →
             </button>
@@ -559,7 +559,7 @@ export default function PaymentsStripePage() {
               href="https://stripe.com/gb/pricing"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+              className="text-sm text-[var(--brand)] hover:underline flex items-center gap-1"
             >
               View full pricing at stripe.com
               <ExternalLink className="w-3.5 h-3.5" />
@@ -569,8 +569,8 @@ export default function PaymentsStripePage() {
           {/* D. Support */}
           <SectionCard>
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                <LifeBuoy className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                <LifeBuoy className="w-5 h-5 text-[var(--brand)]" />
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 mb-1">
@@ -579,13 +579,13 @@ export default function PaymentsStripePage() {
                 <div className="flex flex-col gap-2 mt-3">
                   <button
                     onClick={() => showToast("Opening documentation...")}
-                    className="text-sm text-blue-600 hover:underline text-left flex items-center gap-1"
+                    className="text-sm text-[var(--brand)] hover:underline text-left flex items-center gap-1"
                   >
                     View setup documentation →
                   </button>
                   <button
                     onClick={() => showToast("Opening support chat...")}
-                    className="text-sm text-blue-600 hover:underline text-left flex items-center gap-1"
+                    className="text-sm text-[var(--brand)] hover:underline text-left flex items-center gap-1"
                   >
                     Contact Propvora support →
                   </button>

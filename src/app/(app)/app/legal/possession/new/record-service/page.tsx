@@ -14,7 +14,7 @@ import {
 import { computeExpiry } from "@/lib/legal/grounds"
 
 const SERVICE_METHODS = [
-  { id: "hand", label: "Hand Delivered", icon: User, iconCls: "bg-blue-100 text-blue-600", desc: "Delivered in person to the tenant." },
+  { id: "hand", label: "Hand Delivered", icon: User, iconCls: "bg-[var(--color-brand-100)] text-[var(--brand)]", desc: "Delivered in person to the tenant." },
   { id: "post", label: "First Class Post", icon: Mail, iconCls: "bg-slate-100 text-slate-600", desc: "Sent via Royal Mail First Class Post." },
   { id: "email", label: "Email", icon: Mail, iconCls: "bg-slate-100 text-slate-600", desc: "Sent via email to tenant's known address." },
   { id: "process", label: "Process Server", icon: Briefcase, iconCls: "bg-orange-100 text-orange-600", desc: "Served by a professional process server." },
@@ -101,7 +101,7 @@ function RecordServiceInner() {
       <button
         onClick={complete}
         disabled={saving}
-        className="bg-[#2563EB] text-white hover:bg-[#1d4ed8] disabled:opacity-50 text-xs font-medium px-6 py-2.5 rounded-lg flex items-center gap-1.5 transition-colors"
+        className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-50 text-xs font-medium px-6 py-2.5 rounded-lg flex items-center gap-1.5 transition-colors"
       >
         <Target className="w-3.5 h-3.5" />
         {saving ? "Saving…" : "Complete & Open Case"}
@@ -171,7 +171,7 @@ function RecordServiceInner() {
                   key={m.id}
                   onClick={() => setMethod(m.id)}
                   className={`p-4 rounded-xl border-2 text-left transition-all ${
-                    method === m.id ? "border-[#2563EB] bg-blue-50" : "border-slate-200 bg-white hover:border-slate-300"
+                    method === m.id ? "border-[var(--brand)] bg-[var(--brand-soft)]" : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
@@ -194,7 +194,7 @@ function RecordServiceInner() {
               type="date"
               value={servedDate}
               onChange={(e) => setServedDate(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
             />
           </div>
           <div>
@@ -203,7 +203,7 @@ function RecordServiceInner() {
               type="date"
               value={expiryDate || suggestedExpiry}
               onChange={(e) => setExpiryDate(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
             />
             {suggestedExpiry && !expiryDate && (
               <p className="text-[10px] text-slate-400 mt-1">
@@ -218,7 +218,7 @@ function RecordServiceInner() {
               value={recipient}
               onChange={(e) => setRecipient(e.target.value)}
               placeholder="Tenant name"
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent"
             />
           </div>
         </div>
@@ -256,7 +256,7 @@ function RecordServiceInner() {
             value={notes}
             onChange={(e) => setNotes(e.target.value.slice(0, 500))}
             placeholder="e.g. Handed to tenant in person, signed copy retained."
-            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent resize-none"
           />
           <p className="text-[11px] text-slate-400 text-right mt-1">{notes.length} / 500</p>
         </div>

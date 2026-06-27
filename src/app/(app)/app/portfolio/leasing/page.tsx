@@ -66,7 +66,7 @@ const TODAYS_VIEWINGS: Viewing[] = []
 
 /* ─── Sub-components ──────────────────────────────────────────── */
 const colorMap: Record<string, string> = {
-  blue:   "bg-blue-50 text-blue-700 border-blue-200",
+  blue:   "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",
   green:  "bg-green-50 text-green-700 border-green-200",
   amber:  "bg-amber-50 text-amber-700 border-amber-200",
   orange: "bg-orange-50 text-orange-700 border-orange-200",
@@ -76,7 +76,7 @@ const colorMap: Record<string, string> = {
 }
 
 const iconColorMap: Record<string, string> = {
-  blue:   "bg-blue-50 text-blue-600",
+  blue:   "bg-[var(--brand-soft)] text-[var(--brand)]",
   green:  "bg-green-50 text-green-600",
   amber:  "bg-amber-50 text-amber-600",
   orange: "bg-orange-50 text-orange-600",
@@ -98,7 +98,7 @@ function KpiCard({ label, value, icon: Icon, color }: KpiCardProps) {
 
 const columnHeaderColor: Record<string, string> = {
   slate: "bg-slate-100 text-slate-700 border-slate-200",
-  blue:  "bg-blue-50 text-blue-700 border-blue-200",
+  blue:  "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",
   amber: "bg-amber-50 text-amber-700 border-amber-200",
   green: "bg-green-50 text-green-700 border-green-200",
 }
@@ -128,7 +128,7 @@ export default function LeasingOverviewPage() {
             <CalendarDays className="w-3.5 h-3.5" />
             View Calendar
           </button>
-          <button className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+          <button className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
             <Plus className="w-3.5 h-3.5" />
             New Vacancy
           </button>
@@ -174,7 +174,7 @@ export default function LeasingOverviewPage() {
                           className="bg-white border border-slate-200 rounded-lg p-2.5 cursor-pointer hover:shadow-md transition-shadow"
                         >
                           <p className="text-[11px] font-semibold text-slate-800 leading-tight line-clamp-2">{card.address}</p>
-                          <p className="text-[13px] font-bold text-blue-600 mt-1">{card.rent}</p>
+                          <p className="text-[13px] font-bold text-[var(--brand)] mt-1">{card.rent}</p>
                           <div className="flex items-center gap-2 mt-1.5">
                             <span className="flex items-center gap-1 text-[10px] text-slate-500">
                               <Clock className="w-2.5 h-2.5" />{card.daysListed}d
@@ -196,7 +196,7 @@ export default function LeasingOverviewPage() {
           <div className="lg:col-span-4 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-[13px] font-semibold text-slate-800">Recent Prospects</h2>
-              <a href="/property-manager/portfolio/leasing/prospects" className="text-[11px] text-blue-600 hover:underline">View all</a>
+              <a href="/property-manager/portfolio/leasing/prospects" className="text-[11px] text-[var(--brand)] hover:underline">View all</a>
             </div>
             <div className="divide-y divide-slate-50">
               {RECENT_PROSPECTS.length === 0 && (
@@ -204,7 +204,7 @@ export default function LeasingOverviewPage() {
               )}
               {RECENT_PROSPECTS.map((p) => (
                 <div key={p.id} className="px-4 py-3 flex items-start gap-3 hover:bg-slate-50/50 transition-colors">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[11px] font-bold shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-[var(--color-brand-100)] text-[var(--brand)] flex items-center justify-center text-[11px] font-bold shrink-0">
                     {p.initials}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -238,7 +238,7 @@ export default function LeasingOverviewPage() {
               {TODAYS_VIEWINGS.map((v) => (
                 <div key={v.id} className="px-4 py-3 hover:bg-slate-50/50 transition-colors">
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md shrink-0">{v.time}</span>
+                    <span className="text-[11px] font-bold text-[var(--brand)] bg-[var(--brand-soft)] px-2 py-0.5 rounded-md shrink-0">{v.time}</span>
                   </div>
                   <p className="text-[12px] font-medium text-slate-800 mt-1.5 leading-tight">{v.property}</p>
                   <p className="text-[11px] text-slate-500 mt-0.5">{v.prospect}</p>
@@ -246,7 +246,7 @@ export default function LeasingOverviewPage() {
               ))}
             </div>
             <div className="px-4 py-3 border-t border-slate-100">
-              <a href="/property-manager/portfolio/leasing/viewings" className="text-[11px] text-blue-600 hover:underline flex items-center gap-1">
+              <a href="/property-manager/portfolio/leasing/viewings" className="text-[11px] text-[var(--brand)] hover:underline flex items-center gap-1">
                 <Plus className="w-3 h-3" />
                 Add viewing
               </a>

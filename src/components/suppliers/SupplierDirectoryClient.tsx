@@ -189,7 +189,7 @@ export function SupplierDirectoryClient({ canBrowse, planName, defaultCountry }:
       {!canBrowse ? (
         <div className="mt-2 rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col items-center text-center py-20 px-6">
-            <div className="w-20 h-20 rounded-3xl bg-[#EFF6FF] flex items-center justify-center mb-5"><Lock className="w-9 h-9 text-[#2563EB]" /></div>
+            <div className="w-20 h-20 rounded-3xl bg-[var(--brand-soft)] flex items-center justify-center mb-5"><Lock className="w-9 h-9 text-[var(--brand)]" /></div>
             <h3 className="text-base font-bold text-slate-800">Supplier procurement isn&apos;t on your plan</h3>
             <p className="mt-1.5 max-w-md text-sm text-slate-500">Your {planName} plan doesn&apos;t include the supplier marketplace yet. Upgrade to browse and procure from vetted suppliers.</p>
             <div className="mt-6"><Button variant="primary" size="md" asChild><Link href="/property-manager/workspace-settings/subscription">View plans</Link></Button></div>
@@ -206,11 +206,11 @@ export function SupplierDirectoryClient({ canBrowse, planName, defaultCountry }:
                   value={filters.query}
                   onChange={(e) => patch({ query: e.target.value })}
                   placeholder="Search suppliers, trades or services…"
-                  className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-white text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                  className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-white text-[13.5px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
                 />
               </div>
-              <button onClick={() => setShowFilters((v) => !v)} className={cn("inline-flex items-center gap-1.5 h-10 px-3.5 rounded-xl border text-[13px] font-semibold shadow-sm transition-colors", activeCount > 0 ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50")}>
-                <SlidersHorizontal className="w-4 h-4" /> Filters{activeCount > 0 && <span className="ml-0.5 inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-[#2563EB] text-white text-[10px]">{activeCount}</span>}
+              <button onClick={() => setShowFilters((v) => !v)} className={cn("inline-flex items-center gap-1.5 h-10 px-3.5 rounded-xl border text-[13px] font-semibold shadow-sm transition-colors", activeCount > 0 ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50")}>
+                <SlidersHorizontal className="w-4 h-4" /> Filters{activeCount > 0 && <span className="ml-0.5 inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-[var(--brand)] text-white text-[10px]">{activeCount}</span>}
               </button>
               <div className="hidden sm:inline-flex items-center rounded-xl border border-slate-200 bg-white p-0.5 shadow-sm">
                 {(["grid", "list"] as const).map((v) => (
@@ -235,22 +235,22 @@ export function SupplierDirectoryClient({ canBrowse, planName, defaultCountry }:
             {showFilters && (
               <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Field label="Service type">
-                  <select value={filters.serviceCategory} onChange={(e) => patch({ serviceCategory: e.target.value })} className="w-full h-9 px-2.5 rounded-lg border border-slate-200 bg-white text-[13px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20">
+                  <select value={filters.serviceCategory} onChange={(e) => patch({ serviceCategory: e.target.value })} className="w-full h-9 px-2.5 rounded-lg border border-slate-200 bg-white text-[13px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20">
                     {SERVICE_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                   </select>
                 </Field>
                 <Field label="Zone / area">
-                  <input value={filters.zone} onChange={(e) => patch({ zone: e.target.value })} placeholder="e.g. London, SE1" className="w-full h-9 px-2.5 rounded-lg border border-slate-200 bg-white text-[13px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20" />
+                  <input value={filters.zone} onChange={(e) => patch({ zone: e.target.value })} placeholder="e.g. London, SE1" className="w-full h-9 px-2.5 rounded-lg border border-slate-200 bg-white text-[13px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20" />
                 </Field>
                 <Field label="Price band">
-                  <select value={filters.priceBand} onChange={(e) => patch({ priceBand: e.target.value })} className="w-full h-9 px-2.5 rounded-lg border border-slate-200 bg-white text-[13px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20">
+                  <select value={filters.priceBand} onChange={(e) => patch({ priceBand: e.target.value })} className="w-full h-9 px-2.5 rounded-lg border border-slate-200 bg-white text-[13px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20">
                     {PRICE_BANDS.map((b) => <option key={b.value} value={b.value}>{b.label}</option>)}
                   </select>
                 </Field>
                 <Field label="Minimum rating">
                   <div className="flex items-center gap-1">
                     {[0, 3, 4, 4.5].map((r) => (
-                      <button key={r} onClick={() => patch({ minRating: r })} className={cn("inline-flex items-center gap-0.5 h-9 px-2.5 rounded-lg border text-[12px] font-semibold transition-colors", filters.minRating === r ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]" : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50")}>
+                      <button key={r} onClick={() => patch({ minRating: r })} className={cn("inline-flex items-center gap-0.5 h-9 px-2.5 rounded-lg border text-[12px] font-semibold transition-colors", filters.minRating === r ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50")}>
                         {r === 0 ? "Any" : <><Star className="w-3 h-3 fill-amber-400 text-amber-400" />{r}+</>}
                       </button>
                     ))}
@@ -298,7 +298,7 @@ export function SupplierDirectoryClient({ canBrowse, planName, defaultCountry }:
       {compare.length > 0 && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.14)]">
           <span className="text-[12.5px] font-semibold text-slate-700">{compare.length} selected</span>
-          <Link href={`/property-manager/marketplace/suppliers/compare?ids=${compare.join(",")}`} className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors"><GitCompare className="w-4 h-4" /> Compare</Link>
+          <Link href={`/property-manager/marketplace/suppliers/compare?ids=${compare.join(",")}`} className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-[var(--brand)] text-white text-[12.5px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"><GitCompare className="w-4 h-4" /> Compare</Link>
           <button onClick={() => setCompare([])} aria-label="Clear comparison" className="text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
         </div>
       )}
@@ -308,7 +308,7 @@ export function SupplierDirectoryClient({ canBrowse, planName, defaultCountry }:
 
 function FilterChip({ active, onClick, icon, children }: { active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <button onClick={onClick} className={cn("inline-flex items-center gap-1.5 h-8 px-3 rounded-full border text-[12px] font-semibold transition-colors", active ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50")}>
+    <button onClick={onClick} className={cn("inline-flex items-center gap-1.5 h-8 px-3 rounded-full border text-[12px] font-semibold transition-colors", active ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50")}>
       {icon}{children}
     </button>
   )

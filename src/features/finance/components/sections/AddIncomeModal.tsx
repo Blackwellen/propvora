@@ -102,7 +102,7 @@ export function AddIncomeModal({ onClose, workspaceId, onSaved }: AddIncomeModal
               name="income_type"
               value={form.income_type}
               onChange={handleChange}
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             >
               <option value="">Select type…</option>
               {INCOME_TYPES.map((t) => (
@@ -120,7 +120,7 @@ export function AddIncomeModal({ onClose, workspaceId, onSaved }: AddIncomeModal
               value={form.amount}
               onChange={handleChange}
               placeholder="0.00"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -130,7 +130,7 @@ export function AddIncomeModal({ onClose, workspaceId, onSaved }: AddIncomeModal
               type="date"
               value={form.date}
               onChange={handleChange}
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -141,7 +141,7 @@ export function AddIncomeModal({ onClose, workspaceId, onSaved }: AddIncomeModal
               onChange={handleChange}
               rows={2}
               placeholder="Optional note…"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] resize-none"
             />
           </div>
         </div>
@@ -158,7 +158,7 @@ export function AddIncomeModal({ onClose, workspaceId, onSaved }: AddIncomeModal
             <button
               onClick={handleSave}
               disabled={saving}
-              className="px-4 py-2 text-sm font-medium text-white bg-[#2563EB] hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60"
+              className="px-4 py-2 text-sm font-medium text-white bg-[var(--brand)] hover:bg-[var(--brand-strong)] rounded-lg transition-colors disabled:opacity-60"
             >
               {saving ? "Saving…" : "Save Income"}
             </button>

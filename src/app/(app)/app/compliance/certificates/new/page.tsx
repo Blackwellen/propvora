@@ -171,7 +171,7 @@ function Step1({ state, update, certTypes, regionName }: { state: WizardState; u
             className={cn(
               "flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 text-center transition-all",
               state.certType === ct.key
-                ? "border-[#2563EB] bg-[#EFF6FF] shadow-sm"
+                ? "border-[var(--brand)] bg-[var(--brand-soft)] shadow-sm"
                 : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50",
             )}
           >
@@ -209,7 +209,7 @@ function Step2({ state, update, properties }: { state: WizardState; update: (p: 
             className={cn(
               "flex-1 py-2 rounded-lg border text-sm font-medium transition-all",
               state.recordMode === mode
-                ? "bg-[#2563EB] text-white border-[#2563EB]"
+                ? "bg-[var(--brand)] text-white border-[var(--brand)]"
                 : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50",
             )}
           >
@@ -223,7 +223,7 @@ function Step2({ state, update, properties }: { state: WizardState; update: (p: 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Property <span className="text-red-500">*</span></label>
             <select
-              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
               value={state.property}
               onChange={(e) => update({ property: e.target.value, propertyLabel: e.target.options[e.target.selectedIndex]?.text ?? "" })}
             >
@@ -236,7 +236,7 @@ function Step2({ state, update, properties }: { state: WizardState; update: (p: 
             <input
               type="text"
               placeholder="e.g. Flat 2, Whole property"
-              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
               value={state.unit}
               onChange={(e) => update({ unit: e.target.value })}
             />
@@ -246,7 +246,7 @@ function Step2({ state, update, properties }: { state: WizardState; update: (p: 
             <input
               type="text"
               placeholder="Search tenancy..."
-              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
               value={state.tenancy}
               onChange={(e) => update({ tenancy: e.target.value })}
             />
@@ -258,7 +258,7 @@ function Step2({ state, update, properties }: { state: WizardState; update: (p: 
           <input
             type="text"
             placeholder="Search supplier..."
-            className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+            className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
             value={state.supplier}
             onChange={(e) => update({ supplier: e.target.value })}
           />
@@ -278,7 +278,7 @@ function Step3({ state, update }: { state: WizardState; update: (p: Partial<Wiza
           <label className="block text-sm font-medium text-slate-700 mb-1.5">Issue Date <span className="text-red-500">*</span></label>
           <input
             type="date"
-            className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+            className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
             value={state.issueDate}
             onChange={(e) => update({ issueDate: e.target.value })}
           />
@@ -287,7 +287,7 @@ function Step3({ state, update }: { state: WizardState; update: (p: Partial<Wiza
           <label className="block text-sm font-medium text-slate-700 mb-1.5">Expiry Date <span className="text-red-500">*</span></label>
           <input
             type="date"
-            className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+            className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
             value={state.expiryDate}
             onChange={(e) => update({ expiryDate: e.target.value })}
           />
@@ -295,9 +295,9 @@ function Step3({ state, update }: { state: WizardState; update: (p: Partial<Wiza
       </div>
 
       {state.issueDate && state.expiryDate && (
-        <div className="flex items-center gap-2 px-4 py-2.5 bg-[#EFF6FF] rounded-lg border border-[#BFDBFE]">
-          <Calendar className="w-4 h-4 text-[#2563EB]" />
-          <span className="text-sm font-medium text-[#2563EB]">Valid for: {duration}</span>
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--brand-soft)] rounded-lg border border-[#BFDBFE]">
+          <Calendar className="w-4 h-4 text-[var(--brand)]" />
+          <span className="text-sm font-medium text-[var(--brand)]">Valid for: {duration}</span>
         </div>
       )}
 
@@ -318,7 +318,7 @@ function Step3({ state, update }: { state: WizardState; update: (p: Partial<Wiza
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1.5">Remind me</label>
           <select
-            className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+            className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
             value={state.reminderDays}
             onChange={(e) => update({ reminderDays: e.target.value })}
           >
@@ -341,7 +341,7 @@ function Step4({ state, update, contacts }: { state: WizardState; update: (p: Pa
         <input
           type="text"
           placeholder="e.g. Elite Gas Services"
-          className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+          className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
           value={state.issuerName}
           onChange={(e) => update({ issuerName: e.target.value })}
         />
@@ -349,7 +349,7 @@ function Step4({ state, update, contacts }: { state: WizardState; update: (p: Pa
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1.5">Issuer Contact <span className="text-slate-400 font-normal">(link existing)</span></label>
         <select
-          className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+          className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
           value={state.issuerContact}
           onChange={(e) => update({ issuerContact: e.target.value })}
         >
@@ -362,7 +362,7 @@ function Step4({ state, update, contacts }: { state: WizardState; update: (p: Pa
         <input
           type="text"
           placeholder="e.g. GAS-2025-001"
-          className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+          className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
           value={state.referenceNumber}
           onChange={(e) => update({ referenceNumber: e.target.value })}
         />
@@ -403,14 +403,14 @@ function Step5({
       <div
         className={cn(
           "border-2 border-dashed rounded-xl p-10 text-center transition-all cursor-pointer",
-          state.fileName ? "border-[#2563EB] bg-[#EFF6FF]" : "border-slate-300 hover:border-slate-400 bg-slate-50",
+          state.fileName ? "border-[var(--brand)] bg-[var(--brand-soft)]" : "border-slate-300 hover:border-slate-400 bg-slate-50",
         )}
         onClick={() => fileRef.current?.click()}
       >
         {state.fileName ? (
           <div className="flex flex-col items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-[#DBEAFE] flex items-center justify-center">
-              <FileText className="w-6 h-6 text-[#2563EB]" />
+              <FileText className="w-6 h-6 text-[var(--brand)]" />
             </div>
             <p className="text-sm font-semibold text-slate-800">{state.fileName}</p>
             {state.fileKey ? (
@@ -471,7 +471,7 @@ function Step6({ state, update, certTypes }: { state: WizardState; update: (p: P
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Task Title</label>
             <input
               type="text"
-              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
               value={state.taskTitle || autoTitle}
               onChange={(e) => update({ taskTitle: e.target.value })}
             />
@@ -481,7 +481,7 @@ function Step6({ state, update, certTypes }: { state: WizardState; update: (p: P
             <input
               type="text"
               placeholder="Assignee name (optional)"
-              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
               value={state.taskAssignee}
               onChange={(e) => update({ taskAssignee: e.target.value })}
             />
@@ -490,7 +490,7 @@ function Step6({ state, update, certTypes }: { state: WizardState; update: (p: P
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Due Date <span className="text-slate-400 font-normal">(auto: 30 days before expiry)</span></label>
             <input
               type="date"
-              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
               value={state.taskDueDate}
               onChange={(e) => update({ taskDueDate: e.target.value })}
             />
@@ -879,7 +879,7 @@ export default function NewCertificatePage() {
       {/* Progress bar */}
       <div className="h-1 bg-slate-100">
         <div
-          className="h-full bg-[#2563EB] transition-all duration-300"
+          className="h-full bg-[var(--brand)] transition-all duration-300"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -907,7 +907,7 @@ export default function NewCertificatePage() {
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all text-sm",
                   step === s.id
-                    ? "bg-[#2563EB] text-white shadow-sm"
+                    ? "bg-[var(--brand)] text-white shadow-sm"
                     : s.id < step
                     ? "bg-white text-slate-700 border border-slate-200 cursor-pointer hover:bg-slate-50"
                     : "text-slate-400 cursor-default",

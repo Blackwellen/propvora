@@ -152,27 +152,21 @@ BEGIN
     -- supplier-side automations (marker carried in trigger json)
     INSERT INTO automation_definitions (workspace_id, name, description, trigger, conditions, actions, enabled, source, created_by)
     SELECT p_workspace_id, a.name, a.description, a.trig, a.cond, a.acts, true, 'template', p_user_id
+    -- Real engine shape (catalogue trigger.type + safe action_type). The engine
+    -- generates real runs via cron/run-now — no fabricated run history seeded.
     FROM (VALUES
-      ('New job request → auto-acknowledge','Acknowledge new job requests within minutes and notify the team.',
-        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'type','event','event','job_request.created'),
+      ('New maintenance request → acknowledge','Acknowledge new maintenance requests and notify the team.',
+        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'kind','event','type','maintenance_request_submitted','config','{}'::jsonb),
         '{}'::jsonb,
-        '[{"type":"send_email","template":"job_ack"},{"type":"notify","channel":"in_app"}]'::jsonb),
-      ('Job completed → send invoice','When a job is marked complete, generate and send the invoice automatically.',
-        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'type','event','event','job.completed'),
+        '[{"action_type":"create_notification","config":{"title":"New maintenance request — {{summary}}","severity":"info"}},{"action_type":"create_task","config":{"title":"Acknowledge request — {{summary}}"}}]'::jsonb),
+      ('Job completed → follow-up task','When a job is marked complete, raise a follow-up/invoice-draft task.',
+        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'kind','event','type','job_completed','config','{}'::jsonb),
         '{}'::jsonb,
-        '[{"type":"generate_document","template":"invoice"},{"type":"send_email","template":"invoice"}]'::jsonb)
+        '[{"action_type":"create_task","config":{"title":"Raise invoice for completed job — {{summary}}"}}]'::jsonb)
     ) AS a(name,description,trig,cond,acts)
     WHERE NOT EXISTS (
       SELECT 1 FROM automation_definitions x
       WHERE x.workspace_id = p_workspace_id AND (x.trigger->>'demo_batch_id') IS NOT NULL);
-
-    INSERT INTO automation_v2_runs (workspace_id, definition_id, status, trigger_context, started_at, finished_at, created_at)
-    SELECT p_workspace_id, def.id, 'succeeded',
-       jsonb_build_object('demo',true,'demo_batch_id',v_marker),
-       now()-interval '2 days', now()-interval '2 days'+interval '2 seconds', now()-interval '2 days'
-    FROM automation_definitions def
-    WHERE def.workspace_id = p_workspace_id AND (def.trigger->>'demo_batch_id') = v_marker
-      AND NOT EXISTS (SELECT 1 FROM automation_v2_runs r WHERE (r.trigger_context->>'demo_batch_id') = v_marker);
 
     UPDATE workspaces SET demo_data_loaded = true, demo_data_variant = 'full' WHERE id = p_workspace_id;
     RETURN v_batch;
@@ -478,43 +472,38 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM automation_definitions WHERE workspace_id=p_workspace_id AND (trigger->>'demo_batch_id') = v_marker) THEN
     INSERT INTO automation_definitions (workspace_id,name,description,trigger,conditions,actions,enabled,source,created_by)
     SELECT p_workspace_id, a.name, a.descr, a.trig, a.cond, a.acts, a.en, 'template', p_user_id
+    -- Real engine shape: trigger.type is a CATALOGUE trigger the engine can
+    -- evaluate; actions[].action_type is a SAFE catalogue action the executor
+    -- runs. (Previously these used trigger.type='schedule'/'event' + non-
+    -- catalogue actions like send_email/notify/reconcile, so the engine could
+    -- never run them — and fabricated runs were seeded to hide that.)
     FROM (VALUES
-      ('Rent overdue → chase tenant','When rent is 3+ days overdue, send a reminder and create a follow-up task.',
-        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'type','schedule','event','rent.overdue','cron','0 9 * * *'),
-        '{"all":[{"field":"days_overdue","op":"gte","value":3}]}'::jsonb,
-        '[{"type":"send_email","template":"rent_reminder"},{"type":"create_task","title":"Chase overdue rent"}]'::jsonb, true),
-      ('Compliance due in 30 days → alert','Alert 30 days before any compliance certificate expires and raise a task.',
-        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'type','schedule','event','compliance.due_soon','cron','0 8 * * 1'),
-        '{"all":[{"field":"days_to_due","op":"lte","value":30}]}'::jsonb,
-        '[{"type":"notify","channel":"in_app"},{"type":"create_task","title":"Book compliance renewal"}]'::jsonb, true),
-      ('New job → request supplier quote','When a maintenance job is created, request a quote from the preferred supplier.',
-        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'type','event','event','job.created'),
-        '{"all":[{"field":"category","op":"in","value":["plumbing","electrical","general"]}]}'::jsonb,
-        '[{"type":"request_quote"},{"type":"notify","channel":"email"}]'::jsonb, true),
-      ('Rent received → reconcile & receipt','On matched rent payment, reconcile the transaction and email a receipt.',
-        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'type','event','event','payment.received'),
-        '{"all":[{"field":"payment_type","op":"eq","value":"income"}]}'::jsonb,
-        '[{"type":"reconcile"},{"type":"send_email","template":"rent_receipt"}]'::jsonb, true),
-      ('Monthly owner statement (draft)','Generate and email monthly owner statements. Currently disabled while drafting.',
-        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'type','schedule','event','owner.statement','cron','0 6 1 * *'),
+      ('Rent overdue → chase tenant','When rent is overdue, draft a reminder and create a follow-up task.',
+        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'kind','scheduled','type','rent_overdue','config','{}'::jsonb),
         '{}'::jsonb,
-        '[{"type":"generate_document","template":"owner_statement"},{"type":"send_email","template":"owner_statement"}]'::jsonb, false)
+        '[{"action_type":"draft_message","config":{"subject":"Overdue rent — {{summary}}"}},{"action_type":"create_task","config":{"title":"Chase overdue rent — {{summary}}","priority":"high"}}]'::jsonb, true),
+      ('Compliance due in 30 days → alert','Alert 30 days before any compliance certificate expires and raise a task.',
+        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'kind','scheduled','type','compliance_due_soon','config',jsonb_build_object('within_days',30)),
+        '{}'::jsonb,
+        '[{"action_type":"create_notification","config":{"title":"Compliance due soon — {{summary}}","severity":"warning"}},{"action_type":"create_task","config":{"title":"Book compliance renewal — {{summary}}","priority":"high","due_in_days":14}}]'::jsonb, true),
+      ('New maintenance request → triage task','When a maintenance request is submitted, raise a triage task.',
+        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'kind','event','type','maintenance_request_submitted','config','{}'::jsonb),
+        '{}'::jsonb,
+        '[{"action_type":"create_task","config":{"title":"Triage maintenance request — {{summary}}","priority":"normal"}}]'::jsonb, true),
+      ('Rent received → receipt draft','On a matched rent payment, draft a receipt and note it on the record.',
+        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'kind','event','type','rent_payment_received','config','{}'::jsonb),
+        '{}'::jsonb,
+        '[{"action_type":"draft_message","config":{"subject":"Rent receipt — {{summary}}"}},{"action_type":"add_note","config":{"body":"Rent payment received and reconciled — {{summary}}"}}]'::jsonb, true),
+      ('Monthly owner statement (draft)','Draft a landlord report. Disabled while drafting.',
+        jsonb_build_object('demo',true,'demo_batch_id',v_marker,'kind','scheduled','type','tenancy_ending','config',jsonb_build_object('within_days',365)),
+        '{}'::jsonb,
+        '[{"action_type":"create_landlord_report","config":{"title":"Monthly owner statement"}}]'::jsonb, false)
     ) AS a(name,descr,trig,cond,acts,en);
 
-    -- run history across statuses for the enabled defs
-    INSERT INTO automation_v2_runs (workspace_id,definition_id,status,trigger_context,started_at,finished_at,created_at)
-    SELECT p_workspace_id, def.id, r.st,
-           jsonb_build_object('demo',true,'demo_batch_id',v_marker,'note',r.note),
-           now()-(r.ago||' days')::interval,
-           CASE WHEN r.st='running' THEN NULL ELSE now()-(r.ago||' days')::interval+interval '3 seconds' END,
-           now()-(r.ago||' days')::interval
-    FROM automation_definitions def
-    JOIN LATERAL (VALUES
-      ('succeeded','first run','2'),
-      ('succeeded','second run','5'),
-      ('failed','supplier_no_response','3')
-    ) AS r(st,note,ago) ON true
-    WHERE def.workspace_id = p_workspace_id AND (def.trigger->>'demo_batch_id') = v_marker AND def.enabled = true;
+    -- NOTE: run history is intentionally NOT fabricated here. The daily cron
+    -- runner (and manual "Run now") evaluate these definitions against live
+    -- data and create REAL automation_v2_runs + run_steps. Seeding fake runs
+    -- (with non-catalogue actions / invented failures) misrepresented the engine.
   END IF;
 
   UPDATE workspaces SET demo_data_loaded = true, demo_data_variant = 'full' WHERE id = p_workspace_id;

@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { PoundSterling, TrendingUp } from "lucide-react"
+import { formatCurrency } from "@/lib/utils"
 import type { HomeMoneyData } from "../types"
 
 interface HomeMoneySnapshotCardProps {
@@ -25,7 +26,7 @@ function StatRow({
       <div className="flex-1 min-w-0">
         <p className="text-[11px] text-slate-400">{label}</p>
         <p className="text-[14px] font-bold text-slate-900">
-          {`£${value.toLocaleString("en-GB")}`}
+          {formatCurrency(value)}
         </p>
       </div>
     </>
@@ -58,11 +59,11 @@ export function HomeMoneySnapshotCard({ data }: HomeMoneySnapshotCardProps) {
 
         <div className="border-t border-slate-100 pt-2">
           <div className="flex items-center gap-2.5">
-            <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-[var(--brand)] flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-[11px] text-slate-400">Net cashflow</p>
               <p className={`text-[14px] font-bold ${data.netCashflow >= 0 ? "text-emerald-700" : "text-red-600"}`}>
-                {`${data.netCashflow < 0 ? "-" : ""}£${Math.abs(data.netCashflow).toLocaleString("en-GB")}`}
+                {formatCurrency(data.netCashflow)}
               </p>
             </div>
             {hasData && (
@@ -84,7 +85,7 @@ export function HomeMoneySnapshotCard({ data }: HomeMoneySnapshotCardProps) {
       <div className="pt-2 border-t border-slate-100">
         <Link
           href="/property-manager/money"
-          className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors"
+          className="text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
         >
           View money →
         </Link>

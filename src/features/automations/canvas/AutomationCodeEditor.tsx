@@ -122,7 +122,7 @@ export function AutomationCodeEditor({ nodes, edges }: Props) {
         value={code}
         onChange={(e) => setCode(e.target.value)}
         spellCheck={false}
-        className="flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-900 p-5 font-mono text-[12px] leading-relaxed text-sky-300 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+        className="flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-900 p-5 font-mono text-[12px] leading-relaxed text-sky-300 focus:border-[var(--color-brand-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)]"
       />
     </div>
   )

@@ -46,7 +46,7 @@ export default function LetBookingPanel({ p }: { p: LetProperty }) {
         <div className="mt-3 space-y-2">
           <Link
             href="/customer/lets/viewings/VW-2042"
-            className="block text-center bg-[#2563EB] text-white rounded-xl py-2.5 text-[13px] font-semibold"
+            className="block text-center bg-[var(--brand)] text-white rounded-xl py-2.5 text-[13px] font-semibold"
           >
             Book a viewing
           </Link>

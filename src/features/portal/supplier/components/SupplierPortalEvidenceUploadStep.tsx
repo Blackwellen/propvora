@@ -43,7 +43,7 @@ export function SupplierPortalEvidenceUploadStep({
         <button
           onClick={handleUpload}
           disabled={uploading}
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#2563EB] px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors disabled:opacity-60"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60"
         >
           {uploading && <Loader2 className="w-4 h-4 animate-spin" />}
           {uploading ? "Uploading…" : "Select files"}

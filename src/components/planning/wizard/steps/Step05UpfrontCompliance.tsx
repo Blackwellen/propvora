@@ -181,8 +181,8 @@ export default function Step05UpfrontCompliance() {
           {/* Section header */}
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                <span className="text-[14px] font-bold text-blue-600">1</span>
+              <div className="w-8 h-8 rounded-xl bg-[var(--color-brand-100)] flex items-center justify-center shrink-0">
+                <span className="text-[14px] font-bold text-[var(--brand)]">1</span>
               </div>
               <div>
                 <h2 className="text-[16px] font-bold text-slate-900">
@@ -196,7 +196,7 @@ export default function Step05UpfrontCompliance() {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <span className="text-[12.5px] text-slate-400">All amounts in</span>
-              <select className="h-8 px-2 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
+              <select className="h-8 px-2 rounded-lg border border-slate-200 bg-white text-[12.5px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]">
                 <option>£ GBP</option>
                 <option>$ USD</option>
                 <option>€ EUR</option>
@@ -333,7 +333,7 @@ export default function Step05UpfrontCompliance() {
                   <span className="text-[13px] font-bold text-slate-700">
                     Total Upfront Cash Required
                   </span>
-                  <span className="text-[16px] font-bold text-[#2563EB]">
+                  <span className="text-[16px] font-bold text-[var(--brand)]">
                     £{totalUpfront.toLocaleString()}
                   </span>
                 </div>
@@ -344,7 +344,7 @@ export default function Step05UpfrontCompliance() {
             <div className="bg-slate-50 rounded-2xl border border-slate-200 p-5">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-[13px] font-bold text-slate-700">Funding Split</p>
-                <button className="flex items-center gap-1.5 text-[12.5px] font-semibold text-[#2563EB] hover:text-blue-700">
+                <button className="flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">
                   <Edit2 className="w-3 h-3" />
                   Edit Funding Split
                 </button>
@@ -466,13 +466,13 @@ export default function Step05UpfrontCompliance() {
               <p className="text-[10.5px] text-slate-400">Total estimated cost</p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              <select className="h-8 px-2 rounded-lg border border-slate-200 bg-white text-[12px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
+              <select className="h-8 px-2 rounded-lg border border-slate-200 bg-white text-[12px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]">
                 <option>All Categories</option>
                 <option>Mandatory</option>
                 <option>Recommended</option>
                 <option>Important</option>
               </select>
-              <select className="h-8 px-2 rounded-lg border border-slate-200 bg-white text-[12px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
+              <select className="h-8 px-2 rounded-lg border border-slate-200 bg-white text-[12px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]">
                 <option>All Status</option>
                 <option>Completed</option>
                 <option>In Progress</option>
@@ -770,7 +770,7 @@ export default function Step05UpfrontCompliance() {
         </div>
 
         {/* AI Guidance */}
-        <div className="bg-gradient-to-br from-violet-50 to-blue-50 rounded-2xl border border-violet-200/60 p-4">
+        <div className="bg-gradient-to-br from-violet-50 to-[var(--brand-soft)] rounded-2xl border border-violet-200/60 p-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-6 h-6 rounded-lg bg-[#7C3AED] flex items-center justify-center shrink-0">
               <Sparkles className="w-3 h-3 text-white" />

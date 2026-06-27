@@ -392,8 +392,8 @@ export default function WorkReportsPage() {
   const KPIS: WorkKpi[] = [
     {
       icon: Briefcase,
-      iconBg: "bg-blue-50",
-      iconColor: "text-blue-600",
+      iconBg: "bg-[var(--brand-soft)]",
+      iconColor: "text-[var(--brand)]",
       value: metrics.total,
       label: "Total Work",
       sub: hasData ? "In selected range" : "No data",
@@ -488,7 +488,7 @@ export default function WorkReportsPage() {
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors",
                   range === r.key
-                    ? "bg-white text-[#2563EB] shadow-sm"
+                    ? "bg-white text-[var(--brand)] shadow-sm"
                     : "text-slate-500 hover:text-slate-700",
                 )}
               >
@@ -504,7 +504,7 @@ export default function WorkReportsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilterKey)}
-            className="text-xs font-medium text-slate-700 border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="text-xs font-medium text-slate-700 border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)]"
           >
             {STATUS_FILTERS.map((s) => (
               <option key={s.key} value={s.key}>
@@ -520,7 +520,7 @@ export default function WorkReportsPage() {
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value as PriorityFilterKey)}
-            className="text-xs font-medium text-slate-700 border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="text-xs font-medium text-slate-700 border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)]"
           >
             {PRIORITY_FILTERS.map((p) => (
               <option key={p.key} value={p.key}>

@@ -179,7 +179,7 @@ export default function TenantHomePage() {
     {
       label: "Monthly Rent",
       value: primary?.rent_amount != null ? formatMoney(primary.rent_amount) : "—",
-      colour: "text-[#2563EB]", bg: "bg-[#EFF6FF]", icon: PoundSterling,
+      colour: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]", icon: PoundSterling,
     },
     {
       label: "Paid This Year",
@@ -204,7 +204,7 @@ export default function TenantHomePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">
-            {getGreeting()}, <span className="text-[#2563EB]">{ctx?.displayName ?? "Tenant"}</span>
+            {getGreeting()}, <span className="text-[var(--brand)]">{ctx?.displayName ?? "Tenant"}</span>
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">{today}</p>
         </div>
@@ -221,10 +221,10 @@ export default function TenantHomePage() {
 
       {/* No linked tenancy — honest explanation */}
       {tenancies.length === 0 && (
-        <Card className="rounded-2xl border-blue-100 bg-[#EFF6FF]">
+        <Card className="rounded-2xl border-[var(--color-brand-100)] bg-[var(--brand-soft)]">
           <CardContent className="py-5">
             <div className="flex items-start gap-3">
-              <Home className="w-5 h-5 text-[#2563EB] mt-0.5 shrink-0" />
+              <Home className="w-5 h-5 text-[var(--brand)] mt-0.5 shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-[#1e40af]">No tenancy linked to your account yet</p>
                 <p className="text-xs text-[#1e40af]/80 mt-1 max-w-xl">
@@ -267,7 +267,7 @@ export default function TenantHomePage() {
                   )}
                 </div>
               </div>
-              <Link href="/tenant-portal/tenancy" className="text-xs text-[#2563EB] hover:underline flex items-center gap-1 shrink-0">
+              <Link href="/tenant-portal/tenancy" className="text-xs text-[var(--brand)] hover:underline flex items-center gap-1 shrink-0">
                 Details <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
@@ -303,8 +303,8 @@ export default function TenantHomePage() {
           return (
             <Link key={a.label} href={a.href}>
               <Card className="p-4 rounded-2xl border-slate-200 hover:shadow-md transition-shadow flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
-                  <Icon className="w-4 h-4 text-[#2563EB]" />
+                <div className="w-9 h-9 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                  <Icon className="w-4 h-4 text-[var(--brand)]" />
                 </div>
                 <span className="text-sm font-semibold text-slate-800">{a.label}</span>
               </Card>
@@ -317,7 +317,7 @@ export default function TenantHomePage() {
       <Card className="rounded-2xl border-slate-200">
         <CardHeader>
           <CardTitle className="text-sm">Your Maintenance Requests</CardTitle>
-          <Link href="/tenant-portal/maintenance" className="text-xs text-[#2563EB] hover:underline">View all</Link>
+          <Link href="/tenant-portal/maintenance" className="text-xs text-[var(--brand)] hover:underline">View all</Link>
         </CardHeader>
         <CardContent>
           {recentWork.length === 0 ? (
@@ -349,7 +349,7 @@ export default function TenantHomePage() {
       <Card className="rounded-2xl border-slate-200">
         <CardHeader>
           <CardTitle className="text-sm">Recent Documents</CardTitle>
-          <Link href="/tenant-portal/documents" className="text-xs text-[#2563EB] hover:underline">View all</Link>
+          <Link href="/tenant-portal/documents" className="text-xs text-[var(--brand)] hover:underline">View all</Link>
         </CardHeader>
         <CardContent>
           {docs.length === 0 ? (
@@ -380,8 +380,8 @@ export default function TenantHomePage() {
       <Link href="/tenant-portal/messages" className="block">
         <Card className="p-4 rounded-2xl border-slate-200 hover:shadow-md transition-shadow flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
-              <MessageSquare className="w-4 h-4 text-[#2563EB]" />
+            <div className="w-9 h-9 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+              <MessageSquare className="w-4 h-4 text-[var(--brand)]" />
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-800">Messages</p>

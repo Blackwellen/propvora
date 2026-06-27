@@ -151,7 +151,7 @@ export default function MobileSheet({
             <button
               onClick={onClose}
               aria-label="Close"
-              className="w-9 h-9 -mr-1 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 shrink-0"
+              className="w-9 h-9 -mr-1 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 shrink-0"
             >
               <X className="w-5 h-5" />
             </button>

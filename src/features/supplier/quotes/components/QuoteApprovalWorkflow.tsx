@@ -35,14 +35,14 @@ export function QuoteApprovalWorkflow() {
           <div key={s} className="flex items-center gap-1 flex-1">
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                i < 2 ? "bg-[#2563EB] text-white" : "bg-slate-100 text-slate-400"
+                i < 2 ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-400"
               }`}
             >
               {i < 2 ? "✓" : i + 1}
             </span>
             <span className="text-[11px] text-slate-500">{s}</span>
             {i < APPROVAL_STAGES.length - 1 && (
-              <span className={`flex-1 h-0.5 ${i < 1 ? "bg-[#2563EB]" : "bg-slate-200"}`} />
+              <span className={`flex-1 h-0.5 ${i < 1 ? "bg-[var(--brand)]" : "bg-slate-200"}`} />
             )}
           </div>
         ))}

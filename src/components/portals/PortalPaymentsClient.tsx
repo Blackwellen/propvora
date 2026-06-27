@@ -75,7 +75,7 @@ export default function PortalPaymentsClient({
       {/* Method + next scheduled */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <PortalSectionCard title="Payment method" icon={CreditCard}>
-          <div className="flex items-center gap-3"><span className="w-10 h-10 rounded-xl bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center"><Building2 className="w-5 h-5" /></span><div><p className="text-sm font-semibold text-[#071B4D]">Standing order / bank transfer</p><p className="text-xs text-slate-400">Set up with your manager</p></div></div>
+          <div className="flex items-center gap-3"><span className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center"><Building2 className="w-5 h-5" /></span><div><p className="text-sm font-semibold text-[#071B4D]">Standing order / bank transfer</p><p className="text-xs text-slate-400">Set up with your manager</p></div></div>
         </PortalSectionCard>
         <PortalSectionCard title="Next scheduled payment" icon={CalendarClock}>
           <div className="flex items-center justify-between"><PortalFact icon={PoundSterling} label="Amount" value={rentPcm != null ? money(rentPcm) : "—"} /><PortalFact icon={CalendarClock} label="Due" value={nextDue ? fmtDate(nextDue) : "—"} /></div>
@@ -87,7 +87,7 @@ export default function PortalPaymentsClient({
         <div className="space-y-3 min-w-0">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex gap-1 bg-white border border-[#E2EAF6] rounded-xl p-1">{TABS.map((t) => (
-              <button key={t} onClick={() => setTab(t)} className={cn("h-8 px-3 rounded-lg text-xs font-semibold transition-colors", tab === t ? "bg-[#2563EB] text-white" : "text-slate-500 hover:bg-slate-50")}>{t}</button>
+              <button key={t} onClick={() => setTab(t)} className={cn("h-8 px-3 rounded-lg text-xs font-semibold transition-colors", tab === t ? "bg-[var(--brand)] text-white" : "text-slate-500 hover:bg-slate-50")}>{t}</button>
             ))}</div>
             <div className="flex gap-2">
               <button className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-[#E2EAF6] bg-white text-[13px] font-semibold text-slate-600 hover:bg-slate-50"><Filter className="w-4 h-4" /> Filter</button>
@@ -139,7 +139,7 @@ export default function PortalPaymentsClient({
             <p className="text-xs text-slate-500 mb-3">Pay your rent by card or bank transfer.</p>
             <button
               onClick={() => setPaymentOpen(true)}
-              className="w-full h-9 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1D4ED8] transition-colors flex items-center justify-center gap-1.5"
+              className="w-full h-9 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors flex items-center justify-center gap-1.5"
             >
               <CreditCard className="w-4 h-4" /> Make a payment
             </button>

@@ -56,7 +56,7 @@ const MONTHLY_JOBS = [
 
 const PERF_METRICS = [
   { label: "On-Time Response",  value: 98, color: "bg-emerald-500" },
-  { label: "Job Completion",    value: 95, color: "bg-blue-500"    },
+  { label: "Job Completion",    value: 95, color: "bg-[var(--brand)]"    },
   { label: "SLA Compliance",    value: 96, color: "bg-violet-500"  },
   { label: "Quality Score",     value: 94, color: "bg-amber-500"   },
   { label: "Cost Efficiency",   value: 88, color: "bg-slate-500"   },
@@ -118,7 +118,7 @@ export default function SuppliersPerformancePage() {
   // "—" rather than fabricated figures. Supplier count is live.
   const KPIS = [
     { label: "Avg Rating",     value: "—",      sub: "Awaiting reviews",     icon: Star,         bg: "bg-amber-50",   color: "text-amber-600"   },
-    { label: "Avg Response",   value: "—",      sub: "Awaiting data",        icon: Clock,        bg: "bg-blue-50",    color: "text-blue-600"    },
+    { label: "Avg Response",   value: "—",      sub: "Awaiting data",        icon: Clock,        bg: "bg-[var(--brand-soft)]",    color: "text-[var(--brand)]"    },
     { label: "Completion Rate",value: "—",      sub: "Awaiting data",        icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" },
     { label: "Suppliers",      value: String(suppliers.length), sub: "In your network", icon: Award, bg: "bg-violet-50",  color: "text-violet-600"  },
   ]
@@ -187,7 +187,7 @@ export default function SuppliersPerformancePage() {
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[13px] font-semibold text-slate-800">Top Performers</h3>
-              <Link href="/property-manager/suppliers/directory" className="text-[11px] text-[#2563EB] hover:underline font-medium">
+              <Link href="/property-manager/suppliers/directory" className="text-[11px] text-[var(--brand)] hover:underline font-medium">
                 View all
               </Link>
             </div>
@@ -209,11 +209,11 @@ export default function SuppliersPerformancePage() {
                       <div className="flex items-center gap-2 mb-0.5">
                         <Link
                           href={`/property-manager/work/suppliers/${s.id}`}
-                          className="text-[13px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors truncate"
+                          className="text-[13px] font-semibold text-slate-900 hover:text-[var(--brand)] transition-colors truncate"
                         >
                           {s.name}
                         </Link>
-                        {s.preferred && <BadgeCheck className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />}
+                        {s.preferred && <BadgeCheck className="w-3.5 h-3.5 text-[var(--brand)] shrink-0" />}
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-[11px] text-slate-400">{s.trade}</span>

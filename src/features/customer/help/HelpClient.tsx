@@ -59,12 +59,12 @@ export default function HelpClient() {
       {/* Search — links to public help centre */}
       <Link
         href="/help"
-        className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-4 py-3 text-[13px] text-slate-400 hover:border-blue-300 hover:text-slate-500 transition-colors shadow-sm"
+        className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-4 py-3 text-[13px] text-slate-400 hover:border-[var(--color-brand-300)] hover:text-slate-500 transition-colors shadow-sm"
         aria-label="Browse help articles"
       >
         <Search className="w-4 h-4 shrink-0" />
         <span>Search help topics, articles and guides…</span>
-        <ArrowRight className="w-4 h-4 ml-auto text-blue-500 shrink-0" />
+        <ArrowRight className="w-4 h-4 ml-auto text-[var(--brand)] shrink-0" />
       </Link>
 
       {/* KPIs */}
@@ -90,7 +90,7 @@ export default function HelpClient() {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-[15px] font-bold text-slate-900">Browse help by category</h3>
-              <Link href="/help" className="text-[12px] font-semibold text-blue-600 hover:underline">
+              <Link href="/help" className="text-[12px] font-semibold text-[var(--brand)] hover:underline">
                 See all articles →
               </Link>
             </div>
@@ -104,7 +104,7 @@ export default function HelpClient() {
                     className="flex flex-col items-center gap-2 group"
                     aria-label={`${c.label} help articles`}
                   >
-                    <span className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                    <span className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-[var(--brand-soft)] group-hover:text-[var(--brand)] transition-colors">
                       <Icon className="w-5 h-5" />
                     </span>
                     <span className="text-[11px] font-medium text-slate-600">{c.label}</span>
@@ -120,15 +120,15 @@ export default function HelpClient() {
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-[13px] font-bold text-slate-900">Top help articles</p>
-                <Link href="/help" className="text-[11px] font-semibold text-blue-600 hover:underline">
+                <Link href="/help" className="text-[11px] font-semibold text-[var(--brand)] hover:underline">
                   View all →
                 </Link>
               </div>
               {TOP_ARTICLES.map(({ title, href, meta }) => (
                 <Link key={title} href={href} className="flex gap-2 py-1.5 group">
-                  <FileText className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                  <FileText className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-[12px] font-medium text-slate-700 group-hover:text-blue-600">{title}</p>
+                    <p className="text-[12px] font-medium text-slate-700 group-hover:text-[var(--brand)]">{title}</p>
                     <p className="text-[10.5px] text-slate-400">{meta}</p>
                   </div>
                 </Link>
@@ -147,7 +147,7 @@ export default function HelpClient() {
                 <Link key={t} href={href} className="flex gap-2 py-1.5 group">
                   <Flag className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-[12px] font-medium text-slate-700 group-hover:text-blue-600">{t}</p>
+                    <p className="text-[12px] font-medium text-slate-700 group-hover:text-[var(--brand)]">{t}</p>
                     <p className="text-[10.5px] text-slate-400">{s}</p>
                   </div>
                 </Link>
@@ -189,7 +189,7 @@ export default function HelpClient() {
           {/* Still need help */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
             <div className="flex items-center gap-2">
-              <span className="w-9 h-9 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+              <span className="w-9 h-9 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center shrink-0">
                 <MessagesSquare className="w-4 h-4" />
               </span>
               <div>
@@ -216,24 +216,24 @@ export default function HelpClient() {
               href="/help"
               className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 transition-colors group"
             >
-              <BookOpen className="w-4 h-4 text-blue-500 shrink-0" />
-              <span className="text-[12.5px] font-medium text-slate-700 group-hover:text-blue-600">Browse all help articles</span>
+              <BookOpen className="w-4 h-4 text-[var(--brand)] shrink-0" />
+              <span className="text-[12.5px] font-medium text-slate-700 group-hover:text-[var(--brand)]">Browse all help articles</span>
               <ArrowRight className="w-3.5 h-3.5 text-slate-400 ml-auto" />
             </Link>
             <Link
               href="/contact"
               className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 transition-colors group"
             >
-              <Mail className="w-4 h-4 text-blue-500 shrink-0" />
-              <span className="text-[12.5px] font-medium text-slate-700 group-hover:text-blue-600">Contact support team</span>
+              <Mail className="w-4 h-4 text-[var(--brand)] shrink-0" />
+              <span className="text-[12.5px] font-medium text-slate-700 group-hover:text-[var(--brand)]">Contact support team</span>
               <ArrowRight className="w-3.5 h-3.5 text-slate-400 ml-auto" />
             </Link>
             <Link
               href="/legal"
               className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 transition-colors group"
             >
-              <Scale className="w-4 h-4 text-blue-500 shrink-0" />
-              <span className="text-[12.5px] font-medium text-slate-700 group-hover:text-blue-600">Policies &amp; legal</span>
+              <Scale className="w-4 h-4 text-[var(--brand)] shrink-0" />
+              <span className="text-[12.5px] font-medium text-slate-700 group-hover:text-[var(--brand)]">Policies &amp; legal</span>
               <ArrowRight className="w-3.5 h-3.5 text-slate-400 ml-auto" />
             </Link>
           </div>

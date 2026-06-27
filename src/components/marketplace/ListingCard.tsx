@@ -21,7 +21,7 @@ import { TrustBadge, type TrustKind } from "./TrustBadge"
 ─────────────────────────────────────────────────────────────────────────── */
 
 const CATEGORY_GRADIENT: Record<string, string> = {
-  maintenance: "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
+  maintenance: "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)",
   trades: "linear-gradient(135deg, #EA580C 0%, #F97316 100%)",
   cleaning: "linear-gradient(135deg, #0891B2 0%, #06B6D4 100%)",
   compliance: "linear-gradient(135deg, #059669 0%, #10B981 100%)",
@@ -92,7 +92,7 @@ export function ListingCard({ listing, rating = null, reviewCount = null, trust,
 
         {/* Body */}
         <div className="px-3.5 pt-2.5 pb-3 flex flex-col flex-1">
-          <h3 className="text-[13.5px] font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-[#2563EB] transition-colors">
+          <h3 className="text-[13.5px] font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-[var(--brand)] transition-colors">
             {listing.title}
           </h3>
 

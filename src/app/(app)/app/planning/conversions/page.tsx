@@ -245,7 +245,7 @@ export default function ConversionsPage() {
             {selected && (
               <>
                 <div className="bg-white rounded-2xl border-2 border-[#7C3AED]/30 overflow-hidden">
-                  <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-violet-50 to-blue-50 border-b border-slate-100">
+                  <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-violet-50 to-[var(--brand-soft)] border-b border-slate-100">
                     <div>
                       <h3 className="text-[14px] font-bold text-slate-900">Conversion Preview</h3>
                       <p className="text-[11.5px] text-slate-500 truncate max-w-[180px]">{selected.title}</p>
@@ -334,7 +334,7 @@ export default function ConversionsPage() {
                   >
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                     <p className="text-[12.5px] font-semibold text-slate-800 truncate flex-1">{s.title}</p>
-                    <span className="text-[11px] text-[#2563EB] shrink-0">View →</span>
+                    <span className="text-[11px] text-[var(--brand)] shrink-0">View →</span>
                   </button>
                 ))}
               </div>

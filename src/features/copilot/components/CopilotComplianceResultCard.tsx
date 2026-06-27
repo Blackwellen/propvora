@@ -66,7 +66,7 @@ export default function CopilotComplianceResultCard() {
       <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
         <p className="text-[12px] font-semibold text-slate-700 leading-snug">
           Here&apos;s what&apos;s urgent for 16 Rose Gardens based on the{" "}
-          <span className="text-blue-600">Compliance › Certificates</span> page.
+          <span className="text-[var(--brand)]">Compliance › Certificates</span> page.
         </p>
       </div>
 
@@ -81,7 +81,7 @@ export default function CopilotComplianceResultCard() {
               <p className="text-[11px] text-slate-400 mt-0.5 truncate">{row.detail}</p>
             </div>
             <BadgeChip badge={row.badge} />
-            <button className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 transition-colors shrink-0 whitespace-nowrap">
+            <button className="text-[11px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors shrink-0 whitespace-nowrap">
               {row.action}
             </button>
           </div>

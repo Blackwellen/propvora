@@ -50,7 +50,7 @@ export const ENQUIRY_SOURCE_OPTIONS = [
 export const APPLICANT_STATUS_OPTIONS: { value: string; label: string; colour: string }[] = [
   { value: "new_enquiry",         label: "New Enquiry",         colour: "bg-sky-100 text-sky-700" },
   { value: "viewing_needed",      label: "Viewing Needed",      colour: "bg-violet-100 text-violet-700" },
-  { value: "viewing_booked",      label: "Viewing Booked",      colour: "bg-blue-100 text-blue-700" },
+  { value: "viewing_booked",      label: "Viewing Booked",      colour: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
   { value: "application_pending", label: "Application Pending", colour: "bg-amber-100 text-amber-700" },
   { value: "converted",           label: "Converted",           colour: "bg-emerald-100 text-emerald-700" },
   { value: "lost",                label: "Lost",                colour: "bg-red-100 text-red-700" },
@@ -73,7 +73,7 @@ export function TextInput({ type = "text", placeholder, className, ...rest }: Re
       placeholder={placeholder}
       className={cn(
         "w-full h-10 px-3 rounded-lg text-sm border border-slate-200",
-        "focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500",
+        "focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]",
         "transition-all placeholder:text-slate-400",
         className,
       )}
@@ -99,7 +99,7 @@ export function Toggle({ checked, onChange, label }: { checked: boolean; onChang
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={cn("relative w-9 h-5 rounded-full transition-colors duration-200", checked ? "bg-[#2563EB]" : "bg-slate-300")}
+        className={cn("relative w-9 h-5 rounded-full transition-colors duration-200", checked ? "bg-[var(--brand)]" : "bg-slate-300")}
       >
         <span className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200", checked ? "translate-x-4" : "translate-x-0.5")} />
       </button>

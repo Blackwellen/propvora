@@ -45,7 +45,7 @@ const SNOOZE_OPTIONS: Array<{ label: string; ms: number }> = [
 
 function statusStyle(status: string): { chip: string; dot: string; label: string } {
   switch (status) {
-    case "pending": return { chip: "bg-blue-100 text-blue-700", dot: "bg-blue-500", label: "Pending" }
+    case "pending": return { chip: "bg-[var(--color-brand-100)] text-[var(--brand)]", dot: "bg-[var(--brand)]", label: "Pending" }
     case "snoozed": return { chip: "bg-slate-100 text-slate-500", dot: "bg-slate-300", label: "Snoozed" }
     case "sent": return { chip: "bg-emerald-100 text-emerald-700", dot: "bg-emerald-500", label: "Sent" }
     case "failed": return { chip: "bg-red-100 text-red-700", dot: "bg-red-500", label: "Failed" }
@@ -192,7 +192,7 @@ export default function RemindersPage() {
               </div>
               <div className="flex-1 min-w-0 rounded-xl border border-slate-200 bg-white px-5 py-4">
                 <p className="text-xs font-medium text-slate-500 mb-1">Pending</p>
-                <p className="text-2xl font-bold text-blue-600">{remindersQuery.isLoading ? "…" : stats.pending}</p>
+                <p className="text-2xl font-bold text-[var(--brand)]">{remindersQuery.isLoading ? "…" : stats.pending}</p>
               </div>
             </div>
 
@@ -200,7 +200,7 @@ export default function RemindersPage() {
             <div className="flex items-center gap-1 border-b border-slate-200">
               {TABS.map((tab) => (
                 <button key={tab} type="button" onClick={() => setActiveTab(tab)}
-                  className={cn("px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-all", activeTab === tab ? "border-[#2563EB] text-[#2563EB]" : "border-transparent text-slate-500 hover:text-slate-700")}>
+                  className={cn("px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-all", activeTab === tab ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-500 hover:text-slate-700")}>
                   {tab}
                 </button>
               ))}
@@ -220,7 +220,7 @@ export default function RemindersPage() {
                   <tbody className="divide-y divide-slate-100">
                     {remindersQuery.isLoading && (
                       <tr><td colSpan={5} className="px-4 py-12 text-center text-sm text-slate-400">
-                        <div className="flex items-center justify-center gap-2"><div className="animate-spin w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full" />Loading reminders…</div>
+                        <div className="flex items-center justify-center gap-2"><div className="animate-spin w-4 h-4 border-2 border-[var(--color-brand-400)] border-t-transparent rounded-full" />Loading reminders…</div>
                       </td></tr>
                     )}
                     {!remindersQuery.isLoading && filtered.length === 0 && (
@@ -228,7 +228,7 @@ export default function RemindersPage() {
                         <BellOff className="w-10 h-10 text-slate-200 mx-auto mb-3" />
                         <p className="text-sm font-medium text-slate-500">No reminders {activeTab !== "All" ? `(${activeTab.toLowerCase()})` : "yet"}</p>
                         <p className="text-xs text-slate-400 mt-1 mb-4">Create a reminder to get alerted before key dates.</p>
-                        <Link href={sectionLink("/property-manager/calendar/reminders/new")} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 transition-colors">
+                        <Link href={sectionLink("/property-manager/calendar/reminders/new")} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors">
                           <Plus className="w-4 h-4" />New Reminder
                         </Link>
                       </td></tr>
@@ -295,7 +295,7 @@ export default function RemindersPage() {
                 <div className="space-y-2">
                   {SNOOZE_OPTIONS.map((opt) => (
                     <button key={opt.label} type="button" onClick={() => setSelectedSnooze(opt.ms)}
-                      className={cn("w-full flex items-center justify-between px-4 py-3 rounded-lg border text-sm font-medium transition-all", selectedSnooze === opt.ms ? "border-[#2563EB] bg-blue-50 text-[#2563EB]" : "border-slate-200 text-slate-700 hover:bg-slate-50")}>
+                      className={cn("w-full flex items-center justify-between px-4 py-3 rounded-lg border text-sm font-medium transition-all", selectedSnooze === opt.ms ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 text-slate-700 hover:bg-slate-50")}>
                       <div className="flex items-center gap-2"><Clock className="w-4 h-4" />{opt.label}</div>
                     </button>
                   ))}

@@ -55,7 +55,7 @@ export function SupplierPortalJobCard({ job, href }: SupplierPortalJobCardProps)
         )}
       </div>
       <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden mt-2.5">
-        <div className="h-full bg-[#2563EB] rounded-full" style={{ width: `${pct}%` }} />
+        <div className="h-full bg-[var(--brand)] rounded-full" style={{ width: `${pct}%` }} />
       </div>
     </Link>
   )

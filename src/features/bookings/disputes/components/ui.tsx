@@ -47,7 +47,7 @@ export function daysRemaining(iso?: string): number | null {
 // ── badges ────────────────────────────────────────────────
 const PRIORITY_STYLES: Record<DisputePriority, string> = {
   low: 'bg-slate-100 text-slate-600',
-  medium: 'bg-blue-50 text-blue-700',
+  medium: 'bg-[var(--brand-soft)] text-[var(--brand)]',
   high: 'bg-amber-50 text-amber-700',
   critical: 'bg-red-50 text-red-700',
 }
@@ -61,7 +61,7 @@ export function PriorityBadge({ priority }: { priority: DisputePriority }) {
 }
 
 const STATUS_STYLES: Record<DisputeStatus, string> = {
-  open: 'bg-blue-50 text-blue-700',
+  open: 'bg-[var(--brand-soft)] text-[var(--brand)]',
   awaiting_evidence: 'bg-amber-50 text-amber-700',
   in_review: 'bg-violet-50 text-violet-700',
   proposed: 'bg-sky-50 text-sky-700',
@@ -106,7 +106,7 @@ export function StageStepper({
                 className={cn(
                   'mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold',
                   done && 'bg-emerald-500 text-white',
-                  active && 'bg-blue-600 text-white',
+                  active && 'bg-[var(--brand)] text-white',
                   !done && !active && 'bg-slate-100 text-slate-400',
                 )}
               >
@@ -142,7 +142,7 @@ export function StageStepper({
                 className={cn(
                   'flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors',
                   done && 'bg-emerald-500 text-white',
-                  active && 'bg-blue-600 text-white ring-4 ring-blue-100',
+                  active && 'bg-[var(--brand)] text-white ring-4 ring-[var(--color-brand-100)]',
                   !done && !active && 'bg-slate-100 text-slate-400',
                 )}
               >
@@ -196,7 +196,7 @@ export function SectionCard({
 export function LoadingState({ label = 'Loading disputes…' }: { label?: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <Loader2 className="h-7 w-7 text-blue-500 animate-spin" />
+      <Loader2 className="h-7 w-7 text-[var(--brand)] animate-spin" />
       <p className="mt-3 text-sm text-slate-500">{label}</p>
     </div>
   )
@@ -330,7 +330,7 @@ export function ConfirmModal({
             onClick={() => { onConfirm(); onClose() }}
             className={cn(
               'rounded-xl px-3.5 py-2 text-sm font-medium text-white transition-colors',
-              tone === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700',
+              tone === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-[var(--brand)] hover:bg-[var(--brand-strong)]',
             )}
           >
             {confirmLabel}

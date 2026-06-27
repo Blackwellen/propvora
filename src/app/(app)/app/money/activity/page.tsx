@@ -119,7 +119,7 @@ function mapActivityRow(r: MoneyActivityRow): ActivityRow {
     avatarBg: "bg-slate-200 text-slate-600",
     contactName: r.performed_by ?? "System",
     contactType: r.performed_by ? "User" : "Auto",
-    contactTypeBg: r.performed_by ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500",
+    contactTypeBg: r.performed_by ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "bg-slate-100 text-slate-500",
     eventTitle: r.description || (isIncome ? "Income received" : isExpense ? "Expense paid" : r.event_type.replace(/_/g, " ")),
     description: r.entity_type,
     chip: r.event_type.replace(/_/g, " "),
@@ -260,7 +260,7 @@ export default function ActivityPage() {
           actions={
             <button
               onClick={() => showToast("Exporting activity...")}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-sm font-medium rounded-lg transition-colors"
             >
               <Download className="w-4 h-4" />
               Export Activity
@@ -284,8 +284,8 @@ export default function ActivityPage() {
             value={isLoading ? "—" : String(eventsToday)}
             subtitle={`${eventsMonth} this month`}
             icon={<Activity className="w-5 h-5" />}
-            iconBg="bg-blue-50"
-            iconColor="text-blue-600"
+            iconBg="bg-[var(--brand-soft)]"
+            iconColor="text-[var(--brand)]"
           />
           <MoneyKpiCard
             label="This Week"
@@ -329,7 +329,7 @@ export default function ActivityPage() {
                       className={cn(
                         "px-3 py-1.5 text-xs font-medium rounded-lg transition-colors",
                         activeFilter === chip.key
-                          ? "bg-blue-600 text-white"
+                          ? "bg-[var(--brand)] text-white"
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                       )}
                     >
@@ -345,7 +345,7 @@ export default function ActivityPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search activity..."
-                    className="text-xs border border-slate-200 rounded-lg px-3 py-1.5 w-40 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+                    className="text-xs border border-slate-200 rounded-lg px-3 py-1.5 w-40 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--color-brand-400)]"
                   />
 
                   {/* User filter */}
@@ -371,7 +371,7 @@ export default function ActivityPage() {
                       onClick={() => setShowSystemEvents((v) => !v)}
                       className={cn(
                         "relative w-9 h-5 rounded-full transition-colors focus:outline-none",
-                        showSystemEvents ? "bg-blue-600" : "bg-slate-200"
+                        showSystemEvents ? "bg-[var(--brand)]" : "bg-slate-200"
                       )}
                     >
                       <span
@@ -502,7 +502,7 @@ export default function ActivityPage() {
 
               {/* Load more */}
               <div className="mt-5 flex justify-center">
-                <button className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                <button className="text-sm text-[var(--brand)] hover:underline flex items-center gap-1">
                   Load more activity
                   <ChevronRight className="w-3.5 h-3.5 rotate-90" />
                 </button>
@@ -545,7 +545,7 @@ export default function ActivityPage() {
                     style={{ justifyContent: "flex-end" }}
                   >
                     <div
-                      className="w-full bg-blue-500 rounded-t-sm"
+                      className="w-full bg-[var(--brand)] rounded-t-sm"
                       style={{
                         height: `${(bar.height / WEEK_MAX) * 44}px`,
                       }}
@@ -571,7 +571,7 @@ export default function ActivityPage() {
                 <h3 className="text-sm font-semibold text-slate-900">
                   Most Active Contacts
                 </h3>
-                <button className="text-xs text-blue-600 hover:underline">
+                <button className="text-xs text-[var(--brand)] hover:underline">
                   View all â†’
                 </button>
               </div>
@@ -666,7 +666,7 @@ export default function ActivityPage() {
                 ))}
               </div>
               <div className="mt-4 pt-3 border-t border-slate-100">
-                <button className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                <button className="text-sm text-[var(--brand)] hover:underline flex items-center gap-1">
                   View all alerts â†’
                 </button>
               </div>

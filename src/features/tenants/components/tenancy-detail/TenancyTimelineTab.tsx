@@ -48,7 +48,7 @@ export function TenancyTimelineTab({ events, loaded }: TenancyTimelineTabProps) 
           <div className="flex flex-col gap-0">
             {events.map((ev) => (
               <div key={ev.id} className="relative flex gap-4 pb-6 last:pb-0">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 border-2 border-white bg-blue-500">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 border-2 border-white bg-[var(--brand)]">
                   <div className="w-2 h-2 bg-white rounded-full" />
                 </div>
                 <div className="flex-1 pt-1 pb-0.5">

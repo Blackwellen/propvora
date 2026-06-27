@@ -261,7 +261,7 @@ export default function DangerZonePage() {
             id="transfer-new-owner"
             value={transferTarget}
             onChange={(e) => setTransferTarget(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] mb-4 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] mb-4 bg-white focus:outline-none focus:border-[var(--brand)] transition-all"
           >
             <option value="">Select a member…</option>
             {ctx?.otherMembers.map((m) => (

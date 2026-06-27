@@ -21,7 +21,7 @@ export function StepContacts({ data, onChange }: StepContactsProps) {
           placeholder="Search contacts or enter name..."
           value={data.landlordContactId}
           onChange={(e) => onChange({ landlordContactId: e.target.value })}
-          className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+          className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
         />
       </div>
       <div>
@@ -31,10 +31,10 @@ export function StepContacts({ data, onChange }: StepContactsProps) {
           placeholder="Search contacts or enter name..."
           value={data.agentContactId}
           onChange={(e) => onChange({ agentContactId: e.target.value })}
-          className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+          className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
         />
       </div>
-      <div className="p-3 rounded-xl bg-blue-50 border border-blue-100 text-xs text-[#2563EB]">
+      <div className="p-3 rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)] text-xs text-[var(--brand)]">
         You can add and manage contacts fully from the Contacts section.
       </div>
     </div>

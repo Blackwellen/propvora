@@ -174,7 +174,7 @@ export default function PreferencesPage() {
               className={cn(
                 "p-4 rounded-xl border-2 text-center transition-all",
                 form.theme === t.value
-                  ? "border-[#2563EB] bg-blue-50"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)]"
                   : "border-slate-200 hover:border-slate-300"
               )}
             >
@@ -204,7 +204,7 @@ export default function PreferencesPage() {
               className={cn(
                 "p-4 rounded-xl border-2 text-left transition-all",
                 form.density === d.value
-                  ? "border-[#2563EB] bg-blue-50"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)]"
                   : "border-slate-200 hover:border-slate-300"
               )}
             >
@@ -227,7 +227,7 @@ export default function PreferencesPage() {
               className={cn(
                 "p-3.5 rounded-xl border-2 text-[12px] font-semibold capitalize transition-all",
                 form.calView === v.value
-                  ? "border-[#2563EB] bg-blue-50 text-[#2563EB]"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]"
                   : "border-slate-200 text-slate-600 hover:border-slate-300"
               )}
             >
@@ -249,7 +249,7 @@ export default function PreferencesPage() {
             id="pref-landing-page"
             value={form.landingPage}
             onChange={e => update("landingPage", e.target.value)}
-            className="w-full max-w-xs px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] transition-all"
+            className="w-full max-w-xs px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[var(--brand)] transition-all"
           >
             <option value="/property-manager/portfolio">Portfolio (default)</option>
             <option value="/property-manager/work">Work</option>
@@ -272,10 +272,14 @@ export default function PreferencesPage() {
             </p>
           </div>
           <button
+            type="button"
+            role="switch"
+            aria-checked={form.reducedMotion}
+            aria-label="Reduce motion"
             onClick={() => update("reducedMotion", !form.reducedMotion)}
             className={cn(
-              "w-10 h-6 rounded-full transition-colors relative shrink-0",
-              form.reducedMotion ? "bg-[#2563EB]" : "bg-slate-200"
+              "w-10 h-6 rounded-full transition-colors relative shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2",
+              form.reducedMotion ? "bg-[var(--brand)]" : "bg-slate-200"
             )}
           >
             <span
@@ -300,11 +304,14 @@ export default function PreferencesPage() {
             </p>
           </div>
           <button
+            type="button"
+            role="switch"
             onClick={() => setTourEnabled(!tourEnabled)}
-            aria-pressed={tourEnabled}
+            aria-checked={tourEnabled}
+            aria-label="Guided tour & tips"
             className={cn(
-              "w-10 h-6 rounded-full transition-colors relative shrink-0",
-              tourEnabled ? "bg-[#2563EB]" : "bg-slate-200"
+              "w-10 h-6 rounded-full transition-colors relative shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2",
+              tourEnabled ? "bg-[var(--brand)]" : "bg-slate-200"
             )}
           >
             <span
@@ -334,7 +341,7 @@ export default function PreferencesPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-60 flex items-center gap-2"
+              className="px-5 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60 flex items-center gap-2"
             >
               {saving && (
                 <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />

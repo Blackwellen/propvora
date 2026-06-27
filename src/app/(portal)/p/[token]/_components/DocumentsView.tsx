@@ -175,7 +175,7 @@ export function DocumentsView({
           <button
             onClick={() => fileRef.current?.click()}
             disabled={busy}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm font-medium text-slate-600 hover:border-blue-300 hover:bg-blue-50/40 transition-colors disabled:opacity-60"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm font-medium text-slate-600 hover:border-[var(--color-brand-300)] hover:bg-[var(--brand-soft)]/40 transition-colors disabled:opacity-60"
           >
             {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
             {busy ? "Uploading…" : "Choose a file to upload"}
@@ -211,7 +211,7 @@ export function DocumentsView({
             <button
               onClick={handleSign}
               disabled={busy}
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60"
             >
               {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenLine className="w-4 h-4" />}
               I acknowledge

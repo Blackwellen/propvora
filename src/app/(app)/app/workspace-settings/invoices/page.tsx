@@ -73,7 +73,7 @@ export default function InvoicesPage() {
               placeholder="Search invoices..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-[12.5px] text-slate-700 bg-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+              className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-[12.5px] text-slate-700 bg-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
             />
           </div>
           <a
@@ -107,7 +107,7 @@ export default function InvoicesPage() {
             actions: (inv) => (
               <a
                 href={inv.pdf}
-                className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-lg text-[13px] font-medium text-[#2563EB] hover:bg-blue-50 transition-colors"
+                className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-lg text-[13px] font-medium text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Download PDF
@@ -174,7 +174,7 @@ export default function InvoicesPage() {
                       <td className="px-5 py-3.5">
                         <a
                           href={inv.pdf}
-                          className="flex items-center gap-1.5 text-[12px] font-medium text-[#2563EB] hover:text-[#1d4ed8] transition-colors"
+                          className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
                         >
                           <Download className="w-3.5 h-3.5" />
                           PDF

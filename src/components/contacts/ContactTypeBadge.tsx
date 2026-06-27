@@ -7,7 +7,7 @@ interface ContactTypeBadgeProps {
 
 const TYPE_STYLES: Record<string, string> = {
   tenant:        "bg-emerald-100 text-emerald-700",
-  landlord:      "bg-blue-100 text-blue-700",
+  landlord:      "bg-[var(--color-brand-100)] text-[var(--brand)]",
   applicant:     "bg-purple-100 text-purple-700",
   post_tenant:   "bg-slate-100 text-slate-600",
   supplier:      "bg-orange-100 text-orange-700",

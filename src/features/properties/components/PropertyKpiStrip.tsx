@@ -19,7 +19,7 @@ export function PropertyKpiStrip({ data }: PropertyKpiStripProps) {
   const occupancyRate = data.total > 0 ? Math.round((data.active / data.total) * 100) : 0
 
   const kpis = [
-    { label: "Total Properties", value: String(data.total),        sub: "Across portfolio",      color: "text-[#2563EB]",   bg: "bg-blue-50",    icon: Building2     },
+    { label: "Total Properties", value: String(data.total),        sub: "Across portfolio",      color: "text-[var(--brand)]",   bg: "bg-[var(--brand-soft)]",    icon: Building2     },
     { label: "Active",           value: String(data.active),       sub: "Currently occupied",    color: "text-emerald-600", bg: "bg-emerald-50", icon: CheckCircle   },
     { label: "Vacant",           value: String(data.vacant),       sub: "Available units",       color: "text-amber-600",   bg: "bg-amber-50",   icon: Home          },
     { label: "Occupancy Rate",   value: `${occupancyRate}%`,       sub: "Portfolio occupancy",   color: "text-emerald-600", bg: "bg-emerald-50", icon: CheckCircle   },

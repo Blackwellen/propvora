@@ -38,7 +38,7 @@ export function RecentSignupsPanel({ workspaces }: Props) {
           {workspaces.map((ws) => (
             <li key={ws.id}>
               <Link href={`/admin/workspaces/${ws.id}`} className="flex items-center gap-3 px-1.5 py-2 rounded-lg hover:bg-slate-50">
-                <span className="w-8 h-8 rounded-lg bg-[#EFF4FF] text-[#2563EB] text-[11px] font-bold flex items-center justify-center shrink-0">
+                <span className="w-8 h-8 rounded-lg bg-[#EFF4FF] text-[var(--brand)] text-[11px] font-bold flex items-center justify-center shrink-0">
                   {(ws.name ?? "?").slice(0, 2).toUpperCase()}
                 </span>
                 <div className="min-w-0 flex-1">

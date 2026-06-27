@@ -108,7 +108,7 @@ export function CompletedTab({ jobs }: { jobs: SupplierJob[] }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {jobs.map((j) => (
                 <button key={j.id} onClick={() => setSelectedId(j.id)} className="text-left">
-                  <SupplierCard className={cn("p-4 h-full transition-all hover:shadow-md", selected?.id === j.id ? "ring-2 ring-blue-500/40" : "")}>
+                  <SupplierCard className={cn("p-4 h-full transition-all hover:shadow-md", selected?.id === j.id ? "ring-2 ring-[var(--brand)]/40" : "")}>
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">{j.title}</p>
@@ -135,17 +135,17 @@ export function CompletedTab({ jobs }: { jobs: SupplierJob[] }) {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {jobs.map((j) => (
-                    <tr key={j.id} onClick={() => setSelectedId(j.id)} className={cn("cursor-pointer hover:bg-slate-50/60", selected?.id === j.id ? "bg-blue-50/40" : "")}>
+                    <tr key={j.id} onClick={() => setSelectedId(j.id)} className={cn("cursor-pointer hover:bg-slate-50/60", selected?.id === j.id ? "bg-[var(--brand-soft)]/40" : "")}>
                       <Td><p className="font-semibold text-slate-800">{j.title}</p><p className="text-xs text-slate-400">{j.ref}</p></Td>
                       <Td className="text-slate-600 text-xs">{j.customerName}</Td>
                       <Td className="text-slate-600 text-xs">{shortDate(j.completedAt)}</Td>
                       <Td className="text-slate-600 text-xs">{j.service}</Td>
                       <Td className="font-medium text-slate-700 text-xs">{formatPence(j.pricePence)}</Td>
                       <Td><SupplierStatusBadge tone="emerald">{j.payoutPaidAt ? `Paid ${shortDate(j.payoutPaidAt)}` : "Pending"}</SupplierStatusBadge></Td>
-                      <Td><button onClick={(e) => { e.stopPropagation(); push("blue", "Invoice download started. (TODO)") }} className="text-xs font-semibold text-blue-600 hover:text-blue-700">Download</button></Td>
+                      <Td><button onClick={(e) => { e.stopPropagation(); push("blue", "Invoice download started. (TODO)") }} className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand)]">Download</button></Td>
                       <Td><Stars rating={j.rating} /></Td>
                       <Td className="text-xs">{j.repeatCustomer ? <span className="text-emerald-600 font-semibold">Yes</span> : <span className="text-slate-400">No</span>}</Td>
-                      <Td><button onClick={(e) => { e.stopPropagation(); push("blue", "Completion pack ready. (TODO)") }} className="text-xs font-semibold text-blue-600 hover:text-blue-700">Ready</button></Td>
+                      <Td><button onClick={(e) => { e.stopPropagation(); push("blue", "Completion pack ready. (TODO)") }} className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand)]">Ready</button></Td>
                     </tr>
                   ))}
                 </tbody>

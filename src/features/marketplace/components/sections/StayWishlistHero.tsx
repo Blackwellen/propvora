@@ -17,7 +17,7 @@ export default function StayWishlistHero() {
       <div className="flex gap-2.5 shrink-0">
         <Link
           href="/customer/saved"
-          className="h-11 px-4 rounded-xl bg-[#1D4ED8] text-white text-[13.5px] font-semibold inline-flex items-center hover:bg-[#1A45BE]"
+          className="h-11 px-4 rounded-xl bg-[var(--brand-strong)] text-white text-[13.5px] font-semibold inline-flex items-center hover:bg-[#1A45BE]"
         >
           Go to saved
         </Link>

@@ -131,7 +131,7 @@ function ContactDetailPageInner() {
         </div>
         <h2 className="text-lg font-semibold text-slate-800 mb-1">Contact not found</h2>
         <p className="text-sm text-slate-500 mb-4">This contact may have been deleted or you may not have access.</p>
-        <Link href="/property-manager/contacts" className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:underline">
+        <Link href="/property-manager/contacts" className="inline-flex items-center gap-1.5 text-sm text-[var(--brand)] hover:underline">
           Back to Contacts
         </Link>
       </div>
@@ -290,9 +290,9 @@ function ContactDetailPageInner() {
                       aria-selected={activeTab === tab.id}
                       onClick={() => setActiveTab(tab.id)}
                       className={cn(
-                        "flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium transition-all whitespace-nowrap border-b-2 -mb-px outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 rounded-t",
+                        "flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium transition-all whitespace-nowrap border-b-2 -mb-px outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 rounded-t",
                         activeTab === tab.id
-                          ? "border-blue-600 text-blue-600"
+                          ? "border-[var(--brand)] text-[var(--brand)]"
                           : "border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300"
                       )}
                     >

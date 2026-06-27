@@ -8,7 +8,7 @@ interface PropertyPerformanceTileProps {
 
 const TYPE_COLORS: Record<"HMO" | "AST" | "SA", string> = {
   HMO: "bg-violet-50 text-violet-700 border-violet-200",
-  AST: "bg-blue-50 text-blue-700 border-blue-200",
+  AST: "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",
   SA:  "bg-amber-50 text-amber-700 border-amber-200",
 }
 
@@ -38,7 +38,7 @@ export function PropertyPerformanceTile({ property: p }: PropertyPerformanceTile
           <p className="text-[10px] text-slate-400">Net Yield</p>
           <p className={cn("text-[12px] font-bold",
             p.netYield >= 7 ? "text-emerald-600" :
-            p.netYield >= 4 ? "text-blue-600" :
+            p.netYield >= 4 ? "text-[var(--brand)]" :
             p.netYield >= 3 ? "text-amber-600" :
             "text-red-600"
           )}>

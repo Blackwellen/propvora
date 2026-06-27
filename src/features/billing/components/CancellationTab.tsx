@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import { ShieldX, Clock, Database, Gift, PauseCircle, LifeBuoy, CheckCircle2 } from "lucide-react"
+import { formatPence } from "@/lib/marketplace/money"
 import { useSubscription, useBillingRole } from "../data/hooks"
 import { SEED_CANCELLATION_REASONS } from "../data/seed"
 import { formatBillingDate } from "../data/calc"
@@ -12,7 +13,11 @@ import ConfirmDialog from "@/components/account/ConfirmDialog"
 export function CancellationTab() {
   const { data: sub } = useSubscription()
   const { canManageBilling } = useBillingRole()
-  const { view, schedule, keep, claimRetention, retentionClaimed, busy, error } = useCancellationState()
+  const {
+    view, schedule, keep, claimRetention,
+    retentionClaimed, retentionEligible, retentionCreditMinor, retentionError,
+    busy, error,
+  } = useCancellationState()
 
   const [started, setStarted] = useState(false)
   const [reason, setReason] = useState("")
@@ -21,6 +26,10 @@ export function CancellationTab() {
   const [paused, setPaused] = useState(false)
 
   const accessUntil = sub.currentPeriodEnd
+  // The retention offer is conditional: shown ONLY inside the cancel flow, and
+  // only when the backend confirms eligibility (one-time · Starter · paid+active
+  // · ≥3 months). It vanishes once claimed.
+  const showRetention = started && retentionEligible && !retentionClaimed
 
   async function confirmCancellation() {
     const ok = await schedule({ reason, detail })
@@ -80,33 +89,8 @@ export function CancellationTab() {
         </div>
       </BillingCard>
 
-      {/* Retention / downgrade offer */}
-      {retentionClaimed ? (
-        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 flex items-center gap-3">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-          <p className="text-[13px] text-emerald-800 font-medium">Offer noted — two months credit will be applied at your next annual renewal. Thanks for staying!</p>
-        </div>
-      ) : (
-        <BillingCard title="Before you go" icon={Gift} description="A couple of options that might suit you better.">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
-              <p className="text-[13px] font-bold text-emerald-800">Enjoy 2 months free</p>
-              <p className="text-[12px] text-emerald-700 mt-0.5">Stay on annual billing and we'll credit two months.</p>
-              <BillingButton variant="secondary" className="mt-3 border-emerald-600 text-emerald-700 hover:bg-emerald-100" disabled={!canManageBilling} onClick={claimRetention}>Claim retention offer</BillingButton>
-            </div>
-            <div className="rounded-xl border border-slate-200 p-4">
-              <p className="text-[13px] font-bold text-slate-800 flex items-center gap-1.5"><PauseCircle className="w-4 h-4 text-blue-600" /> Pause instead</p>
-              <p className="text-[12px] text-slate-500 mt-0.5">Prefer a break? Email us to pause billing for up to 3 months and keep your data.</p>
-              <BillingButton variant="ghost" className="mt-3" disabled={!canManageBilling} href="mailto:billing@propvora.com?subject=Pause%20my%20subscription" onClick={() => setPaused(true)}>Request a pause</BillingButton>
-            </div>
-          </div>
-          {paused && (
-            <p className="mt-3 text-[12px] text-blue-700 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">Your pause request email is ready. Our billing team will set up the pause window and confirm by email.</p>
-          )}
-        </BillingCard>
-      )}
-
-      {/* Cancellation flow */}
+      {/* Cancellation flow — the retention offer lives INSIDE this flow and only
+          renders when the backend confirms eligibility. */}
       <BillingCard title="Cancel subscription" icon={ShieldX}>
         {!started ? (
           <div className="flex flex-wrap items-center gap-2.5">
@@ -115,16 +99,60 @@ export function CancellationTab() {
           </div>
         ) : (
           <div className="space-y-4">
+            {/* Before-you-go retention offer (conditional, one-time) */}
+            {retentionClaimed && (
+              <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4 flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <p className="text-[13px] text-emerald-800 font-medium">
+                  Two months free has been credited to your account — thanks for staying! You can keep your plan below.
+                </p>
+              </div>
+            )}
+            {showRetention && (
+              <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
+                <div className="flex items-start gap-2.5">
+                  <Gift className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-bold text-emerald-800">Before you go — enjoy 2 months free</p>
+                    <p className="text-[12px] text-emerald-700 mt-0.5">
+                      As a thank-you for being with us, we&apos;ll credit
+                      {retentionCreditMinor != null ? ` ${formatPence(retentionCreditMinor)} ` : " two months "}
+                      to your account, applied to your upcoming invoices. One-time offer.
+                    </p>
+                    <BillingButton
+                      variant="secondary"
+                      className="mt-3 border-emerald-600 text-emerald-700 hover:bg-emerald-100"
+                      disabled={!canManageBilling || busy}
+                      onClick={() => void claimRetention()}
+                    >
+                      {busy ? "Applying…" : "Claim 2 months free & keep my plan"}
+                    </BillingButton>
+                    {retentionError && <p className="text-[11.5px] text-red-600 mt-2">{retentionError}</p>}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Pause alternative (always available in-flow; external manual flow) */}
+            <div className="rounded-xl border border-slate-200 p-4">
+              <p className="text-[13px] font-bold text-slate-800 flex items-center gap-1.5"><PauseCircle className="w-4 h-4 text-[var(--brand)]" /> Pause instead</p>
+              <p className="text-[12px] text-slate-500 mt-0.5">Prefer a break? Email us to pause billing for up to 3 months and keep your data.</p>
+              <BillingButton variant="ghost" className="mt-3" disabled={!canManageBilling} href="mailto:billing@propvora.com?subject=Pause%20my%20subscription" onClick={() => setPaused(true)}>Request a pause</BillingButton>
+              {paused && (
+                <p className="mt-3 text-[12px] text-[var(--brand)] bg-[var(--brand-soft)] border border-[var(--color-brand-100)] rounded-xl px-3 py-2">Your pause request email is ready. Our billing team will set up the pause window and confirm by email.</p>
+              )}
+            </div>
+
             <div>
               <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">Reason for cancelling</label>
-              <select value={reason} onChange={(e) => setReason(e.target.value)} className="w-full rounded-xl border border-slate-200 text-[13px] px-3 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600/30">
+              <select value={reason} onChange={(e) => setReason(e.target.value)} className="w-full rounded-xl border border-slate-200 text-[13px] px-3 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30">
                 <option value="">Select a reason…</option>
                 {SEED_CANCELLATION_REASONS.map((r) => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
             <div>
               <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">Anything else? (optional)</label>
-              <textarea value={detail} onChange={(e) => setDetail(e.target.value)} rows={3} className="w-full rounded-xl border border-slate-200 text-[13px] px-3 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600/30" placeholder="Tell us how we could have done better" />
+              <textarea value={detail} onChange={(e) => setDetail(e.target.value)} rows={3} className="w-full rounded-xl border border-slate-200 text-[13px] px-3 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30" placeholder="Tell us how we could have done better" />
             </div>
             <div className="rounded-xl bg-amber-50 border border-amber-100 px-3.5 py-2.5 text-[12px] text-amber-700">
               Cancelling schedules your plan to end on {formatBillingDate(accessUntil)}. Your data is retained for 90 days and nothing is deleted today.

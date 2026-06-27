@@ -65,7 +65,7 @@ export default function StayFilterSheet({
             step={1000}
             value={filters.maxPence ?? priceCeiling}
             onChange={(e) => onChange({ maxPence: Number(e.target.value) >= priceCeiling ? null : Number(e.target.value) })}
-            className="w-full accent-[#1D4ED8]"
+            className="w-full accent-[var(--brand-strong)]"
           />
         ) : (
           <p className="text-[12px] text-slate-400">No priced stays yet</p>
@@ -150,7 +150,7 @@ export default function StayFilterSheet({
         </div>
       </section>
 
-      <button onClick={onClear} className="inline-flex items-center gap-1 text-[13px] font-semibold text-slate-500 hover:text-[#1D4ED8]">
+      <button onClick={onClear} className="inline-flex items-center gap-1 text-[13px] font-semibold text-slate-500 hover:text-[var(--brand-strong)]">
         <X className="h-3.5 w-3.5" /> Clear all filters
       </button>
     </div>
@@ -174,7 +174,7 @@ function Chip({
       onClick={onClick}
       className={cn(
         "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition-colors",
-        active ? "border-[#1D4ED8] bg-blue-50 text-[#1D4ED8]" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+        active ? "border-[var(--brand-strong)] bg-[var(--brand-soft)] text-[var(--brand-strong)]" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
       )}
     >
       {icon}

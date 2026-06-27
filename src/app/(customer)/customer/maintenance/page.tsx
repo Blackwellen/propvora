@@ -17,7 +17,7 @@ interface MaintenanceRequest {
 
 const STATUS_MAP: Record<string, { label: string; colour: string; icon: typeof Clock }> = {
   open:        { label: "Open",        colour: "text-amber-600 bg-amber-50 border-amber-200",  icon: Clock },
-  in_progress: { label: "In progress", colour: "text-blue-600  bg-blue-50  border-blue-200",   icon: Wrench },
+  in_progress: { label: "In progress", colour: "text-[var(--brand)]  bg-[var(--brand-soft)]  border-[var(--color-brand-100)]",   icon: Wrench },
   resolved:    { label: "Resolved",    colour: "text-emerald-600 bg-emerald-50 border-emerald-200", icon: CheckCircle2 },
   cancelled:   { label: "Cancelled",  colour: "text-slate-500 bg-slate-50 border-slate-200",  icon: AlertCircle },
 }

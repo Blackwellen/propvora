@@ -105,7 +105,7 @@ export function PropertyAddressJurisdiction({
 
       <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
         <div className="flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-blue-500" />
+          <MapPin className="w-4 h-4 text-[var(--brand)]" />
           <h3 className="text-[14px] font-bold text-slate-900">Property address</h3>
         </div>
 
@@ -118,7 +118,7 @@ export function PropertyAddressJurisdiction({
               setCountryCode(e.target.value)
               setAddress({})
             }}
-            className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
+            className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-900 focus:border-[var(--color-brand-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)] disabled:bg-slate-50"
           >
             {countries.map((c) => (
               <option key={c.code} value={c.code}>

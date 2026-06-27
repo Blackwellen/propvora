@@ -61,7 +61,7 @@ export function AddNodePopover({ position, onAddNode, onClose }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
           <div className="flex items-center gap-2">
-            <Plus className="h-4 w-4 text-blue-600" />
+            <Plus className="h-4 w-4 text-[var(--brand)]" />
             <span className="text-sm font-bold text-slate-900">Add node</span>
           </div>
           <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 transition">
@@ -78,7 +78,7 @@ export function AddNodePopover({ position, onAddNode, onClose }: Props) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search all nodes…"
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-8 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition"
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-8 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-brand-400)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-100)] transition"
           />
         </div>
 
@@ -118,7 +118,7 @@ function NodeRow({ def, onAdd }: { def: AutomationNodeDefinition; onAdd: () => v
   return (
     <button
       onClick={onAdd}
-      className="flex w-full items-start gap-2.5 rounded-xl px-2 py-2 text-left hover:bg-blue-50 transition"
+      className="flex w-full items-start gap-2.5 rounded-xl px-2 py-2 text-left hover:bg-[var(--brand-soft)] transition"
     >
       <div className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-slate-100">
         <Plus className="h-3.5 w-3.5 text-slate-500" />

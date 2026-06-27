@@ -166,7 +166,7 @@ export default function RoomsUnitsPage() {
 
       {/* ── Controls Row ───────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-3 flex flex-wrap items-center gap-2">
-        <button className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[#2563EB] text-white text-xs font-semibold hover:bg-blue-700 transition-colors">
+        <button className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-[var(--brand)] text-white text-xs font-semibold hover:bg-[var(--brand-strong)] transition-colors">
           <Plus className="w-3.5 h-3.5" />
           Add Room
         </button>
@@ -219,7 +219,7 @@ export default function RoomsUnitsPage() {
                 </div>
                 <p className="text-sm font-semibold text-slate-700">No rooms yet</p>
                 <p className="text-xs text-slate-400 mt-1 max-w-xs">Add rooms to model rent and bills for this plan.</p>
-                <button className="mt-4 inline-flex items-center gap-1.5 h-8 px-4 rounded-xl bg-[#2563EB] text-white text-xs font-semibold hover:bg-blue-700 transition-colors">
+                <button className="mt-4 inline-flex items-center gap-1.5 h-8 px-4 rounded-xl bg-[var(--brand)] text-white text-xs font-semibold hover:bg-[var(--brand-strong)] transition-colors">
                   <Plus className="w-3.5 h-3.5" />
                   Add Room
                 </button>

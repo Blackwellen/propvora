@@ -17,7 +17,7 @@ import { useWorkspace } from "@/providers/AuthProvider"
 
 // ─── Avatar helpers ──────────────────────────────────────────────────────────
 const AVATAR_BG = [
-  "bg-blue-500","bg-emerald-500","bg-violet-500","bg-amber-500",
+  "bg-[var(--brand)]","bg-emerald-500","bg-violet-500","bg-amber-500",
   "bg-rose-500","bg-cyan-500","bg-indigo-500","bg-teal-500",
 ]
 function avatarBg(name: string): string {
@@ -70,7 +70,7 @@ interface EventConfig {
 
 const EVENT_CONFIG: Record<ActivityEventType, EventConfig> = {
   payment:  { icon: CheckCircle2,  iconBg: "bg-emerald-100", iconColor: "text-emerald-600", chipCls: "bg-emerald-100 text-emerald-700", dotColor: "bg-emerald-500" },
-  message:  { icon: MessageSquare, iconBg: "bg-blue-100",    iconColor: "text-blue-600",    chipCls: "bg-blue-100 text-blue-700",       dotColor: "bg-blue-500" },
+  message:  { icon: MessageSquare, iconBg: "bg-[var(--color-brand-100)]",    iconColor: "text-[var(--brand)]",    chipCls: "bg-[var(--color-brand-100)] text-[var(--brand)]",       dotColor: "bg-[var(--brand)]" },
   document: { icon: FileText,      iconBg: "bg-purple-100",  iconColor: "text-purple-600",  chipCls: "bg-purple-100 text-purple-700",   dotColor: "bg-purple-500" },
   task:     { icon: Clock,         iconBg: "bg-amber-100",   iconColor: "text-amber-600",   chipCls: "bg-amber-100 text-amber-700",     dotColor: "bg-amber-500" },
   portal:   { icon: Globe,         iconBg: "bg-teal-100",    iconColor: "text-teal-600",    chipCls: "bg-teal-100 text-teal-700",       dotColor: "bg-teal-500" },
@@ -238,7 +238,7 @@ export default function ActivityPage() {
   const KPIS: { key: FilterKey; label: string; icon: React.ReactNode; bg: string }[] = [
     { key: "all",      label: "Total Events", icon: <Activity     className="w-4 h-4 text-slate-600"   />, bg: "bg-slate-50" },
     { key: "payment",  label: "Payments",     icon: <CheckCircle2 className="w-4 h-4 text-emerald-600" />, bg: "bg-emerald-50" },
-    { key: "message",  label: "Messages",     icon: <MessageSquare className="w-4 h-4 text-blue-600"   />, bg: "bg-blue-50" },
+    { key: "message",  label: "Messages",     icon: <MessageSquare className="w-4 h-4 text-[var(--brand)]"   />, bg: "bg-[var(--brand-soft)]" },
     { key: "document", label: "Documents",    icon: <FileText     className="w-4 h-4 text-purple-600"  />, bg: "bg-purple-50" },
     { key: "task",     label: "Tasks",        icon: <Clock        className="w-4 h-4 text-amber-600"   />, bg: "bg-amber-50" },
     { key: "portal",   label: "Portal",       icon: <Globe        className="w-4 h-4 text-teal-600"    />, bg: "bg-teal-50" },
@@ -300,7 +300,7 @@ export default function ActivityPage() {
                 onClick={() => setActiveFilter(chip.key)}
                 className={cn(
                   "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
-                  activeFilter === chip.key ? "bg-blue-600 text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  activeFilter === chip.key ? "bg-[var(--brand)] text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 )}
               >
                 {chip.label}
@@ -318,10 +318,10 @@ export default function ActivityPage() {
               placeholder="Search activity..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-48 transition-all"
+              className="pl-8 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] w-48 transition-all"
             />
             {search && (
-              <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded">
+              <button onClick={() => setSearch("")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 rounded">
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
@@ -332,7 +332,7 @@ export default function ActivityPage() {
         {loading ? (
           <div className="py-20 text-center rounded-2xl border border-dashed border-slate-200 bg-white">
             <div className="flex items-center justify-center gap-2 text-slate-400">
-              <div className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-blue-500 animate-spin" />
+              <div className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-[var(--brand)] animate-spin" />
               <span className="text-sm">Loading activity…</span>
             </div>
           </div>
@@ -345,7 +345,7 @@ export default function ActivityPage() {
             {allEvents.length > 0 && (
               <button
                 onClick={() => { setSearch(""); setActiveFilter("all") }}
-                className="mt-2 text-xs text-blue-600 hover:underline"
+                className="mt-2 text-xs text-[var(--brand)] hover:underline"
               >
                 Clear filters
               </button>

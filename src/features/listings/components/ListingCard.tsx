@@ -47,7 +47,7 @@ export function ListingCard({ listing: l }: ListingCardProps) {
         </span>
       </div>
       <div className="px-4 py-3.5">
-        <p className="font-semibold text-slate-800 truncate group-hover:text-[#2563EB] transition-colors">
+        <p className="font-semibold text-slate-800 truncate group-hover:text-[var(--brand)] transition-colors">
           {l.title}
         </p>
         <p className="text-[12px] text-slate-400 capitalize mt-0.5">

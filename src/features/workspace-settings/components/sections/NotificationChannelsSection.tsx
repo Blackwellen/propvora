@@ -40,15 +40,15 @@ export function NotificationChannelsSection({
               onClick={() => onToggleChannel(ch.key)}
               className={cn(
                 "flex flex-col items-start gap-2 p-4 rounded-xl border-2 transition-all text-left",
-                on ? "border-[#2563EB] bg-[#EFF6FF]" : "border-slate-200 bg-white hover:border-slate-300"
+                on ? "border-[var(--brand)] bg-[var(--brand-soft)]" : "border-slate-200 bg-white hover:border-slate-300"
               )}
             >
               <div className="flex items-center justify-between w-full">
-                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", on ? "bg-[#2563EB]" : "bg-slate-100")}>
+                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", on ? "bg-[var(--brand)]" : "bg-slate-100")}>
                   <Icon className={cn("w-4 h-4", on ? "text-white" : "text-slate-400")} />
                 </div>
                 {on && (
-                  <div className="w-5 h-5 rounded-full bg-[#2563EB] flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full bg-[var(--brand)] flex items-center justify-center">
                     <Check className="w-3 h-3 text-white" />
                   </div>
                 )}
@@ -95,7 +95,7 @@ export function NotificationChannelsSection({
               className={cn(
                 "px-4 py-2 rounded-xl text-[12.5px] font-semibold border transition-all",
                 digest === f
-                  ? "bg-[#2563EB] text-white border-[#2563EB]"
+                  ? "bg-[var(--brand)] text-white border-[var(--brand)]"
                   : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
               )}
             >

@@ -125,7 +125,7 @@ export default function ProviderCard({
         </p>
         {/* Row 3: Response time */}
         <p className="flex items-center gap-1 text-[13px] text-slate-500">
-          <Clock className="h-3 w-3 shrink-0 text-blue-500" />
+          <Clock className="h-3 w-3 shrink-0 text-[var(--brand)]" />
           Responds in {provider.responseTime}
         </p>
         {/* Row 4: Certs */}

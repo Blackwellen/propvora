@@ -62,7 +62,7 @@ export default function ListingGallery({ images, title }: ListingGalleryProps) {
 
   if (valid.length === 0) {
     return (
-      <div className="w-full h-[320px] sm:h-[420px] rounded-2xl bg-gradient-to-br from-slate-100 to-blue-50 border border-[#E2EAF6] flex flex-col items-center justify-center gap-2 text-slate-400">
+      <div className="w-full h-[320px] sm:h-[420px] rounded-2xl bg-gradient-to-br from-slate-100 to-[var(--brand-soft)] border border-[#E2EAF6] flex flex-col items-center justify-center gap-2 text-slate-400">
         <ImageIcon className="w-10 h-10" aria-hidden="true" />
         <span className="text-[14px] font-medium">No photos yet</span>
       </div>
@@ -140,7 +140,7 @@ export default function ListingGallery({ images, title }: ListingGalleryProps) {
         <button
           type="button"
           onClick={() => openLightbox(0)}
-          className="col-span-6 row-span-2 relative group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
+          className="col-span-6 row-span-2 relative group focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -171,7 +171,7 @@ export default function ListingGallery({ images, title }: ListingGalleryProps) {
               type="button"
               onClick={() => openLightbox(i)}
               className={cn(
-                "col-span-2 relative group overflow-hidden bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]",
+                "col-span-2 relative group overflow-hidden bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
                 i <= 2 ? "row-start-1" : "row-start-2"
               )}
             >

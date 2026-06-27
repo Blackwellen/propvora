@@ -47,7 +47,7 @@ const KIND_TONE: Record<OccupancyScenario["kind"], string> = {
   base: "bg-slate-100 text-slate-600",
   upside: "bg-emerald-50 text-emerald-600",
   downside: "bg-amber-50 text-amber-600",
-  ramp: "bg-blue-50 text-blue-600",
+  ramp: "bg-[var(--brand-soft)] text-[var(--brand)]",
 }
 const CHANNELS = ["Direct & Referrals", "Direct", "Aggregators", "Mixed", "OTA"]
 const SEGMENTS = ["Mid-Market", "Premium", "Budget", "Student", "Corporate"]

@@ -4,6 +4,7 @@ import { useState, useEffect, useId } from "react"
 import { Shield, Monitor, Loader2, Check, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
+import { recordAccountEvent } from "@/lib/actions/settings"
 import ConfirmDialog from "@/components/account/ConfirmDialog"
 
 /** Password policy: at least 8 characters, one uppercase letter and one number. */
@@ -31,7 +32,7 @@ function InputField({
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/20 transition-all"
+        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white focus:outline-none focus:border-[var(--brand)] focus:ring-1 focus:ring-[var(--brand)]/20 transition-all"
       />
     </div>
   )
@@ -101,6 +102,7 @@ export default function SecurityPage() {
       const { error } = await supabase.auth.updateUser({ password: newPw })
       if (error) { setPwMsg({ kind: "err", text: error.message }); setPwSaving(false); return }
       setPwMsg({ kind: "ok", text: "Password updated successfully." })
+      void recordAccountEvent("account.password_changed", { detail: "Password changed successfully" })
       setCurrentPw(""); setNewPw(""); setConfirmPw("")
       setTimeout(() => setShowPasswordForm(false), 1500)
     } catch {
@@ -128,6 +130,7 @@ export default function SecurityPage() {
         kind: "ok",
         text: `Confirmation links sent. Check both ${email} and ${trimmed} to complete the change.`,
       })
+      void recordAccountEvent("account.email_change_requested", { detail: "Requested an email address change (pending confirmation)" })
       setNewEmail("")
     } catch {
       setEmailMsg({ kind: "err", text: "Something went wrong. Please try again." })
@@ -167,6 +170,7 @@ export default function SecurityPage() {
       const { data } = await supabase.auth.mfa.listFactors()
       setFactors((data?.totp ?? []) as MfaFactor[])
       setEnrollData(null); setVerifyCode("")
+      void recordAccountEvent("account.mfa_enabled", { detail: "Two-factor authentication enabled (TOTP)" })
       setMfaMsg("Two-factor authentication enabled.")
     } catch {
       setMfaMsg("Verification failed.")
@@ -182,6 +186,7 @@ export default function SecurityPage() {
       if (error) { setMfaMsg(error.message); return }
       const { data } = await supabase.auth.mfa.listFactors()
       setFactors((data?.totp ?? []) as MfaFactor[])
+      void recordAccountEvent("account.mfa_disabled", { detail: "Two-factor authentication disabled" })
       setMfaMsg("Two-factor authentication disabled.")
     } catch {
       setMfaMsg("Could not disable two-factor authentication.")
@@ -253,7 +258,7 @@ export default function SecurityPage() {
             <button
               onClick={handlePasswordChange}
               disabled={pwSaving}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors mt-2 disabled:opacity-70"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors mt-2 disabled:opacity-70"
             >
               {pwSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               {pwSaving ? "Updating…" : "Update password"}
@@ -280,8 +285,8 @@ export default function SecurityPage() {
         </div>
         {showEmailForm && (
           <div className="space-y-3 pt-4 border-t border-slate-100">
-            <div className="flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50 px-3.5 py-2.5 text-[12px] text-slate-600">
-              <Info className="w-4 h-4 mt-0.5 shrink-0 text-[#2563EB]" />
+            <div className="flex items-start gap-2 rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)] px-3.5 py-2.5 text-[12px] text-slate-600">
+              <Info className="w-4 h-4 mt-0.5 shrink-0 text-[var(--brand)]" />
               For your security, changing your email sends a confirmation link to{" "}
               <span className="font-semibold">both</span> your current and new address. The change
               only takes effect once you confirm from each inbox.
@@ -293,7 +298,7 @@ export default function SecurityPage() {
             <button
               onClick={handleEmailChange}
               disabled={emailSaving}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors mt-2 disabled:opacity-70"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors mt-2 disabled:opacity-70"
             >
               {emailSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               {emailSaving ? "Sending…" : "Send confirmation"}
@@ -355,11 +360,11 @@ export default function SecurityPage() {
                 onChange={e => setVerifyCode(e.target.value)}
                 placeholder="123456"
                 inputMode="numeric"
-                className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] focus:outline-none focus:border-[#2563EB]"
+                className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] focus:outline-none focus:border-[var(--brand)]"
               />
               <button
                 onClick={verifyEnroll}
-                className="px-4 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+                className="px-4 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
               >
                 Verify
               </button>
@@ -373,12 +378,12 @@ export default function SecurityPage() {
       {/* Session note — honest about Supabase capabilities */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6">
         <div className="flex items-center gap-2 mb-2">
-          <Monitor className="w-4 h-4 text-[#2563EB]" />
+          <Monitor className="w-4 h-4 text-[var(--brand)]" />
           <h3 className="text-[14px] font-bold text-slate-900">Sessions</h3>
         </div>
         <p className="text-[13px] text-slate-500">
           Manage your active session on the{" "}
-          <a href="/property-manager/account/sessions" className="text-[#2563EB] font-medium hover:underline">Sessions &amp; Devices</a> page.
+          <a href="/property-manager/account/sessions" className="text-[var(--brand)] font-medium hover:underline">Sessions &amp; Devices</a> page.
         </p>
       </div>
 

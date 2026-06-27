@@ -61,9 +61,9 @@ export function WorkspaceCategoryGrid({ categories = DEFAULT_CATEGORIES }: Works
         <Link
           key={cat.href}
           href={cat.href}
-          className="group bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-[#2563EB] hover:shadow-md transition-all"
+          className="group bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-[var(--brand)] hover:shadow-md transition-all"
         >
-          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#2563EB] mb-3 group-hover:bg-[#2563EB] group-hover:text-white transition-colors">
+          <div className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center text-[var(--brand)] mb-3 group-hover:bg-[var(--brand)] group-hover:text-white transition-colors">
             {cat.icon}
           </div>
           <p className="text-[14px] font-bold text-slate-900 mb-1">{cat.label}</p>

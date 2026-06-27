@@ -412,7 +412,7 @@ function BuilderContent({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="grid h-9 w-9 place-items-center rounded-lg bg-blue-50 text-blue-600">
+          <div className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)]">
             <Sparkles className="h-4 w-4" />
           </div>
           <div>
@@ -485,7 +485,7 @@ function BuilderContent({
                   <button
                     key={tpl.id}
                     onClick={() => loadTemplate(tpl)}
-                    className="flex flex-col rounded-xl border border-slate-200 bg-white p-3 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:border-blue-300 hover:bg-blue-50/30 transition"
+                    className="flex flex-col rounded-xl border border-slate-200 bg-white p-3 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:border-[var(--color-brand-300)] hover:bg-[var(--brand-soft)]/30 transition"
                   >
                     <span className="text-xs font-semibold text-slate-800">{tpl.name}</span>
                     <span className="mt-0.5 text-[11px] text-slate-500 leading-tight">{tpl.description}</span>
@@ -513,9 +513,9 @@ function BuilderContent({
               onClick={() => setStep(i)}
               className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium ${
                 i === step
-                  ? "bg-blue-600 text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)]"
+                  ? "bg-[var(--brand)] text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)]"
                   : i < step
-                  ? "bg-blue-50 text-blue-700"
+                  ? "bg-[var(--brand-soft)] text-[var(--brand)]"
                   : "bg-slate-50 text-slate-500"
               }`}
             >
@@ -539,11 +539,11 @@ function BuilderContent({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Gas safety due in 30 days"
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-[var(--color-brand-400)] focus:bg-white focus:ring-2 focus:ring-[var(--color-brand-100)]"
               />
             </div>
             <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
-              <Zap className="h-4 w-4 text-blue-500" /> When this happens
+              <Zap className="h-4 w-4 text-[var(--brand)]" /> When this happens
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               {TRIGGER_CATALOGUE.map((t) => (
@@ -552,7 +552,7 @@ function BuilderContent({
                   onClick={() => selectTrigger(t.type)}
                   className={`rounded-xl border p-3 text-left transition ${
                     triggerType === t.type
-                      ? "border-blue-300 bg-blue-50/60 ring-2 ring-blue-100"
+                      ? "border-[var(--color-brand-300)] bg-[var(--brand-soft)]/60 ring-2 ring-[var(--color-brand-100)]"
                       : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                   }`}
                 >
@@ -567,7 +567,7 @@ function BuilderContent({
         {step === 1 && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
-              <Filter className="h-4 w-4 text-blue-500" /> Conditions
+              <Filter className="h-4 w-4 text-[var(--brand)]" /> Conditions
             </div>
             <p className="text-xs text-slate-500">Tune the trigger threshold. These define exactly which records match.</p>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -580,7 +580,7 @@ function BuilderContent({
                     value={triggerCfg[f.key] ?? ""}
                     onChange={(e) => setTriggerCfg((c) => ({ ...c, [f.key]: e.target.value }))}
                     type={f.kind === "number" ? "number" : "text"}
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-[var(--color-brand-400)] focus:bg-white focus:ring-2 focus:ring-[var(--color-brand-100)]"
                   />
                   {f.help && <p className="mt-1 text-[11px] text-slate-400">{f.help}</p>}
                 </div>
@@ -595,7 +595,7 @@ function BuilderContent({
         {step === 2 && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
-              <Sparkles className="h-4 w-4 text-blue-500" /> Do this
+              <Sparkles className="h-4 w-4 text-[var(--brand)]" /> Do this
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               {ACTION_CATALOGUE.map((a) => (
@@ -604,7 +604,7 @@ function BuilderContent({
                   onClick={() => selectAction(a.type)}
                   className={`rounded-xl border p-3 text-left transition ${
                     actionType === a.type
-                      ? "border-blue-300 bg-blue-50/60 ring-2 ring-blue-100"
+                      ? "border-[var(--color-brand-300)] bg-[var(--brand-soft)]/60 ring-2 ring-[var(--color-brand-100)]"
                       : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                   }`}
                 >
@@ -622,13 +622,13 @@ function BuilderContent({
                       value={actionCfg[f.key] ?? ""}
                       onChange={(e) => setActionCfg((c) => ({ ...c, [f.key]: e.target.value }))}
                       rows={2}
-                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-[var(--color-brand-400)] focus:bg-white focus:ring-2 focus:ring-[var(--color-brand-100)]"
                     />
                   ) : (
                     <input
                       value={actionCfg[f.key] ?? ""}
                       onChange={(e) => setActionCfg((c) => ({ ...c, [f.key]: e.target.value }))}
-                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-[var(--color-brand-400)] focus:bg-white focus:ring-2 focus:ring-[var(--color-brand-100)]"
                     />
                   )}
                   {f.supportsTokens && (
@@ -648,7 +648,7 @@ function BuilderContent({
                 <span className="font-semibold">{name || "Untitled rule"}</span>
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-                <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
+                <span className="rounded-md bg-[var(--brand-soft)] px-2 py-1 text-xs font-medium text-[var(--brand)]">
                   When: {(trigger as typeof TRIGGER_CATALOGUE[0]).label}
                 </span>
                 <ArrowRight className="h-3.5 w-3.5 text-slate-300" />
@@ -695,7 +695,7 @@ function BuilderContent({
         {step < 3 ? (
           <button
             onClick={() => setStep(step + 1)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-blue-700"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-[var(--brand-strong)]"
           >
             Continue <ArrowRight className="h-4 w-4" />
           </button>
@@ -703,7 +703,7 @@ function BuilderContent({
           <button
             onClick={save}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-blue-700 disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white shadow-[0_2px_8px_rgba(37,99,235,0.30)] hover:bg-[var(--brand-strong)] disabled:opacity-60"
           >
             {saving ? "Creating…" : "Create rule"}
           </button>

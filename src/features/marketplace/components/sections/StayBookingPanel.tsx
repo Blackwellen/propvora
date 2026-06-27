@@ -81,7 +81,7 @@ export default function StayBookingPanel({
             size="lg"
           />
           {instantBook && (
-            <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[#2563EB]">
+            <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[var(--brand)]">
               <Zap className="w-3.5 h-3.5" /> Instant
             </span>
           )}
@@ -95,7 +95,7 @@ export default function StayBookingPanel({
           {isCheckout ? (
             <Link
               href={`/marketplace/checkout/${listingId}`}
-              className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl bg-[#2563EB] text-white text-[14.5px] font-semibold shadow-[0_2px_12px_rgba(37,99,235,0.32)] hover:bg-[#1d4ed8] transition-colors"
+              className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl bg-[var(--brand)] text-white text-[14.5px] font-semibold shadow-[0_2px_12px_rgba(37,99,235,0.32)] hover:bg-[var(--brand-strong)] transition-colors"
             >
               <CalendarCheck className="w-4.5 h-4.5" />
               {isStay ? "Reserve this stay" : "Book this service"}

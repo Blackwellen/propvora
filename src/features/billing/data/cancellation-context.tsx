@@ -15,9 +15,9 @@
 // confirms the persisted state. If Stripe is not configured the route 503s and
 // we surface the error honestly without faking a scheduled state.
 
-import React, { createContext, useContext, useMemo, useState } from "react"
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react"
 import { useCancellation, useSubscription } from "./hooks"
-import { requestCancellation, requestResume } from "./stripe-link"
+import { requestCancellation, requestResume, getRetentionEligibility, claimRetentionOffer } from "./stripe-link"
 import type { CancellationRequest } from "./types"
 
 export type CancellationView =
@@ -38,9 +38,14 @@ interface CancellationCtx {
   schedule: (input: { reason?: string; detail?: string }) => Promise<boolean>
   /** Resume / keep the subscription. Returns true on success. */
   keep: () => Promise<boolean>
-  /** Mark the retention offer as claimed (in-session). */
-  claimRetention: () => void
+  /** Claim the retention offer via the real backend. Returns true on success. */
+  claimRetention: () => Promise<boolean>
   retentionClaimed: boolean
+  /** Server-authoritative: is the offer available (one-time · Starter · paid · 3mo)? */
+  retentionEligible: boolean
+  /** 2-month credit in pence, when eligible. */
+  retentionCreditMinor: number | null
+  retentionError: string | null
   busy: boolean
   error: string | null
 }
@@ -54,8 +59,24 @@ export function CancellationProvider({ children }: { children: React.ReactNode }
   // overlay: null = follow DB; otherwise an in-session decision wins.
   const [overlay, setOverlay] = useState<CancellationRequest | null | "kept">(null)
   const [retentionClaimed, setRetentionClaimed] = useState(false)
+  const [retentionEligible, setRetentionEligible] = useState(false)
+  const [retentionCreditMinor, setRetentionCreditMinor] = useState<number | null>(null)
+  const [retentionError, setRetentionError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Server-authoritative eligibility — the offer is hidden unless the backend
+  // confirms one-time · Starter-only · paid+active · ≥3-months-subscribed.
+  useEffect(() => {
+    let active = true
+    ;(async () => {
+      const e = await getRetentionEligibility()
+      if (!active) return
+      setRetentionEligible(!!e.eligible)
+      setRetentionCreditMinor(e.creditMinor ?? null)
+    })()
+    return () => { active = false }
+  }, [])
 
   const view = useMemo<CancellationView>(() => {
     if (overlay === "kept") return { scheduled: false }
@@ -76,6 +97,9 @@ export function CancellationProvider({ children }: { children: React.ReactNode }
       view,
       busy,
       error,
+      retentionEligible,
+      retentionCreditMinor,
+      retentionError,
       retentionClaimed: retentionClaimed || !!existing?.retentionOfferClaimed,
       schedule: async ({ reason, detail }) => {
         setBusy(true)
@@ -114,9 +138,23 @@ export function CancellationProvider({ children }: { children: React.ReactNode }
           setBusy(false)
         }
       },
-      claimRetention: () => setRetentionClaimed(true),
+      claimRetention: async () => {
+        setBusy(true)
+        setRetentionError(null)
+        try {
+          await claimRetentionOffer()
+          setRetentionClaimed(true)
+          setRetentionEligible(false)
+          return true
+        } catch (e) {
+          setRetentionError(e instanceof Error ? e.message : "Could not claim the retention offer")
+          return false
+        } finally {
+          setBusy(false)
+        }
+      },
     }),
-    [view, busy, error, retentionClaimed, existing, sub.currentPeriodEnd],
+    [view, busy, error, retentionClaimed, retentionEligible, retentionCreditMinor, retentionError, existing, sub.currentPeriodEnd],
   )
 
   return <Ctx.Provider value={ctx}>{children}</Ctx.Provider>

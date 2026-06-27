@@ -20,7 +20,7 @@ export function WizardInput(props: React.InputHTMLAttributes<HTMLInputElement>) 
     <input
       {...props}
       className={cn(
-        "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-slate-400",
+        "w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all placeholder:text-slate-400",
         props.className
       )}
     />
@@ -34,7 +34,7 @@ export function WizardSelect({
   return (
     <select
       {...props}
-      className="w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+      className="w-full h-10 px-3 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
     >
       {children}
     </select>
@@ -45,7 +45,7 @@ export function WizardTextarea(props: React.TextareaHTMLAttributes<HTMLTextAreaE
   return (
     <textarea
       {...props}
-      className="w-full px-3 py-2.5 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all resize-none placeholder:text-slate-400"
+      className="w-full px-3 py-2.5 rounded-xl text-sm border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all resize-none placeholder:text-slate-400"
     />
   )
 }
@@ -75,7 +75,7 @@ export function LineItemRow({ item, onChange, onRemove }: LineItemRowProps) {
           value={item.description}
           onChange={(e) => onChange({ ...item, description: e.target.value })}
           placeholder="Description"
-          className="w-full text-sm focus:outline-none bg-transparent border-b border-transparent focus:border-blue-400"
+          className="w-full text-sm focus:outline-none bg-transparent border-b border-transparent focus:border-[var(--color-brand-400)]"
         />
       </td>
       <td className="px-3 py-2 w-16">
@@ -83,7 +83,7 @@ export function LineItemRow({ item, onChange, onRemove }: LineItemRowProps) {
           type="number"
           value={item.quantity}
           onChange={(e) => onChange({ ...item, quantity: Number(e.target.value) })}
-          className="w-full text-sm text-right focus:outline-none bg-transparent border-b border-transparent focus:border-blue-400"
+          className="w-full text-sm text-right focus:outline-none bg-transparent border-b border-transparent focus:border-[var(--color-brand-400)]"
         />
       </td>
       <td className="px-3 py-2 w-28">
@@ -91,14 +91,14 @@ export function LineItemRow({ item, onChange, onRemove }: LineItemRowProps) {
           type="number"
           value={item.unit_price}
           onChange={(e) => onChange({ ...item, unit_price: Number(e.target.value) })}
-          className="w-full text-sm text-right focus:outline-none bg-transparent border-b border-transparent focus:border-blue-400"
+          className="w-full text-sm text-right focus:outline-none bg-transparent border-b border-transparent focus:border-[var(--color-brand-400)]"
         />
       </td>
       <td className="px-3 py-2 w-24">
         <select
           value={item.tax_rate}
           onChange={(e) => onChange({ ...item, tax_rate: Number(e.target.value) })}
-          className="w-full text-sm bg-transparent focus:outline-none border-b border-transparent focus:border-blue-400"
+          className="w-full text-sm bg-transparent focus:outline-none border-b border-transparent focus:border-[var(--color-brand-400)]"
         >
           {[0, 5, 20].map((r) => (
             <option key={r} value={r}>{r}%</option>
@@ -112,7 +112,7 @@ export function LineItemRow({ item, onChange, onRemove }: LineItemRowProps) {
         <button
           onClick={onRemove}
           aria-label="Remove line item"
-          className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+          className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] rounded"
         >
           <X className="w-3.5 h-3.5" />
         </button>

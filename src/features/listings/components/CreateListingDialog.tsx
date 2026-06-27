@@ -61,7 +61,7 @@ export function CreateListingDialog({
               value={title}
               onChange={(e) => onTitleChange(e.target.value)}
               placeholder="e.g. Garden Studio — Central"
-              className="w-full h-10 px-3 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+              className="w-full h-10 px-3 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             />
           </div>
 
@@ -72,7 +72,7 @@ export function CreateListingDialog({
             <select
               value={propertyId}
               onChange={(e) => onPropertyIdChange(e.target.value)}
-              className="w-full h-10 px-3 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+              className="w-full h-10 px-3 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             >
               <option value="">Select later…</option>
               {properties.map((p) => (
@@ -89,7 +89,7 @@ export function CreateListingDialog({
             <select
               value={listingType}
               onChange={(e) => onListingTypeChange(e.target.value as ListingType)}
-              className="w-full h-10 px-3 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+              className="w-full h-10 px-3 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             >
               <option value="entire_home">Entire home</option>
               <option value="serviced_accommodation">Serviced accommodation</option>
@@ -113,7 +113,7 @@ export function CreateListingDialog({
           <button
             onClick={onSubmit}
             disabled={pending}
-            className="flex-1 h-10 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 disabled:opacity-60"
+            className="flex-1 h-10 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-60"
           >
             {pending ? "Creating…" : "Create & set up"}
           </button>

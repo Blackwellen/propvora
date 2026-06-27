@@ -78,9 +78,9 @@ export default function SummaryRail({
         </div>
       </div>
 
-      <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 space-y-1">
-        <p className="text-xs font-semibold text-blue-700">Tip</p>
-        <p className="text-xs text-blue-600 leading-relaxed">{STEP_TIPS[currentStep]}</p>
+      <div className="rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)] px-4 py-3 space-y-1">
+        <p className="text-xs font-semibold text-[var(--brand)]">Tip</p>
+        <p className="text-xs text-[var(--brand)] leading-relaxed">{STEP_TIPS[currentStep]}</p>
       </div>
     </div>
   )

@@ -194,7 +194,7 @@ export default function ContactEditPage() {
       <div className="flex flex-col items-center justify-center py-20 space-y-4 text-center">
         <AlertTriangle className="w-10 h-10 text-amber-400" />
         <p className="text-slate-700 font-semibold text-lg">Contact not found</p>
-        <Link href="/property-manager/contacts" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition-colors">
+        <Link href="/property-manager/contacts" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Contacts
         </Link>
       </div>

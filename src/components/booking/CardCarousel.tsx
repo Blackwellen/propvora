@@ -31,7 +31,7 @@ export default function CardCarousel({
 
   if (list.length === 0) {
     return (
-      <div className={cn("relative w-full overflow-hidden bg-gradient-to-br from-blue-50 via-slate-100 to-emerald-50", aspect)}>
+      <div className={cn("relative w-full overflow-hidden bg-gradient-to-br from-[var(--brand-soft)] via-slate-100 to-emerald-50", aspect)}>
         {fallback}
       </div>
     )

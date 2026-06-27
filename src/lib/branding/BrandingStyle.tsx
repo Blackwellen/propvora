@@ -1,4 +1,4 @@
-import { resolveBrand, brandCssVars, type BrandColours } from "./theme"
+import { resolveBrand, brandCssVars, brandFontHref, type BrandColours } from "./theme"
 import BrandingLiveApply from "./BrandingLiveApply"
 
 /**
@@ -21,11 +21,16 @@ export default function BrandingStyle({
 }) {
   const palette = resolveBrand(brandColor, brandColours)
   const vars = brandCssVars(palette)
+  const fontHref = brandFontHref(palette.font)
 
   return (
-    <div data-brand-root style={vars as React.CSSProperties} className="contents">
-      <BrandingLiveApply />
-      {children}
-    </div>
+    <>
+      {/* Load the workspace brand font (curated Google Font) when one is set. */}
+      {fontHref && <link rel="stylesheet" href={fontHref} />}
+      <div data-brand-root style={vars as React.CSSProperties} className="contents">
+        <BrandingLiveApply />
+        {children}
+      </div>
+    </>
   )
 }

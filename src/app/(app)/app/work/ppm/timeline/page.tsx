@@ -32,7 +32,7 @@ const MONTH_COUNT = 6
 
 // Status → colours (single source for spans, dots and legend)
 const STATUS_META: Record<string, { bar: string; dot: string; label: string }> = {
-  scheduled: { bar: "bg-blue-500", dot: "bg-blue-500", label: "Scheduled" },
+  scheduled: { bar: "bg-[var(--brand)]", dot: "bg-[var(--brand)]", label: "Scheduled" },
   "due-soon": { bar: "bg-amber-400", dot: "bg-amber-400", label: "Due Soon" },
   overdue: { bar: "bg-red-500", dot: "bg-red-500", label: "Overdue" },
   completed: { bar: "bg-emerald-500", dot: "bg-emerald-500", label: "Completed" },
@@ -277,7 +277,7 @@ export default function PpmTimelinePage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search properties or tasks..."
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50 bg-white"
+            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]/50 bg-white"
           />
         </div>
         <div className="flex items-center gap-1">
@@ -316,7 +316,7 @@ export default function PpmTimelinePage() {
             </div>
             {monthLabels.map((m, i) => (
               <div key={m} className="px-2 py-3 border-r border-slate-100 last:border-r-0 text-center">
-                <span className={cn("text-[11px] font-semibold", i === 0 && offset === 0 ? "text-[#2563EB]" : "text-slate-500")}>
+                <span className={cn("text-[11px] font-semibold", i === 0 && offset === 0 ? "text-[var(--brand)]" : "text-slate-500")}>
                   {m}
                 </span>
               </div>
@@ -343,7 +343,7 @@ export default function PpmTimelinePage() {
               {livePlans.length === 0 && (
                 <Link
                   href="/property-manager/work/ppm/schedules/new"
-                  className="inline-flex items-center gap-1.5 mt-4 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl px-4 py-2 text-sm font-semibold transition-colors"
+                  className="inline-flex items-center gap-1.5 mt-4 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white rounded-xl px-4 py-2 text-sm font-semibold transition-colors"
                 >
                   <Plus className="w-4 h-4" /> Add PPM Schedule
                 </Link>
@@ -364,7 +364,7 @@ export default function PpmTimelinePage() {
                         <span className="text-[12px] text-slate-500">{isExpanded(prop.key) ? "▾" : "▸"}</span>
                         <span className="text-sm">🏢</span>
                         <span className="text-[12.5px] font-semibold text-slate-800 truncate">{prop.name}</span>
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-100">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]">
                           {prop.tasks.length}
                         </span>
                       </div>
@@ -488,7 +488,7 @@ export default function PpmTimelinePage() {
                 <div key={b.label} className="flex items-center gap-3">
                   <span className="text-[11px] text-slate-600 w-20 shrink-0 truncate">{b.label}</span>
                   <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-2 rounded-full bg-[#2563EB] transition-all" style={{ width: `${b.pct}%` }} />
+                    <div className="h-2 rounded-full bg-[var(--brand)] transition-all" style={{ width: `${b.pct}%` }} />
                   </div>
                   <span className="text-[11px] font-semibold text-slate-700 w-5 text-right shrink-0">{b.count}</span>
                 </div>
@@ -496,7 +496,7 @@ export default function PpmTimelinePage() {
             </div>
             <Link
               href="/property-manager/work/ppm/schedules"
-              className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] transition-colors"
+              className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
             >
               View all schedules →
             </Link>

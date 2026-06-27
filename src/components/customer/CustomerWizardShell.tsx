@@ -77,7 +77,7 @@ export function CustomerWizardShell({
 
         <div className="flex-1 flex items-center gap-3 min-w-0">
           <div className="lg:hidden flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-            <div className="h-full bg-[#2563EB] rounded-full transition-all duration-300" style={{ width: `${progressPct}%` }} />
+            <div className="h-full bg-[var(--brand)] rounded-full transition-all duration-300" style={{ width: `${progressPct}%` }} />
           </div>
         </div>
 
@@ -87,7 +87,7 @@ export function CustomerWizardShell({
             value={current}
             onChange={(e) => { const t = Number(e.target.value); if (t <= current) onStep(t) }}
             aria-label="Jump to step"
-            className="lg:hidden h-9 px-2 rounded-lg border border-slate-200 bg-white text-[12px] font-semibold text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30 max-w-[150px]"
+            className="lg:hidden h-9 px-2 rounded-lg border border-slate-200 bg-white text-[12px] font-semibold text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30 max-w-[150px]"
           >
             {steps.map((s) => (
               <option key={s.num} value={s.num} disabled={s.num > current}>
@@ -100,7 +100,7 @@ export function CustomerWizardShell({
         <button
           onClick={handleClose}
           aria-label="Close"
-          className="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30"
+          className="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30"
         >
           <X className="w-4 h-4 text-slate-400" />
         </button>
@@ -125,14 +125,14 @@ export function CustomerWizardShell({
                   disabled={isPending || isActive}
                   className={cn(
                     "w-full flex items-start gap-3 px-2.5 py-2.5 rounded-xl text-left transition-all mb-0.5",
-                    isActive ? "bg-blue-50" : "",
+                    isActive ? "bg-[var(--brand-soft)]" : "",
                     isComplete ? "hover:bg-slate-50 cursor-pointer" : "",
                     isPending ? "cursor-default opacity-40" : ""
                   )}
                 >
                   <div className={cn(
                     "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 transition-all",
-                    isActive ? "bg-[#2563EB] text-white ring-4 ring-blue-100" : "",
+                    isActive ? "bg-[var(--brand)] text-white ring-4 ring-[var(--color-brand-100)]" : "",
                     isComplete ? "bg-emerald-500 text-white" : "",
                     isPending ? "bg-slate-100 text-slate-400" : ""
                   )}>
@@ -141,7 +141,7 @@ export function CustomerWizardShell({
                   <div className="min-w-0">
                     <p className={cn(
                       "text-[11.5px] font-semibold leading-tight truncate",
-                      isActive ? "text-blue-700" : isComplete ? "text-slate-700" : "text-slate-400"
+                      isActive ? "text-[var(--brand)]" : isComplete ? "text-slate-700" : "text-slate-400"
                     )}>{s.label}</p>
                     <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">{s.subtitle}</p>
                   </div>
@@ -166,7 +166,7 @@ export function CustomerWizardShell({
           onClick={onPrev}
           disabled={current === 1}
           className={cn(
-            "flex items-center justify-center gap-2 h-11 px-3 sm:px-5 rounded-xl border border-slate-200 text-[13px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30 shrink-0",
+            "flex items-center justify-center gap-2 h-11 px-3 sm:px-5 rounded-xl border border-slate-200 text-[13px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30 shrink-0",
             current === 1 ? "opacity-40 cursor-not-allowed text-slate-400" : "text-slate-700 hover:bg-slate-50"
           )}
         >
@@ -178,8 +178,8 @@ export function CustomerWizardShell({
           onClick={onNext}
           disabled={!canContinue || submitting}
           className={cn(
-            "flex items-center justify-center gap-2 h-11 px-4 sm:px-6 rounded-xl text-[13.5px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
-            canContinue && !submitting ? "bg-[#2563EB] text-white hover:bg-[#1d4ed8] shadow-sm" : "bg-slate-200 text-slate-400 cursor-not-allowed"
+            "flex items-center justify-center gap-2 h-11 px-4 sm:px-6 rounded-xl text-[13.5px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40",
+            canContinue && !submitting ? "bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] shadow-sm" : "bg-slate-200 text-slate-400 cursor-not-allowed"
           )}
         >
           {submitting && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}

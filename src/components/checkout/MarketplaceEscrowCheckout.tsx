@@ -49,7 +49,7 @@ export default function MarketplaceEscrowCheckout(props: MarketplaceEscrowChecko
             <Image src={props.thumbUrl} alt="" fill className="object-cover" sizes="80px" />
           </div>
         ) : (
-          <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-xl bg-[#EFF5FF] text-[#2563EB]">
+          <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-xl bg-[#EFF5FF] text-[var(--brand)]">
             <MapPin className="h-5 w-5" />
           </div>
         )}
@@ -82,12 +82,12 @@ export default function MarketplaceEscrowCheckout(props: MarketplaceEscrowChecko
       </div>
       <ul className="space-y-2 border-t border-[#EEF2F9] px-4 py-3 text-[12px] text-slate-500">
         <li className="flex items-start gap-2"><ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" /> Funds held in escrow until the work is completed</li>
-        <li className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#2563EB]" /> Authorised now, released to the supplier on completion</li>
+        <li className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--brand)]" /> Authorised now, released to the supplier on completion</li>
       </ul>
       {props.trustChips && props.trustChips.length > 0 && (
         <div className="flex flex-wrap gap-1.5 border-t border-[#EEF2F9] px-4 py-3">
           {props.trustChips.map((c) => (
-            <span key={c} className="inline-flex items-center gap-1 rounded-full bg-[#F1F6FF] px-2 py-0.5 text-[11px] font-semibold text-[#1D4ED8]">
+            <span key={c} className="inline-flex items-center gap-1 rounded-full bg-[#F1F6FF] px-2 py-0.5 text-[11px] font-semibold text-[var(--brand-strong)]">
               <ShieldCheck className="h-3 w-3" /> {c}
             </span>
           ))}
@@ -111,7 +111,7 @@ export default function MarketplaceEscrowCheckout(props: MarketplaceEscrowChecko
                   : <>Your order has been created. Online payment will be arranged shortly.</>}
               </p>
               {paymentId && (
-                <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#F1F6FF] px-3 py-1.5 text-[12.5px] font-semibold text-[#1D4ED8]">
+                <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#F1F6FF] px-3 py-1.5 text-[12.5px] font-semibold text-[var(--brand-strong)]">
                   <Tag className="h-3.5 w-3.5" /> Ref {paymentId.slice(0, 8).toUpperCase()}
                 </div>
               )}
@@ -120,7 +120,7 @@ export default function MarketplaceEscrowCheckout(props: MarketplaceEscrowChecko
         </SectionCard>
         <Link
           href={props.successHref ?? "/property-manager/work/jobs"}
-          className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-5 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-[#1D4ED8]"
+          className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[var(--brand)] px-5 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-[var(--brand-strong)]"
         >
           {props.successHrefLabel ?? "View in Work"} <ArrowRight className="h-4 w-4" />
         </Link>
@@ -130,7 +130,7 @@ export default function MarketplaceEscrowCheckout(props: MarketplaceEscrowChecko
 
   return (
     <CheckoutShell step="payment" title="Book & pay securely" summary={summary} embedded>
-      <Link href={props.backHref} className="inline-flex w-fit items-center gap-1.5 text-[13px] font-semibold text-slate-500 transition-colors hover:text-[#1D4ED8]">
+      <Link href={props.backHref} className="inline-flex w-fit items-center gap-1.5 text-[13px] font-semibold text-slate-500 transition-colors hover:text-[var(--brand-strong)]">
         <ArrowLeft className="h-3.5 w-3.5" /> {props.backLabel ?? "Back"}
       </Link>
       <SectionCard title="Secure escrow payment" description="Your card is authorised now and held in escrow — released to the supplier when the work is completed.">

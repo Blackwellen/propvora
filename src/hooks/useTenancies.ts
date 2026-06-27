@@ -225,3 +225,75 @@ export function useDeleteTenancy() {
     },
   })
 }
+
+// ============================================================
+// Tenancy payment health — real arrears / on-time / paid-vs-due,
+// derived from the `invoices` table (one row per rent charge,
+// linked by tenancy_id). Replaces the previously-hardcoded
+// arrears/onTimeRate/totalPaid6m on the tenancy detail. 42P01-safe
+// (returns zeros if the invoices table is absent in this env).
+// ============================================================
+export interface TenancyArrears {
+  /** Outstanding amount on overdue/unpaid invoices (amount_due − amount_paid). */
+  arrears: number
+  /** % of due invoices in the last 6 months that are fully paid (100 when none are due). */
+  onTimeRate: number
+  /** Sum of amount_paid across invoices due in the last 6 months. */
+  totalPaid6m: number
+  /** Sum of amount_due across invoices due in the last 6 months. */
+  totalDue6m: number
+}
+
+const EMPTY_ARREARS: TenancyArrears = { arrears: 0, onTimeRate: 100, totalPaid6m: 0, totalDue6m: 0 }
+
+export function useTenancyArrears(workspaceId: string | undefined, tenancyId: string | undefined) {
+  const supabase = createClient()
+  return useQuery<TenancyArrears>({
+    queryKey: [KEY, workspaceId, 'arrears', tenancyId],
+    enabled: !!workspaceId && !!tenancyId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('id, due_date, amount_due, amount_paid, status, tenancy_id')
+        .eq('workspace_id', workspaceId!)
+        .eq('tenancy_id', tenancyId!)
+      // Missing table (42P01) or any read error → zeros, never throw on the detail page.
+      if (error || !data) return EMPTY_ARREARS
+
+      const now = Date.now()
+      const sixMonthsAgo = now - 182 * 24 * 60 * 60 * 1000
+      const num = (v: unknown) => (typeof v === 'number' ? v : Number(v) || 0)
+
+      let arrears = 0
+      let totalPaid6m = 0
+      let totalDue6m = 0
+      let dueCount = 0
+      let paidOnDue = 0
+
+      for (const row of data as Array<{ due_date?: string | null; amount_due?: number | null; amount_paid?: number | null; status?: string | null }>) {
+        const status = String(row.status ?? '').toLowerCase()
+        const due = num(row.amount_due)
+        const paid = num(row.amount_paid)
+        const dueTs = row.due_date ? new Date(row.due_date).getTime() : null
+        const isPastDue = dueTs != null && dueTs <= now
+
+        if ((status === 'overdue' || status === 'unpaid' || status === 'partial') && isPastDue) {
+          arrears += Math.max(0, due - paid)
+        }
+        if (dueTs != null && dueTs >= sixMonthsAgo && dueTs <= now) {
+          totalDue6m += due
+          totalPaid6m += paid
+          dueCount += 1
+          if (status === 'paid') paidOnDue += 1
+        }
+      }
+
+      return {
+        arrears,
+        onTimeRate: dueCount > 0 ? Math.round((paidOnDue / dueCount) * 100) : 100,
+        totalPaid6m,
+        totalDue6m,
+      }
+    },
+  })
+}

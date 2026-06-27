@@ -21,7 +21,7 @@ export function ComplianceCertificatesCard() {
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-slate-900">Compliance Certificates</h3>
-        <Link href="/property-manager/work/suppliers/compliance" className="text-[12px] text-[#2563EB] hover:underline">
+        <Link href="/property-manager/work/suppliers/compliance" className="text-[12px] text-[var(--brand)] hover:underline">
           View all
         </Link>
       </div>

@@ -337,7 +337,7 @@ export function MonthlyGrossCard({
           <p className="text-[17px] font-bold text-slate-900 mt-0.5">{value}</p>
           <p className="text-[11px] text-slate-400">{sub}</p>
         </div>
-        <button className="text-[11.5px] font-semibold text-[#2563EB] hover:text-blue-700">View Details</button>
+        <button className="text-[11.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">View Details</button>
       </div>
       <div className="h-[84px]" role="img" aria-label={`${title} projection chart`}>
         <ResponsiveContainer width="100%" height="100%">
@@ -437,7 +437,7 @@ export function TrendCard({
   const tones = {
     green: "text-emerald-600 bg-emerald-50",
     amber: "text-amber-600 bg-amber-50",
-    blue: "text-blue-600 bg-blue-50",
+    blue: "text-[var(--brand)] bg-[var(--brand-soft)]",
   }
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-4">
@@ -570,7 +570,7 @@ export function IncomeAiPanel({
   const hasRecs = suggestions.length > 0
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6">
-      <div className="bg-gradient-to-br from-violet-50 to-blue-50 rounded-2xl border border-violet-200/60 p-5">
+      <div className="bg-gradient-to-br from-violet-50 to-[var(--brand-soft)] rounded-2xl border border-violet-200/60 p-5">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-xl bg-[#7C3AED] flex items-center justify-center">

@@ -29,7 +29,7 @@ function CopyRow({ label, value, badge }: { label?: string; value: string; badge
         </div>
       )}
       <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg">
-        <p className={`flex-1 text-sm font-mono break-all ${hasValue ? "text-[#2563EB]" : "text-slate-400"}`}>{value || "—"}</p>
+        <p className={`flex-1 text-sm font-mono break-all ${hasValue ? "text-[var(--brand)]" : "text-slate-400"}`}>{value || "—"}</p>
         <button
           disabled={!hasValue}
           onClick={() => {
@@ -126,7 +126,7 @@ function AssetTemplate({ title, body, link }: { title: string; body: string; lin
                 .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
                 .catch(() => {})
             }}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#2563EB] hover:underline"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--brand)] hover:underline"
           >
             {copied ? <><Check className="w-3.5 h-3.5 text-emerald-500" /> Copied!</> : <><Copy className="w-3.5 h-3.5" /> Copy template</>}
           </button>
@@ -184,7 +184,7 @@ export function AffiliateLinks({ basePath }: { basePath: string }) {
       <div className="text-center py-16">
         <p className="text-sm text-slate-500">
           You haven&apos;t enrolled yet.{" "}
-          <Link href={basePath} className="text-[#2563EB] hover:underline">Join the programme</Link>.
+          <Link href={basePath} className="text-[var(--brand)] hover:underline">Join the programme</Link>.
         </p>
       </div>
     )
@@ -286,7 +286,7 @@ export function AffiliateLinks({ basePath }: { basePath: string }) {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   { label: "Total clicks",    value: funnel.totalClicks,      icon: MousePointerClick, colour: "text-slate-700"   },
-                  { label: "Standard clicks", value: funnel.standardClicks,   icon: Link2,             colour: "text-[#2563EB]"   },
+                  { label: "Standard clicks", value: funnel.standardClicks,   icon: Link2,             colour: "text-[var(--brand)]"   },
                   { label: "Discount clicks", value: funnel.discountClicks,   icon: Tag,               colour: "text-[#059669]"   },
                   { label: "Signups",         value: funnel.signups,          icon: Users,             colour: "text-[#7C3AED]"   },
                 ].map((kpi) => {
@@ -322,7 +322,7 @@ export function AffiliateLinks({ basePath }: { basePath: string }) {
                         <span className="font-mono text-slate-400 w-24 truncate">{c.campaign}</span>
                         <div className="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
                           <div
-                            className="h-full bg-[#2563EB] rounded-full"
+                            className="h-full bg-[var(--brand)] rounded-full"
                             style={{ width: `${Math.min(100, (c.clicks / (funnel.totalClicks || 1)) * 100)}%` }}
                           />
                         </div>
@@ -378,7 +378,7 @@ export function AffiliateLinks({ basePath }: { basePath: string }) {
           ))}
           <p className="text-xs text-slate-400 pt-1">
             Always add your own disclosure. Full rules:{" "}
-            <Link href="/affiliate-programme/terms" className="text-[#2563EB] hover:underline">Affiliate Terms</Link>.
+            <Link href="/affiliate-programme/terms" className="text-[var(--brand)] hover:underline">Affiliate Terms</Link>.
           </p>
         </CardContent>
       </Card>
@@ -389,7 +389,7 @@ export function AffiliateLinks({ basePath }: { basePath: string }) {
         <CardContent className="space-y-3">
           <ul className="space-y-2 text-sm text-slate-600">
             <li className="flex items-start gap-2.5"><Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" /> You may refer to Propvora by name and describe it accurately.</li>
-            <li className="flex items-start gap-2.5"><Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" /> Brand logos and banners are provided on approval — email <a href={`mailto:${COMPANY.emails.support}`} className="text-[#2563EB] hover:underline">{COMPANY.emails.support}</a>.</li>
+            <li className="flex items-start gap-2.5"><Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" /> Brand logos and banners are provided on approval — email <a href={`mailto:${COMPANY.emails.support}`} className="text-[var(--brand)] hover:underline">{COMPANY.emails.support}</a>.</li>
             <li className="flex items-start gap-2.5"><AlertCircle className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" /> Do not alter the Propvora logo or create your own branded version.</li>
             <li className="flex items-start gap-2.5"><AlertCircle className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" /> Do not make guaranteed-earnings claims on Propvora&apos;s behalf.</li>
             <li className="flex items-start gap-2.5"><AlertCircle className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" /> Do not run paid ads on &quot;Propvora&quot; as a keyword without prior written approval.</li>

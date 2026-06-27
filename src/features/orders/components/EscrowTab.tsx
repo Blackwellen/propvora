@@ -31,7 +31,7 @@ export function EscrowTab() {
       {toast && <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-xl">{toast}</div>}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={ShieldCheck} iconBg="bg-blue-50" iconColor="text-blue-600" value={formatPence(kpis.fundsHeldPence)} label="Funds held" />
+        <KpiCard icon={ShieldCheck} iconBg="bg-[var(--brand-soft)]" iconColor="text-[var(--brand)]" value={formatPence(kpis.fundsHeldPence)} label="Funds held" />
         <KpiCard icon={Clock} iconBg="bg-amber-50" iconColor="text-amber-600" value={kpis.releasingSoon} label="Releasing soon" sub="Next 3 days" subColor="text-amber-600" />
         <KpiCard icon={ImageOff} iconBg="bg-violet-50" iconColor="text-violet-600" value={kpis.evidencePending} label="Evidence pending" />
         <KpiCard icon={AlertTriangle} iconBg="bg-red-50" iconColor="text-red-600" value={kpis.atRisk} label="Escrow at risk" sub={kpis.atRisk > 0 ? "Disputed" : "All clear"} subColor={kpis.atRisk > 0 ? "text-red-500" : "text-emerald-600"} />
@@ -67,7 +67,7 @@ export function EscrowTab() {
                 const dleft = daysUntil(e.releaseDate)
                 return (
                   <React.Fragment key={e.id}>
-                    <tr className={cn("border-b border-slate-50 hover:bg-slate-50", isOpen && "bg-blue-50/30")}>
+                    <tr className={cn("border-b border-slate-50 hover:bg-slate-50", isOpen && "bg-[var(--brand-soft)]/30")}>
                       <td className="px-4 py-3">
                         <button aria-label="Expand" onClick={() => setExpanded(isOpen ? null : e.id)} className="text-slate-400 hover:text-slate-600">
                           {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
@@ -144,7 +144,7 @@ function EscrowExpanded({ row, blocked, onAction }: { row: EscrowRow; blocked: b
         <p className="text-xs text-slate-500">{row.releaseDate ? new Date(row.releaseDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "No date set"}</p>
         <div className="mt-3">
           <div className="flex items-center justify-between text-xs mb-1"><span className="text-slate-500">Milestone</span><span className="font-semibold text-slate-700">{row.milestoneProgress}%</span></div>
-          <div className="h-2 bg-slate-200 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${row.milestoneProgress}%` }} /></div>
+          <div className="h-2 bg-slate-200 rounded-full overflow-hidden"><div className="h-full bg-[var(--brand)] rounded-full" style={{ width: `${row.milestoneProgress}%` }} /></div>
         </div>
       </div>
 
@@ -172,7 +172,7 @@ function EscrowExpanded({ row, blocked, onAction }: { row: EscrowRow; blocked: b
           <button onClick={() => onAction("hold")} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-white"><Ban className="w-3.5 h-3.5" /> Reject / hold</button>
           <button onClick={() => onAction("issue")} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-white"><Flag className="w-3.5 h-3.5" /> Raise issue</button>
           <button onClick={() => onAction("evidence")} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-white"><FileQuestion className="w-3.5 h-3.5" /> Request evidence</button>
-          <Link href={`/property-manager/work/orders/escrow/${row.escrowId}`} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100"><ExternalLink className="w-3.5 h-3.5" /> View all evidence</Link>
+          <Link href={`/property-manager/work/orders/escrow/${row.escrowId}`} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand)] text-xs font-semibold hover:bg-[var(--color-brand-100)]"><ExternalLink className="w-3.5 h-3.5" /> View all evidence</Link>
         </div>
       </div>
     </div>

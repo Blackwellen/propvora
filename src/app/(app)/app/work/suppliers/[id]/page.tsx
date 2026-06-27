@@ -130,13 +130,13 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
   }
 
   const KPI_ITEMS = [
-    { label: "Active Jobs", value: String(jobs.filter((j) => !["complete", "closed", "invoiced"].includes(j.status)).length), icon: Briefcase, bg: "bg-blue-50", color: "text-blue-600" },
+    { label: "Active Jobs", value: String(jobs.filter((j) => !["complete", "closed", "invoiced"].includes(j.status)).length), icon: Briefcase, bg: "bg-[var(--brand-soft)]", color: "text-[var(--brand)]" },
     { label: "Total Jobs", value: String(jobs.length), icon: LayoutGrid, bg: "bg-amber-50", color: "text-amber-600" },
     { label: "Invoiced", value: `£${jobs.reduce((sum, j) => sum + (j.invoiced_amount ?? 0), 0).toLocaleString()}`, icon: Receipt, bg: "bg-violet-50", color: "text-violet-600" },
     // No live telemetry source for these yet — show honest "—" rather than fabricated metrics.
     { label: "Avg Response", value: "—", icon: Clock, bg: "bg-emerald-50", color: "text-emerald-600" },
     { label: "SLA Performance", value: "—", icon: TrendingUp, bg: "bg-emerald-50", color: "text-emerald-600" },
-    { label: "Compliance", value: "—", icon: ShieldCheck, bg: "bg-blue-50", color: "text-blue-600" },
+    { label: "Compliance", value: "—", icon: ShieldCheck, bg: "bg-[var(--brand-soft)]", color: "text-[var(--brand)]" },
   ]
 
   return (
@@ -180,7 +180,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
             </button>
             <button
               onClick={() => router.push(`/property-manager/work/jobs/new?supplierId=${id}`)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1d4ed8] transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--brand)] text-white text-sm font-semibold hover:bg-[var(--brand-strong)] transition-colors"
             >
               <Plus className="w-4 h-4" />New Job
             </button>
@@ -286,7 +286,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
               onClick={() => setActiveTab(tab)}
               className={cn(
                 "px-4 py-3 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-all duration-150",
-                activeTab === tab ? "border-[#2563EB] text-[#2563EB] font-semibold" : "border-transparent text-slate-500 hover:text-slate-700"
+                activeTab === tab ? "border-[var(--brand)] text-[var(--brand)] font-semibold" : "border-transparent text-slate-500 hover:text-slate-700"
               )}
             >
               {tab}

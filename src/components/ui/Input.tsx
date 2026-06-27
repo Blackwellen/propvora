@@ -57,7 +57,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               "w-full h-9 rounded-lg border bg-white text-sm text-slate-900",
               "placeholder:text-slate-400",
               "transition-colors duration-150",
-              "focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]",
+              "focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]",
               "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-50",
               "",
               error

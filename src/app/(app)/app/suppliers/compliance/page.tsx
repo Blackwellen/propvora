@@ -153,7 +153,7 @@ export default function SuppliersCompliancePage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search suppliers…"
-                className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-[13px] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]"
+                className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-[13px] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]"
               />
             </div>
             <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
@@ -193,11 +193,11 @@ export default function SuppliersCompliancePage() {
                         <div className="flex flex-wrap items-center gap-2 mb-1">
                           <Link
                             href={`/app/work/suppliers/${s.id}`}
-                            className="text-[13.5px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors"
+                            className="text-[13.5px] font-semibold text-slate-900 hover:text-[var(--brand)] transition-colors"
                           >
                             {s.name}
                           </Link>
-                          <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-medium">{s.trade}</span>
+                          <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] font-medium">{s.trade}</span>
                         </div>
                         <p className="text-[11.5px] text-slate-400">No compliance documents on file yet.</p>
                       </div>

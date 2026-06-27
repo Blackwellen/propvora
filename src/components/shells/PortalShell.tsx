@@ -6,6 +6,7 @@ import SkipLink from "@/components/a11y/SkipLink"
 import PortalSideNavigation from "./portal/PortalSideNavigation"
 import PortalTopNavigation from "./portal/PortalTopNavigation"
 import { PORTAL_NAV, type PortalKind } from "./portal/portal-nav"
+import { PoweredByPropvora } from "@/lib/branding/white-label"
 
 // ============================================================================
 // PortalShell — external magic-link shell, now 1:1 with the operator / supplier
@@ -23,12 +24,18 @@ export default function PortalShell({
   workspaceName,
   displayName,
   children,
+  brandVars,
+  hidePoweredBy = false,
 }: {
   sessionId: string
   kind: PortalKind
   workspaceName: string
   displayName: string
   children: React.ReactNode
+  /** Per-workspace brand CSS variables (var(--brand)…) so the portal repaints to the owning workspace colour. */
+  brandVars?: Record<string, string>
+  /** White-label: hide the "Powered by Propvora" footer for this workspace. */
+  hidePoweredBy?: boolean
 }) {
   const base = `/portal/${sessionId}/${kind}`
   const groups = PORTAL_NAV[kind]
@@ -49,7 +56,10 @@ export default function PortalShell({
   const sideOffset = (collapsed ? 76 : 200) + 16 + 16
 
   return (
-    <div className="h-dvh overflow-hidden" style={{ background: "var(--bg-app-shell)" }}>
+    <div
+      className="h-dvh overflow-hidden"
+      style={{ background: "var(--bg-app-shell)", ...(brandVars as React.CSSProperties | undefined) }}
+    >
       <SkipLink />
 
       {/* Desktop floating sidebar */}
@@ -114,6 +124,11 @@ export default function PortalShell({
           className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden px-4 lg:pr-4 lg:pl-0 pb-8 focus:outline-none"
         >
           <div className="max-w-[1400px]">{children}</div>
+          <PoweredByPropvora
+            hide={hidePoweredBy}
+            label="Powered by Propvora"
+            className="mt-8 block text-center text-[11px] text-slate-400"
+          />
         </main>
       </div>
     </div>

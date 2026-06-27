@@ -40,9 +40,9 @@ const MANCHESTER_POLYGON: [number, number][] = [
 ]
 
 function createPricePin(pricePence: number, selected = false) {
-  const bg = selected ? '#1d4ed8' : '#fff'
+  const bg = selected ? 'var(--brand-strong)' : '#fff'
   const color = selected ? '#fff' : '#0f172a'
-  const border = selected ? '2px solid #1d4ed8' : '2px solid #e2e8f0'
+  const border = selected ? '2px solid var(--brand-strong)' : '2px solid #e2e8f0'
   const shadow = selected
     ? '0 4px 16px rgba(37,99,235,0.45),0 1px 4px rgba(0,0,0,0.12)'
     : '0 2px 8px rgba(0,0,0,0.14),0 1px 3px rgba(0,0,0,0.08)'
@@ -121,7 +121,7 @@ export default function StaysMapInner({ stays }: StaysMapInnerProps) {
                   <a href={`/stays/${stay.slug}`} className="flex-1 rounded-lg border border-slate-200 py-1.5 text-center text-[11px] font-bold no-underline transition-colors hover:bg-slate-50">
                     <span className="text-slate-700">Details</span>
                   </a>
-                  <a href={`/stays/${stay.slug}`} className="flex-1 rounded-lg bg-blue-600 py-1.5 text-center text-[11px] font-bold no-underline transition-colors hover:bg-blue-700">
+                  <a href={`/stays/${stay.slug}`} className="flex-1 rounded-lg bg-[var(--brand)] py-1.5 text-center text-[11px] font-bold no-underline transition-colors hover:bg-[var(--brand-strong)]">
                     <span className="text-white">Book →</span>
                   </a>
                 </div>

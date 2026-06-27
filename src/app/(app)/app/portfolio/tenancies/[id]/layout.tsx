@@ -4,7 +4,7 @@ import React, { createContext, useContext } from "react"
 import Link from "next/link"
 import { useParams, usePathname, useRouter } from "next/navigation"
 import { useWorkspace } from "@/providers/AuthProvider"
-import { useTenancy, useUpdateTenancy, useDeleteTenancy } from "@/hooks/useTenancies"
+import { useTenancy, useUpdateTenancy, useDeleteTenancy, useTenancyArrears } from "@/hooks/useTenancies"
 import { useContact } from "@/hooks/useContacts"
 import { useProperty } from "@/hooks/useProperties"
 import { useUnit } from "@/hooks/useUnits"
@@ -45,6 +45,7 @@ export default function TenancyDetailLayout({ children }: { children: React.Reac
   const { data: tenantContact } = useContact(workspace?.id, tenancy?.tenant_contact_id ?? undefined)
   const { data: property } = useProperty(workspace?.id, tenancy?.property_id)
   const { data: unit } = useUnit(workspace?.id, tenancy?.unit_id ?? undefined)
+  const { data: payHealth } = useTenancyArrears(workspace?.id, tenancyId)
   const updateTenancy = useUpdateTenancy()
   const deleteTenancy = useDeleteTenancy()
 
@@ -90,10 +91,10 @@ export default function TenancyDetailLayout({ children }: { children: React.Reac
     notes: tenancy.notes ?? null,
     status: tenancy.status.charAt(0).toUpperCase() + tenancy.status.slice(1),
     rawStatus: tenancy.status,
-    arrears: 0,
-    onTimeRate: 100,
-    totalPaid6m: 0,
-    totalDue6m: tenancy.rent_amount * 6,
+    arrears: payHealth?.arrears ?? 0,
+    onTimeRate: payHealth?.onTimeRate ?? 100,
+    totalPaid6m: payHealth?.totalPaid6m ?? 0,
+    totalDue6m: payHealth?.totalDue6m ?? (tenancy.rent_amount * 6),
   } : null
 
   if (isEdit) return <Ctx.Provider value={{ tenancyId, t, save }}>{children}</Ctx.Provider>
@@ -102,7 +103,7 @@ export default function TenancyDetailLayout({ children }: { children: React.Reac
     return (
       <div className="min-h-screen bg-slate-50/40 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <RefreshCw className="w-6 h-6 text-blue-600 animate-spin" />
+          <RefreshCw className="w-6 h-6 text-[var(--brand)] animate-spin" />
           <p className="text-sm text-slate-500">Loading tenancy...</p>
         </div>
       </div>
@@ -120,7 +121,7 @@ export default function TenancyDetailLayout({ children }: { children: React.Reac
             <p className="text-[15px] font-bold text-slate-700">Tenancy not found</p>
             <p className="text-[13px] text-slate-500 mt-1">This tenancy doesn&apos;t exist or you don&apos;t have access to it.</p>
           </div>
-          <Link href="/property-manager/portfolio/tenancies" className="text-[13px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
+          <Link href="/property-manager/portfolio/tenancies" className="text-[13px] font-semibold text-[var(--brand)] hover:underline flex items-center gap-1">
             <ChevronLeft className="w-3.5 h-3.5" /> Back to Tenancies
           </Link>
         </div>
@@ -191,7 +192,7 @@ export default function TenancyDetailLayout({ children }: { children: React.Reac
                 href={t.propertyId
                   ? `/property-manager/portfolio/tenancies/new?propertyId=${t.propertyId}`
                   : "/property-manager/portfolio/tenancies/new"}
-                className="flex items-center gap-1.5 text-sm font-semibold text-white bg-blue-600 rounded-xl px-4 py-2 hover:bg-blue-700 transition-colors shadow-sm"
+                className="flex items-center gap-1.5 text-sm font-semibold text-white bg-[var(--brand)] rounded-xl px-4 py-2 hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
               >
                 <Plus className="w-4 h-4" /> New Tenancy
               </Link>
@@ -207,7 +208,7 @@ export default function TenancyDetailLayout({ children }: { children: React.Reac
                 className={cn(
                   "px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap",
                   activeTab === tab.key
-                    ? "border-blue-600 text-blue-600"
+                    ? "border-[var(--brand)] text-[var(--brand)]"
                     : "border-transparent text-slate-500 hover:text-slate-700"
                 )}
               >

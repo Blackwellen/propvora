@@ -115,11 +115,11 @@ function CalendarBody({
                 !inMonth && "opacity-0 pointer-events-none",
                 isPast && inMonth && "text-slate-300 cursor-not-allowed",
                 isSelected
-                  ? "bg-[#2563EB] text-white"
+                  ? "bg-[var(--brand)] text-white"
                   : isBlocked
                     ? "bg-red-50 text-red-600 border border-red-200"
                     : !isPast && "text-slate-700 hover:bg-slate-100 border border-transparent",
-                isToday && !isSelected && "ring-1 ring-[#2563EB]/40"
+                isToday && !isSelected && "ring-1 ring-[var(--brand)]/40"
               )}
             >
               {d.getDate()}
@@ -132,7 +132,7 @@ function CalendarBody({
           <span className="w-3 h-3 rounded bg-red-50 border border-red-200" /> Blocked
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-[#2563EB]" /> Selected
+          <span className="w-3 h-3 rounded bg-[var(--brand)]" /> Selected
         </span>
       </div>
     </div>

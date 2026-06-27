@@ -33,7 +33,7 @@ export function VerificationStepper({ phase }: { phase: VerificationPhase }) {
                       : current
                         ? needsInput
                           ? "bg-amber-500 text-white"
-                          : "bg-[#2563EB] text-white"
+                          : "bg-[var(--brand)] text-white"
                         : "bg-slate-100 text-slate-400"
                   )}
                 >
@@ -78,7 +78,7 @@ export function VerificationStepper({ phase }: { phase: VerificationPhase }) {
                       : current
                         ? needsInput
                           ? "bg-amber-500 text-white"
-                          : "bg-[#2563EB] text-white"
+                          : "bg-[var(--brand)] text-white"
                         : "bg-slate-100 text-slate-400"
                   )}
                 >

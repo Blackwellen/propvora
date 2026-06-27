@@ -29,6 +29,7 @@ import { HomePriorityPanel } from "../components/HomePriorityPanel"
 import { createClient } from "@/lib/supabase/client"
 import { isFeatureEnabled } from "@/lib/flags"
 import { resolveCoverUrls } from "@/lib/files/coverUrl"
+import { formatCurrency } from "@/lib/utils"
 import { normalisePropertyType, normaliseOperationProfile, normalisePropertyStatus } from "@/lib/portfolio/helpers"
 import { useWorkspace } from "@/providers/AuthProvider"
 import type {
@@ -553,7 +554,7 @@ export function HomeDashboardPage() {
          match the Portfolio › Properties page exactly. */
       if (activeProps.length > 0) {
         const gradients = [
-          "from-blue-200 to-blue-400",
+          "from-[var(--color-brand-100)] to-[var(--color-brand-400)]",
           "from-indigo-200 to-indigo-400",
           "from-slate-300 to-slate-500",
           "from-emerald-200 to-emerald-400",
@@ -857,7 +858,7 @@ export function HomeDashboardPage() {
           id: "sp-invoices",
           num: n++,
           title: `${invoices.length} outstanding invoice${invoices.length !== 1 ? "s" : ""}`,
-          subtitle: `£${outstandingInvoicesTotal.toLocaleString("en-GB")} to collect`,
+          subtitle: `${formatCurrency(outstandingInvoicesTotal)} to collect`,
           action: "Chase",
           href: "/property-manager/money/invoices",
         })
@@ -1049,7 +1050,7 @@ export function HomeDashboardPage() {
                 className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg border transition-colors ${
                   step.done
                     ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                    : "border-slate-200 hover:border-blue-200 hover:bg-blue-50"
+                    : "border-slate-200 hover:border-[var(--color-brand-100)] hover:bg-[var(--brand-soft)]"
                 }`}
               >
                 <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${step.done ? "border-emerald-500 bg-emerald-500" : "border-slate-300"}`}>

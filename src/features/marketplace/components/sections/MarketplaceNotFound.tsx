@@ -23,7 +23,7 @@ export default function MarketplaceNotFound({
       <p className="mt-2 text-[13.5px] text-slate-500">{message}</p>
       <Link
         href={backHref}
-        className="mt-5 inline-flex h-11 px-5 items-center rounded-xl bg-[#2563EB] text-white text-[14px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+        className="mt-5 inline-flex h-11 px-5 items-center rounded-xl bg-[var(--brand)] text-white text-[14px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
       >
         {backLabel}
       </Link>

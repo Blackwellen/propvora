@@ -24,7 +24,7 @@ export default function LongTermRentalCompactCard({
   return (
     <Link href={`${basePath}/${rental.slug}`} className="group block">
       <div
-        className={`bg-white rounded-xl border overflow-hidden transition-all duration-150 hover:shadow-md ${featured ? 'border-blue-200 shadow-sm' : 'border-slate-200'}`}
+        className={`bg-white rounded-xl border overflow-hidden transition-all duration-150 hover:shadow-md ${featured ? 'border-[var(--color-brand-100)] shadow-sm' : 'border-slate-200'}`}
       >
         <div className="flex gap-3 p-3">
           {/* Thumbnail */}
@@ -37,7 +37,7 @@ export default function LongTermRentalCompactCard({
               sizes="80px"
             />
             {featured && (
-              <div className="absolute inset-0 ring-2 ring-blue-500 rounded-lg pointer-events-none" />
+              <div className="absolute inset-0 ring-2 ring-[var(--brand)] rounded-lg pointer-events-none" />
             )}
           </div>
 

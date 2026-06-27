@@ -90,7 +90,7 @@ export default function ProspectDetailPage() {
         {!loading && !prospect && (
           <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
             <p className="text-slate-500 text-sm">Prospect not found.</p>
-            <button onClick={() => router.push("/property-manager/portfolio/leasing/prospects")} className="mt-4 text-blue-600 text-sm font-medium hover:underline">
+            <button onClick={() => router.push("/property-manager/portfolio/leasing/prospects")} className="mt-4 text-[var(--brand)] text-sm font-medium hover:underline">
               Back to prospects
             </button>
           </div>
@@ -102,12 +102,12 @@ export default function ProspectDetailPage() {
               <h2 className="text-[13px] font-semibold text-slate-700 uppercase tracking-wide mb-1">Contact</h2>
               <div className="flex items-center gap-2 text-[13px] text-slate-700">
                 <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-                <a href={`mailto:${prospect.email}`} className="hover:text-blue-600 transition-colors">{prospect.email}</a>
+                <a href={`mailto:${prospect.email}`} className="hover:text-[var(--brand)] transition-colors">{prospect.email}</a>
               </div>
               {prospect.phone && (
                 <div className="flex items-center gap-2 text-[13px] text-slate-700">
                   <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-                  <a href={`tel:${prospect.phone}`} className="hover:text-blue-600 transition-colors">{prospect.phone}</a>
+                  <a href={`tel:${prospect.phone}`} className="hover:text-[var(--brand)] transition-colors">{prospect.phone}</a>
                 </div>
               )}
               {prospect.source && (

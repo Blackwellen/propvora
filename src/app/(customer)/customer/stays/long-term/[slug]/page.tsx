@@ -184,7 +184,7 @@ export default async function CustomerLongTermRentalDetailPage({
               </span>
             )}
             {rental.professionalFriendly && (
-              <span className="text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium border border-blue-100">
+              <span className="text-sm bg-[var(--brand-soft)] text-[var(--brand-strong)] px-3 py-1 rounded-full font-medium border border-[var(--color-brand-100)]">
                 Professional friendly
               </span>
             )}

@@ -20,7 +20,7 @@ import {
   ArrowUpRight,
   Check,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatCurrency } from "@/lib/utils"
 import { MoneyTabNav, MoneyKpiCard, MoneyPageHeader } from "@/components/money"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
 import MobilePageHeader from "@/components/mobile/MobilePageHeader"
@@ -93,7 +93,7 @@ interface ReturnDepositForm {
 /* ─── Row mapper ──────────────────────────────────────────────────────── */
 
 const AVATAR_COLORS = [
-  "bg-emerald-500", "bg-blue-500", "bg-teal-500",
+  "bg-emerald-500", "bg-[var(--brand)]", "bg-teal-500",
   "bg-violet-500", "bg-amber-500", "bg-rose-500",
   "bg-indigo-500", "bg-cyan-500",
 ]
@@ -174,7 +174,7 @@ function getStatusConfig(status: DepositStatus) {
     case "expected":
       return { label: "Expected", bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-400", icon: <Calendar className="w-3.5 h-3.5" /> }
     case "received":
-      return { label: "Received", bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500", icon: <CheckCircle className="w-3.5 h-3.5" /> }
+      return { label: "Received", bg: "bg-[var(--brand-soft)]", text: "text-[var(--brand)]", dot: "bg-[var(--brand)]", icon: <CheckCircle className="w-3.5 h-3.5" /> }
     case "returned":
       return { label: "Returned", bg: "bg-slate-50", text: "text-slate-600", dot: "bg-slate-400", icon: <CheckCircle className="w-3.5 h-3.5" /> }
     default:
@@ -319,7 +319,7 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
               value={form.tenantContact}
               onChange={(e) => handleChange("tenantContact", e.target.value)}
               placeholder="e.g. Sarah Mitchell"
-              className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+              className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -329,7 +329,7 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
                 value={form.property}
                 onChange={(e) => handleChange("property", e.target.value)}
                 placeholder="e.g. Maple Avenue"
-                className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+                className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
               />
             </div>
             <div className="space-y-1">
@@ -338,7 +338,7 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
                 value={form.unit}
                 onChange={(e) => handleChange("unit", e.target.value)}
                 placeholder="e.g. Unit 5"
-                className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+                className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
               />
             </div>
           </div>
@@ -350,7 +350,7 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
                 value={form.amount}
                 onChange={(e) => handleChange("amount", e.target.value)}
                 placeholder="1250"
-                className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+                className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
               />
             </div>
             <div className="space-y-1">
@@ -359,7 +359,7 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
                 type="date"
                 value={form.received_date}
                 onChange={(e) => handleChange("received_date", e.target.value)}
-                className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+                className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
               />
             </div>
           </div>
@@ -369,7 +369,7 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
               <select
                 value={form.protection_scheme}
                 onChange={(e) => handleChange("protection_scheme", e.target.value)}
-                className="w-full h-9 pl-3 pr-8 rounded-lg text-sm border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+                className="w-full h-9 pl-3 pr-8 rounded-lg text-sm border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
               >
                 <option value="">Not yet protected</option>
                 <option value="dps">Deposit Protection Service (DPS)</option>
@@ -386,7 +386,7 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
               value={form.protection_reference}
               onChange={(e) => handleChange("protection_reference", e.target.value)}
               placeholder="e.g. DPS20260001"
-              className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+              className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
             />
           </div>
           <div className="space-y-1">
@@ -395,7 +395,7 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
               type="date"
               value={form.prescribed_info_served_at}
               onChange={(e) => handleChange("prescribed_info_served_at", e.target.value)}
-              className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+              className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
             />
           </div>
           <div className="space-y-1">
@@ -405,7 +405,7 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
               onChange={(e) => handleChange("notes", e.target.value)}
               placeholder="Additional notes..."
               rows={3}
-              className="w-full px-3 py-2 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 resize-none"
+              className="w-full px-3 py-2 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)] resize-none"
             />
           </div>
           <div className="space-y-1">
@@ -423,7 +423,7 @@ function TrackDepositModal({ workspaceId, onClose, onSaved }: { workspaceId: str
             <button
               onClick={handleSave}
               disabled={createDeposit.isPending}
-              className="flex-1 h-9 rounded-xl text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="flex-1 h-9 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {createDeposit.isPending ? "Saving..." : "Save Deposit"}
             </button>
@@ -477,7 +477,7 @@ function ReturnDepositModal({ deposit, onClose, onSaved }: { deposit: DepositRow
             <p className="text-xs font-medium text-slate-500 mb-1">Deposit</p>
             <p className="text-sm font-semibold text-slate-800">{deposit.tenantName}</p>
             <p className="text-xs text-slate-500">{deposit.propertyAddress}</p>
-            <p className="text-lg font-bold text-blue-600 mt-1">£{deposit.amount.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</p>
+            <p className="text-lg font-bold text-[var(--brand)] mt-1">£{deposit.amount.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</p>
           </div>
           <div className="space-y-1">
             <label className="text-xs font-medium text-slate-600">Returned Amount (£)</label>
@@ -485,7 +485,7 @@ function ReturnDepositModal({ deposit, onClose, onSaved }: { deposit: DepositRow
               type="number"
               value={form.returned_amount}
               onChange={(e) => handleChange("returned_amount", e.target.value)}
-              className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+              className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             />
           </div>
           <div className="space-y-1">
@@ -495,7 +495,7 @@ function ReturnDepositModal({ deposit, onClose, onSaved }: { deposit: DepositRow
               onChange={(e) => handleChange("deductions", e.target.value)}
               placeholder="Describe any deductions..."
               rows={3}
-              className="w-full px-3 py-2 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 resize-none"
+              className="w-full px-3 py-2 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 resize-none"
             />
           </div>
           <div className="space-y-1">
@@ -504,7 +504,7 @@ function ReturnDepositModal({ deposit, onClose, onSaved }: { deposit: DepositRow
               type="date"
               value={form.return_date}
               onChange={(e) => handleChange("return_date", e.target.value)}
-              className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+              className="w-full h-9 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             />
           </div>
           <div className="space-y-1">
@@ -542,7 +542,7 @@ const PROTECTION_SCHEMES = [
 ]
 
 const SCHEME_META: Record<string, { short: string; abbr: string; type: string; tint: string }> = {
-  "Deposit Protection Service (DPS)": { short: "Deposit Protection Service", abbr: "DPS", type: "Custodial", tint: "bg-blue-600" },
+  "Deposit Protection Service (DPS)": { short: "Deposit Protection Service", abbr: "DPS", type: "Custodial", tint: "bg-[var(--brand)]" },
   "MyDeposits (Custodial)":           { short: "MyDeposits",                 abbr: "MD",  type: "Custodial", tint: "bg-emerald-600" },
   "TDS (Custodial)":                  { short: "Tenancy Deposit Scheme",     abbr: "TDS", type: "Custodial", tint: "bg-violet-600" },
   "MyDeposits (Insured)":             { short: "MyDeposits",                 abbr: "MD",  type: "Insured",   tint: "bg-emerald-600" },
@@ -781,7 +781,7 @@ function DepositRowItem({
             <button
               onClick={() => isLive ? docInputRef.current?.click() : onToast("Sample deposit — actions persist once saved")}
               disabled={uploadingId === deposit.id}
-              className="h-7 px-3 rounded-lg text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors flex items-center gap-1 disabled:opacity-60"
+              className="h-7 px-3 rounded-lg text-[11px] font-semibold bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)] hover:bg-[var(--color-brand-100)] transition-colors flex items-center gap-1 disabled:opacity-60"
             >
               <Upload className="w-3 h-3" />{uploadingId === deposit.id ? "Uploading…" : "Upload Docs"}
             </button>
@@ -1004,7 +1004,7 @@ export default function DepositsPage() {
           <>
             <button
               onClick={() => setShowTrackModal(true)}
-              className="inline-flex items-center gap-2 h-9 px-4 rounded-xl text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
               Track Deposit
@@ -1034,15 +1034,15 @@ export default function DepositsPage() {
       <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <MoneyKpiCard
           label="Total Tracked"
-          value={liveSummary ? `£${liveSummary.totalTracked.toLocaleString("en-GB")}` : "—"}
+          value={liveSummary ? formatCurrency(liveSummary.totalTracked) : "—"}
           subtitle={`${DEPOSITS_LIVE.length} deposits`}
           icon={<Shield className="w-5 h-5" />}
-          iconBg="bg-blue-50"
-          iconColor="text-blue-600"
+          iconBg="bg-[var(--brand-soft)]"
+          iconColor="text-[var(--brand)]"
         />
         <MoneyKpiCard
           label="Protected"
-          value={liveSummary ? `£${liveSummary.protected.toLocaleString("en-GB")}` : "—"}
+          value={liveSummary ? formatCurrency(liveSummary.protected) : "—"}
           subtitle={liveSummary ? `${Math.round((liveSummary.protected / (liveSummary.totalTracked || 1)) * 100)}% of total` : "—"}
           icon={<CheckCircle className="w-5 h-5" />}
           iconBg="bg-emerald-50"
@@ -1050,7 +1050,7 @@ export default function DepositsPage() {
         />
         <MoneyKpiCard
           label="Expected"
-          value={liveSummary ? `£${liveSummary.expected.toLocaleString("en-GB")}` : "—"}
+          value={liveSummary ? formatCurrency(liveSummary.expected) : "—"}
           subtitle="pending protection"
           icon={<Calendar className="w-5 h-5" />}
           iconBg="bg-amber-50"
@@ -1058,7 +1058,7 @@ export default function DepositsPage() {
         />
         <MoneyKpiCard
           label="Return Due"
-          value={liveSummary ? `£${liveSummary.returnDue.toLocaleString("en-GB")}` : "—"}
+          value={liveSummary ? formatCurrency(liveSummary.returnDue) : "—"}
           subtitle="deposits"
           icon={<Calendar className="w-5 h-5" />}
           iconBg="bg-orange-50"
@@ -1066,7 +1066,7 @@ export default function DepositsPage() {
         />
         <MoneyKpiCard
           label="Disputed"
-          value={liveSummary ? `£${liveSummary.disputed.toLocaleString("en-GB")}` : "—"}
+          value={liveSummary ? formatCurrency(liveSummary.disputed) : "—"}
           subtitle="cases"
           icon={<AlertCircle className="w-5 h-5" />}
           iconBg="bg-red-50"
@@ -1075,16 +1075,16 @@ export default function DepositsPage() {
       </div>
 
       {/* Compliance Banner */}
-      <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-blue-50 border border-blue-200">
-        <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-        <p className="text-sm text-blue-800 flex-1">
+      <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)]">
+        <Info className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
+        <p className="text-sm text-[var(--brand-strong)] flex-1">
           All tenancy deposits must be protected in an approved scheme within 30 days of receipt and prescribed information must be served on the tenant.
         </p>
         <a
           href="https://www.gov.uk/tenancy-deposit-protection"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs font-semibold text-blue-700 hover:text-blue-900 whitespace-nowrap flex items-center gap-1 shrink-0"
+          className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] whitespace-nowrap flex items-center gap-1 shrink-0"
         >
           View approved schemes <ExternalLink className="w-3 h-3" />
         </a>
@@ -1102,14 +1102,14 @@ export default function DepositsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by tenant, property or reference..."
-                className="w-full h-9 pl-9 pr-3 rounded-lg text-sm bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+                className="w-full h-9 pl-9 pr-3 rounded-lg text-sm bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)]"
               />
             </div>
             <div className="relative">
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="h-9 pl-3 pr-8 rounded-lg text-sm bg-white border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                className="h-9 pl-3 pr-8 rounded-lg text-sm bg-white border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
               >
                 <option value="all">All Statuses</option>
                 <option value="protected">Protected</option>
@@ -1124,7 +1124,7 @@ export default function DepositsPage() {
               <select
                 value={selectedScheme}
                 onChange={(e) => setSelectedScheme(e.target.value)}
-                className="h-9 pl-3 pr-8 rounded-lg text-sm bg-white border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                className="h-9 pl-3 pr-8 rounded-lg text-sm bg-white border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
               >
                 <option value="all">All Schemes</option>
                 <option value="Deposit Protection Service (DPS)">DPS</option>
@@ -1138,7 +1138,7 @@ export default function DepositsPage() {
               <select
                 value={selectedProperty}
                 onChange={(e) => setSelectedProperty(e.target.value)}
-                className="h-9 pl-3 pr-8 rounded-lg text-sm bg-white border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                className="h-9 pl-3 pr-8 rounded-lg text-sm bg-white border border-slate-200 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
               >
                 <option value="all">All Properties</option>
                 {propertyOptions.map((p) => (
@@ -1211,7 +1211,7 @@ export default function DepositsPage() {
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold text-slate-800">Upcoming Returns</h3>
-                  <button className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+                  <button className="text-xs text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium flex items-center gap-1">
                     View all <ArrowUpRight className="w-3 h-3" />
                   </button>
                 </div>
@@ -1230,7 +1230,7 @@ export default function DepositsPage() {
                         <div className="min-w-0 flex-1">
                           <p className="text-xs font-semibold text-slate-800 truncate">{r.tenantName}</p>
                           <p className="text-[11px] text-slate-500 truncate">{r.propertyAddress}</p>
-                          <p className="text-xs font-bold text-blue-600 mt-0.5">£{r.amount.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</p>
+                          <p className="text-xs font-bold text-[var(--brand)] mt-0.5">£{r.amount.toLocaleString("en-GB", { minimumFractionDigits: 2 })}</p>
                         </div>
                       </div>
                     )

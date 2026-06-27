@@ -15,7 +15,7 @@ export function statusColor(status: string) {
       return "bg-emerald-50 text-emerald-700 border-emerald-100"
     case "in_progress":
     case "scheduled":
-      return "bg-blue-50 text-blue-700 border-blue-100"
+      return "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]"
     case "closed":
     case "invoiced":
       return "bg-slate-100 text-slate-500 border-slate-200"
@@ -44,7 +44,7 @@ export function JobsTab({ supplier, jobs, compact }: JobsTabProps) {
         </h3>
         <Link
           href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
-          className="flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:underline"
+          className="flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:underline"
         >
           <Plus className="w-3 h-3" /> New Job
         </Link>
@@ -59,7 +59,7 @@ export function JobsTab({ supplier, jobs, compact }: JobsTabProps) {
           <p className="text-[12.5px] text-slate-500 mb-4">Assign this supplier to a job to start tracking work.</p>
           <Link
             href={`/property-manager/work/jobs/new?supplierId=${supplier.id}`}
-            className="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+            className="px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
           >
             Assign to Job
           </Link>
@@ -79,7 +79,7 @@ export function JobsTab({ supplier, jobs, compact }: JobsTabProps) {
               {(compact ? jobs.slice(0, 5) : jobs).map((j) => (
                 <tr key={j.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
                   <td className="px-4 py-3">
-                    <Link href={`/property-manager/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[#2563EB]">
+                    <Link href={`/property-manager/work/jobs/${j.id}`} className="text-[13px] font-semibold text-slate-800 hover:text-[var(--brand)]">
                       {j.title}
                     </Link>
                     {j.reference && <p className="text-[11px] text-slate-400">{j.reference}</p>}

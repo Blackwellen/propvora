@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 /* Profile colour mapping using design tokens                          */
 /* ------------------------------------------------------------------ */
 const PROFILE_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
-  "Long-Term Let":          { label: "Long-Term Let",          color: "text-blue-700",     bg: "bg-blue-50",     border: "border-blue-200" },
+  "Long-Term Let":          { label: "Long-Term Let",          color: "text-[var(--brand)]",     bg: "bg-[var(--brand-soft)]",     border: "border-[var(--color-brand-100)]" },
   "Rent-to-Rent":           { label: "Rent-to-Rent",           color: "text-violet-700",   bg: "bg-violet-50",   border: "border-violet-200" },
   "HMO":                    { label: "HMO",                    color: "text-indigo-700",   bg: "bg-indigo-50",   border: "border-indigo-200" },
   "Student Let":            { label: "Student Let",            color: "text-sky-700",      bg: "bg-sky-50",      border: "border-sky-200" },

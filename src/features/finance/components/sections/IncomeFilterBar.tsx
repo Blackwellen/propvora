@@ -38,7 +38,7 @@ export function IncomeFilterBar({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search income..."
-            className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
           />
         </div>
 
@@ -49,7 +49,7 @@ export function IncomeFilterBar({
             aria-label="Table view"
             aria-pressed={viewMode === "table"}
             className={cn(
-              "w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+              "w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
               viewMode === "table" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"
             )}
           >
@@ -60,7 +60,7 @@ export function IncomeFilterBar({
             aria-label="Card view"
             aria-pressed={viewMode === "cards"}
             className={cn(
-              "w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+              "w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
               viewMode === "cards" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"
             )}
           >
@@ -71,7 +71,7 @@ export function IncomeFilterBar({
             aria-label="Calendar view"
             aria-pressed={viewMode === "calendar"}
             className={cn(
-              "w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+              "w-8 h-8 rounded-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
               viewMode === "calendar" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"
             )}
           >
@@ -95,7 +95,7 @@ export function IncomeFilterBar({
         </button>
         <button
           aria-label="More filters"
-          className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
         >
           <Filter className="w-4 h-4 text-slate-400" />
         </button>

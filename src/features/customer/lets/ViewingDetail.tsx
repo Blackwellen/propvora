@@ -43,7 +43,7 @@ export default function ViewingDetail({ v }: { v: Viewing }) {
 
   return (
     <div className="space-y-5">
-      <Link href="/customer/lets?tab=viewings" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue-600 hover:text-blue-700">
+      <Link href="/customer/lets?tab=viewings" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">
         <ArrowLeft className="w-4 h-4" /> Back to viewings
       </Link>
 
@@ -71,7 +71,7 @@ export default function ViewingDetail({ v }: { v: Viewing }) {
                 </span>
                 <button
                   onClick={() => toast("Added to calendar", "success")}
-                  className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-blue-600"
+                  className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--brand)]"
                 >
                   <CalendarPlus className="w-4 h-4" /> Add to calendar
                 </button>
@@ -113,7 +113,7 @@ export default function ViewingDetail({ v }: { v: Viewing }) {
               <span className="text-[12px] text-slate-500 inline-flex items-center gap-1.5">
                 <Navigation className="w-4 h-4" /> {v.transport} from your location
               </span>
-              <button onClick={() => toast("Opening directions…", "info")} className="text-[12px] font-semibold text-blue-600">
+              <button onClick={() => toast("Opening directions…", "info")} className="text-[12px] font-semibold text-[var(--brand)]">
                 Get directions
               </button>
             </div>

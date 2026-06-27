@@ -76,7 +76,7 @@ export default async function SupplierPortalHome({ params }: { params: Promise<{
                     <Link key={job.id} href={`${base}/jobs/${job.id}`} className="block rounded-xl border border-[#EEF3FB] hover:border-[#CFE0FB] hover:bg-[#F8FBFF] p-3.5 transition-colors">
                       <div className="flex items-start justify-between gap-2"><p className="text-sm font-semibold text-[#071B4D] truncate">{job.title}</p><StatusChip tone={tone} dot>{meta.label}</StatusChip></div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-slate-400 flex-wrap"><span className="flex items-center gap-1"><Building2 className="w-3.5 h-3.5" />{job.propertyLabel || "—"}</span>{job.scheduled_date && <span className="flex items-center gap-1"><CalendarClock className="w-3.5 h-3.5" />{formatDate(job.scheduled_date)}</span>}{amount != null && <span className="flex items-center gap-1"><PoundSterling className="w-3.5 h-3.5" />{formatMoney(amount)}</span>}</div>
-                      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden mt-2.5"><div className="h-full bg-[#2563EB] rounded-full" style={{ width: `${pct}%` }} /></div>
+                      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden mt-2.5"><div className="h-full bg-[var(--brand)] rounded-full" style={{ width: `${pct}%` }} /></div>
                     </Link>
                   )
                 })}
@@ -125,7 +125,7 @@ export default async function SupplierPortalHome({ params }: { params: Promise<{
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           {[["View jobs", `${base}/jobs`, Briefcase], ["Submit invoice", `${base}/invoices`, FileText], ["Upload document", `${base}/documents`, Upload], ["Message manager", `${base}/messages`, MessageSquare]].map(([l, h, I]) => {
             const Icon = I as typeof Briefcase
-            return <Link key={l as string} href={h as string} className="flex flex-col items-center gap-2 rounded-xl border border-[#EEF3FB] hover:bg-[#F8FBFF] py-4 text-center"><span className="w-10 h-10 rounded-xl bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center"><Icon className="w-5 h-5" /></span><span className="text-[12px] font-semibold text-[#071B4D]">{l as string}</span></Link>
+            return <Link key={l as string} href={h as string} className="flex flex-col items-center gap-2 rounded-xl border border-[#EEF3FB] hover:bg-[#F8FBFF] py-4 text-center"><span className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center"><Icon className="w-5 h-5" /></span><span className="text-[12px] font-semibold text-[#071B4D]">{l as string}</span></Link>
           })}
         </div>
       </PortalSectionCard>

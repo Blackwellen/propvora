@@ -23,9 +23,9 @@ export default function PortalProfilesPage() {
       <div className="px-6 pt-6 pb-10 space-y-6">
 
         {usingDefaults && (
-          <div className="flex items-start gap-2 p-3.5 rounded-xl bg-blue-50/60 border border-blue-100">
-            <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
-            <p className="text-[12px] text-blue-800 leading-relaxed">
+          <div className="flex items-start gap-2 p-3.5 rounded-xl bg-[var(--brand-soft)]/60 border border-[var(--color-brand-100)]">
+            <Info className="w-4 h-4 text-[var(--brand)] mt-0.5 shrink-0" />
+            <p className="text-[12px] text-[var(--brand-strong)] leading-relaxed">
               These are Propvora&apos;s built-in access profiles — active across every workspace and
               used directly by the grant wizard. Per-workspace customisation is on the roadmap.
             </p>
@@ -39,8 +39,8 @@ export default function PortalProfilesPage() {
             profiles.map((p) => (
               <div key={p.key} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
                 <div className="flex items-start justify-between mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <IdCard className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center">
+                    <IdCard className="w-5 h-5 text-[var(--brand)]" />
                   </div>
                   {p.is_enabled && (
                     <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600">

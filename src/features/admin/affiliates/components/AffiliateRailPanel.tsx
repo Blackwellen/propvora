@@ -28,7 +28,7 @@ export function AffiliateRailPanel({ kpis, topPerformers, formatPence }: Props) 
             {topPerformers.map((a) => (
               <li key={a.id}>
                 <Link href={`/admin/affiliates/${a.id}`} className="flex items-center justify-between gap-2 group">
-                  <span className="text-[13px] font-medium text-[#0B1B3F] group-hover:text-[#2563EB] truncate">
+                  <span className="text-[13px] font-medium text-[#0B1B3F] group-hover:text-[var(--brand)] truncate">
                     {a.name ?? a.code}
                   </span>
                   <span className="text-[12px] text-slate-500 shrink-0">
@@ -64,7 +64,7 @@ export function AffiliateRailPanel({ kpis, topPerformers, formatPence }: Props) 
         <p className="text-[13px] text-slate-500">
           Affiliate KYC and payout-method verification are required before any payout is released.
         </p>
-        <Link href="/admin/id-verification" className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:underline">
+        <Link href="/admin/id-verification" className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:underline">
           Verification queue <ChevronRight className="w-3.5 h-3.5" />
         </Link>
       </AdminSectionCard>

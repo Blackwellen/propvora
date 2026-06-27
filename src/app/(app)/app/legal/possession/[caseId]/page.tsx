@@ -71,7 +71,7 @@ function statusCls(s: string) {
     case "notice_expired": return "bg-red-100 text-red-700 border border-red-200"
     case "possession_granted":
     case "hearing_scheduled": return "bg-purple-100 text-purple-700 border border-purple-200"
-    default: return "bg-blue-100 text-blue-700 border border-blue-200"
+    default: return "bg-[var(--color-brand-100)] text-[var(--brand)] border border-[var(--color-brand-100)]"
   }
 }
 function money(n: number | null | undefined): string {
@@ -135,7 +135,7 @@ export default function PossessionCaseDetailPage() {
         </div>
         <p className="text-[14px] font-semibold text-slate-700 mb-1">Case not found</p>
         <p className="text-[12px] text-slate-500 mb-4">This possession case may have been deleted.</p>
-        <Link href="/property-manager/legal/possession" className="text-[12px] text-blue-600 hover:text-blue-800 font-medium">
+        <Link href="/property-manager/legal/possession" className="text-[12px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium">
           ← Back to Possession Cases
         </Link>
       </div>
@@ -165,8 +165,8 @@ export default function PossessionCaseDetailPage() {
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-4 min-w-0">
-            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
-              <Gavel className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 rounded-lg bg-[var(--color-brand-100)] flex items-center justify-center shrink-0">
+              <Gavel className="w-5 h-5 text-[var(--brand)]" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-3 flex-wrap">
@@ -222,7 +222,7 @@ export default function PossessionCaseDetailPage() {
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-3 text-[13px] font-medium border-b-2 -mb-px whitespace-nowrap transition-all ${
                 activeTab === tab
-                  ? "border-[#2563EB] text-[#2563EB]"
+                  ? "border-[var(--brand)] text-[var(--brand)]"
                   : "border-transparent text-slate-500 hover:text-slate-700"
               }`}
             >
@@ -373,13 +373,13 @@ export default function PossessionCaseDetailPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                             <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded">{ev.evidence_type.replace(/_/g, " ")}</span>
-                            {ev.source && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-medium rounded">{ev.source}</span>}
+                            {ev.source && <span className="px-2 py-0.5 bg-[var(--color-brand-100)] text-[var(--brand)] text-[10px] font-medium rounded">{ev.source}</span>}
                           </div>
                           <p className="text-[12px] font-medium text-slate-800">{ev.description}</p>
                           <p className="text-[10px] text-slate-400 mt-0.5">{formatDate(ev.event_date)}{ev.amount != null ? ` · ${money(ev.amount)}` : ""}</p>
                         </div>
                         {ev.document_path && (
-                          <a href={ev.document_path} target="_blank" rel="noopener noreferrer" className="text-[11px] text-blue-600 hover:text-blue-800 font-medium shrink-0">
+                          <a href={ev.document_path} target="_blank" rel="noopener noreferrer" className="text-[11px] text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium shrink-0">
                             View ↗
                           </a>
                         )}
@@ -447,7 +447,7 @@ export default function PossessionCaseDetailPage() {
                 .filter((e) => e.date)
                 .map((e, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1.5" />
+                    <div className="w-2 h-2 rounded-full bg-[var(--brand)] shrink-0 mt-1.5" />
                     <div>
                       <p className="text-[12px] font-medium text-slate-800">{e.label}</p>
                       <p className="text-[11px] text-slate-400">{formatDate(e.date)}</p>
@@ -475,7 +475,7 @@ export default function PossessionCaseDetailPage() {
                 <p className="text-white font-bold text-[15px] uppercase tracking-widest">
                   {caseData.notice_type === "section_21" ? "Section 21 — Draft Summary" : "Section 8 — Draft Summary"}
                 </p>
-                <p className="text-blue-200 text-[12px] mt-1">Notice Seeking Possession (review only)</p>
+                <p className="text-[var(--color-brand-100)] text-[12px] mt-1">Notice Seeking Possession (review only)</p>
               </div>
               <div className="p-6 grid grid-cols-2 gap-5 text-[12px]">
                 <Field label="Property"><span className="font-semibold text-slate-800">{property}</span></Field>

@@ -100,18 +100,18 @@ export default function MobileTabs({
             tabIndex={active ? 0 : -1}
             onClick={() => onChange(tab.id)}
             className={cn(
-              "shrink-0 flex items-center gap-1.5 min-h-[40px] whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 motion-reduce:transition-none",
+              "shrink-0 flex items-center gap-1.5 min-h-[40px] whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 motion-reduce:transition-none",
               variant === "pill"
                 ? cn(
                     "px-3.5 rounded-xl text-[13px] font-semibold",
                     active
-                      ? "bg-white text-[#2563EB] shadow-sm"
+                      ? "bg-white text-[var(--brand)] shadow-sm"
                       : "text-slate-500 hover:text-slate-700"
                   )
                 : cn(
                     "px-4 py-2.5 text-[13px] font-medium border-b-2 -mb-px",
                     active
-                      ? "border-[#2563EB] text-[#2563EB]"
+                      ? "border-[var(--brand)] text-[var(--brand)]"
                       : "border-transparent text-slate-500 hover:text-slate-700"
                   )
             )}
@@ -122,7 +122,7 @@ export default function MobileTabs({
               <span
                 className={cn(
                   "ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold tabular-nums",
-                  active ? "bg-[#2563EB] text-white" : "bg-slate-200 text-slate-600"
+                  active ? "bg-[var(--brand)] text-white" : "bg-slate-200 text-slate-600"
                 )}
               >
                 {tab.badge}

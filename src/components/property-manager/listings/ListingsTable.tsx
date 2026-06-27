@@ -57,7 +57,7 @@ function DirectPageCell({ listing }: { listing: Listing }) {
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
           Live
         </span>
-        <Link href="#" className="block text-xs text-blue-600 hover:underline mt-0.5">View</Link>
+        <Link href="#" className="block text-xs text-[var(--brand)] hover:underline mt-0.5">View</Link>
       </div>
     )
   }
@@ -67,7 +67,7 @@ function DirectPageCell({ listing }: { listing: Listing }) {
         <span className="inline-flex items-center bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-2 py-0.5 text-xs font-medium">
           Draft
         </span>
-        <Link href="#" className="block text-xs text-blue-600 hover:underline mt-0.5">Complete setup</Link>
+        <Link href="#" className="block text-xs text-[var(--brand)] hover:underline mt-0.5">Complete setup</Link>
       </div>
     )
   }
@@ -147,7 +147,7 @@ export default function ListingsTable({ listings, selectedId, onSelect, totalCou
                   onClick={() => onSelect(listing.id)}
                   className={cn(
                     'cursor-pointer hover:bg-slate-50 transition-colors',
-                    isSelected && 'bg-sky-50 border-l-2 border-l-blue-600'
+                    isSelected && 'bg-sky-50 border-l-2 border-l-[var(--brand)]'
                   )}
                 >
                   <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
@@ -175,7 +175,7 @@ export default function ListingsTable({ listings, selectedId, onSelect, totalCou
                         'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium',
                         listing.listing_type === 'long_term'
                           ? 'bg-green-50 text-green-700 border border-green-200'
-                          : 'bg-blue-50 text-blue-700 border border-blue-200'
+                          : 'bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]'
                       )}>
                         {listing.listing_type === 'long_term' ? 'Long-term' : 'Short stay'}
                       </span>
@@ -244,11 +244,11 @@ export default function ListingsTable({ listings, selectedId, onSelect, totalCou
       <div className="flex items-center justify-between px-4 py-3.5 border-t border-slate-100">
         <p className="text-sm text-slate-500">Showing 1 to {listings.length} of {displayTotal} listings</p>
         <div className="flex items-center gap-1">
-          <button className="w-8 h-8 rounded-lg text-sm font-medium bg-blue-600 text-white">
+          <button className="w-8 h-8 rounded-lg text-sm font-medium bg-[var(--brand)] text-white">
             1
           </button>
         </div>
-        <select className="border border-slate-200 rounded-xl px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select className="border border-slate-200 rounded-xl px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
           <option>10 / page</option>
           <option>25 / page</option>
           <option>50 / page</option>

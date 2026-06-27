@@ -184,9 +184,9 @@ export default function AccountMenu({
         aria-label="Account menu"
         aria-expanded={open}
         aria-haspopup="true"
-        className="flex items-center gap-2.5 h-[44px] px-3 rounded-2xl bg-white border border-[#E2EAF6] hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+        className="flex items-center gap-2.5 h-[44px] px-3 rounded-2xl bg-white border border-[#E2EAF6] hover:bg-[#F0F7FF] hover:border-[#B9D2F3] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
       >
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[12px] font-bold shrink-0 shadow-sm overflow-hidden">
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center text-white text-[12px] font-bold shrink-0 shadow-sm overflow-hidden">
           {liveUser?.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={liveUser.avatarUrl} alt="" className="w-full h-full object-cover" />

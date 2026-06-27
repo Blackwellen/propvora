@@ -8,7 +8,7 @@ type Row = Record<string, unknown>
 
 const STATUS_TONE: Record<string, string> = {
   succeeded: "bg-emerald-50 text-emerald-700", failed: "bg-rose-50 text-rose-700",
-  running: "bg-blue-50 text-blue-700", queued: "bg-slate-100 text-slate-500",
+  running: "bg-[var(--brand-soft)] text-[var(--brand)]", queued: "bg-slate-100 text-slate-500",
   skipped: "bg-slate-100 text-slate-500", dry_run: "bg-violet-50 text-violet-700",
 }
 

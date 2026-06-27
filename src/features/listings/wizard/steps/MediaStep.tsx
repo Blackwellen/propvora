@@ -161,9 +161,9 @@ export function MediaStep() {
             e.preventDefault()
             addPhotos(e.dataTransfer.files)
           }}
-          className="flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 py-8 transition-colors hover:border-blue-400 hover:bg-blue-50"
+          className="flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 py-8 transition-colors hover:border-[var(--color-brand-400)] hover:bg-[var(--brand-soft)]"
         >
-          <UploadCloud className="h-7 w-7 text-blue-500" />
+          <UploadCloud className="h-7 w-7 text-[var(--brand)]" />
           <span className="text-[13px] font-semibold text-slate-700">Upload photos</span>
           <span className="text-[11px] text-slate-400">Drag &amp; drop or click to browse</span>
         </button>
@@ -179,7 +179,7 @@ export function MediaStep() {
                 key={p.id}
                 className={cn(
                   "group relative overflow-hidden rounded-xl border-2",
-                  p.isCover ? "border-blue-500" : "border-slate-200",
+                  p.isCover ? "border-[var(--brand)]" : "border-slate-200",
                 )}
               >
                 <div className="flex h-24 items-center justify-center bg-slate-100">
@@ -189,7 +189,7 @@ export function MediaStep() {
                   {i + 1}
                 </span>
                 {p.isCover && (
-                  <span className="absolute right-1.5 top-1.5 rounded-full bg-blue-600 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                  <span className="absolute right-1.5 top-1.5 rounded-full bg-[var(--brand)] px-1.5 py-0.5 text-[9px] font-bold text-white">
                     Cover
                   </span>
                 )}
@@ -248,7 +248,7 @@ export function MediaStep() {
             onClick={() => update({ videoTourName: draft.videoTourName ? null : "property-tour.mp4" })}
             className={cn(
               "flex flex-col items-center gap-1.5 rounded-xl border-2 border-dashed py-5 transition-colors",
-              draft.videoTourName ? "border-emerald-300 bg-emerald-50" : "border-slate-300 hover:border-blue-400",
+              draft.videoTourName ? "border-emerald-300 bg-emerald-50" : "border-slate-300 hover:border-[var(--color-brand-400)]",
             )}
           >
             <Video className={cn("h-5 w-5", draft.videoTourName ? "text-emerald-600" : "text-slate-400")} />
@@ -261,7 +261,7 @@ export function MediaStep() {
             onClick={() => update({ floorplanName: draft.floorplanName ? null : "floorplan.pdf" })}
             className={cn(
               "flex flex-col items-center gap-1.5 rounded-xl border-2 border-dashed py-5 transition-colors",
-              draft.floorplanName ? "border-emerald-300 bg-emerald-50" : "border-slate-300 hover:border-blue-400",
+              draft.floorplanName ? "border-emerald-300 bg-emerald-50" : "border-slate-300 hover:border-[var(--color-brand-400)]",
             )}
           >
             <LayoutGrid className={cn("h-5 w-5", draft.floorplanName ? "text-emerald-600" : "text-slate-400")} />

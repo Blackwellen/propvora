@@ -48,8 +48,8 @@ export default function DocumentList({
             key={d.id}
             className="flex items-center gap-3 rounded-xl border border-[#E2E8F0] bg-white px-3 py-2.5"
           >
-            <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
-              <FileText className="w-4 h-4 text-[#2563EB]" />
+            <div className="w-9 h-9 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+              <FileText className="w-4 h-4 text-[var(--brand)]" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
@@ -69,7 +69,7 @@ export default function DocumentList({
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[12px] font-medium text-[#2563EB] hover:underline shrink-0"
+                className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--brand)] hover:underline shrink-0"
               >
                 View <ExternalLink className="w-3.5 h-3.5" />
               </a>

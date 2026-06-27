@@ -35,7 +35,7 @@ function isCheckoutType(tt: string | null | undefined): boolean {
 }
 
 const CATEGORY_GRADIENT: Record<string, string> = {
-  maintenance: "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
+  maintenance: "linear-gradient(135deg, var(--brand-strong) 0%, var(--brand) 100%)",
   trades: "linear-gradient(135deg, #EA580C 0%, #F97316 100%)",
   cleaning: "linear-gradient(135deg, #0891B2 0%, #06B6D4 100%)",
   compliance: "linear-gradient(135deg, #059669 0%, #10B981 100%)",
@@ -146,7 +146,7 @@ export function ListingDetail({ listing, media = [], seller }: ListingDetailProp
                     onClick={() => setActiveImg(i)}
                     className={cn(
                       "relative w-20 h-16 shrink-0 rounded-xl overflow-hidden border-2 transition-all",
-                      i === activeImg ? "border-[#2563EB]" : "border-transparent opacity-70 hover:opacity-100"
+                      i === activeImg ? "border-[var(--brand)]" : "border-transparent opacity-70 hover:opacity-100"
                     )}
                     aria-label={`View image ${i + 1}`}
                   >
@@ -226,7 +226,7 @@ export function ListingDetail({ listing, media = [], seller }: ListingDetailProp
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
             <h2 className="text-[13.5px] font-bold text-slate-900 mb-3">Seller</h2>
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-[#EFF6FF] flex items-center justify-center text-[#2563EB] font-bold text-[16px] shrink-0">
+              <div className="w-11 h-11 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center text-[var(--brand)] font-bold text-[16px] shrink-0">
                 {sellerInitial || <Building2 className="w-5 h-5" />}
               </div>
               <div className="min-w-0">
@@ -335,7 +335,7 @@ function InlineEnquiry({
         onChange={(e) => setMessage(e.target.value)}
         rows={3}
         placeholder="Describe the job, timing and location…"
-        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 resize-none"
+        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 resize-none"
       />
       {error && (
         <p className="text-[12px] text-red-600 flex items-center gap-1.5">

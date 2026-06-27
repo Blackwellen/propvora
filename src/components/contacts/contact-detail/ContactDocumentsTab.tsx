@@ -82,8 +82,8 @@ export function ContactDocumentsTab({ contactId, workspaceId }: Props) {
         <div className="space-y-2">
           {docs.map((doc) => (
             <div key={doc.id} className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white hover:shadow-sm transition-all">
-              <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                <FileText className="w-4 h-4 text-blue-600" />
+              <div className="w-9 h-9 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                <FileText className="w-4 h-4 text-[var(--brand)]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-900 truncate">{doc.name}</p>

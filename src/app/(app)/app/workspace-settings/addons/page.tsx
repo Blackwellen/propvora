@@ -54,9 +54,9 @@ export default function AddonsPage() {
 
       {/* Active addons summary */}
       {activeAddons.size > 0 && (
-        <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-2xl p-4 mb-6 flex items-center justify-between">
+        <div className="bg-[var(--brand-soft)] border border-[#BFDBFE] rounded-2xl p-4 mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-[#2563EB] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[var(--brand)] flex items-center justify-center">
               <Check className="w-4 h-4 text-white" />
             </div>
             <div>
@@ -66,7 +66,7 @@ export default function AddonsPage() {
           </div>
           <a
             href="/property-manager/workspace-settings/subscription"
-            className="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-[12.5px] font-semibold hover:bg-[#1d4ed8] transition-colors"
+            className="px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-[12.5px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
           >
             Continue to billing
           </a>
@@ -83,7 +83,7 @@ export default function AddonsPage() {
               key={addon.key}
               className={cn(
                 "bg-white rounded-2xl border p-5 flex flex-col gap-4 transition-all",
-                isActive ? "border-[#2563EB] shadow-[0_0_0_2px_#2563EB15]" : "border-slate-200"
+                isActive ? "border-[var(--brand)] shadow-[0_0_0_2px_#2563EB15]" : "border-slate-200"
               )}
             >
               <div className="flex items-start justify-between">
@@ -113,7 +113,7 @@ export default function AddonsPage() {
                     "px-3.5 py-1.5 rounded-xl text-[12px] font-semibold transition-colors",
                     isActive
                       ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                      : "bg-[#2563EB] text-white hover:bg-[#1d4ed8]"
+                      : "bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)]"
                   )}
                 >
                   {isActive ? "Remove" : "Add"}

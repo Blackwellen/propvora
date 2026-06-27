@@ -163,7 +163,7 @@ export default function AiModelsManager({
                       <button onClick={() => makeDefault(m)} title="Set as default" className="w-8 h-8 rounded-lg text-slate-400 hover:text-[#7C3AED] hover:bg-[#F5F3FF] flex items-center justify-center"><Star className="w-3.5 h-3.5" /></button>
                     )}
                     <button onClick={() => toggleModel(m)} title={m.enabled ? "Disable" : "Enable"} className={`w-8 h-8 rounded-lg flex items-center justify-center ${m.enabled ? "text-emerald-600 hover:bg-emerald-50" : "text-slate-400 hover:bg-slate-100"}`}><Power className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => openEdit(m)} title="Edit" className="w-8 h-8 rounded-lg text-slate-400 hover:text-[#2563EB] hover:bg-[#EFF6FF] flex items-center justify-center"><Pencil className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => openEdit(m)} title="Edit" className="w-8 h-8 rounded-lg text-slate-400 hover:text-[var(--brand)] hover:bg-[var(--brand-soft)] flex items-center justify-center"><Pencil className="w-3.5 h-3.5" /></button>
                     <ConfirmDialog title={`Delete "${m.label}"?`} description="The model is removed from the catalogue. Usage history is retained." confirmLabel="Delete model" confirmVariant="danger" onConfirm={async () => { notify(await deleteAiModel(m.id), "Model deleted.") }}>
                       {(open) => <button onClick={open} title="Delete" className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 flex items-center justify-center"><Trash2 className="w-3.5 h-3.5" /></button>}
                     </ConfirmDialog>
@@ -209,7 +209,7 @@ export default function AiModelsManager({
               </div>
               <div className="flex justify-end gap-2 pt-1">
                 <button onClick={() => setEditModel(null)} className="h-9 px-4 rounded-lg border border-[#E2E8F0] text-[13px] font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
-                <button onClick={saveEdit} disabled={saving} className="h-9 px-4 rounded-lg bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4fd7] disabled:opacity-50">Save</button>
+                <button onClick={saveEdit} disabled={saving} className="h-9 px-4 rounded-lg bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[#1d4fd7] disabled:opacity-50">Save</button>
               </div>
             </div>
           )}

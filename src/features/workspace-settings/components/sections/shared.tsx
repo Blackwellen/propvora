@@ -34,7 +34,7 @@ export function ToggleRow({ label, description, checked, onChange, disabled }: T
         onClick={() => !disabled && onChange(!checked)}
         className={cn(
           "w-10 h-6 rounded-full transition-colors shrink-0 mt-0.5 disabled:opacity-40",
-          checked ? "bg-[#2563EB]" : "bg-slate-200"
+          checked ? "bg-[var(--brand)]" : "bg-slate-200"
         )}
       >
         <span
@@ -92,7 +92,7 @@ export function InputField({
         autoComplete={autoComplete}
         className={cn(
           "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white",
-          "placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all",
+          "placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all",
           (readOnly || disabled) && "opacity-60 cursor-not-allowed bg-slate-50"
         )}
       />
@@ -125,7 +125,7 @@ export function SelectField({ label, value, onChange, options, helper, disabled 
         onChange={(e) => onChange(e.target.value)}
         className={cn(
           "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 bg-white",
-          "focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/20 transition-all",
+          "focus:outline-none focus:border-[var(--brand)] focus:ring-1 focus:ring-[var(--brand)]/20 transition-all",
           disabled && "opacity-60 cursor-not-allowed"
         )}
       >
@@ -207,7 +207,7 @@ export function SaveBar({
           type="button"
           onClick={onSave}
           disabled={isPending}
-          className="px-5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-60"
+          className="px-5 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60"
         >
           {isPending ? pendingLabel : saveLabel}
         </button>

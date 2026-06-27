@@ -114,7 +114,7 @@ export default function CopilotStartConversationScreen({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name, email or role…"
-            className="w-full pl-8 pr-3 py-2 text-[12px] border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-blue-300 focus:bg-white transition-all placeholder-slate-400"
+            className="w-full pl-8 pr-3 py-2 text-[12px] border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-[var(--color-brand-300)] focus:bg-white transition-all placeholder-slate-400"
           />
         </div>
       </div>
@@ -127,7 +127,7 @@ export default function CopilotStartConversationScreen({
             onClick={() => setActiveFilter(tab)}
             className={`px-2.5 py-1 rounded-full text-[10.5px] font-semibold whitespace-nowrap transition-all ${
               activeFilter === tab
-                ? "bg-blue-600 text-white"
+                ? "bg-[var(--brand)] text-white"
                 : "text-slate-500 hover:bg-slate-100"
             }`}
           >
@@ -182,7 +182,7 @@ export default function CopilotStartConversationScreen({
 
                   <button
                     onClick={() => onStartChat(contact)}
-                    className="px-3 py-1.5 rounded-xl bg-blue-600 text-white text-[10.5px] font-semibold hover:bg-blue-700 transition-colors shrink-0"
+                    className="px-3 py-1.5 rounded-xl bg-[var(--brand)] text-white text-[10.5px] font-semibold hover:bg-[var(--brand-strong)] transition-colors shrink-0"
                   >
                     Message
                   </button>

@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils"
 /* ------------------------------------------------------------------ */
 const SEGMENTS: { label: string; short: string; color: string; img?: string }[] = [
   { label: "Long-Term Let",          short: "LTL",        color: "#059669", img: "/property-types/btl.jpg" },
-  { label: "HMO",                    short: "HMO",        color: "#1D4ED8", img: "/property-types/hmo.jpg" },
+  { label: "HMO",                    short: "HMO",        color: "#1d4ed8", img: "/property-types/hmo.jpg" },
   { label: "Serviced Accommodation", short: "SA",         color: "#7C3AED", img: "/property-types/sa.jpg" },
   { label: "Rent-to-Rent",           short: "R2R",        color: "#EA580C", img: "/property-types/r2r.jpg" },
   { label: "Student Let",            short: "Student",    color: "#0891B2", img: "/property-types/student.jpg" },
@@ -117,8 +117,8 @@ export function PortfolioSegmentsRail({
                 aria-pressed={active}
                 className={cn(
                   "relative shrink-0 w-[200px] h-[180px] rounded-2xl overflow-hidden border cursor-pointer group shadow-sm text-left",
-                  "hover:shadow-xl hover:-translate-y-1 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2",
-                  active ? "ring-2 ring-[#2563EB] ring-offset-2 border-transparent" : empty ? "border-slate-200 opacity-60 hover:opacity-90" : "border-white/10"
+                  "hover:shadow-xl hover:-translate-y-1 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2",
+                  active ? "ring-2 ring-[var(--brand)] ring-offset-2 border-transparent" : empty ? "border-slate-200 opacity-60 hover:opacity-90" : "border-white/10"
                 )}
               >
                 {seg.img ? (

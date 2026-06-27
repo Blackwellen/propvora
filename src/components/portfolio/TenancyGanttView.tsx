@@ -195,12 +195,12 @@ function GanttRow({ t, viewStart, totalDays, pct, nowPct, selected, onSelect, we
   return (
     <div className={cn(
       "flex border-b border-slate-50 last:border-b-0 transition-colors group",
-      selected ? "bg-blue-50/30" : "hover:bg-slate-50/50"
+      selected ? "bg-[var(--brand-soft)]/30" : "hover:bg-slate-50/50"
     )}>
       {/* Checkbox */}
       <div className="w-8 shrink-0 flex items-center justify-center border-r border-slate-100">
-        <button onClick={onSelect} className="text-slate-300 hover:text-[#2563EB] transition-colors">
-          {selected ? <CheckSquare className="w-3.5 h-3.5 text-[#2563EB]" /> : <Square className="w-3.5 h-3.5" />}
+        <button onClick={onSelect} className="text-slate-300 hover:text-[var(--brand)] transition-colors">
+          {selected ? <CheckSquare className="w-3.5 h-3.5 text-[var(--brand)]" /> : <Square className="w-3.5 h-3.5" />}
         </button>
       </div>
 
@@ -220,7 +220,7 @@ function GanttRow({ t, viewStart, totalDays, pct, nowPct, selected, onSelect, we
         )}
         <div className="min-w-0">
           <Link href={`/property-manager/portfolio/tenancies/${t.id}`}
-            className="text-[12px] font-semibold text-slate-900 hover:text-[#2563EB] transition-colors truncate block leading-tight">
+            className="text-[12px] font-semibold text-slate-900 hover:text-[var(--brand)] transition-colors truncate block leading-tight">
             {t.tenant_name ?? "Unknown"}
           </Link>
           <p className="text-[10px] text-slate-500 truncate leading-tight">
@@ -460,11 +460,11 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
 
       {/* ── Tenancy KPI strip ── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
-        <TenancyKpi icon={Users} label="Total Tenancies" value={String(tenancies.length)} sub="All tenancies" iconBg="bg-blue-50" iconColor="text-[#2563EB]" />
+        <TenancyKpi icon={Users} label="Total Tenancies" value={String(tenancies.length)} sub="All tenancies" iconBg="bg-[var(--brand-soft)]" iconColor="text-[var(--brand)]" />
         <TenancyKpi icon={Users} label="Active Tenancies" value={String(activeTenancies.length)} sub={`${tenancies.length > 0 ? Math.round((activeTenancies.length / tenancies.length) * 100) : 0}% of total`} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
         <TenancyKpi icon={Clock} label="Ending Soon" value={String(endingSoon.length)} sub="Within 30 days" iconBg="bg-orange-50" iconColor="text-orange-600" />
         <TenancyKpi icon={AlertTriangle} label="Notice Given" value={String(noticeGiven.length)} sub={`${tenancies.length > 0 ? Math.round((noticeGiven.length / tenancies.length) * 100) : 0}% of total`} iconBg="bg-violet-50" iconColor="text-violet-600" />
-        <TenancyKpi icon={RefreshCw} label="Renewals Due" value={String(renewalsDue.length)} sub="Within 60 days" iconBg="bg-blue-50" iconColor="text-[#2563EB]" />
+        <TenancyKpi icon={RefreshCw} label="Renewals Due" value={String(renewalsDue.length)} sub="Within 60 days" iconBg="bg-[var(--brand-soft)]" iconColor="text-[var(--brand)]" />
         <TenancyKpi icon={PoundSterling} label="Rent at Risk" value={rentAtRisk > 0 ? fmtGBP(rentAtRisk) : "£0"} sub="Potential loss" iconBg="bg-red-50" iconColor="text-red-600" />
       </div>
 
@@ -487,7 +487,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
             <button onClick={goToToday}
-              className="ml-1 px-3 py-1.5 rounded-lg bg-[#2563EB] text-white text-[11.5px] font-semibold hover:bg-[#1d4ed8] transition-colors">
+              className="ml-1 px-3 py-1.5 rounded-lg bg-[var(--brand)] text-white text-[11.5px] font-semibold hover:bg-[var(--brand-strong)] transition-colors">
               Today
             </button>
           </div>
@@ -541,9 +541,9 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
             <div className="flex border-b border-slate-100 bg-slate-50/30">
               {/* Checkbox col */}
               <div className="w-8 shrink-0 border-r border-slate-100 flex items-center justify-center py-2">
-                <button onClick={toggleAll} className="text-slate-300 hover:text-[#2563EB] transition-colors">
+                <button onClick={toggleAll} className="text-slate-300 hover:text-[var(--brand)] transition-colors">
                   {selected.size === tenancies.length && tenancies.length > 0
-                    ? <CheckSquare className="w-3.5 h-3.5 text-[#2563EB]" />
+                    ? <CheckSquare className="w-3.5 h-3.5 text-[var(--brand)]" />
                     : <Square className="w-3.5 h-3.5" />}
                 </button>
               </div>
@@ -564,7 +564,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
                       className={cn(
                         "py-1.5 text-center text-[11px] font-semibold border-r border-slate-100 last:border-r-0 truncate px-1",
                         mg.month === now.getMonth() && mg.year === now.getFullYear()
-                          ? "text-[#2563EB] bg-blue-50/50" : "text-slate-500"
+                          ? "text-[var(--brand)] bg-[var(--brand-soft)]/50" : "text-slate-500"
                       )}>
                       {MONTHS_SHORT[mg.month]} {mg.year !== now.getFullYear() ? mg.year : ""}
                     </div>
@@ -608,11 +608,11 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
         <div className="flex items-center gap-3 px-5 py-2.5 border-t border-slate-100 bg-slate-50/40">
           <span className="text-[12px] text-slate-500 shrink-0">
             {selected.size > 0 ? (
-              <span className="font-semibold text-[#2563EB]">{selected.size} selected</span>
+              <span className="font-semibold text-[var(--brand)]">{selected.size} selected</span>
             ) : "0 selected"}
           </span>
           <button onClick={toggleAll}
-            className="text-[12px] text-[#2563EB] font-semibold hover:text-[#1d4ed8] transition-colors shrink-0">
+            className="text-[12px] text-[var(--brand)] font-semibold hover:text-[var(--brand-strong)] transition-colors shrink-0">
             {selected.size === tenancies.length ? "Deselect all" : `Select all ${tenancies.length}`}
           </button>
           <div className="h-4 w-px bg-slate-200 shrink-0" />
@@ -660,7 +660,7 @@ export function TenancyGanttView({ tenancies }: { tenancies: TenancyCardData[] }
         {/* Renewals Due */}
         <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
           <div className="flex items-center gap-1.5 mb-1">
-            <span className="w-2 h-2 rounded-full bg-blue-500" />
+            <span className="w-2 h-2 rounded-full bg-[var(--brand)]" />
             <p className="text-[11px] font-semibold text-slate-500">Renewals Due</p>
           </div>
           <p className="text-[22px] font-black text-slate-900 tabular-nums leading-none">{renewalsDue.length || 11}</p>

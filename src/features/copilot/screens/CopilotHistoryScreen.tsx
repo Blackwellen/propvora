@@ -87,7 +87,7 @@ export default function CopilotHistoryScreen({ onOpen, onBack }: { onOpen: (thre
   const Row = (t: Thread) => (
     <div key={t.id} className="group relative rounded-xl border border-slate-200/70 bg-white px-3 py-2.5 transition-all hover:border-violet-300 hover:shadow-sm">
       <div className="flex items-center gap-2.5">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500/10 to-blue-500/10">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500/10 to-[var(--brand)]/10">
           <MessageSquareText className="h-3.5 w-3.5 text-violet-500" />
         </div>
         <button onClick={() => onOpen(t.id)} className="min-w-0 flex-1 text-left">

@@ -3,7 +3,10 @@ import { cn } from "@/lib/utils"
 
 /* ------------------------------------------------------------------ */
 /* DashboardContainer                                                   */
-/* Wide gutters, full bleed — for dashboards with charts/tables        */
+/* Full content width — matches the shell content box and the quick     */
+/* action bar at every viewport (no centred max-width cap, so dashboards */
+/* never become narrower than the toolbar on wide screens). Page types   */
+/* (main / sub-tab / detail / wizard) must all share this same width.    */
 /* ------------------------------------------------------------------ */
 export function DashboardContainer({
   children,
@@ -13,7 +16,7 @@ export function DashboardContainer({
   className?: string
 }) {
   return (
-    <div className={cn("w-full max-w-[1600px] mx-auto", className)}>
+    <div className={cn("w-full", className)}>
       {children}
     </div>
   )

@@ -73,10 +73,10 @@ export default async function TenantMaintenanceDetail({ params }: { params: Prom
             return (
               <div key={s} className="flex items-center gap-1 flex-1 min-w-0">
                 <div className="flex flex-col items-center gap-1 shrink-0">
-                  <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${reached ? "bg-[#2563EB] text-white" : "bg-slate-100 text-slate-400"}`}>{reached ? <CheckCircle2 className="w-4 h-4" /> : i + 1}</span>
+                  <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${reached ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-400"}`}>{reached ? <CheckCircle2 className="w-4 h-4" /> : i + 1}</span>
                   <span className={`text-[10px] font-semibold text-center ${reached ? "text-[#071B4D]" : "text-slate-400"}`}>{s}</span>
                 </div>
-                {i < STEPS.length - 1 && <span className={`flex-1 h-0.5 ${idx > i ? "bg-[#2563EB]" : "bg-slate-200"}`} />}
+                {i < STEPS.length - 1 && <span className={`flex-1 h-0.5 ${idx > i ? "bg-[var(--brand)]" : "bg-slate-200"}`} />}
               </div>
             )
           })}
@@ -93,8 +93,8 @@ export default async function TenantMaintenanceDetail({ params }: { params: Prom
           </PortalSectionCard>
           <PortalSectionCard title="Activity & updates" icon={ClipboardList}>
             <ol className="space-y-3">
-              <li className="flex gap-3"><span className="w-2 h-2 rounded-full bg-[#2563EB] mt-1.5 shrink-0" /><div><p className="text-sm text-slate-700">Request submitted</p><p className="text-[11px] text-slate-400">{formatDate(req.created_at)}</p></div></li>
-              {idx >= 1 && <li className="flex gap-3"><span className="w-2 h-2 rounded-full bg-[#2563EB] mt-1.5 shrink-0" /><div><p className="text-sm text-slate-700">Reviewed by your manager</p></div></li>}
+              <li className="flex gap-3"><span className="w-2 h-2 rounded-full bg-[var(--brand)] mt-1.5 shrink-0" /><div><p className="text-sm text-slate-700">Request submitted</p><p className="text-[11px] text-slate-400">{formatDate(req.created_at)}</p></div></li>
+              {idx >= 1 && <li className="flex gap-3"><span className="w-2 h-2 rounded-full bg-[var(--brand)] mt-1.5 shrink-0" /><div><p className="text-sm text-slate-700">Reviewed by your manager</p></div></li>}
             </ol>
           </PortalSectionCard>
           <PortalSectionCard title="Attachments & photos" icon={Images}>
@@ -112,7 +112,7 @@ export default async function TenantMaintenanceDetail({ params }: { params: Prom
         </div>
       </div>
 
-      <PortalCard className="p-4 bg-[#F4F8FF] border-[#E1ECFF]"><div className="flex items-center gap-2.5"><ShieldCheck className="w-5 h-5 text-[#2563EB]" /><p className="text-sm text-slate-600">Your request is logged and tracked. <span className="font-semibold text-[#071B4D]">{session.workspaceName}</span> will keep you updated here and via Messages.</p></div></PortalCard>
+      <PortalCard className="p-4 bg-[#F4F8FF] border-[#E1ECFF]"><div className="flex items-center gap-2.5"><ShieldCheck className="w-5 h-5 text-[var(--brand)]" /><p className="text-sm text-slate-600">Your request is logged and tracked. <span className="font-semibold text-[#071B4D]">{session.workspaceName}</span> will keep you updated here and via Messages.</p></div></PortalCard>
     </div>
   )
 }

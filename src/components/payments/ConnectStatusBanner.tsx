@@ -64,30 +64,30 @@ export default function ConnectStatusBanner({ state }: { state: ConnectBannerSta
     <div
       className={cn(
         "flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-2xl border",
-        restricted ? "bg-orange-50 border-orange-200" : "bg-blue-50 border-blue-200"
+        restricted ? "bg-orange-50 border-orange-200" : "bg-[var(--brand-soft)] border-[var(--color-brand-100)]"
       )}
     >
       <span
         className={cn(
           "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
-          restricted ? "bg-orange-100" : "bg-blue-100"
+          restricted ? "bg-orange-100" : "bg-[var(--color-brand-100)]"
         )}
       >
         {restricted ? (
           <AlertTriangle className="w-4.5 h-4.5 text-orange-600" />
         ) : (
-          <Landmark className="w-4.5 h-4.5 text-blue-600" />
+          <Landmark className="w-4.5 h-4.5 text-[var(--brand)]" />
         )}
       </span>
       <div className="flex-1 min-w-0">
-        <p className={cn("text-[13px] font-semibold", restricted ? "text-orange-800" : "text-blue-900")}>
+        <p className={cn("text-[13px] font-semibold", restricted ? "text-orange-800" : "text-[var(--brand-strong)]")}>
           {restricted
             ? "Action needed on your payout account"
             : pending
             ? "Finish setting up your payout account"
             : "Set up payouts to get paid"}
         </p>
-        <p className={cn("text-[12px]", restricted ? "text-orange-700" : "text-blue-800")}>
+        <p className={cn("text-[12px]", restricted ? "text-orange-700" : "text-[var(--brand-strong)]")}>
           {restricted
             ? "Stripe needs more details before payouts can be released to you."
             : pending
@@ -100,7 +100,7 @@ export default function ConnectStatusBanner({ state }: { state: ConnectBannerSta
         type="button"
         onClick={startOnboarding}
         disabled={starting}
-        className="shrink-0 inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl text-[13px] font-semibold bg-[#1D4ED8] text-white hover:bg-[#1A45BE] transition-colors disabled:opacity-60 min-h-[44px]"
+        className="shrink-0 inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl text-[13px] font-semibold bg-[var(--brand-strong)] text-white hover:bg-[#1A45BE] transition-colors disabled:opacity-60 min-h-[44px]"
       >
         {starting ? (
           <Loader2 className="w-4 h-4 animate-spin" />

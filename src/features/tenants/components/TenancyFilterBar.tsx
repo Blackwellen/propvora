@@ -5,7 +5,7 @@ import { Search, SlidersHorizontal, X, AlertTriangle, Calendar, MapPin } from "l
 import { cn } from "@/lib/utils"
 
 export const ALL_PROFILES = [
-  { key: "HMO",                    label: "HMO",                    shortLabel: "HMO",        color: "#1D4ED8" },
+  { key: "HMO",                    label: "HMO",                    shortLabel: "HMO",        color: "#1d4ed8" },
   { key: "Long-Term Let",          label: "Long-Term Let",          shortLabel: "LTL",        color: "#059669" },
   { key: "Serviced Accommodation", label: "Serviced Accommodation", shortLabel: "SA",         color: "#7C3AED" },
   { key: "Rent-to-Rent",           label: "Rent-to-Rent",           shortLabel: "R2R",        color: "#EA580C" },
@@ -101,7 +101,7 @@ export function TenancyFilterBar({
             placeholder="Search tenant, property, unit..."
             value={search}
             onChange={(e) => { onSearchChange(e.target.value); onPage(1) }}
-            className="w-full h-9 pl-9 pr-4 rounded-xl text-[12.5px] bg-slate-50 border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+            className="w-full h-9 pl-9 pr-4 rounded-xl text-[12.5px] bg-slate-50 border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
           />
         </div>
         <button
@@ -109,13 +109,13 @@ export function TenancyFilterBar({
           className={cn(
             "flex items-center gap-1.5 h-9 px-3 rounded-xl border text-[12px] font-semibold transition-all shadow-sm whitespace-nowrap",
             showAdv || activeFilters > 0
-              ? "bg-blue-50 border-blue-200 text-[#2563EB]"
+              ? "bg-[var(--brand-soft)] border-[var(--color-brand-100)] text-[var(--brand)]"
               : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
           )}
         >
           <SlidersHorizontal className="w-3.5 h-3.5" />Filters
           {activeFilters > 0 && (
-            <span className="ml-0.5 w-4 h-4 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">{activeFilters}</span>
+            <span className="ml-0.5 w-4 h-4 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold flex items-center justify-center">{activeFilters}</span>
           )}
         </button>
       </div>
@@ -162,7 +162,7 @@ export function TenancyFilterBar({
               <select
                 value={filterProp}
                 onChange={(e) => { onFilterPropChange(e.target.value); onPage(1) }}
-                className="w-full h-8 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white px-2 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] shadow-sm"
+                className="w-full h-8 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white px-2 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] shadow-sm"
               >
                 <option value="all">All properties</option>
                 {propertyOptions.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -176,7 +176,7 @@ export function TenancyFilterBar({
                   value={filterCity}
                   onChange={(e) => { onFilterCityChange(e.target.value); onPage(1) }}
                   placeholder="e.g. London"
-                  className="w-full h-8 pl-7 pr-2 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] shadow-sm"
+                  className="w-full h-8 pl-7 pr-2 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] shadow-sm"
                 />
               </div>
             </div>
@@ -189,7 +189,7 @@ export function TenancyFilterBar({
                   value={filterMinRent}
                   onChange={(e) => { onFilterMinRentChange(e.target.value); onPage(1) }}
                   placeholder="0"
-                  className="w-full h-8 pl-6 pr-2 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] shadow-sm"
+                  className="w-full h-8 pl-6 pr-2 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] shadow-sm"
                 />
               </div>
             </div>
@@ -202,7 +202,7 @@ export function TenancyFilterBar({
                   value={filterMaxRent}
                   onChange={(e) => { onFilterMaxRentChange(e.target.value); onPage(1) }}
                   placeholder="Any"
-                  className="w-full h-8 pl-6 pr-2 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] shadow-sm"
+                  className="w-full h-8 pl-6 pr-2 rounded-lg border border-slate-200 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] shadow-sm"
                 />
               </div>
             </div>

@@ -80,11 +80,11 @@ export function PoliciesOperationsStep() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <FieldLabel>Check-in time</FieldLabel>
-                <input type="time" value={draft.checkInTime} onChange={(e) => update({ checkInTime: e.target.value })} className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus-visible:border-blue-400" />
+                <input type="time" value={draft.checkInTime} onChange={(e) => update({ checkInTime: e.target.value })} className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus-visible:border-[var(--color-brand-400)]" />
               </div>
               <div>
                 <FieldLabel>Check-out time</FieldLabel>
-                <input type="time" value={draft.checkOutTime} onChange={(e) => update({ checkOutTime: e.target.value })} className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus-visible:border-blue-400" />
+                <input type="time" value={draft.checkOutTime} onChange={(e) => update({ checkOutTime: e.target.value })} className="h-10 w-full rounded-xl border border-slate-200 px-3 text-[13px] outline-none focus-visible:border-[var(--color-brand-400)]" />
               </div>
             </div>
           </div>
@@ -96,7 +96,7 @@ export function PoliciesOperationsStep() {
           <div className="space-y-2">
             {draft.identityVerification.map((r) => (
               <label key={r.id} className="flex cursor-pointer items-center gap-2.5">
-                <input type="checkbox" checked={r.on} onChange={() => toggleRule(r.id, "identityVerification")} className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-400" />
+                <input type="checkbox" checked={r.on} onChange={() => toggleRule(r.id, "identityVerification")} className="h-4 w-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--color-brand-400)]" />
                 <span className="text-[13px] text-slate-700">{r.label}</span>
               </label>
             ))}
@@ -105,11 +105,11 @@ export function PoliciesOperationsStep() {
 
         {/* House rules */}
         <Card>
-          <SectionTitle title="House rules" action={<button type="button" className="text-[11px] font-semibold text-blue-600 hover:underline">Edit rules</button>} />
+          <SectionTitle title="House rules" action={<button type="button" className="text-[11px] font-semibold text-[var(--brand)] hover:underline">Edit rules</button>} />
           <div className="space-y-2">
             {draft.houseRules.map((r) => (
               <label key={r.id} className="flex cursor-pointer items-center gap-2.5">
-                <input type="checkbox" checked={r.on} onChange={() => toggleRule(r.id, "houseRules")} className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-400" />
+                <input type="checkbox" checked={r.on} onChange={() => toggleRule(r.id, "houseRules")} className="h-4 w-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--color-brand-400)]" />
                 <span className="text-[13px] text-slate-700">{r.label}</span>
               </label>
             ))}
@@ -203,13 +203,13 @@ export function PoliciesOperationsStep() {
 
         {/* Self check-in instructions */}
         <Card>
-          <SectionTitle title="Self check-in instructions" action={<button type="button" className="text-[11px] font-semibold text-blue-600 hover:underline">Edit instructions</button>} />
+          <SectionTitle title="Self check-in instructions" action={<button type="button" className="text-[11px] font-semibold text-[var(--brand)] hover:underline">Edit instructions</button>} />
           <TextArea value={draft.selfCheckInInstructions} onChange={(v) => update({ selfCheckInInstructions: v })} rows={3} />
         </Card>
 
         {/* Operations */}
         <Card>
-          <SectionTitle title="Operations" action={<button type="button" className="text-[11px] font-semibold text-blue-600 hover:underline">Manage suppliers</button>} />
+          <SectionTitle title="Operations" action={<button type="button" className="text-[11px] font-semibold text-[var(--brand)] hover:underline">Manage suppliers</button>} />
           <div className="grid grid-cols-2 gap-3">
             <div>
               <FieldLabel>Cleaning turnaround (hrs)</FieldLabel>
@@ -228,7 +228,7 @@ export function PoliciesOperationsStep() {
 
         {/* Message automation */}
         <Card>
-          <SectionTitle title="Booking message automation" action={<button type="button" className="text-[11px] font-semibold text-blue-600 hover:underline">Manage templates</button>} />
+          <SectionTitle title="Booking message automation" action={<button type="button" className="text-[11px] font-semibold text-[var(--brand)] hover:underline">Manage templates</button>} />
           <div className="space-y-2">
             <Toggle on={draft.msgPreEnabled} onChange={(v) => update({ msgPreEnabled: v })} label="Pre-arrival message" />
             <Toggle on={draft.msgDuringEnabled} onChange={(v) => update({ msgDuringEnabled: v })} label="During-stay message" />

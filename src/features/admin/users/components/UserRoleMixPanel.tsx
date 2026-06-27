@@ -46,7 +46,7 @@ export function UserRoleMixPanel({ kpis }: Props) {
                     </span>
                   </div>
                   <div className="mt-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-full rounded-full bg-[#2563EB]" style={{ width: `${pct}%` }} />
+                    <div className="h-full rounded-full bg-[var(--brand)]" style={{ width: `${pct}%` }} />
                   </div>
                 </li>
               )
@@ -69,7 +69,7 @@ export function UserRoleMixPanel({ kpis }: Props) {
             </div>
           ))}
         </dl>
-        <Link href="/admin/security" className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:underline">
+        <Link href="/admin/security" className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:underline">
           Security centre <ChevronRight className="w-3.5 h-3.5" />
         </Link>
       </AdminSectionCard>

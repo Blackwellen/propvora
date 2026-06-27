@@ -55,7 +55,7 @@ export default function StayPropertyTypeBar({
       {/* Host avatar */}
       {hostName && (
         <div className="shrink-0 flex flex-col items-center gap-1">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#2563EB]/20 to-[#1D4ED8]/30 flex items-center justify-center text-[#1D4ED8] font-bold text-[18px] ring-2 ring-white shadow-md">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[var(--brand)]/20 to-[var(--brand-strong)]/30 flex items-center justify-center text-[var(--brand-strong)] font-bold text-[18px] ring-2 ring-white shadow-md">
             {hostName.slice(0, 1).toUpperCase()}
           </div>
         </div>

@@ -28,7 +28,7 @@ export default function NewDisbursementPage() {
       <h3 className="text-sm font-bold text-slate-900 mb-1">Disbursement Details</h3>
       <p className="text-xs text-slate-500 mb-5">Enter the details for this client money disbursement.</p>
       {notice && (
-        <div className="mb-4 px-3.5 py-2.5 rounded-lg bg-blue-50 border border-blue-100 text-xs text-blue-700">{notice}</div>
+        <div className="mb-4 px-3.5 py-2.5 rounded-lg bg-[var(--brand-soft)] border border-[var(--color-brand-100)] text-xs text-[var(--brand)]">{notice}</div>
       )}
 
       <div className="space-y-4">
@@ -37,7 +37,7 @@ export default function NewDisbursementPage() {
           <select
             value={client}
             onChange={(e) => setClient(e.target.value)}
-            className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+            className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
           >
             <option value="">Select a client / landlord…</option>
           </select>
@@ -48,7 +48,7 @@ export default function NewDisbursementPage() {
           <input
             type="text"
             placeholder="Property address (optional)"
-            className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+            className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
           />
         </div>
 
@@ -58,7 +58,7 @@ export default function NewDisbursementPage() {
             type="text"
             value={payee}
             onChange={(e) => setPayee(e.target.value)}
-            className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+            className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
           />
         </div>
 
@@ -71,7 +71,7 @@ export default function NewDisbursementPage() {
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full h-9 pl-7 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+                className="w-full h-9 pl-7 pr-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
               />
             </div>
           </div>
@@ -81,7 +81,7 @@ export default function NewDisbursementPage() {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+              className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
             />
           </div>
         </div>
@@ -91,7 +91,7 @@ export default function NewDisbursementPage() {
           <select
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+            className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
           >
             <option>Repairs &amp; Maintenance</option>
             <option>Management Fees</option>
@@ -114,7 +114,7 @@ export default function NewDisbursementPage() {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 resize-none"
+            className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 resize-none"
           />
         </div>
 

@@ -27,7 +27,7 @@ const QUOTE_STATUS_TONE: Record<QuoteStatus, "blue" | "amber" | "red" | "emerald
 }
 
 const KANBAN_COLS: KanbanColumn[] = [
-  { key: "awaiting", label: "Awaiting decision", accent: "text-blue-600", dot: "bg-blue-500" },
+  { key: "awaiting", label: "Awaiting decision", accent: "text-[var(--brand)]", dot: "bg-[var(--brand)]" },
   { key: "revision_requested", label: "Revision requested", accent: "text-amber-600", dot: "bg-amber-500" },
   { key: "expiring", label: "Expiring soon", accent: "text-red-600", dot: "bg-red-500" },
 ]
@@ -138,7 +138,7 @@ export function QuotedTab({ env, rows }: { env: RequestsEnvelope<PipelineRequest
             ) : view === "cards" ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {paged.map((r) => (
-                  <SupplierCard key={r.id} className={`p-4 cursor-pointer hover:shadow-md transition-all ${selected?.id === r.id ? "border-blue-300 ring-1 ring-blue-200" : ""}`}>
+                  <SupplierCard key={r.id} className={`p-4 cursor-pointer hover:shadow-md transition-all ${selected?.id === r.id ? "border-[var(--color-brand-300)] ring-1 ring-[var(--color-brand-100)]" : ""}`}>
                     <button onClick={() => setSelectedId(r.id)} className="block w-full text-left">
                       <div className="flex items-start justify-between">
                         <p className="font-semibold text-slate-900">{r.customerName}</p>
@@ -166,7 +166,7 @@ export function QuotedTab({ env, rows }: { env: RequestsEnvelope<PipelineRequest
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {paged.map((r) => (
-                      <tr key={r.id} onClick={() => setSelectedId(r.id)} className={`cursor-pointer hover:bg-slate-50/60 ${selected?.id === r.id ? "bg-blue-50/40" : ""}`}>
+                      <tr key={r.id} onClick={() => setSelectedId(r.id)} className={`cursor-pointer hover:bg-slate-50/60 ${selected?.id === r.id ? "bg-[var(--brand-soft)]/40" : ""}`}>
                         <Td>
                           <p className="font-semibold text-slate-800">{r.customerName}</p>
                           <p className="text-xs text-slate-400 truncate max-w-[180px]">{r.serviceTitle}</p>
@@ -225,7 +225,7 @@ export function QuotedTab({ env, rows }: { env: RequestsEnvelope<PipelineRequest
                     {selected.messages.length === 0 ? (
                       <p className="text-xs text-slate-400">No messages yet.</p>
                     ) : selected.messages.map((m) => (
-                      <div key={m.id} className={`rounded-lg px-3 py-2 text-xs ${m.authorRole === "supplier" ? "bg-blue-50 text-slate-700" : "bg-slate-100 text-slate-700"}`}>
+                      <div key={m.id} className={`rounded-lg px-3 py-2 text-xs ${m.authorRole === "supplier" ? "bg-[var(--brand-soft)] text-slate-700" : "bg-slate-100 text-slate-700"}`}>
                         <p className="font-semibold text-[11px] text-slate-500 mb-0.5">{m.authorName} · {shortDate(m.createdAt)}</p>
                         {m.body}
                       </div>
@@ -237,7 +237,7 @@ export function QuotedTab({ env, rows }: { env: RequestsEnvelope<PipelineRequest
                       onChange={(e) => setDraft(e.target.value)}
                       onKeyDown={(e) => { if (e.key === "Enter") sendMessage() }}
                       placeholder="Reply to customer…"
-                      className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
                     />
                     <SupplierButton size="sm" onClick={sendMessage}>Send</SupplierButton>
                   </div>

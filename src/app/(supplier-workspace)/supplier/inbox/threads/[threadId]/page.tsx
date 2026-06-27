@@ -147,7 +147,7 @@ function ThreadDetailInner() {
             <ChevronLeft className="w-5 h-5" />
           </Link>
         )}
-        <div className="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold text-sm shrink-0">
+        <div className="w-9 h-9 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center font-semibold text-sm shrink-0">
           {initials || "?"}
         </div>
         <div className="min-w-0 flex-1">
@@ -175,7 +175,7 @@ function ThreadDetailInner() {
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(draft) } }}
             rows={1}
             placeholder="Write a message…"
-            className="flex-1 resize-none rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 max-h-28"
+            className="flex-1 resize-none rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[var(--color-brand-100)] max-h-28"
           />
           <SupplierButton onClick={() => send(draft)} disabled={!draft.trim()} className="shrink-0">
             <Send className="w-4 h-4" /> Send
@@ -192,7 +192,7 @@ function ThreadDetailInner() {
         <div className="rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-hidden h-[80vh] flex flex-col">
           {conversation}
         </div>
-        <p className="text-center text-xs text-slate-400 mt-3">Field view · <Link href={`/supplier/inbox/threads/${threadId}`} className="text-blue-600">open full view</Link></p>
+        <p className="text-center text-xs text-slate-400 mt-3">Field view · <Link href={`/supplier/inbox/threads/${threadId}`} className="text-[var(--brand)]">open full view</Link></p>
       </div>
     )
   }
@@ -218,7 +218,7 @@ function ThreadDetailInner() {
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
                 placeholder="Search messages…"
-                className="w-full rounded-lg border border-slate-200 pl-8 pr-3 py-1.5 text-sm outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-200 pl-8 pr-3 py-1.5 text-sm outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[var(--color-brand-100)]"
               />
             </div>
           </div>
@@ -229,7 +229,7 @@ function ThreadDetailInner() {
                 <Link
                   key={t.id}
                   href={`/supplier/inbox/threads/${t.id}`}
-                  className={cn("flex gap-2.5 px-3 py-3 hover:bg-slate-50 transition-colors", active && "bg-blue-50/60")}
+                  className={cn("flex gap-2.5 px-3 py-3 hover:bg-slate-50 transition-colors", active && "bg-[var(--brand-soft)]/60")}
                 >
                   <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
                     <InboxIcon className="w-4 h-4" />
@@ -301,7 +301,7 @@ function MessageBubble({ m }: { m: InboxMessage }) {
             <Paperclip className="w-3 h-3" /> {a.name}
           </span>
         ))}
-        <p className={cn("text-[10px] mt-1", mine ? "text-blue-100" : "text-slate-400")}>{timeAgo(m.createdAt)}</p>
+        <p className={cn("text-[10px] mt-1", mine ? "text-[var(--color-brand-100)]" : "text-slate-400")}>{timeAgo(m.createdAt)}</p>
       </div>
     </div>
   )

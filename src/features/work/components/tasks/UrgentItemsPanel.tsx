@@ -40,7 +40,7 @@ export function UrgentItemsPanel({ tasks }: UrgentItemsPanelProps) {
                 <p className="text-[11px] font-medium text-slate-700">{item.label}</p>
                 <p className="text-[10px] text-slate-400">{item.desc}</p>
               </div>
-              <Link href="/property-manager/work/tasks" className="text-[10px] text-[#2563EB] hover:underline shrink-0 mt-1">
+              <Link href="/property-manager/work/tasks" className="text-[10px] text-[var(--brand)] hover:underline shrink-0 mt-1">
                 View all →
               </Link>
             </div>

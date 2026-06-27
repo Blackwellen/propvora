@@ -77,7 +77,7 @@ export function TeamCustomerThreads() {
                 <button
                   key={t.id}
                   onClick={() => setSelectedId(t.id)}
-                  className={cn("w-full text-left flex gap-2.5 px-3 py-3 hover:bg-slate-50", t.id === (selected?.id) && "bg-blue-50/60")}
+                  className={cn("w-full text-left flex gap-2.5 px-3 py-3 hover:bg-slate-50", t.id === (selected?.id) && "bg-[var(--brand-soft)]/60")}
                 >
                   <span className="w-8 h-8 rounded-full bg-slate-100 text-[11px] font-semibold text-slate-600 flex items-center justify-center shrink-0">
                     {(t.name ?? "?").split(" ").map((w) => w[0]).slice(0, 2).join("")}
@@ -86,7 +86,7 @@ export function TeamCustomerThreads() {
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-[13px] font-semibold text-slate-800 truncate">{t.name ?? "Unknown"}</p>
                       {(t.unread ?? 0) > 0 && (
-                        <span className="w-4 h-4 rounded-full bg-[#2563EB] text-white text-[9px] font-bold flex items-center justify-center">
+                        <span className="w-4 h-4 rounded-full bg-[var(--brand)] text-white text-[9px] font-bold flex items-center justify-center">
                           {t.unread}
                         </span>
                       )}
@@ -116,7 +116,7 @@ export function TeamCustomerThreads() {
                   <p className="text-sm font-semibold text-slate-900 truncate">{selected.name ?? "Thread"}</p>
                   <p className="text-xs text-slate-400 truncate">{selected.subject ?? ""}</p>
                 </div>
-                <Link href={`/supplier/inbox/threads/${selected.id}`} className="text-xs font-semibold text-blue-600 inline-flex items-center gap-0.5">
+                <Link href={`/supplier/inbox/threads/${selected.id}`} className="text-xs font-semibold text-[var(--brand)] inline-flex items-center gap-0.5">
                   Open full <ChevronRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -133,7 +133,7 @@ export function TeamCustomerThreads() {
               {/* Composer */}
               <div className="border-t border-slate-100 p-2.5">
                 <div className="flex gap-1.5 mb-2">
-                  <button onClick={() => setMode("customer")} className={cn("px-2.5 py-1 rounded-lg text-xs font-semibold", mode === "customer" ? "bg-[#2563EB] text-white" : "bg-slate-100 text-slate-600")}>Reply to customer</button>
+                  <button onClick={() => setMode("customer")} className={cn("px-2.5 py-1 rounded-lg text-xs font-semibold", mode === "customer" ? "bg-[var(--brand)] text-white" : "bg-slate-100 text-slate-600")}>Reply to customer</button>
                   <button onClick={() => setMode("internal")} className={cn("px-2.5 py-1 rounded-lg text-xs font-semibold inline-flex items-center gap-1", mode === "internal" ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-600")}><Lock className="w-3 h-3" /> Internal note</button>
                 </div>
                 <div className={cn("flex items-end gap-2 rounded-xl border p-2", mode === "internal" ? "border-amber-200 bg-amber-50/40" : "border-slate-200")}>
@@ -162,7 +162,7 @@ export function TeamCustomerThreads() {
           <SupplierCard className="p-4">
             <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2">Linked record</p>
             {selected ? (
-              <Link href={`/supplier/inbox/threads/${selected.id}`} className="text-sm font-semibold text-blue-600">Open full thread</Link>
+              <Link href={`/supplier/inbox/threads/${selected.id}`} className="text-sm font-semibold text-[var(--brand)]">Open full thread</Link>
             ) : (
               <p className="text-xs text-slate-400">Select a thread.</p>
             )}
@@ -205,8 +205,8 @@ export function TeamInternalNotes() {
                   <span className="text-[11px] text-slate-400">{timeAgo(n.at)}</span>
                   {n.resolved && <span className="ml-auto text-[10px] font-semibold text-emerald-600 inline-flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" />Resolved</span>}
                 </div>
-                <p className="text-sm text-slate-700">{n.body.split(/(@\w+)/).map((part, i) => part.startsWith("@") ? <span key={i} className="font-semibold text-blue-600">{part}</span> : part)}</p>
-                {n.linked && <Link href={`/supplier/jobs/${n.linked}`} className="text-[11px] font-semibold text-blue-600 mt-1 inline-block">{n.linked}</Link>}
+                <p className="text-sm text-slate-700">{n.body.split(/(@\w+)/).map((part, i) => part.startsWith("@") ? <span key={i} className="font-semibold text-[var(--brand)]">{part}</span> : part)}</p>
+                {n.linked && <Link href={`/supplier/jobs/${n.linked}`} className="text-[11px] font-semibold text-[var(--brand)] mt-1 inline-block">{n.linked}</Link>}
                 {!n.resolved && <button onClick={() => { setNotes((ns) => ns.map((x) => x.id === n.id ? { ...x, resolved: true } : x)); setToast("Note resolved.") }} className="ml-3 text-[11px] font-semibold text-slate-500 hover:text-slate-700">Resolve</button>}
               </div>
             ))}

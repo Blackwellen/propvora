@@ -53,7 +53,7 @@ export default function SavedSearchesList({
               </div>
               <Link
                 href={`/stay/search${toQueryString(s.query)}`}
-                className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-[#2563EB] hover:underline shrink-0"
+                className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-[var(--brand)] hover:underline shrink-0"
               >
                 Run <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>

@@ -41,7 +41,7 @@ function MiniMetric({
   tone?: "blue" | "emerald" | "amber" | "red" | "violet"
 }) {
   const tones = {
-    blue: "bg-blue-50 text-blue-700",
+    blue: "bg-[var(--brand-soft)] text-[var(--brand)]",
     emerald: "bg-emerald-50 text-emerald-700",
     amber: "bg-amber-50 text-amber-700",
     red: "bg-red-50 text-red-700",
@@ -86,15 +86,15 @@ export function BookingModuleNav({
               key={item.key}
               href={item.href}
               className={cn(
-                "min-h-[98px] bg-white p-4 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40",
-                active && "bg-blue-50/70"
+                "min-h-[98px] bg-white p-4 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40",
+                active && "bg-[var(--brand-soft)]/70"
               )}
             >
               <div className="flex items-start justify-between gap-2">
                 <span
                   className={cn(
                     "w-9 h-9 rounded-lg flex items-center justify-center",
-                    active ? "bg-blue-600 text-white" : "bg-slate-50 text-slate-500"
+                    active ? "bg-[var(--brand)] text-white" : "bg-slate-50 text-slate-500"
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -103,7 +103,7 @@ export function BookingModuleNav({
                   className={cn(
                     "rounded-full px-2 py-0.5 text-[10px] font-semibold",
                     item.phase === "live" && "bg-emerald-50 text-emerald-700",
-                    item.phase === "foundation" && "bg-blue-50 text-blue-700",
+                    item.phase === "foundation" && "bg-[var(--brand-soft)] text-[var(--brand)]",
                     item.phase === "ops" && "bg-amber-50 text-amber-700",
                     item.phase === "legal" && "bg-violet-50 text-violet-700"
                   )}
@@ -150,7 +150,7 @@ export function BookingManagementCanvas({
                   <h3 className="text-sm font-semibold text-slate-900">Lifecycle Coverage</h3>
                   <p className="text-xs text-slate-500 mt-0.5">The booking flow now maps the full setup-to-post-stay operating model.</p>
                 </div>
-                <span className="text-[11px] font-semibold rounded-full bg-blue-50 text-blue-700 px-2.5 py-1">
+                <span className="text-[11px] font-semibold rounded-full bg-[var(--brand-soft)] text-[var(--brand)] px-2.5 py-1">
                   10 stages
                 </span>
               </div>
@@ -160,7 +160,7 @@ export function BookingManagementCanvas({
                   return (
                     <div key={stage.label} className="rounded-xl border border-slate-100 bg-slate-50/50 px-3.5 py-3">
                       <div className="flex items-center gap-2">
-                        <span className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-blue-600">
+                        <span className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-[var(--brand)]">
                           <Icon className="w-4 h-4" />
                         </span>
                         <p className="text-[13px] font-semibold text-slate-800">{stage.label}</p>
@@ -221,7 +221,7 @@ export function BookingManagementCanvas({
             <p className="text-xs text-slate-500 mt-0.5">Operational scope for this booking management area.</p>
           </div>
           {activeSection !== "dashboard" && (
-            <Link href="/property-manager/bookings" className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-blue-800">
+            <Link href="/property-manager/bookings" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]">
               Command center <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           )}

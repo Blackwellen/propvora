@@ -51,15 +51,15 @@ export function TeamAutomations() {
       </div>
 
       {/* Review-first safety banner */}
-      <div className="flex items-start gap-2.5 rounded-xl bg-blue-50 border border-blue-100 px-4 py-3">
-        <ShieldCheck className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-        <div><p className="text-sm font-semibold text-blue-900">Review-first safety</p><p className="text-xs text-blue-700">Automations that touch customers, payments, the platform or public listings require approval and never bypass Propvora review-first safety.</p></div>
+      <div className="flex items-start gap-2.5 rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)] px-4 py-3">
+        <ShieldCheck className="w-5 h-5 text-[var(--brand)] shrink-0 mt-0.5" />
+        <div><p className="text-sm font-semibold text-[var(--brand-strong)]">Review-first safety</p><p className="text-xs text-[var(--brand)]">Automations that touch customers, payments, the platform or public listings require approval and never bypass Propvora review-first safety.</p></div>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-slate-200">
         {([["rules", "Rules", Workflow], ["templates", "Templates", FileText], ["logs", "Logs", Activity], ["approvals", "Approvals", CheckCircle2]] as const).map(([k, l, Icon]) => (
-          <button key={k} onClick={() => setTab(k)} className={cn("inline-flex items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium -mb-px border-b-2", tab === k ? "text-blue-600 border-blue-600" : "text-slate-500 border-transparent hover:text-slate-700")}>
+          <button key={k} onClick={() => setTab(k)} className={cn("inline-flex items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium -mb-px border-b-2", tab === k ? "text-[var(--brand)] border-[var(--brand)]" : "text-slate-500 border-transparent hover:text-slate-700")}>
             <Icon className="w-4 h-4" />{l}{k === "approvals" && APPROVALS.length > 0 && <span className="ml-1 text-[10px] font-bold bg-amber-100 text-amber-700 rounded-full px-1.5">{APPROVALS.length}</span>}
           </button>
         ))}
@@ -71,7 +71,7 @@ export function TeamAutomations() {
             <SupplierCard key={r.id} className="p-4 flex items-center gap-3">
               <span className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", r.status === "active" ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400")}><Workflow className="w-4 h-4" /></span>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap"><p className="text-sm font-semibold text-slate-800">{r.name}</p>{r.customerImpacting && <span className="text-[10px] font-semibold bg-amber-50 text-amber-700 rounded-full px-1.5 py-0.5 inline-flex items-center gap-0.5"><Lock className="w-2.5 h-2.5" />Customer-facing</span>}{r.approvalRequired && <span className="text-[10px] font-semibold bg-blue-50 text-blue-700 rounded-full px-1.5 py-0.5">Approval</span>}</div>
+                <div className="flex items-center gap-2 flex-wrap"><p className="text-sm font-semibold text-slate-800">{r.name}</p>{r.customerImpacting && <span className="text-[10px] font-semibold bg-amber-50 text-amber-700 rounded-full px-1.5 py-0.5 inline-flex items-center gap-0.5"><Lock className="w-2.5 h-2.5" />Customer-facing</span>}{r.approvalRequired && <span className="text-[10px] font-semibold bg-[var(--brand-soft)] text-[var(--brand)] rounded-full px-1.5 py-0.5">Approval</span>}</div>
                 <p className="text-[11px] text-slate-400">{r.trigger} · {r.runs7d} runs (7d){r.errors > 0 ? ` · ${r.errors} error` : ""}</p>
               </div>
               <SupplierStatusBadge tone={r.status === "active" ? "emerald" : "slate"}>{r.status}</SupplierStatusBadge>

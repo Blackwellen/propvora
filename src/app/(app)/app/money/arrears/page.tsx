@@ -73,10 +73,12 @@ interface HighRiskCase {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatCurrency(amount: number): string {
-  return `£${amount.toLocaleString("en-GB", {
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: "GBP",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })}`
+  }).format(amount)
 }
 
 const _gbp0 = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 })
@@ -221,7 +223,7 @@ function ChaseDrawer({
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={10}
-                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed"
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)] leading-relaxed"
               />
             </div>
           </div>
@@ -236,7 +238,7 @@ function ChaseDrawer({
           </button>
           <button
             onClick={() => { onSend(arrearCase); onClose() }}
-            className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
+            className="px-5 py-2 text-sm font-semibold text-white bg-[var(--brand)] rounded-xl hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
           >
             Mark Chased
           </button>
@@ -575,7 +577,7 @@ export default function ArrearsPage() {
           subtitle="Monitor, chase and resolve overdue balances with speed and precision."
           actions={
             <>
-              <Link href="/property-manager/money/invoices/new" className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap">
+              <Link href="/property-manager/money/invoices/new" className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[var(--brand)] rounded-xl hover:bg-[var(--brand-strong)] transition-colors shadow-sm whitespace-nowrap">
                 <Plus className="w-4 h-4" />
                 Create Invoice
               </Link>
@@ -620,8 +622,8 @@ export default function ArrearsPage() {
             label="Being Chased"
             value={summary?.beingChased ?? 0}
             icon={<Phone className="w-5 h-5" />}
-            iconBg="bg-blue-50"
-            iconColor="text-blue-600"
+            iconBg="bg-[var(--brand-soft)]"
+            iconColor="text-[var(--brand)]"
           />
           <MoneyKpiCard
             label="On Payment Plans"
@@ -661,7 +663,7 @@ export default function ArrearsPage() {
               <button className="px-3 py-1.5 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:border-slate-300 transition-all">
                 More Filters
               </button>
-              <button className="text-[12px] font-medium text-blue-600 hover:text-blue-800 transition-colors px-2">
+              <button className="text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors px-2">
                 Clear
               </button>
             </div>
@@ -707,7 +709,7 @@ export default function ArrearsPage() {
                 placeholder="Search by tenant, property or invoice..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-slate-400"
+                className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--brand)] placeholder:text-slate-400"
               />
             </div>
 
@@ -875,7 +877,7 @@ export default function ArrearsPage() {
               <div className="mt-4 flex flex-col gap-2">
                 {[
                   { label: "Open", value: summary?.openCases ?? 0, dot: "bg-amber-500" },
-                  { label: "Being chased", value: summary?.beingChased ?? 0, dot: "bg-blue-500" },
+                  { label: "Being chased", value: summary?.beingChased ?? 0, dot: "bg-[var(--brand)]" },
                   { label: "Payment plans", value: summary?.onPaymentPlans ?? 0, dot: "bg-emerald-500" },
                 ].map((r) => (
                   <div key={r.label} className="flex items-center justify-between">

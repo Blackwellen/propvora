@@ -69,7 +69,7 @@ export function TaskLiveChecklistTab({ workspaceId, taskId }: TaskLiveChecklistT
                   onClick={() => workspaceId && toggleItem.mutate({ workspaceId, taskId, id: item.id, done: !item.done })}
                   className={cn(
                     "w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all duration-200 active:scale-90 motion-reduce:active:scale-100",
-                    item.done ? "bg-[#2563EB] border-[#2563EB]" : "border-slate-300 hover:border-[#2563EB]"
+                    item.done ? "bg-[var(--brand)] border-[var(--brand)]" : "border-slate-300 hover:border-[var(--brand)]"
                   )}
                   aria-label={item.done ? "Mark incomplete" : "Mark complete"}
                 >
@@ -94,12 +94,12 @@ export function TaskLiveChecklistTab({ workspaceId, taskId }: TaskLiveChecklistT
             onChange={(e) => setLabel(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAdd() } }}
             placeholder="Add a subtask…"
-            className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/50"
+            className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)]/50"
           />
           <button
             onClick={handleAdd}
             disabled={!label.trim() || addItem.isPending || !workspaceId}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[12.5px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white text-[12.5px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
             {addItem.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />} Add
           </button>

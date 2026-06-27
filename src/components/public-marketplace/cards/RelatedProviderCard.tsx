@@ -18,7 +18,7 @@ export default function RelatedProviderCard({ provider, basePath = "/providers" 
             <span className="text-xs font-semibold">{provider.rating}</span>
           </div>
         </div>
-        <span className="text-xs font-semibold text-blue-600 group-hover:text-blue-700">→</span>
+        <span className="text-xs font-semibold text-[var(--brand)] group-hover:text-[var(--brand)]">→</span>
       </div>
     </Link>
   )

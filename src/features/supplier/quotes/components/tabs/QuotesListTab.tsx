@@ -44,7 +44,7 @@ export function QuotesFilterRail({
           className={cn(
             "px-3.5 py-2.5 text-sm font-semibold -mb-px border-b-2 transition-colors",
             active === f.id
-              ? "border-[#2563EB] text-[#2563EB]"
+              ? "border-[var(--brand)] text-[var(--brand)]"
               : "border-transparent text-slate-500 hover:text-slate-700"
           )}
         >
@@ -195,7 +195,7 @@ function QuotesListTab({ filter: initialFilter }: { filter: FilterId }) {
                     <Td className="text-right">
                       <button
                         onClick={() => setActive(q)}
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8]"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)]"
                       >
                         <Send className="w-3.5 h-3.5" /> Quote
                       </button>

@@ -44,7 +44,7 @@ export function NodeGroupPanel({ groups }: { groups: AutomationNodeGroup[] }) {
             <span className="rounded-full bg-slate-100 px-2 py-1">{node.scope}</span>
             <span className="rounded-full bg-slate-100 px-2 py-1">{node.plan}</span>
             {node.requiresApproval && (
-              <span className="rounded-full bg-blue-50 px-2 py-1 font-medium text-blue-700">approval required</span>
+              <span className="rounded-full bg-[var(--brand-soft)] px-2 py-1 font-medium text-[var(--brand)]">approval required</span>
             )}
             {node.blockedFromAutoRun && (
               <span className="rounded-full bg-rose-50 px-2 py-1 font-medium text-rose-700">blocked from autorun</span>

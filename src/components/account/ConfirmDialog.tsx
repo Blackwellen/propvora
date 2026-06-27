@@ -84,7 +84,7 @@ export default function ConfirmDialog({
               "flex items-center gap-2 px-5 py-2 rounded-xl text-[13px] font-semibold text-white transition-colors disabled:opacity-70",
               tone === "danger"
                 ? "bg-red-600 hover:bg-red-700"
-                : "bg-[#2563EB] hover:bg-[#1d4ed8]",
+                : "bg-[var(--brand)] hover:bg-[var(--brand-strong)]",
             )}
           >
             {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />}

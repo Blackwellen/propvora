@@ -132,11 +132,11 @@ export default async function SuppliersHubMapPage({
           <div className="absolute bottom-4 right-4 bg-white rounded-xl shadow-lg p-3 text-xs text-slate-600 space-y-1.5 border border-slate-200 pointer-events-none">
             <p className="font-semibold text-slate-900 mb-1">Map key</p>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-0.5 bg-blue-600 rounded" />
+              <div className="w-4 h-0.5 bg-[var(--brand)] rounded" />
               <span>Supplier location</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 border-b border-dashed border-blue-400" />
+              <div className="w-4 border-b border-dashed border-[var(--color-brand-400)]" />
               <span>Coverage radius</span>
             </div>
             <div className="flex items-center gap-2">

@@ -114,7 +114,7 @@ export default function SupplierComplianceDocumentDetailPage() {
             {!d.linked_jobs || d.linked_jobs.length === 0 ? (
               <SupplierEmptyState icon={Briefcase} title="No linked jobs" />
             ) : (
-              <ul className="divide-y divide-slate-100">{d.linked_jobs.map((j) => <li key={j.ref} className="py-2.5"><Link href={`/supplier/jobs/${j.ref}`} className="text-sm font-medium text-slate-800 hover:text-blue-600">{j.title}</Link><p className="text-xs text-slate-400">{j.ref}</p></li>)}</ul>
+              <ul className="divide-y divide-slate-100">{d.linked_jobs.map((j) => <li key={j.ref} className="py-2.5"><Link href={`/supplier/jobs/${j.ref}`} className="text-sm font-medium text-slate-800 hover:text-[var(--brand)]">{j.title}</Link><p className="text-xs text-slate-400">{j.ref}</p></li>)}</ul>
             )}
           </Section>
         </div>

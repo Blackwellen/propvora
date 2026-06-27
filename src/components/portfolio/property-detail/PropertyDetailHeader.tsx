@@ -112,7 +112,7 @@ export function PropertyDetailHeader({ prop, propertyId, onSave }: PropertyDetai
           {/* Tags — derived from the real property record (operation + dwelling). */}
           <div className="flex items-center gap-2 ml-10 mt-2">
             {prop.operation_profile && (
-              <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-semibold px-2 py-0.5 rounded-full capitalize">
+              <span className="inline-flex items-center gap-1 bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)] text-[11px] font-semibold px-2 py-0.5 rounded-full capitalize">
                 <Building2 size={9} /> {String(prop.operation_profile).replace(/_/g, " ")}
               </span>
             )}
@@ -153,7 +153,7 @@ export function PropertyDetailHeader({ prop, propertyId, onSave }: PropertyDetai
             <Users size={13} /> New Tenancy
           </Link>
           {/* Add unit */}
-          <Link href={`/property-manager/portfolio/units/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+          <Link href={`/property-manager/portfolio/units/new?propertyId=${propertyId}`} className="flex items-center gap-1.5 text-[13px] font-semibold bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-3 py-2 rounded-lg transition-colors">
             <Plus size={13} /> Add Unit
           </Link>
         </div>

@@ -25,7 +25,7 @@ export function UnitStepRent({ data, onChange }: UnitStepRentProps) {
             placeholder="500"
             value={data.target_rent || ""}
             onChange={(e) => onChange({ target_rent: Number(e.target.value) })}
-            className="w-full h-10 pl-7 pr-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all"
+            className="w-full h-10 pl-7 pr-3 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
           />
         </div>
       </div>
@@ -51,7 +51,7 @@ export function UnitStepRent({ data, onChange }: UnitStepRentProps) {
           placeholder="Add any notes about this unit…"
           value={data.notes}
           onChange={(e) => onChange({ notes: e.target.value })}
-          className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] transition-all resize-none"
+          className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all resize-none"
         />
       </div>
     </div>

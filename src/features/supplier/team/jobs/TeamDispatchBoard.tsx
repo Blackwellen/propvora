@@ -104,7 +104,7 @@ export function TeamDispatchBoard() {
                   <div className="flex items-center gap-2.5 mb-3">
                     <span className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold flex items-center justify-center shrink-0">{w.initials}</span>
                     <div className="min-w-0 flex-1"><p className="text-[13px] font-semibold text-slate-800 truncate">{w.name}</p><p className="text-[11px] text-slate-400">{w.trade} · {w.area} · {jobs.length} assigned</p></div>
-                    <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full", w.status === "available" ? "bg-emerald-50 text-emerald-700" : w.status === "on_job" ? "bg-blue-50 text-blue-700" : "bg-slate-100 text-slate-500")}>
+                    <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full", w.status === "available" ? "bg-emerald-50 text-emerald-700" : w.status === "on_job" ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "bg-slate-100 text-slate-500")}>
                       {w.status === "available" ? "Available" : w.status === "on_job" ? "On job" : "Off"}
                     </span>
                   </div>
@@ -155,7 +155,7 @@ export function TeamDispatchBoard() {
 }
 
 function Mini({ label, value, tone, icon: Icon }: { label: string; value: string; tone: "blue" | "emerald" | "red" | "amber" | "slate"; icon: typeof Truck }) {
-  const c = tone === "blue" ? "text-[#2563EB]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : tone === "amber" ? "text-amber-600" : "text-slate-900"
+  const c = tone === "blue" ? "text-[var(--brand)]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : tone === "amber" ? "text-amber-600" : "text-slate-900"
   return (
     <SupplierCard className="p-3.5">
       <div className="flex items-center justify-between"><span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span><Icon className="w-3.5 h-3.5 text-slate-300" /></div>

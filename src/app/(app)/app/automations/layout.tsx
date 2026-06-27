@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { resolveFlags } from "@/lib/flags"
 import { AutomationsFlagsProvider } from "@/features/automations/components/AutomationsFlagsContext"
@@ -69,6 +70,12 @@ export default async function AutomationsLayout({ children }: { children: ReactN
     automationsFull = Boolean(flags.automationsFull)
   } catch {
     // fail-closed: gated tabs stay hidden
+  }
+
+  // canvasLite is the section kill-switch (nav hides Automations when off);
+  // block direct-URL access too unless the QA bypass is on.
+  if (!canvasLite && process.env.NEXT_PUBLIC_QA_ALL_FLAGS !== "true") {
+    redirect("/property-manager")
   }
 
   // Webhooks is a sub-tab of Integrations (not a separate main tab), so gating

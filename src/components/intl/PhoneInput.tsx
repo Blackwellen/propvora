@@ -35,8 +35,8 @@ export function PhoneInput({
       </label>
       <div
         className={cn(
-          "flex items-stretch rounded-xl border bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-100",
-          invalid ? "border-red-300" : "border-slate-200 focus-within:border-blue-400"
+          "flex items-stretch rounded-xl border bg-white overflow-hidden focus-within:ring-2 focus-within:ring-[var(--color-brand-100)]",
+          invalid ? "border-red-300" : "border-slate-200 focus-within:border-[var(--color-brand-400)]"
         )}
       >
         {dial && (

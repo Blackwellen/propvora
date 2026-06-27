@@ -46,11 +46,11 @@ export default function AuthenticatedPortalShell({
         <div className="hidden shrink-0 pt-4 pr-4 lg:block">
           <header className="flex h-[72px] items-center rounded-[24px] border border-[#E2EAF6] bg-white/95 px-5 shadow-[0_14px_40px_rgba(15,23,42,0.06)] backdrop-blur-xl">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-600">Connected workspace</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--brand)]">Connected workspace</p>
               <p className="mt-1 text-[15px] font-bold text-[#071B4D]">{title}</p>
             </div>
             <div className="flex-1" />
-            <span className="mr-3 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-blue-700">Secure portal</span>
+            <span className="mr-3 rounded-full border border-[var(--color-brand-100)] bg-[var(--brand-soft)] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--brand)]">Secure portal</span>
             <button onClick={signOut} className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#E2EAF6] bg-white px-3 text-[13px] font-semibold text-slate-600 shadow-sm transition-colors hover:border-red-200 hover:text-red-600">
               <LogOut className="h-4 w-4" /> Sign out
             </button>

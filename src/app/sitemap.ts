@@ -7,26 +7,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
   type Entry = { path: string; priority: number; freq: MetadataRoute.Sitemap[number]["changeFrequency"] }
 
+  // V1 release: only public pages that are live and indexable without a feature
+  // flag. Marketplace routes (/stays, /suppliers, /services, /providers) are
+  // gated OFF for V1 and would redirect for crawlers, so they are intentionally
+  // excluded until the marketplace flag ships. /faq is a 301 to /help, so the
+  // canonical /help is listed instead.
   const entries: Entry[] = [
     { path: "", priority: 1.0, freq: "weekly" },
     // Product / marketing
     { path: "/features", priority: 0.9, freq: "monthly" },
     { path: "/pricing", priority: 0.9, freq: "monthly" },
-    { path: "/walkthrough", priority: 0.7, freq: "monthly" },
     { path: "/about", priority: 0.6, freq: "monthly" },
     { path: "/roadmap", priority: 0.5, freq: "monthly" },
     { path: "/changelog", priority: 0.5, freq: "weekly" },
     { path: "/contact", priority: 0.5, freq: "yearly" },
-    // Marketplace (public)
-    { path: "/stays", priority: 0.8, freq: "daily" },
-    { path: "/suppliers", priority: 0.8, freq: "daily" },
-    { path: "/services", priority: 0.7, freq: "weekly" },
-    { path: "/providers", priority: 0.7, freq: "weekly" },
     // Programmes
     { path: "/affiliate-programme", priority: 0.6, freq: "monthly" },
     // Support
     { path: "/help", priority: 0.6, freq: "weekly" },
-    { path: "/faq", priority: 0.6, freq: "monthly" },
     // Legal
     { path: "/legal", priority: 0.3, freq: "yearly" },
     { path: "/legal/privacy", priority: 0.3, freq: "yearly" },

@@ -13,7 +13,7 @@ import type { WebhookDelivery, WebhookEndpoint } from "../data/types"
 const ENV_CLS: Record<string, string> = {
   Production: "bg-emerald-50 text-emerald-700",
   Staging: "bg-amber-50 text-amber-700",
-  Development: "bg-blue-50 text-blue-700",
+  Development: "bg-[var(--brand-soft)] text-[var(--brand)]",
 }
 
 const EVENT_GROUPS = ["property.*", "tenancy.*", "compliance.*", "work.*", "finance.*", "contact.*", "automation.*"]
@@ -91,7 +91,7 @@ export default function WebhooksPage() {
             )}
           </Card>
           <Card>
-            <CardHeader title="Recent event deliveries" action={<button className="text-xs font-medium text-blue-600 hover:underline">View all deliveries →</button>} />
+            <CardHeader title="Recent event deliveries" action={<button className="text-xs font-medium text-[var(--brand)] hover:underline">View all deliveries →</button>} />
             <AutomationsDataTable columns={deliveryCols} rows={data.deliveries} selectable pageSize={5} total={data.deliveries.length} />
           </Card>
         </div>
@@ -119,13 +119,13 @@ export default function WebhooksPage() {
                     <div className="text-[11px] font-semibold uppercase text-slate-400">Signing secret</div>
                     <div className="mt-1 flex items-center gap-2">
                       <code className="flex-1 truncate rounded bg-slate-100 px-2 py-1 text-xs text-slate-600">{showSecret ? "whsec_8f2a91bc3de4" : "•••••••••••••••"}</code>
-                      <button onClick={() => setShowSecret((v) => !v)} className="text-xs font-medium text-blue-600">{showSecret ? "Hide" : "Show"}</button>
+                      <button onClick={() => setShowSecret((v) => !v)} className="text-xs font-medium text-[var(--brand)]">{showSecret ? "Hide" : "Show"}</button>
                       <button onClick={() => toast("Secret copied")} className="text-slate-400 hover:text-slate-700"><Copy className="h-4 w-4" /></button>
                     </div>
-                    <div className="mt-1 flex items-center justify-between"><span className="text-xs text-slate-400">Last rotated 12 days ago</span><button onClick={() => toast("Secret rotated")} className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline"><RefreshCw className="h-3 w-3" />Rotate secret</button></div>
+                    <div className="mt-1 flex items-center justify-between"><span className="text-xs text-slate-400">Last rotated 12 days ago</span><button onClick={() => toast("Secret rotated")} className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:underline"><RefreshCw className="h-3 w-3" />Rotate secret</button></div>
                   </div>
                   <div>
-                    <div className="flex items-center justify-between"><div className="text-[11px] font-semibold uppercase text-slate-400">Sample payload</div><button onClick={() => toast("Payload copied")} className="text-xs font-medium text-blue-600">Copy</button></div>
+                    <div className="flex items-center justify-between"><div className="text-[11px] font-semibold uppercase text-slate-400">Sample payload</div><button onClick={() => toast("Payload copied")} className="text-xs font-medium text-[var(--brand)]">Copy</button></div>
                     <pre className="mt-1.5 overflow-x-auto rounded-lg bg-slate-900 p-3 text-xs text-slate-100">{JSON.stringify({ event: "property.updated", id: "evt_8821", data: { property_id: "PR-0042" } }, null, 2)}</pre>
                   </div>
                 </>
@@ -183,7 +183,7 @@ export default function WebhooksPage() {
               value={newEp.name}
               onChange={(e) => setNewEp((s) => ({ ...s, name: e.target.value }))}
               placeholder="e.g. Production webhook"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-[var(--color-brand-400)] focus:outline-none"
             />
           </div>
           <div>
@@ -192,7 +192,7 @@ export default function WebhooksPage() {
               value={newEp.url}
               onChange={(e) => setNewEp((s) => ({ ...s, url: e.target.value }))}
               placeholder="https://your-server.com/webhook"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm focus:border-blue-400 focus:outline-none"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm focus:border-[var(--color-brand-400)] focus:outline-none"
             />
             <p className="mt-1 text-[11px] text-slate-400">Must be an HTTPS endpoint. POST requests with JSON payloads will be sent here.</p>
           </div>
@@ -201,7 +201,7 @@ export default function WebhooksPage() {
             <select
               value={newEp.environment}
               onChange={(e) => setNewEp((s) => ({ ...s, environment: e.target.value }))}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-[var(--color-brand-400)] focus:outline-none"
             >
               {ENVIRONMENTS.map((env) => <option key={env}>{env}</option>)}
             </select>
@@ -213,7 +213,7 @@ export default function WebhooksPage() {
                 <button
                   key={g}
                   onClick={() => setNewEp((s) => ({ ...s, eventGroups: s.eventGroups.includes(g) ? s.eventGroups.filter((x) => x !== g) : [...s.eventGroups, g] }))}
-                  className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${newEp.eventGroups.includes(g) ? "border-blue-200 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
+                  className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${newEp.eventGroups.includes(g) ? "border-[var(--color-brand-100)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
                 >
                   {g}
                 </button>
@@ -227,7 +227,7 @@ export default function WebhooksPage() {
               onChange={(e) => setNewEp((s) => ({ ...s, secret: e.target.value }))}
               type="password"
               placeholder="Leave blank to auto-generate"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-[var(--color-brand-400)] focus:outline-none"
             />
           </div>
         </div>

@@ -84,7 +84,7 @@ export default function SupplierBusinessProfile() {
         <select
           value={tab}
           onChange={(e) => setTab(e.target.value as typeof tab)}
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
           aria-label="Navigate section"
         >
           {TABS.map((t) => (
@@ -285,8 +285,8 @@ export default function SupplierBusinessProfile() {
                 <ul className="divide-y divide-slate-100">
                   {(services.data ?? []).map((s, i) => (
                     <li key={s.id ?? i} className="py-3 first:pt-0 last:pb-0 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                        <Wrench className="w-4 h-4 text-blue-600" />
+                      <div className="w-9 h-9 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                        <Wrench className="w-4 h-4 text-[var(--brand)]" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-slate-800 truncate">{s.title ?? "Service"}</p>

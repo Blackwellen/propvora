@@ -20,7 +20,7 @@ export interface PpmKpiStripProps {
 
 export function PpmKpiStrip({ data, loading }: PpmKpiStripProps) {
   const kpis = [
-    { label: "Scheduled PPM",     value: String(data.totalScheduled),     sub: "Total planned",         color: "text-[#2563EB]",   bg: "bg-blue-50",    icon: Calendar    },
+    { label: "Scheduled PPM",     value: String(data.totalScheduled),     sub: "Total planned",         color: "text-[var(--brand)]",   bg: "bg-[var(--brand-soft)]",    icon: Calendar    },
     { label: "Completed (Month)", value: String(data.completedThisMonth), sub: "This month",            color: "text-emerald-600", bg: "bg-emerald-50", icon: CheckCircle },
     { label: "Overdue",           value: String(data.overdue),            sub: "Past schedule",         color: "text-red-600",     bg: "bg-red-50",     icon: AlertTriangle},
     { label: "Next 30 Days",      value: String(data.upcoming30Days),     sub: "Upcoming",              color: "text-amber-600",   bg: "bg-amber-50",   icon: Clock       },

@@ -23,9 +23,9 @@ export default function PortalPurposesPage() {
       <div className="px-6 pt-6 pb-10 space-y-6">
 
         {usingDefaults && (
-          <div className="flex items-start gap-2 p-3.5 rounded-xl bg-blue-50/60 border border-blue-100">
-            <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
-            <p className="text-[12px] text-blue-800 leading-relaxed">
+          <div className="flex items-start gap-2 p-3.5 rounded-xl bg-[var(--brand-soft)]/60 border border-[var(--color-brand-100)]">
+            <Info className="w-4 h-4 text-[var(--brand)] mt-0.5 shrink-0" />
+            <p className="text-[12px] text-[var(--brand-strong)] leading-relaxed">
               These are Propvora&apos;s built-in purpose templates — active across every workspace and
               used by the grant wizard to scope access and set default link expiry. Per-workspace
               customisation is on the roadmap.
@@ -51,8 +51,8 @@ export default function PortalPurposesPage() {
                   <tr key={p.key} className="hover:bg-slate-50/60 transition-colors">
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                          <Target className="w-4 h-4 text-blue-600" />
+                        <div className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                          <Target className="w-4 h-4 text-[var(--brand)]" />
                         </div>
                         <span className="text-sm font-medium text-slate-800">{p.label}</span>
                       </div>

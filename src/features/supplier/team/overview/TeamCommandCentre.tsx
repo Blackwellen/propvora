@@ -34,12 +34,12 @@ const KPI_ICON: Record<string, typeof Users> = {
 }
 
 const TONE_TEXT: Record<NonNullable<TeamKpi["tone"]>, string> = {
-  emerald: "text-emerald-600", amber: "text-amber-600", red: "text-red-600", blue: "text-[#2563EB]", slate: "text-slate-900",
+  emerald: "text-emerald-600", amber: "text-amber-600", red: "text-red-600", blue: "text-[var(--brand)]", slate: "text-slate-900",
 }
 
 const WORKER_STATUS: Record<WorkerLoad["status"], { label: string; cls: string }> = {
   available: { label: "Available", cls: "bg-emerald-50 text-emerald-700" },
-  busy: { label: "Busy", cls: "bg-blue-50 text-blue-700" },
+  busy: { label: "Busy", cls: "bg-[var(--brand-soft)] text-[var(--brand)]" },
   overbooked: { label: "Overbooked", cls: "bg-red-50 text-red-700" },
   off: { label: "Off", cls: "bg-slate-100 text-slate-500" },
 }
@@ -87,7 +87,7 @@ export function TeamCommandCentre() {
           {/* Team workload + dispatch queue */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <SupplierCard className="p-5">
-              <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900">Team workload</h2><Link href="/supplier/schedule" className="text-xs font-semibold text-blue-600">Capacity</Link></div>
+              <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900">Team workload</h2><Link href="/supplier/schedule" className="text-xs font-semibold text-[var(--brand)]">Capacity</Link></div>
               {TEAM_WORKER_LOAD.length === 0 && <p className="text-sm text-slate-400 py-4 text-center">No team members yet. Invite your team to see workload here.</p>}
               <div className="space-y-2.5">
                 {TEAM_WORKER_LOAD.map((w) => {
@@ -109,7 +109,7 @@ export function TeamCommandCentre() {
             </SupplierCard>
 
             <SupplierCard className="p-5">
-              <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900">Dispatch queue</h2><Link href="/supplier/jobs?tab=dispatch" className="text-xs font-semibold text-blue-600">Open board</Link></div>
+              <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900">Dispatch queue</h2><Link href="/supplier/jobs?tab=dispatch" className="text-xs font-semibold text-[var(--brand)]">Open board</Link></div>
               {TEAM_DISPATCH_QUEUE.length === 0 && <p className="text-sm text-slate-400 py-4 text-center">Nothing waiting to dispatch.</p>}
               <div className="space-y-2">
                 {TEAM_DISPATCH_QUEUE.map((d) => (
@@ -129,7 +129,7 @@ export function TeamCommandCentre() {
           {/* Quote approvals + revenue by member */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <SupplierCard className="p-5">
-              <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900">Quote approvals</h2><Link href="/supplier/requests?tab=quotes&view=approvals" className="text-xs font-semibold text-blue-600">Review all</Link></div>
+              <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900">Quote approvals</h2><Link href="/supplier/requests?tab=quotes&view=approvals" className="text-xs font-semibold text-[var(--brand)]">Review all</Link></div>
               {TEAM_QUOTE_APPROVALS.length === 0 && <p className="text-sm text-slate-400 py-4 text-center">No quotes awaiting approval.</p>}
               <div className="space-y-2">
                 {TEAM_QUOTE_APPROVALS.map((q) => (
@@ -156,7 +156,7 @@ export function TeamCommandCentre() {
                       <span className="w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-[11px] font-semibold flex items-center justify-center shrink-0">{m.initials}</span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2"><p className="text-[13px] font-medium text-slate-700 truncate">{m.name}</p><span className="text-[12px] font-bold text-slate-900">{moneyPence(m.revenuePence)}</span></div>
-                        <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden mt-1"><div className="h-full rounded-full bg-[#2563EB]" style={{ width: `${(m.revenuePence / max) * 100}%` }} /></div>
+                        <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden mt-1"><div className="h-full rounded-full bg-[var(--brand)]" style={{ width: `${(m.revenuePence / max) * 100}%` }} /></div>
                       </div>
                     </div>
                   )
@@ -168,7 +168,7 @@ export function TeamCommandCentre() {
           {/* Compliance blockers + messages */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <SupplierCard className="p-5">
-              <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900 flex items-center gap-1.5"><ShieldAlert className="w-4 h-4 text-amber-500" /> Compliance blockers</h2><Link href="/supplier/compliance?tab=expiry-tracker" className="text-xs font-semibold text-blue-600">Resolve</Link></div>
+              <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900 flex items-center gap-1.5"><ShieldAlert className="w-4 h-4 text-amber-500" /> Compliance blockers</h2><Link href="/supplier/compliance?tab=expiry-tracker" className="text-xs font-semibold text-[var(--brand)]">Resolve</Link></div>
               {TEAM_COMPLIANCE_BLOCKERS.length === 0 && <p className="text-sm text-slate-400 py-2">No compliance blockers.</p>}
               <ul className="space-y-2">
                 {TEAM_COMPLIANCE_BLOCKERS.map((c) => (
@@ -181,12 +181,12 @@ export function TeamCommandCentre() {
             </SupplierCard>
 
             <SupplierCard className="p-5">
-              <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900 flex items-center gap-1.5"><MessageSquare className="w-4 h-4 text-slate-400" /> Recent messages</h2><Link href="/supplier/inbox" className="text-xs font-semibold text-blue-600">Inbox</Link></div>
+              <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-slate-900 flex items-center gap-1.5"><MessageSquare className="w-4 h-4 text-slate-400" /> Recent messages</h2><Link href="/supplier/inbox" className="text-xs font-semibold text-[var(--brand)]">Inbox</Link></div>
               {TEAM_RECENT_MESSAGES.length === 0 && <p className="text-sm text-slate-400 py-2">No recent messages.</p>}
               <ul className="space-y-2.5">
                 {TEAM_RECENT_MESSAGES.map((m) => (
                   <li key={m.id} className="flex items-start gap-2">
-                    {m.unread && <span className="w-2 h-2 rounded-full bg-[#2563EB] mt-1.5 shrink-0" />}
+                    {m.unread && <span className="w-2 h-2 rounded-full bg-[var(--brand)] mt-1.5 shrink-0" />}
                     <div className={cn("min-w-0 flex-1", !m.unread && "pl-4")}>
                       <div className="flex items-center justify-between gap-2"><p className="text-[13px] font-semibold text-slate-800 truncate">{m.from}</p><span className="text-[11px] text-slate-400">{m.at}</span></div>
                       <p className="text-xs text-slate-500 truncate">{m.preview}</p>
@@ -205,7 +205,7 @@ export function TeamCommandCentre() {
             <p className="text-2xl font-bold text-slate-900">{moneyPence(TEAM_REVENUE_SNAPSHOT.grossPence)}</p>
             <p className="text-xs text-emerald-600 flex items-center gap-1"><TrendingUp className="w-3.5 h-3.5" /> +{TEAM_REVENUE_SNAPSHOT.changePct}% this month</p>
             <p className="text-xs text-slate-400 mt-1">Net {moneyPence(TEAM_REVENUE_SNAPSHOT.netPence)} after fees</p>
-            <Link href="/supplier/finance?tab=earnings&view=team" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-blue-600">Open finance <ArrowRight className="w-3.5 h-3.5" /></Link>
+            <Link href="/supplier/finance?tab=earnings&view=team" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)]">Open finance <ArrowRight className="w-3.5 h-3.5" /></Link>
           </SupplierCard>
 
           <SupplierCard className="p-5">
@@ -215,7 +215,7 @@ export function TeamCommandCentre() {
               <RailLink href="/supplier/jobs?tab=dispatch" icon={Truck} label="Dispatch board" />
               <RailLink href="/supplier/overview?section=capacity-risk" icon={Gauge} label="Team capacity & risk" />
               <RailLink href="/supplier/requests?tab=quotes&view=approvals" icon={FileCheck2} label="Review quote approvals" />
-              <button onClick={() => act("Invite sent.")} className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"><span className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><UserPlus className="w-4 h-4" /></span> Invite team member</button>
+              <button onClick={() => act("Invite sent.")} className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"><span className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center"><UserPlus className="w-4 h-4" /></span> Invite team member</button>
             </div>
           </SupplierCard>
         </div>
@@ -354,7 +354,7 @@ function Mini({ label, value, icon: Icon, tone }: { label: string; value: string
   return (
     <SupplierCard className="p-3.5">
       <div className="flex items-center justify-between"><span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span><Icon className="w-3.5 h-3.5 text-slate-300" /></div>
-      <p className={cn("text-xl font-bold mt-1", tone === "blue" ? "text-[#2563EB]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : "text-amber-600")}>{value}</p>
+      <p className={cn("text-xl font-bold mt-1", tone === "blue" ? "text-[var(--brand)]" : tone === "emerald" ? "text-emerald-600" : tone === "red" ? "text-red-600" : "text-amber-600")}>{value}</p>
     </SupplierCard>
   )
 }

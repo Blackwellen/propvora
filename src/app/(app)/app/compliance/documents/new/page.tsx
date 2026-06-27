@@ -99,7 +99,7 @@ interface DocTypeOption {
 }
 
 const DOC_TYPE_OPTIONS: DocTypeOption[] = [
-  { key: "certificate",       label: "Certificate",       description: "Gas, EICR, EPC, Fire", icon: Shield,      color: "text-blue-600",    bg: "bg-blue-50" },
+  { key: "certificate",       label: "Certificate",       description: "Gas, EICR, EPC, Fire", icon: Shield,      color: "text-[var(--brand)]",    bg: "bg-[var(--brand-soft)]" },
   { key: "inspection_evidence",label: "Inspection Evidence",description: "Property inspections", icon: ClipboardList, color: "text-violet-600", bg: "bg-violet-50" },
   { key: "insurance",         label: "Insurance",         description: "Buildings, liability",  icon: Scroll,      color: "text-amber-600",   bg: "bg-amber-50" },
   { key: "licence",           label: "Licence",           description: "HMO, operating licences", icon: FileCheck, color: "text-emerald-600", bg: "bg-emerald-50" },
@@ -172,7 +172,7 @@ function Step1({
       ) : (
         <label
           className={`block border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors ${
-            dragging ? "border-[#2563EB] bg-blue-50" : "border-slate-300 hover:border-slate-400 hover:bg-slate-50"
+            dragging ? "border-[var(--brand)] bg-[var(--brand-soft)]" : "border-slate-300 hover:border-slate-400 hover:bg-slate-50"
           }`}
           onDragOver={e => { e.preventDefault(); setDragging(true) }}
           onDragLeave={() => setDragging(false)}
@@ -213,11 +213,11 @@ function Step2({ state, setState }: { state: WizardState; setState: (s: WizardSt
               onClick={() => setState({ ...state, docType: opt.key })}
               className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${
                 selected
-                  ? "border-[#2563EB] bg-blue-50"
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)]"
                   : "border-slate-200 hover:border-slate-300 bg-white"
               }`}
             >
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${selected ? "bg-[#2563EB]" : opt.bg}`}>
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${selected ? "bg-[var(--brand)]" : opt.bg}`}>
                 <div style={{ color: selected ? "#fff" : undefined }}>
                   <Icon className="w-4 h-4" />
                 </div>
@@ -251,7 +251,7 @@ function Step3({ state, setState, properties, contacts }: { state: WizardState; 
             Property
           </label>
           <select
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             value={state.property}
             onChange={e => setState({ ...state, property: e.target.value, propertyLabel: e.target.options[e.target.selectedIndex]?.text ?? "" })}
           >
@@ -268,7 +268,7 @@ function Step3({ state, setState, properties, contacts }: { state: WizardState; 
           <input
             type="text"
             placeholder="e.g. Flat 2"
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             value={state.unit}
             onChange={e => setState({ ...state, unit: e.target.value })}
           />
@@ -280,7 +280,7 @@ function Step3({ state, setState, properties, contacts }: { state: WizardState; 
             Tenancy / Contact <span className="text-xs text-slate-400 font-normal">(optional)</span>
           </label>
           <select
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             value={state.tenancyContact}
             onChange={e => setState({ ...state, tenancyContact: e.target.value })}
           >
@@ -295,7 +295,7 @@ function Step3({ state, setState, properties, contacts }: { state: WizardState; 
             Supplier <span className="text-xs text-slate-400 font-normal">(optional)</span>
           </label>
           <select
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             value={state.supplier}
             onChange={e => setState({ ...state, supplier: e.target.value })}
           >
@@ -324,7 +324,7 @@ function Step4({ state, setState }: { state: WizardState; setState: (s: WizardSt
           <input
             type="text"
             placeholder="e.g. GAS-2025-001"
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             value={state.referenceNumber}
             onChange={e => setState({ ...state, referenceNumber: e.target.value })}
           />
@@ -335,7 +335,7 @@ function Step4({ state, setState }: { state: WizardState; setState: (s: WizardSt
           <input
             type="text"
             placeholder="e.g. Elite Gas Services"
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             value={state.issuer}
             onChange={e => setState({ ...state, issuer: e.target.value })}
           />
@@ -346,7 +346,7 @@ function Step4({ state, setState }: { state: WizardState; setState: (s: WizardSt
           <textarea
             rows={3}
             placeholder="Add notes about this document..."
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] resize-none"
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)] resize-none"
             value={state.description}
             onChange={e => setState({ ...state, description: e.target.value })}
           />
@@ -357,7 +357,7 @@ function Step4({ state, setState }: { state: WizardState; setState: (s: WizardSt
           <input
             type="text"
             placeholder="e.g. gas, annual, westbourne"
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             value={state.tags}
             onChange={e => setState({ ...state, tags: e.target.value })}
           />
@@ -383,7 +383,7 @@ function Step5({ state, setState }: { state: WizardState; setState: (s: WizardSt
           <label className="text-sm font-medium text-slate-700">Issue Date</label>
           <input
             type="date"
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             value={state.issueDate}
             onChange={e => setState({ ...state, issueDate: e.target.value })}
           />
@@ -397,7 +397,7 @@ function Step5({ state, setState }: { state: WizardState; setState: (s: WizardSt
               className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700"
             >
               {state.noExpiry
-                ? <ToggleRight className="w-4 h-4 text-[#2563EB]" />
+                ? <ToggleRight className="w-4 h-4 text-[var(--brand)]" />
                 : <ToggleLeft className="w-4 h-4" />}
               No expiry
             </button>
@@ -405,7 +405,7 @@ function Step5({ state, setState }: { state: WizardState; setState: (s: WizardSt
           {!state.noExpiry && (
             <input
               type="date"
-              className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+              className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
               value={state.expiryDate}
               onChange={e => setState({ ...state, expiryDate: e.target.value })}
             />
@@ -423,7 +423,7 @@ function Step5({ state, setState }: { state: WizardState; setState: (s: WizardSt
           </label>
           <input
             type="date"
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             value={state.reviewDate}
             onChange={e => setState({ ...state, reviewDate: e.target.value })}
           />
@@ -505,7 +505,7 @@ function Step6({
       <button
         onClick={onUpload}
         disabled={!state.fileName || !state.docType || uploading}
-        className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#2563EB] text-white font-semibold text-sm hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[var(--brand)] text-white font-semibold text-sm hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {uploading ? (
           <>
@@ -550,7 +550,7 @@ function SummaryRail({ state }: { state: WizardState }) {
         )}
 
         {typeLabel && (
-          <div className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
+          <div className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[var(--brand-soft)] text-[var(--brand)]">
             {typeLabel}
           </div>
         )}
@@ -744,7 +744,7 @@ export default function UploadDocumentPage() {
             </button>
             <button
               onClick={() => router.push(newId ? `/property-manager/compliance/documents/${newId}` : "/property-manager/compliance/documents")}
-              className="px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 rounded-lg bg-[var(--brand)] text-white text-sm font-medium hover:bg-[var(--brand-strong)] transition-colors"
             >
               {newId ? "View Document" : "View Documents"}
             </button>
@@ -776,14 +776,14 @@ export default function UploadDocumentPage() {
                     onClick={() => s.number < step && setStep(s.number)}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${
                       isCurrent
-                        ? "bg-[#2563EB] text-white"
+                        ? "bg-[var(--brand)] text-white"
                         : isComplete
                         ? "text-emerald-600 hover:bg-emerald-50"
                         : "text-slate-400"
                     }`}
                   >
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                      isCurrent ? "bg-white text-[#2563EB]"
+                      isCurrent ? "bg-white text-[var(--brand)]"
                       : isComplete ? "bg-emerald-100 text-emerald-700"
                       : "bg-slate-100 text-slate-400"
                     }`}>
@@ -835,7 +835,7 @@ export default function UploadDocumentPage() {
                   <button
                     onClick={() => setStep(s => Math.min(6, s + 1))}
                     disabled={(step === 1 && !state.fileName) || (step === 2 && !state.docType)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--brand)] text-white text-sm font-medium hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Continue
                     <ChevronRight className="w-4 h-4" />

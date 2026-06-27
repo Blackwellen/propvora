@@ -156,17 +156,17 @@ export default function CustomerTopNav({
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "relative flex items-center gap-1.5 px-3 lg:px-3.5 h-[68px] text-[13.5px] font-semibold whitespace-nowrap transition-colors",
-                  active ? "text-[#2563EB]" : "text-slate-600 hover:text-slate-900"
+                  active ? "text-[var(--brand)]" : "text-slate-600 hover:text-slate-900"
                 )}
               >
-                <Icon className={cn("w-[18px] h-[18px] shrink-0", active ? "text-[#2563EB]" : "text-slate-400")} />
+                <Icon className={cn("w-[18px] h-[18px] shrink-0", active ? "text-[var(--brand)]" : "text-slate-400")} />
                 <span>{item.label}</span>
                 {badge > 0 && (
-                  <span className="ml-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#2563EB] text-white text-[10px] font-bold flex items-center justify-center">
+                  <span className="ml-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[var(--brand)] text-white text-[10px] font-bold flex items-center justify-center">
                     {badge > 9 ? "9+" : badge}
                   </span>
                 )}
-                {active && <span className="absolute left-2 right-2 bottom-0 h-[2.5px] rounded-full bg-[#2563EB]" />}
+                {active && <span className="absolute left-2 right-2 bottom-0 h-[2.5px] rounded-full bg-[var(--brand)]" />}
               </Link>
             )
           })}
@@ -178,7 +178,7 @@ export default function CustomerTopNav({
           <Link
             href="/customer/account-settings?tab=notifications"
             aria-label={`Notifications${unreadNotifications > 0 ? `, ${unreadNotifications} unread` : ""}`}
-            className="relative w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+            className="relative w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
           >
             <Bell className="w-[21px] h-[21px]" />
             {unreadNotifications > 0 && (
@@ -196,14 +196,14 @@ export default function CustomerTopNav({
               aria-haspopup="menu"
               aria-expanded={menuOpen}
               aria-label="Open account menu"
-              className="flex items-center gap-2 rounded-full pl-0.5 pr-1.5 py-0.5 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+              className="flex items-center gap-2 rounded-full pl-0.5 pr-1.5 py-0.5 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
             >
               {avatarUrl ? (
                 <span className="w-9 h-9 rounded-full overflow-hidden shrink-0 ring-1 ring-slate-200">
                   <Image src={avatarUrl} alt={customerName} width={36} height={36} className="object-cover w-full h-full" />
                 </span>
               ) : (
-                <span className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] flex items-center justify-center text-white text-[12px] font-bold shrink-0 ring-1 ring-slate-200">
+                <span className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--brand)] to-[#0EA5E9] flex items-center justify-center text-white text-[12px] font-bold shrink-0 ring-1 ring-slate-200">
                   {initialsOf(customerName)}
                 </span>
               )}

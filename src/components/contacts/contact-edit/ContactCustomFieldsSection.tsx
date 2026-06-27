@@ -87,7 +87,7 @@ export function ApplicantDetailsSection({ register, watch }: ApplicantProps) {
         <div>
           <FieldLabel htmlFor="edit-enquiry-source">Enquiry Source</FieldLabel>
           <div className="relative">
-            <select id="edit-enquiry-source" {...register("enquiry_source")} className="w-full h-10 pl-3 pr-8 rounded-lg text-sm border border-slate-200 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all">
+            <select id="edit-enquiry-source" {...register("enquiry_source")} className="w-full h-10 pl-3 pr-8 rounded-lg text-sm border border-slate-200 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all">
               <option value="">Select source</option>
               {ENQUIRY_SOURCE_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -97,7 +97,7 @@ export function ApplicantDetailsSection({ register, watch }: ApplicantProps) {
         <div>
           <FieldLabel htmlFor="edit-applicant-status">Applicant Status</FieldLabel>
           <div className="relative">
-            <select id="edit-applicant-status" {...register("applicant_status")} className="w-full h-10 pl-3 pr-8 rounded-lg text-sm border border-slate-200 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all">
+            <select id="edit-applicant-status" {...register("applicant_status")} className="w-full h-10 pl-3 pr-8 rounded-lg text-sm border border-slate-200 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all">
               {APPLICANT_STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
             <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />

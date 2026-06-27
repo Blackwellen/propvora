@@ -60,17 +60,17 @@ export default function ReportRepairForm({ sessionId }: { sessionId: string }) {
         <div className="space-y-3">
           <div>
             <label className="block text-[11.5px] font-semibold text-slate-500 mb-1">What's the issue?</label>
-            <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Leaking kitchen tap" className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-blue-100" />
+            <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Leaking kitchen tap" className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-[var(--color-brand-100)]" />
           </div>
           <div>
             <label className="block text-[11.5px] font-semibold text-slate-500 mb-1">Details (optional)</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="Where is it, when did it start, any access notes…" className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none resize-none focus:ring-2 focus:ring-blue-100" />
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="Where is it, when did it start, any access notes…" className="w-full bg-slate-50 rounded-xl px-3 py-2 text-[13px] outline-none resize-none focus:ring-2 focus:ring-[var(--color-brand-100)]" />
           </div>
           <div>
             <label className="block text-[11.5px] font-semibold text-slate-500 mb-1">Priority</label>
             <div className="flex gap-1.5">
               {PRIORITIES.map((p) => (
-                <button key={p} onClick={() => setPriority(p)} className={`capitalize rounded-lg px-3 py-1.5 text-[12px] font-semibold border ${priority === p ? "bg-blue-600 text-white border-blue-600" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>{p}</button>
+                <button key={p} onClick={() => setPriority(p)} className={`capitalize rounded-lg px-3 py-1.5 text-[12px] font-semibold border ${priority === p ? "bg-[var(--brand)] text-white border-[var(--brand)]" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>{p}</button>
               ))}
             </div>
           </div>

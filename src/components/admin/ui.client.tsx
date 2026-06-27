@@ -30,7 +30,7 @@ export function AdminTabs({
       {tabs.map((t) => {
         const active = t.key === activeKey
         const cls = cn(
-          "inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40",
+          "inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40",
           active ? "bg-[#0D1B2A] text-white" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
         )
         const inner = (
@@ -76,7 +76,7 @@ export function AdminSearchInput({ placeholder = "Search…", paramKey = "q", cl
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
-        className="w-full h-9 pl-9 pr-8 rounded-xl border border-[#E2EAF6] bg-white text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+        className="w-full h-9 pl-9 pr-8 rounded-xl border border-[#E2EAF6] bg-white text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
       />
       {value && (
         <button onClick={() => setValue("")} aria-label="Clear search" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
@@ -158,7 +158,7 @@ export function AdminConfirmDialog({
         <div className="mt-6 flex items-center justify-end gap-2">
           <button onClick={onCancel} disabled={busy} className="h-9 px-4 rounded-xl border border-[#E2EAF6] text-[13px] font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50">Cancel</button>
           <button onClick={onConfirm} disabled={busy}
-            className={cn("h-9 px-4 rounded-xl text-[13px] font-semibold text-white disabled:opacity-50", danger ? "bg-red-600 hover:bg-red-700" : "bg-[#2563EB] hover:bg-[#1d4ed8]")}>
+            className={cn("h-9 px-4 rounded-xl text-[13px] font-semibold text-white disabled:opacity-50", danger ? "bg-red-600 hover:bg-red-700" : "bg-[var(--brand)] hover:bg-[var(--brand-strong)]")}>
             {busy ? "Working…" : confirmLabel}
           </button>
         </div>

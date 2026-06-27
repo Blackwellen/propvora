@@ -21,7 +21,7 @@ export default function GuestStepper({
   const inc = () => onChange(Math.min(max, value + 1))
 
   const btn =
-    "w-11 h-11 rounded-full border border-[#D6E0F0] flex items-center justify-center text-[#1D4ED8] transition-colors hover:border-[#1D4ED8] hover:bg-blue-50 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-[#D6E0F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+    "w-11 h-11 rounded-full border border-[#D6E0F0] flex items-center justify-center text-[var(--brand-strong)] transition-colors hover:border-[var(--brand-strong)] hover:bg-[var(--brand-soft)] disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-[#D6E0F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
 
   return (
     <div className="flex items-center justify-between gap-3">

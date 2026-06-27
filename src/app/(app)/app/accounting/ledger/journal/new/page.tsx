@@ -106,12 +106,12 @@ export default function NewJournalEntryPage() {
           <label className="flex flex-col gap-1.5">
             <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Date</span>
             <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
-              className="h-9 px-3 rounded-xl border border-[#E2E8F0] text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30" />
+              className="h-9 px-3 rounded-xl border border-[#E2E8F0] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30" />
           </label>
           <label className="flex flex-col gap-1.5 md:col-span-2">
             <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Memo</span>
             <input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="What is this entry for?"
-              className="h-9 px-3 rounded-xl border border-[#E2E8F0] text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30" />
+              className="h-9 px-3 rounded-xl border border-[#E2E8F0] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30" />
           </label>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function NewJournalEntryPage() {
             <h3 className="text-sm font-semibold text-slate-900">Lines</h3>
             <p className="text-xs text-slate-500 mt-0.5">Debits must equal credits before you can post.</p>
           </div>
-          <button onClick={addLine} className="h-8 px-3 rounded-lg bg-[#2563EB] text-white text-xs font-medium flex items-center gap-1.5 hover:bg-[#1d4ed8]">
+          <button onClick={addLine} className="h-8 px-3 rounded-lg bg-[var(--brand)] text-white text-xs font-medium flex items-center gap-1.5 hover:bg-[var(--brand-strong)]">
             <Plus className="w-3.5 h-3.5" /> Add Line
           </button>
         </div>
@@ -142,7 +142,7 @@ export default function NewJournalEntryPage() {
                 <tr key={l.id} className="border-b border-[#E2E8F0] hover:bg-slate-50/50">
                   <td className="px-4 py-2.5">
                     <select value={l.account_id} onChange={(e) => update(l.id, { account_id: e.target.value })}
-                      className="w-full h-9 px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#2563EB] min-w-[200px]">
+                      className="w-full h-9 px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[var(--brand)] min-w-[200px]">
                       <option value="">Select account…</option>
                       {accounts.map((a) => (
                         <option key={a.id} value={a.id}>{a.code} · {a.name}</option>
@@ -158,11 +158,11 @@ export default function NewJournalEntryPage() {
                   </td>
                   <td className="px-4 py-2.5">
                     <input inputMode="decimal" value={l.amount} onChange={(e) => update(l.id, { amount: e.target.value })} placeholder="0.00"
-                      className="w-full h-9 px-2 rounded-lg border border-[#E2E8F0] text-xs text-right text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#2563EB]" />
+                      className="w-full h-9 px-2 rounded-lg border border-[#E2E8F0] text-xs text-right text-slate-900 focus:outline-none focus:ring-1 focus:ring-[var(--brand)]" />
                   </td>
                   <td className="px-4 py-2.5">
                     <input value={l.memo} onChange={(e) => update(l.id, { memo: e.target.value })} placeholder="Optional…"
-                      className="w-full h-9 px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#2563EB]" />
+                      className="w-full h-9 px-2 rounded-lg border border-[#E2E8F0] text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[var(--brand)]" />
                   </td>
                   <td className="px-4 py-2.5">
                     <button onClick={() => removeLine(l.id)} disabled={lines.length <= 2}

@@ -72,7 +72,7 @@ export function DataRequestsTable({ rows, tabs, activeTab, bothMissing, erasureE
                 <td className="px-4 py-3">
                   <p className="font-mono text-[11px] text-slate-700">{shortId(r.userId)}</p>
                   {r.workspaceId ? (
-                    <Link href={`/admin/workspaces/${r.workspaceId}`} className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-[#2563EB]">
+                    <Link href={`/admin/workspaces/${r.workspaceId}`} className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-[var(--brand)]">
                       <Building2 className="w-3 h-3 shrink-0" />
                       <span className="truncate">{r.workspaceName ?? shortId(r.workspaceId)}</span>
                     </Link>
@@ -110,7 +110,7 @@ export function DataRequestsTable({ rows, tabs, activeTab, bothMissing, erasureE
           <ol className="space-y-2.5">
             {WORKFLOW.map((step, i) => (
               <li key={step} className="flex items-center gap-3">
-                <span className="w-6 h-6 rounded-full bg-[#EFF4FF] text-[#2563EB] text-[11px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                <span className="w-6 h-6 rounded-full bg-[#EFF4FF] text-[var(--brand)] text-[11px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
                 <span className="text-[13px] text-slate-700">{step}</span>
               </li>
             ))}

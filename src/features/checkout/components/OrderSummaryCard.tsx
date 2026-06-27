@@ -57,7 +57,7 @@ export function OrderSummaryCard({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={thumbUrl} alt="" className="h-12 w-12 rounded-lg object-cover" />
         ) : (
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#EFF5FF] text-[#2563EB]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#EFF5FF] text-[var(--brand)]">
             <ShieldCheck className="h-5 w-5" />
           </div>
         )}

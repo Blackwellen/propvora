@@ -54,14 +54,14 @@ export default function BookingDetailPanel({ b, onClose }: Props) {
 
       <div className="mt-3 pt-3 border-t border-slate-100">
         <p className="text-[12px] font-semibold text-slate-700 mb-1.5">Payment status</p>
-        <div className="flex items-center justify-between"><StatusPill tone={paymentTone(b.payment)}>{b.payment}</StatusPill><a href={`/api/customer/bookings/${b.id}/receipt`} target="_blank" rel="noopener noreferrer" className="text-[12px] font-semibold text-blue-600">View receipt</a></div>
+        <div className="flex items-center justify-between"><StatusPill tone={paymentTone(b.payment)}>{b.payment}</StatusPill><a href={`/api/customer/bookings/${b.id}/receipt`} target="_blank" rel="noopener noreferrer" className="text-[12px] font-semibold text-[var(--brand)]">View receipt</a></div>
       </div>
 
       <div className="mt-3 pt-3 border-t border-slate-100">
         <p className="text-[12px] font-semibold text-slate-700 mb-1.5">Host / Operator</p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2"><span className="w-8 h-8 rounded-full bg-slate-200" /><div><p className="text-[12.5px] font-semibold text-slate-800">{b.host}</p>{b.superhost && <p className="text-[10.5px] text-amber-600">Superhost</p>}</div></div>
-          <Link href="/customer/messages" className="text-[12px] font-semibold text-blue-600 border border-slate-200 rounded-lg px-2.5 py-1">Message</Link>
+          <Link href="/customer/messages" className="text-[12px] font-semibold text-[var(--brand)] border border-slate-200 rounded-lg px-2.5 py-1">Message</Link>
         </div>
       </div>
 

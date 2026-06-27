@@ -272,7 +272,7 @@ export default function PlanningSetsPage() {
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
           aria-label="Sort planning sets"
-          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-700 ml-auto focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+          className="h-9 px-3 rounded-xl border border-slate-200 bg-white text-[12.5px] text-slate-700 ml-auto focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
         >
           <option value="newest">Sort: Newest first</option>
           <option value="target_high">Sort: Highest net/mo</option>
@@ -342,8 +342,8 @@ export default function PlanningSetsPage() {
           <div className="hidden md:block">
           {/* Bulk action toolbar — shown when rows are selected in table view */}
           {viewMode === "table" && selected.length > 0 && (
-            <div className="flex items-center gap-3 mb-3 px-4 py-2.5 bg-blue-50 rounded-xl border border-blue-200">
-              <span className="text-[12.5px] font-semibold text-blue-700">{selected.length} selected</span>
+            <div className="flex items-center gap-3 mb-3 px-4 py-2.5 bg-[var(--brand-soft)] rounded-xl border border-[var(--color-brand-100)]">
+              <span className="text-[12.5px] font-semibold text-[var(--brand)]">{selected.length} selected</span>
               <ConfirmBulkDelete
                 count={selected.length}
                 onConfirm={async () => {
@@ -353,7 +353,7 @@ export default function PlanningSetsPage() {
               />
               <button
                 onClick={() => setSelected([])}
-                className="ml-auto h-7 px-3 rounded-lg bg-white border border-blue-200 text-blue-600 text-[12px] font-semibold hover:bg-blue-50 transition-colors"
+                className="ml-auto h-7 px-3 rounded-lg bg-white border border-[var(--color-brand-100)] text-[var(--brand)] text-[12px] font-semibold hover:bg-[var(--brand-soft)] transition-colors"
               >
                 Clear selection
               </button>
@@ -457,7 +457,7 @@ export default function PlanningSetsPage() {
                         onClick={() => router.push(`/property-manager/planning/sets/${set.id}/overview`)}
                         className={cn(
                           "border-b border-slate-100 last:border-0 hover:bg-slate-50/60 transition-colors cursor-pointer group",
-                          selected.includes(set.id) && "bg-blue-50/50"
+                          selected.includes(set.id) && "bg-[var(--brand-soft)]/50"
                         )}
                       >
                         <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>

@@ -123,7 +123,7 @@ export function SupplierRatingPanel({
         {!disabled && !showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:underline"
+            className="flex items-center gap-1 text-[12px] font-semibold text-[var(--brand)] hover:underline"
           >
             <Plus className="w-3.5 h-3.5" /> Add rating
           </button>
@@ -251,7 +251,7 @@ export function SupplierRatingPanel({
           </div>
 
           <textarea
-            className="w-full min-h-20 rounded-xl border border-slate-200 px-3 py-2 text-[13px] text-slate-900 resize-y focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
+            className="w-full min-h-20 rounded-xl border border-slate-200 px-3 py-2 text-[13px] text-slate-900 resize-y focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]"
             placeholder="Internal notes (only your team sees this)…"
             value={form.internal_notes ?? ""}
             onChange={(e) => setForm((f) => ({ ...f, internal_notes: e.target.value }))}
@@ -263,7 +263,7 @@ export function SupplierRatingPanel({
             <button
               onClick={submit}
               disabled={createRating.isPending}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-60"
             >
               <CheckCircle2 className="w-4 h-4" />
               {createRating.isPending ? "Saving…" : "Save rating"}

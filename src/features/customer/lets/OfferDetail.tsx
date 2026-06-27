@@ -17,7 +17,7 @@ export default function OfferDetail({ o }: { o: Offer }) {
 
   return (
     <div className="space-y-5">
-      <Link href="/customer/lets?tab=offers" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue-600 hover:text-blue-700"><ArrowLeft className="w-4 h-4" /> Back to offers</Link>
+      <Link href="/customer/lets?tab=offers" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]"><ArrowLeft className="w-4 h-4" /> Back to offers</Link>
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -52,7 +52,7 @@ export default function OfferDetail({ o }: { o: Offer }) {
 
           <Card title="Property &amp; agent">
             <div className="flex gap-3"><Home className="w-4 h-4 text-slate-400 mt-1" /><div className="flex-1"><p className="text-[12.5px] font-semibold text-slate-800">{o.property}</p><p className="text-[11px] text-slate-400">{o.location} · {o.furnished ? "Furnished" : "Unfurnished"} · {o.tenancyMonths}-month term</p></div></div>
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100"><div className="flex items-center gap-2"><span className="w-8 h-8 rounded-full bg-slate-200" /><div><p className="text-[12px] font-semibold text-slate-800">Priya Patel</p><p className="text-[10.5px] text-slate-400">Lettings agent</p></div></div><button onClick={() => toast("Messaging agent…", "info")} className="text-[11.5px] font-semibold text-blue-600 border border-slate-200 rounded-lg px-2.5 py-1"><MessageSquare className="w-3.5 h-3.5 inline mr-1" />Message agent</button></div>
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100"><div className="flex items-center gap-2"><span className="w-8 h-8 rounded-full bg-slate-200" /><div><p className="text-[12px] font-semibold text-slate-800">Priya Patel</p><p className="text-[10.5px] text-slate-400">Lettings agent</p></div></div><button onClick={() => toast("Messaging agent…", "info")} className="text-[11.5px] font-semibold text-[var(--brand)] border border-slate-200 rounded-lg px-2.5 py-1"><MessageSquare className="w-3.5 h-3.5 inline mr-1" />Message agent</button></div>
           </Card>
         </div>
 
@@ -69,5 +69,5 @@ function Field({ label, value }: { label: string; value: string }) {
   return <div><p className="text-[10.5px] text-slate-400">{label}</p><p className="text-[13px] font-semibold text-slate-800">{value}</p></div>
 }
 function Hist({ who, when, text, landlord }: { who: string; when: string; text: string; landlord?: boolean }) {
-  return <li className="flex gap-2.5"><span className={cn("w-7 h-7 rounded-full shrink-0", landlord ? "bg-violet-100" : "bg-blue-100")} /><div className="flex-1"><div className="flex items-center justify-between"><p className="text-[12px] font-semibold text-slate-700">{who}</p><p className="text-[10px] text-slate-400">{when}</p></div><p className="text-[11.5px] text-slate-500">{text}</p></div></li>
+  return <li className="flex gap-2.5"><span className={cn("w-7 h-7 rounded-full shrink-0", landlord ? "bg-violet-100" : "bg-[var(--color-brand-100)]")} /><div className="flex-1"><div className="flex items-center justify-between"><p className="text-[12px] font-semibold text-slate-700">{who}</p><p className="text-[10px] text-slate-400">{when}</p></div><p className="text-[11.5px] text-slate-500">{text}</p></div></li>
 }

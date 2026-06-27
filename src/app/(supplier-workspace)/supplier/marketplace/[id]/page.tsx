@@ -321,7 +321,7 @@ function CoverageTab({ areas }: { areas: CoverageArea[] }) {
     <div className="space-y-4 max-w-2xl">
       <p className="text-sm text-slate-500">
         Coverage areas are shared across all your listings.{" "}
-        <Link href="/supplier/coverage" className="text-blue-600 hover:underline">
+        <Link href="/supplier/coverage" className="text-[var(--brand)] hover:underline">
           Manage coverage areas →
         </Link>
       </p>
@@ -390,7 +390,7 @@ function MediaTab({
         Note: Images are stored as data URLs. For production R2 storage, use the R2 upload API.
       </p>
       <label className={cn(
-        "flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-slate-200 rounded-xl text-sm text-slate-500 cursor-pointer hover:border-blue-300 hover:text-blue-600 transition-colors",
+        "flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-slate-200 rounded-xl text-sm text-slate-500 cursor-pointer hover:border-[var(--color-brand-300)] hover:text-[var(--brand)] transition-colors",
         uploading && "opacity-50 cursor-wait"
       )}>
         <input type="file" accept="image/*" className="sr-only" onChange={handleFile} disabled={uploading} />
@@ -746,7 +746,7 @@ export default function ListingDetailPage() {
               className={cn(
                 "flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors",
                 activeTab === tab.id
-                  ? "border-blue-600 text-blue-600"
+                  ? "border-[var(--brand)] text-[var(--brand)]"
                   : "border-transparent text-slate-500 hover:text-slate-700"
               )}
             >

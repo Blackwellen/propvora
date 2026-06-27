@@ -49,7 +49,7 @@ export default function NodeRegistryTable({ initial }: { initial: Node[] }) {
                 <td className="px-4 py-3 text-slate-600">{n.min_plan}</td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
-                    {n.requires_approval && <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700"><ShieldAlert className="h-2.5 w-2.5" /> approval</span>}
+                    {n.requires_approval && <span className="inline-flex items-center gap-0.5 rounded-full bg-[var(--brand-soft)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--brand)]"><ShieldAlert className="h-2.5 w-2.5" /> approval</span>}
                     {n.blocked_from_autorun && <span className="rounded-full bg-rose-50 px-1.5 py-0.5 text-[10px] font-medium text-rose-700">no auto-run</span>}
                   </div>
                 </td>

@@ -25,6 +25,8 @@ import {
   type LucideIcon,
 } from "lucide-react"
 
+import type { V2FlagKey } from "@/lib/flags/registry"
+
 export interface QuickBarWidget {
   key: string
   label: string
@@ -34,6 +36,24 @@ export interface QuickBarWidget {
   bg: string
   group: string
   defaultVisible: boolean
+  /** When set, the widget is only selectable/rendered if this feature flag is ON. */
+  flag?: V2FlagKey
+}
+
+/** Distinct flags any quick widget depends on — resolved once by consumers. */
+export const QUICKBAR_GATED_FLAGS: V2FlagKey[] = [
+  "planningEnabled",
+  "canvasLite",
+  "legalSection",
+  "marketplaceEnabled",
+]
+
+/** Filter widgets to those whose flag (if any) is enabled in the given map. */
+export function gateWidgets(
+  widgets: QuickBarWidget[],
+  flags: Partial<Record<V2FlagKey, boolean>>,
+): QuickBarWidget[] {
+  return widgets.filter((w) => !w.flag || flags[w.flag] === true)
 }
 
 const MANAGER_BASE = "/property-manager"
@@ -57,16 +77,18 @@ export const ALL_QUICK_WIDGETS: QuickBarWidget[] = [
   // Money
   { key: "invoices",       label: "Invoices",      href: `${MANAGER_BASE}/money/invoices`,            icon: Receipt,        colour: "#16A34A", bg: "#F0FDF4", group: "Money",      defaultVisible: true  },
   { key: "money",          label: "Finance",       href: `${MANAGER_BASE}/money`,                     icon: Wallet,         colour: "#059669", bg: "#ECFDF5", group: "Money",      defaultVisible: false },
-  // Planning
-  { key: "planning-sets",  label: "Plans",         href: `${MANAGER_BASE}/planning/sets`,             icon: Layers,         colour: "#7C3AED", bg: "#F5F3FF", group: "Planning",   defaultVisible: false },
-  { key: "offers",         label: "LL Offers",     href: `${MANAGER_BASE}/planning/landlord-offers`,  icon: Handshake,      colour: "#2563EB", bg: "#EFF6FF", group: "Planning",   defaultVisible: false },
-  { key: "forecasts",      label: "Forecasts",     href: `${MANAGER_BASE}/planning/forecasts`,        icon: TrendingUp,     colour: "#10B981", bg: "#ECFDF5", group: "Planning",   defaultVisible: false },
-  { key: "scenarios",      label: "Scenarios",     href: `${MANAGER_BASE}/planning/scenarios`,        icon: GitBranch,      colour: "#F59E0B", bg: "#FFFBEB", group: "Planning",   defaultVisible: false },
-  { key: "conversions",    label: "Conversions",   href: `${MANAGER_BASE}/planning/conversions`,      icon: ArrowRightLeft, colour: "#EF4444", bg: "#FEF2F2", group: "Planning",   defaultVisible: false },
-  { key: "plan-activity",  label: "Plan Activity", href: `${MANAGER_BASE}/planning/activity`,         icon: Activity,       colour: "#6366F1", bg: "#EEF2FF", group: "Planning",   defaultVisible: false },
+  // Planning — gated behind the Planning feature flag (V1.5).
+  { key: "planning-sets",  label: "Plans",         href: `${MANAGER_BASE}/planning/sets`,             icon: Layers,         colour: "#7C3AED", bg: "#F5F3FF", group: "Planning",   defaultVisible: false, flag: "planningEnabled" },
+  { key: "offers",         label: "LL Offers",     href: `${MANAGER_BASE}/planning/landlord-offers`,  icon: Handshake,      colour: "#2563EB", bg: "#EFF6FF", group: "Planning",   defaultVisible: false, flag: "planningEnabled" },
+  { key: "forecasts",      label: "Forecasts",     href: `${MANAGER_BASE}/planning/forecasts`,        icon: TrendingUp,     colour: "#10B981", bg: "#ECFDF5", group: "Planning",   defaultVisible: false, flag: "planningEnabled" },
+  { key: "scenarios",      label: "Scenarios",     href: `${MANAGER_BASE}/planning/scenarios`,        icon: GitBranch,      colour: "#F59E0B", bg: "#FFFBEB", group: "Planning",   defaultVisible: false, flag: "planningEnabled" },
+  { key: "conversions",    label: "Conversions",   href: `${MANAGER_BASE}/planning/conversions`,      icon: ArrowRightLeft, colour: "#EF4444", bg: "#FEF2F2", group: "Planning",   defaultVisible: false, flag: "planningEnabled" },
+  { key: "plan-activity",  label: "Plan Activity", href: `${MANAGER_BASE}/planning/activity`,         icon: Activity,       colour: "#6366F1", bg: "#EEF2FF", group: "Planning",   defaultVisible: false, flag: "planningEnabled" },
   // Other
   { key: "calendar",       label: "Calendar",      href: `${MANAGER_BASE}/calendar`,                  icon: CalendarDays,   colour: "#0891B2", bg: "#ECFEFF", group: "Other",      defaultVisible: false },
   { key: "compliance",     label: "Compliance",    href: `${MANAGER_BASE}/compliance`,                icon: ShieldCheck,    colour: "#DC2626", bg: "#FEF2F2", group: "Other",      defaultVisible: false },
+  { key: "automations",    label: "Automations",   href: `${MANAGER_BASE}/automations`,               icon: GitBranch,      colour: "#7C3AED", bg: "#F5F3FF", group: "Other",      defaultVisible: false, flag: "canvasLite" },
+  { key: "legal",          label: "Legal",         href: `${MANAGER_BASE}/legal`,                     icon: FileText,       colour: "#0E7490", bg: "#ECFEFF", group: "Other",      defaultVisible: false, flag: "legalSection" },
   { key: "reports",        label: "Reports",       href: `${MANAGER_BASE}/money`,                     icon: FileText,       colour: "#64748B", bg: "#F8FAFC", group: "Other",      defaultVisible: false },
 ]
 
@@ -97,5 +119,43 @@ export function getDefaultPrefs(): QuickBarPrefs {
   return {
     visible: Object.fromEntries(ALL_QUICK_WIDGETS.map(w => [w.key, w.defaultVisible])),
     order: ALL_QUICK_WIDGETS.map(w => w.key),
+  }
+}
+
+function isValidPrefs(p: unknown): p is QuickBarPrefs {
+  return !!p && typeof p === "object"
+    && "visible" in p && typeof (p as QuickBarPrefs).visible === "object"
+    && "order" in p && Array.isArray((p as QuickBarPrefs).order)
+}
+
+/**
+ * Hydrate quick-bar prefs from the DB (cross-device). Returns the stored prefs
+ * or null. Also mirrors them into localStorage for fast synchronous reads next
+ * time. Best-effort — any failure resolves to null and the caller keeps the
+ * localStorage/default prefs.
+ */
+export async function loadQuickBarPrefsFromDb(): Promise<QuickBarPrefs | null> {
+  try {
+    const { getUserPreferences } = await import("@/lib/actions/settings")
+    const { prefs } = await getUserPreferences()
+    const qb = prefs?.quickbar
+    if (isValidPrefs(qb)) {
+      saveQuickBarPrefs(qb)
+      return qb
+    }
+  } catch {
+    /* ignore — fall back to localStorage/defaults */
+  }
+  return null
+}
+
+/** Persist prefs to localStorage (instant) AND the DB (cross-device, best-effort). */
+export async function saveQuickBarPrefsEverywhere(prefs: QuickBarPrefs): Promise<void> {
+  saveQuickBarPrefs(prefs)
+  try {
+    const { saveUserPreferences } = await import("@/lib/actions/settings")
+    await saveUserPreferences({ quickbar: prefs })
+  } catch {
+    /* localStorage already saved — DB sync is best-effort */
   }
 }

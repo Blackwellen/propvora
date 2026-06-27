@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic"
 
 const STATUS_STYLE: Record<string, string> = {
   pending: "bg-amber-50 text-amber-700 border border-amber-100",
-  accepted: "bg-[#EFF6FF] text-[#2563EB] border border-blue-100",
+  accepted: "bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]",
   active: "bg-violet-50 text-[#7C3AED] border border-violet-100",
   completed: "bg-emerald-50 text-emerald-700 border border-emerald-100",
   disputed: "bg-red-50 text-red-700 border border-red-100",
@@ -86,7 +86,7 @@ export default async function MarketplaceOrdersPage({
                 <tr key={o.id} className="hover:bg-slate-50/60 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
-                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#EFF6FF] text-[#2563EB] shrink-0">
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] shrink-0">
                         <Package className="w-4 h-4" />
                       </span>
                       <div className="min-w-0">

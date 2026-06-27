@@ -398,7 +398,7 @@ export async function ServicesSection({
                 className={[
                   "shrink-0 px-4 py-2 rounded-full border text-sm font-medium transition-colors whitespace-nowrap",
                   isActive
-                    ? "bg-blue-600 text-white border-blue-600"
+                    ? "bg-[var(--brand)] text-white border-[var(--brand)]"
                     : "bg-white text-slate-600 border-slate-200 hover:border-slate-300",
                 ].join(" ")}
               >
@@ -530,7 +530,7 @@ async function EmergencyView({
       {/* Back to all services */}
       <a
         href={`${HUB}?tab=services`}
-        className="mb-3 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 transition-colors hover:text-blue-600"
+        className="mb-3 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 transition-colors hover:text-[var(--brand)]"
       >
         ← Back to all services
       </a>

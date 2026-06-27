@@ -208,21 +208,21 @@ function RecordPaymentModal({ bill, onClose, onRecord }: { bill: BillDetail; onC
           {err && <p className="text-xs text-red-600">{err}</p>}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Payment Date</label>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]" />
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Amount (£)</label>
-            <input type="number" min={0} step={0.01} value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+            <input type="number" min={0} step={0.01} value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]" />
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Payment Method</label>
-            <select value={method} onChange={(e) => setMethod(e.target.value)} className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+            <select value={method} onChange={(e) => setMethod(e.target.value)} className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]">
               {["Bank Transfer (BACS)","Faster Payments","CHAPS","Direct Debit","Cheque","Card"].map((m) => <option key={m}>{m}</option>)}
             </select>
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Reference</label>
-            <input value={ref} onChange={(e) => setRef(e.target.value)} placeholder="e.g. BACS-20240610" className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+            <input value={ref} onChange={(e) => setRef(e.target.value)} placeholder="e.g. BACS-20240610" className="w-full h-10 px-3 rounded-lg text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]" />
           </div>
           <div className="flex gap-2 pt-1">
             <Button type="submit" variant="primary" loading={saving} className="flex-1">Save Payment</Button>
@@ -604,7 +604,7 @@ export default function BillDetailPage() {
         <Receipt className="w-12 h-12 text-slate-300" />
         <p className="text-slate-600 font-medium">Bill not found</p>
         <p className="text-sm text-slate-400 max-w-sm text-center">This bill doesn&apos;t exist, has been deleted, or belongs to another workspace.</p>
-        <Link href="/property-manager/money/bills" className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/property-manager/money/bills" className="inline-flex items-center gap-1.5 text-sm text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Bills
         </Link>
       </div>
@@ -775,7 +775,7 @@ export default function BillDetailPage() {
               {[
                 { label: "Subtotal", value: gbp(bill.subtotal, bill.currency), colour: "text-slate-900" },
                 { label: "Tax", value: gbp(bill.tax, bill.currency), colour: "text-slate-600" },
-                { label: "Total", value: gbp(bill.amount, bill.currency), colour: "text-[#2563EB] font-bold" },
+                { label: "Total", value: gbp(bill.amount, bill.currency), colour: "text-[var(--brand)] font-bold" },
                 { label: "Paid", value: gbp(bill.paid, bill.currency), colour: "text-emerald-600" },
                 { label: "Outstanding", value: gbp(outstanding, bill.currency), colour: outstanding > 0 ? "text-red-600 font-bold" : "text-emerald-600" },
               ].map((k) => (
@@ -807,7 +807,7 @@ export default function BillDetailPage() {
                       className={cn(
                         "px-5 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-all",
                         activeTab === tab
-                          ? "border-[#2563EB] text-[#2563EB]"
+                          ? "border-[var(--brand)] text-[var(--brand)]"
                           : "border-transparent text-slate-500 hover:text-slate-700"
                       )}
                     >
@@ -896,21 +896,21 @@ export default function BillDetailPage() {
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide">Related</h3>
               <div className="space-y-2">
                 {bill.contact_id ? (
-                  <Link href={`/property-manager/contacts/${bill.contact_id}`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
+                  <Link href={`/property-manager/contacts/${bill.contact_id}`} className="flex items-center gap-2 text-sm text-[var(--brand)] hover:underline">
                     <User className="w-3.5 h-3.5" /> {bill.supplier}
                   </Link>
                 ) : (
                   <span className="flex items-center gap-2 text-sm text-slate-400"><User className="w-3.5 h-3.5" /> {bill.supplier}</span>
                 )}
                 {bill.property_ref ? (
-                  <Link href={`/property-manager/portfolio/properties/${bill.property_ref}`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
+                  <Link href={`/property-manager/portfolio/properties/${bill.property_ref}`} className="flex items-center gap-2 text-sm text-[var(--brand)] hover:underline">
                     <Building2 className="w-3.5 h-3.5" /> {bill.property}
                   </Link>
                 ) : (
                   <span className="flex items-center gap-2 text-sm text-slate-400"><Building2 className="w-3.5 h-3.5" /> {bill.property}</span>
                 )}
                 {bill.job_ref && (
-                  <Link href={`/property-manager/work/jobs/${bill.job_ref}`} className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline">
+                  <Link href={`/property-manager/work/jobs/${bill.job_ref}`} className="flex items-center gap-2 text-sm text-[var(--brand)] hover:underline">
                     <Briefcase className="w-3.5 h-3.5" /> {bill.job}
                   </Link>
                 )}
@@ -928,7 +928,7 @@ export default function BillDetailPage() {
                       ? "No other bills from this supplier"
                       : `${supplierBillCount} other bill${supplierBillCount === 1 ? "" : "s"} from ${bill.supplier}`}
                 </p>
-                <Link href={`/property-manager/money/bills?supplier=${bill.contact_id}`} className="text-xs text-[#2563EB] hover:underline mt-1 block">
+                <Link href={`/property-manager/money/bills?supplier=${bill.contact_id}`} className="text-xs text-[var(--brand)] hover:underline mt-1 block">
                   View all supplier bills →
                 </Link>
               </div>
@@ -1064,7 +1064,7 @@ function LineItemsTab({ bill }: { bill: BillDetail }) {
           </tr>
           <tr className="border-t-2 border-slate-200 bg-slate-50">
             <td colSpan={4} className="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Total</td>
-            <td className="px-4 py-3 text-right font-bold text-[#2563EB] text-base">{gbp(bill.amount, bill.currency)}</td>
+            <td className="px-4 py-3 text-right font-bold text-[var(--brand)] text-base">{gbp(bill.amount, bill.currency)}</td>
           </tr>
         </tfoot>
       </table>
@@ -1240,7 +1240,7 @@ function DocumentsTab({ docs, uploading, onUpload }: { docs: BillDoc[]; uploadin
                 </div>
               </div>
               {d.url && (
-                <a href={d.url} target="_blank" rel="noopener noreferrer" className="text-xs text-[#2563EB] hover:underline shrink-0">Download</a>
+                <a href={d.url} target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--brand)] hover:underline shrink-0">Download</a>
               )}
             </div>
           ))}

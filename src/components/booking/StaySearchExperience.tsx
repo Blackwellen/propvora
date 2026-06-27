@@ -134,7 +134,7 @@ export default function StaySearchExperience({
             value={filters.q}
             onChange={(e) => patch({ q: e.target.value })}
             placeholder="Search by place, city or property name"
-            className="h-12 w-full rounded-xl border border-[#D6E0F0] bg-white pl-11 pr-4 text-[14px] text-[#0B1B3F] placeholder:text-slate-400 outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#2563EB]/20"
+            className="h-12 w-full rounded-xl border border-[#D6E0F0] bg-white pl-11 pr-4 text-[14px] text-[#0B1B3F] placeholder:text-slate-400 outline-none focus:border-[var(--brand-strong)] focus:ring-2 focus:ring-[var(--brand)]/20"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -143,12 +143,12 @@ export default function StaySearchExperience({
             onClick={() => setFiltersOpen((v) => !v)}
             className={cn(
               "inline-flex h-12 items-center gap-2 rounded-xl border px-4 text-[13.5px] font-semibold transition-colors",
-              count > 0 ? "border-[#1D4ED8] bg-blue-50 text-[#1D4ED8]" : "border-[#D6E0F0] bg-white text-slate-600 hover:border-slate-300"
+              count > 0 ? "border-[var(--brand-strong)] bg-[var(--brand-soft)] text-[var(--brand-strong)]" : "border-[#D6E0F0] bg-white text-slate-600 hover:border-slate-300"
             )}
           >
             <SlidersHorizontal className="h-4 w-4" /> Filters
             {count > 0 && (
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#1D4ED8] text-[11px] text-white">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[var(--brand-strong)] text-[11px] text-white">
                 {count}
               </span>
             )}
@@ -177,7 +177,7 @@ export default function StaySearchExperience({
                       }}
                       className={cn(
                         "flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[13px]",
-                        filters.sort === s.key ? "bg-blue-50 font-semibold text-[#1D4ED8]" : "text-slate-600 hover:bg-slate-50"
+                        filters.sort === s.key ? "bg-[var(--brand-soft)] font-semibold text-[var(--brand-strong)]" : "text-slate-600 hover:bg-slate-50"
                       )}
                     >
                       {s.label}
@@ -197,7 +197,7 @@ export default function StaySearchExperience({
               aria-pressed={view === "list"}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium transition-colors",
-                view === "list" ? "bg-[#1D4ED8] text-white" : "text-slate-500 hover:bg-slate-50"
+                view === "list" ? "bg-[var(--brand-strong)] text-white" : "text-slate-500 hover:bg-slate-50"
               )}
             >
               <List className="h-4 w-4" /> <span className="hidden sm:inline">List</span>
@@ -208,7 +208,7 @@ export default function StaySearchExperience({
               aria-pressed={view === "map"}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium transition-colors",
-                view === "map" ? "bg-[#1D4ED8] text-white" : "text-slate-500 hover:bg-slate-50"
+                view === "map" ? "bg-[var(--brand-strong)] text-white" : "text-slate-500 hover:bg-slate-50"
               )}
             >
               <MapIcon className="h-4 w-4" /> <span className="hidden sm:inline">Map</span>
@@ -246,7 +246,7 @@ export default function StaySearchExperience({
         </p>
         {view === "map" && (
           <label className="hidden cursor-pointer items-center gap-2 text-[12.5px] font-medium text-slate-600 lg:flex">
-            <input type="checkbox" checked={searchOnMove} onChange={(e) => setSearchOnMove(e.target.checked)} className="accent-[#1D4ED8]" />
+            <input type="checkbox" checked={searchOnMove} onChange={(e) => setSearchOnMove(e.target.checked)} className="accent-[var(--brand-strong)]" />
             Search as I move the map
           </label>
         )}
@@ -312,7 +312,7 @@ export default function StaySearchExperience({
             <StayFilterSheet filters={filters} priceCeiling={priceCeiling} onChange={patch} onClear={clear} />
             <button
               onClick={() => setFiltersOpen(false)}
-              className="mt-5 h-12 w-full rounded-xl bg-[#1D4ED8] text-[14px] font-semibold text-white"
+              className="mt-5 h-12 w-full rounded-xl bg-[var(--brand-strong)] text-[14px] font-semibold text-white"
             >
               Show {visible.length} {visible.length === 1 ? "stay" : "stays"}
             </button>
@@ -339,7 +339,7 @@ function EmptyFiltered({ onClear }: { onClear: () => void }) {
   return (
     <div className="rounded-2xl border border-dashed border-[#D6E0F0] bg-white py-14 text-center">
       <h3 className="text-[15px] font-semibold text-[#0B1B3F]">No stays match your filters</h3>
-      <button onClick={onClear} className="mt-3 text-[13px] font-semibold text-[#1D4ED8] hover:underline">
+      <button onClick={onClear} className="mt-3 text-[13px] font-semibold text-[var(--brand-strong)] hover:underline">
         Clear filters
       </button>
     </div>

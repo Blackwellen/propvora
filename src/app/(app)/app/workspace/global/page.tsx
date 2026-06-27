@@ -135,7 +135,7 @@ export default function WorkspaceGlobalPage() {
             onClick={() => setTab(t.id)}
             className={cn(
               "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[12.5px] font-medium transition-colors",
-              tab === t.id ? "bg-blue-600 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+              tab === t.id ? "bg-[var(--brand)] text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
             )}
           >
             <t.icon className="w-3.5 h-3.5" /> {t.label}

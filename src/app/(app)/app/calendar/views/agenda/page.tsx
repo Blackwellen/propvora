@@ -128,7 +128,7 @@ export default function CalendarAgendaPage() {
         <span className="text-[13px] font-medium text-slate-500 mr-1">View:</span>
         <CalendarViewsSwitcher />
         <div className="ml-auto flex items-center gap-2">
-          <Link href={sectionLink("/property-manager/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold">
+          <Link href={sectionLink("/property-manager/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] font-semibold">
             <Plus className="w-3.5 h-3.5" />
             New Event
           </Link>
@@ -161,14 +161,14 @@ export default function CalendarAgendaPage() {
             groups.map((group) => {
               const isToday = isSameDay(group.date, now)
               return (
-                <div key={group.iso} className={cn("bg-white rounded-xl border overflow-hidden shadow-sm", isToday ? 'border-blue-300' : 'border-slate-200')}>
-                  <div className={cn("flex items-center justify-between px-4 py-2.5 border-b", isToday ? 'bg-blue-50 border-blue-200' : 'bg-slate-50 border-slate-100')}>
+                <div key={group.iso} className={cn("bg-white rounded-xl border overflow-hidden shadow-sm", isToday ? 'border-[var(--color-brand-300)]' : 'border-slate-200')}>
+                  <div className={cn("flex items-center justify-between px-4 py-2.5 border-b", isToday ? 'bg-[var(--brand-soft)] border-[var(--color-brand-100)]' : 'bg-slate-50 border-slate-100')}>
                     <div className="flex items-center gap-2">
-                      {isToday && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />}
-                      <span className={cn("text-[13px] font-bold", isToday ? 'text-blue-800' : 'text-slate-800')}>
+                      {isToday && <span className="w-2 h-2 rounded-full bg-[var(--brand)] shrink-0" />}
+                      <span className={cn("text-[13px] font-bold", isToday ? 'text-[var(--brand-strong)]' : 'text-slate-800')}>
                         {group.date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
                       </span>
-                      {isToday && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-600 text-white">TODAY</span>}
+                      {isToday && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--brand)] text-white">TODAY</span>}
                     </div>
                     <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">
                       {group.events.length} {group.events.length === 1 ? 'item' : 'items'}
@@ -194,7 +194,7 @@ export default function CalendarAgendaPage() {
                 const count = items.filter((e) => e.source === key).length
                 return (
                   <label key={key} className="flex items-center gap-2.5 cursor-pointer group">
-                    <input type="checkbox" checked={active.has(key)} onChange={() => toggle(key)} className="rounded border-slate-300 accent-blue-600 w-3.5 h-3.5" />
+                    <input type="checkbox" checked={active.has(key)} onChange={() => toggle(key)} className="rounded border-slate-300 accent-[var(--brand)] w-3.5 h-3.5" />
                     <div className={cn("w-2 h-2 rounded-full shrink-0", meta.dot)} />
                     <span className="text-[12px] text-slate-700 group-hover:text-slate-900 flex-1">{meta.label}</span>
                     <span className="text-[10px] text-slate-400">{count}</span>
@@ -214,7 +214,7 @@ export default function CalendarAgendaPage() {
               {[
                 { label: 'Items shown', value: totalVisible, cls: 'text-slate-800' },
                 { label: 'Overdue', value: overdueCount, cls: 'text-red-600' },
-                { label: 'This week', value: thisWeekCount, cls: 'text-blue-600' },
+                { label: 'This week', value: thisWeekCount, cls: 'text-[var(--brand)]' },
               ].map((s) => (
                 <div key={s.label} className="flex items-center justify-between">
                   <span className="text-[12px] text-slate-600">{s.label}</span>

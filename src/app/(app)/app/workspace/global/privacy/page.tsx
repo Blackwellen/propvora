@@ -76,7 +76,7 @@ export default function WorkspacePrivacyPage() {
           <ArrowLeft className="w-3.5 h-3.5" /> Global &amp; internationalisation
         </Link>
         <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <Shield className="w-6 h-6 text-blue-500" /> Data subject requests
+          <Shield className="w-6 h-6 text-[var(--brand)]" /> Data subject requests
         </h1>
         <p className="text-sm text-slate-500">
           Log and track privacy (DSAR) requests. The response due date is computed from your

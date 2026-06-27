@@ -20,7 +20,7 @@ export default function StaySearchHero() {
         <div className="mt-5 flex flex-wrap items-center gap-4">
           {TRUST_BADGES.map(({ icon: Icon, label }) => (
             <span key={label} className="inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-600">
-              <Icon className="w-4 h-4 text-[#1D4ED8]" />
+              <Icon className="w-4 h-4 text-[var(--brand-strong)]" />
               {label}
             </span>
           ))}

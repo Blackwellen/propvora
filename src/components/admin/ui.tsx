@@ -24,7 +24,7 @@ export {
 export type AdminTone = "blue" | "emerald" | "amber" | "red" | "violet" | "slate" | "sky"
 
 export const ADMIN_TONE: Record<AdminTone, { chip: string; icon: string; dot: string }> = {
-  blue:    { chip: "bg-blue-50 text-blue-700 border-blue-100",       icon: "bg-blue-50 text-[#2563EB]",     dot: "bg-blue-500" },
+  blue:    { chip: "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",       icon: "bg-[var(--brand-soft)] text-[var(--brand)]",     dot: "bg-[var(--brand)]" },
   emerald: { chip: "bg-emerald-50 text-emerald-700 border-emerald-100", icon: "bg-emerald-50 text-emerald-600", dot: "bg-emerald-500" },
   amber:   { chip: "bg-amber-50 text-amber-700 border-amber-100",    icon: "bg-amber-50 text-amber-600",    dot: "bg-amber-500" },
   red:     { chip: "bg-red-50 text-red-700 border-red-100",          icon: "bg-red-50 text-red-600",        dot: "bg-red-500" },
@@ -63,7 +63,7 @@ export function AdminPageHeader({
         )}
         <div className="flex items-center gap-2.5">
           {Icon && (
-            <span className="w-9 h-9 rounded-xl bg-[#EFF4FF] text-[#2563EB] flex items-center justify-center shrink-0">
+            <span className="w-9 h-9 rounded-xl bg-[#EFF4FF] text-[var(--brand)] flex items-center justify-center shrink-0">
               <Icon className="w-[18px] h-[18px]" />
             </span>
           )}
@@ -111,7 +111,7 @@ export function AdminSectionCard({
           <h2 className="text-[15px] font-semibold text-[#0B1B3F] truncate">{title}</h2>
         </div>
         {actions ?? (viewAllHref && (
-          <Link href={viewAllHref} className="text-[12px] font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5 shrink-0">
+          <Link href={viewAllHref} className="text-[12px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] flex items-center gap-0.5 shrink-0">
             {viewAllLabel} <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         ))}
@@ -213,7 +213,7 @@ export function AdminTable({
 export function AdminEmptyState({ icon: Icon, title, description, action }: { icon: LucideIcon; title: string; description: string; action?: React.ReactNode }) {
   return (
     <div className="flex flex-col items-center justify-center text-center px-6 py-14">
-      <div className="w-14 h-14 rounded-2xl bg-[#EFF4FF] flex items-center justify-center mb-4"><Icon className="w-7 h-7 text-[#2563EB]" /></div>
+      <div className="w-14 h-14 rounded-2xl bg-[#EFF4FF] flex items-center justify-center mb-4"><Icon className="w-7 h-7 text-[var(--brand)]" /></div>
       <h3 className="text-[15px] font-semibold text-[#0B1B3F]">{title}</h3>
       <p className="mt-1.5 text-[13px] text-slate-500 max-w-sm text-pretty">{description}</p>
       {action && <div className="mt-5">{action}</div>}
@@ -341,7 +341,7 @@ export function AdminBarChart({ data, height = 160, tone = "blue" }: { data: { l
 
 export function AdminButtonLink({ href, children, variant = "secondary", icon: Icon, className }: { href: string; children: React.ReactNode; variant?: "primary" | "secondary" | "ghost" | "danger"; icon?: LucideIcon; className?: string }) {
   const v: Record<string, string> = {
-    primary: "bg-[#2563EB] text-white hover:bg-[#1d4ed8] border-transparent",
+    primary: "bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] border-transparent",
     secondary: "bg-white text-slate-700 border-[#E2EAF6] hover:bg-slate-50 hover:border-[#C8DBF5]",
     ghost: "bg-transparent text-slate-600 border-transparent hover:bg-slate-100",
     danger: "bg-red-600 text-white hover:bg-red-700 border-transparent",

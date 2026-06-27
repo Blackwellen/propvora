@@ -127,7 +127,7 @@ export default function EvidencePage() {
           <p className="text-sm text-slate-500 mt-0.5">Photos, certificates and supporting files for compliance records.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowUpload((v) => !v)} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+          <button onClick={() => setShowUpload((v) => !v)} className="flex items-center gap-2 bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Upload className="w-4 h-4" />
             Upload evidence
           </button>
@@ -147,7 +147,7 @@ export default function EvidencePage() {
       <DashboardContainer>
         {/* KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6 py-4">
-          <ComplianceKpiCard label="Total Evidence" value={isLoading ? "—" : kpis.total} subtitle="Files on record" icon={Folder} iconBg="bg-blue-100" iconColor="text-blue-600" />
+          <ComplianceKpiCard label="Total Evidence" value={isLoading ? "—" : kpis.total} subtitle="Files on record" icon={Folder} iconBg="bg-[var(--color-brand-100)]" iconColor="text-[var(--brand)]" />
           <ComplianceKpiCard label="Verified" value={isLoading ? "—" : kpis.verified} subtitle={kpis.total ? `${Math.round((kpis.verified / kpis.total) * 100)}% of total` : "—"} icon={CheckCircle} iconBg="bg-emerald-100" iconColor="text-emerald-600" />
           <ComplianceKpiCard label="Pending Review" value={isLoading ? "—" : kpis.pending} subtitle="Awaiting verification" icon={Clock} iconBg="bg-amber-100" iconColor="text-amber-600" />
           <ComplianceKpiCard label="Rejected" value={isLoading ? "—" : kpis.rejected} subtitle="Needs re-upload" icon={XCircle} iconBg="bg-red-100" iconColor="text-red-600" />
@@ -166,7 +166,7 @@ export default function EvidencePage() {
                 <select
                   value={linkItemId}
                   onChange={(e) => setLinkItemId(e.target.value)}
-                  className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 max-h-60 overflow-y-auto"
+                  className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)] max-h-60 overflow-y-auto"
                 >
                   <option value="">{complianceItems.length ? "Select a compliance item…" : "No compliance items yet"}</option>
                   {complianceItems.map((it) => (
@@ -201,10 +201,10 @@ export default function EvidencePage() {
               placeholder="Search evidence..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-56"
+              className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)] w-56"
             />
           </div>
-          <select aria-label="Filter by verification status" value={verifyFilter} onChange={(e) => setVerifyFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]">
+          <select aria-label="Filter by verification status" value={verifyFilter} onChange={(e) => setVerifyFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)]">
             {VERIFY_FILTERS.map((s) => (
               <option key={s} value={s}>{s ? humaniseType(s) : "All status"}</option>
             ))}
@@ -226,7 +226,7 @@ export default function EvidencePage() {
                 <p className="text-sm font-medium text-slate-700">{evidence.length === 0 ? "No evidence uploaded yet" : "No evidence matches your filters"}</p>
                 <p className="text-xs text-slate-400 mt-1 mb-4">{evidence.length === 0 ? "Upload photos and certificates to support your compliance records." : "Try adjusting your search or filters."}</p>
                 {evidence.length === 0 && (
-                  <button onClick={() => setShowUpload(true)} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700">
+                  <button onClick={() => setShowUpload(true)} className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-[var(--brand-strong)]">
                     <Upload className="w-3.5 h-3.5" /> Upload evidence
                   </button>
                 )}

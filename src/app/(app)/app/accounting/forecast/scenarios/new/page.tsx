@@ -18,7 +18,7 @@ const WIZARD_STEPS = [
 
 const ASSUMPTIONS = [
   { icon: "🟢", label: "Occupancy", value: "94.0%", desc: "Average occupied space", color: "text-[#10B981]" },
-  { icon: "📊", label: "Rent Growth (ERV)", value: "3.5%", desc: "Effective rental growth p.a.", color: "text-[#2563EB]" },
+  { icon: "📊", label: "Rent Growth (ERV)", value: "3.5%", desc: "Effective rental growth p.a.", color: "text-[var(--brand)]" },
   { icon: "🟠", label: "Arrears (Tenant)", value: "1.0%", desc: "% of rent outstanding", color: "text-[#F59E0B]" },
   { icon: "🔴", label: "Maintenance", value: "14.0%", desc: "Opex as % of gross rent", color: "text-[#EF4444]" },
   { icon: "🔴", label: "Financing Costs", value: "4.25%", desc: "Average cost of debt p.a.", color: "text-[#EF4444]" },
@@ -110,17 +110,17 @@ export default function AddForecastScenarioPage() {
                   type="text"
                   value={scenarioName}
                   onChange={(e) => setScenarioName(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30"
+                  className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
                 />
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-slate-700">Based On</label>
-                <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+                <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30">
                   <option>Base Plan (Jul 2026)</option>
                   <option>None (Start fresh)</option>
                 </select>
-                <p className="text-[11px] text-[#2563EB]">All assumptions and drivers will be copied from the selected scenario.</p>
+                <p className="text-[11px] text-[var(--brand)]">All assumptions and drivers will be copied from the selected scenario.</p>
               </div>
 
               <div className="space-y-1.5">
@@ -133,7 +133,7 @@ export default function AddForecastScenarioPage() {
                       className={cn(
                         "flex-1 h-8 rounded-lg text-xs font-semibold transition-all",
                         period === p
-                          ? "bg-[#2563EB] text-white shadow-sm"
+                          ? "bg-[var(--brand)] text-white shadow-sm"
                           : "border border-[#E2E8F0] text-slate-600 hover:bg-slate-50"
                       )}
                     >
@@ -145,7 +145,7 @@ export default function AddForecastScenarioPage() {
 
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-slate-700">Reporting Currency</label>
-                <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+                <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30">
                   <option>GBP – British Pound</option>
                   <option>USD – US Dollar</option>
                 </select>
@@ -161,7 +161,7 @@ export default function AddForecastScenarioPage() {
 
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-slate-700">Rounding</label>
-                <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30">
+                <select className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30">
                   <option>Thousands (£&apos;000)</option>
                   <option>Units</option>
                   <option>Millions (£m)</option>
@@ -176,7 +176,7 @@ export default function AddForecastScenarioPage() {
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
                     maxLength={250}
-                    className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 resize-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 resize-none"
                   />
                   <span className="absolute bottom-2 right-3 text-[11px] text-slate-500">{description.length}/250</span>
                 </div>
@@ -186,9 +186,9 @@ export default function AddForecastScenarioPage() {
                 <label className="text-sm font-medium text-slate-700">Scenario Tags</label>
                 <div className="flex flex-wrap gap-2 p-2.5 rounded-lg border border-[#E2E8F0] min-h-[40px]">
                   {tags.map((t) => (
-                    <span key={t} className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EFF6FF] text-[#2563EB] text-[12px] font-medium">
+                    <span key={t} className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] text-[12px] font-medium">
                       {t}
-                      <button onClick={() => removeTag(t)} className="ml-0.5 hover:text-[#1d4ed8]">
+                      <button onClick={() => removeTag(t)} className="ml-0.5 hover:text-[var(--brand-strong)]">
                         <X className="w-3 h-3" />
                       </button>
                     </span>
@@ -199,7 +199,7 @@ export default function AddForecastScenarioPage() {
                     onChange={(e) => setNewTag(e.target.value)}
                     onKeyDown={addTag}
                     placeholder="+ Add tag"
-                    className="text-[12px] text-[#2563EB] placeholder:text-[#2563EB] bg-transparent outline-none min-w-[60px]"
+                    className="text-[12px] text-[var(--brand)] placeholder:text-[var(--brand)] bg-transparent outline-none min-w-[60px]"
                   />
                 </div>
               </div>
@@ -225,7 +225,7 @@ export default function AddForecastScenarioPage() {
               ))}
             </div>
             <div className="mt-4 pt-3 border-t border-[#E2E8F0]">
-              <button className="text-xs font-medium text-[#2563EB] hover:text-[#1d4ed8]">
+              <button className="text-xs font-medium text-[var(--brand)] hover:text-[var(--brand-strong)]">
                 View all drivers in next step →
               </button>
             </div>
@@ -270,7 +270,7 @@ export default function AddForecastScenarioPage() {
               <ImpactChart />
               <div className="flex gap-4 mt-2">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-6 h-0.5 bg-[#2563EB] inline-block" />
+                  <span className="w-6 h-0.5 bg-[var(--brand)] inline-block" />
                   <span className="text-[10px] text-slate-500">Upside Case – Strong Leasing</span>
                 </div>
                 <div className="flex items-center gap-1.5">

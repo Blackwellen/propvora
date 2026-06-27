@@ -10,7 +10,7 @@ import type { DryRunResponse, DryRunStep } from "./types"
 import { PreviewPill } from "./shared"
 
 const KIND_META: Record<DryRunStep["kind"], { icon: React.ElementType; cls: string; ring: string }> = {
-  trigger: { icon: Zap, cls: "bg-blue-50 text-blue-600", ring: "border-blue-200" },
+  trigger: { icon: Zap, cls: "bg-[var(--brand-soft)] text-[var(--brand)]", ring: "border-[var(--color-brand-100)]" },
   condition: { icon: Filter, cls: "bg-amber-50 text-amber-600", ring: "border-amber-200" },
   action: { icon: Sparkles, cls: "bg-violet-50 text-violet-600", ring: "border-violet-200" },
 }

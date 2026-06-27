@@ -164,7 +164,7 @@ export default function LandlordHomePage() {
   const recentWork = jobs.filter((j) => isOpenJob(j.status)).slice(0, 4)
 
   const kpis = [
-    { label: "Properties", value: totalProperties, colour: "text-[#2563EB]", bg: "bg-[#EFF6FF]", icon: Building2 },
+    { label: "Properties", value: totalProperties, colour: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]", icon: Building2 },
     { label: "Occupied", value: occupied, colour: "text-[#059669]", bg: "bg-[#ECFDF5]", icon: CheckCircle2 },
     { label: "Vacant", value: vacant, colour: "text-[#F59E0B]", bg: "bg-[#FFFBEB]", icon: DoorOpen },
     { label: "Open Work", value: openWork, colour: "text-[#0EA5E9]", bg: "bg-[#f0f9ff]", icon: Wrench },
@@ -177,7 +177,7 @@ export default function LandlordHomePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">
-            {getGreeting()}, <span className="text-[#2563EB]">{ctx?.displayName ?? "Landlord"}</span>
+            {getGreeting()}, <span className="text-[var(--brand)]">{ctx?.displayName ?? "Landlord"}</span>
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">{today}</p>
         </div>
@@ -194,10 +194,10 @@ export default function LandlordHomePage() {
 
       {/* No linked properties — honest explanation */}
       {totalProperties === 0 && (
-        <Card className="rounded-2xl border-blue-100 bg-[#EFF6FF]">
+        <Card className="rounded-2xl border-[var(--color-brand-100)] bg-[var(--brand-soft)]">
           <CardContent className="py-5">
             <div className="flex items-start gap-3">
-              <Building2 className="w-5 h-5 text-[#2563EB] mt-0.5 shrink-0" />
+              <Building2 className="w-5 h-5 text-[var(--brand)] mt-0.5 shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-[#1e40af]">No properties linked to your account yet</p>
                 <p className="text-xs text-[#1e40af]/80 mt-1 max-w-xl">
@@ -238,8 +238,8 @@ export default function LandlordHomePage() {
           return (
             <Link key={a.label} href={a.href}>
               <Card className="p-4 rounded-2xl border-slate-200 hover:shadow-md transition-shadow flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
-                  <Icon className="w-4 h-4 text-[#2563EB]" />
+                <div className="w-9 h-9 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+                  <Icon className="w-4 h-4 text-[var(--brand)]" />
                 </div>
                 <span className="text-sm font-semibold text-slate-800">{a.label}</span>
               </Card>
@@ -253,7 +253,7 @@ export default function LandlordHomePage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-slate-900">Your Properties</h2>
-            <Link href="/landlord-portal/properties" className="text-xs text-[#2563EB] hover:underline flex items-center gap-1">
+            <Link href="/landlord-portal/properties" className="text-xs text-[var(--brand)] hover:underline flex items-center gap-1">
               View all <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
@@ -293,7 +293,7 @@ export default function LandlordHomePage() {
       <Card className="rounded-2xl border-slate-200">
         <CardHeader>
           <CardTitle className="text-sm">Recent Work Updates</CardTitle>
-          <Link href="/landlord-portal/work" className="text-xs text-[#2563EB] hover:underline">View all</Link>
+          <Link href="/landlord-portal/work" className="text-xs text-[var(--brand)] hover:underline">View all</Link>
         </CardHeader>
         <CardContent>
           {recentWork.length === 0 ? (
@@ -323,7 +323,7 @@ export default function LandlordHomePage() {
       <Card className="rounded-2xl border-slate-200">
         <CardHeader>
           <CardTitle className="text-sm">Recent Documents</CardTitle>
-          <Link href="/landlord-portal/documents" className="text-xs text-[#2563EB] hover:underline">View all</Link>
+          <Link href="/landlord-portal/documents" className="text-xs text-[var(--brand)] hover:underline">View all</Link>
         </CardHeader>
         <CardContent>
           {docs.length === 0 ? (
@@ -354,8 +354,8 @@ export default function LandlordHomePage() {
       <Link href="/landlord-portal/messages" className="block">
         <Card className="p-4 rounded-2xl border-slate-200 hover:shadow-md transition-shadow flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
-              <MessageSquare className="w-4 h-4 text-[#2563EB]" />
+            <div className="w-9 h-9 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+              <MessageSquare className="w-4 h-4 text-[var(--brand)]" />
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-800">Messages</p>

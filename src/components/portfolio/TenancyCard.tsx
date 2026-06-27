@@ -150,16 +150,16 @@ export function TenancyCardStandard({
         "group relative flex items-center gap-4 px-4 py-3 rounded-2xl border bg-white cursor-pointer",
         "transition-all duration-200",
         selected
-          ? "border-l-4 border-blue-500 bg-blue-50/30 shadow-sm"
+          ? "border-l-4 border-[var(--brand)] bg-[var(--brand-soft)]/30 shadow-sm"
           : hovered
-          ? "shadow-md border-blue-200/60"
+          ? "shadow-md border-[var(--color-brand-100)]/60"
           : "border-[#E6ECF4] shadow-[0_1px_3px_rgba(0,0,0,0.05)]",
       )}
     >
       {/* Checkbox */}
       <div className="shrink-0 w-5 flex items-center justify-center" onClick={e => { e.stopPropagation(); onSelect?.(tenancy.id) }}>
         {selected
-          ? <CheckSquare className="w-4 h-4 text-blue-600" />
+          ? <CheckSquare className="w-4 h-4 text-[var(--brand)]" />
           : <Square className="w-4 h-4 text-slate-300 group-hover:text-slate-400 transition-colors" />
         }
       </div>
@@ -183,7 +183,7 @@ export function TenancyCardStandard({
             STATUS_CFG[tenancy.status]?.dot ?? "bg-slate-400")} />
         </div>
         <div className="min-w-0">
-          <p className="text-[13px] font-bold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+          <p className="text-[13px] font-bold text-slate-900 truncate group-hover:text-[var(--brand)] transition-colors">
             {tenancy.tenant_name ?? "Unknown tenant"}
           </p>
           <p className="text-[11px] text-slate-500 truncate flex items-center gap-1 mt-0.5">
@@ -254,7 +254,7 @@ export function TenancyCardStandard({
         onClick={e => { e.stopPropagation(); onView?.(tenancy.id) }}
         className={cn(
           "shrink-0 ml-auto flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold",
-          "bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200",
+          "bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] transition-all duration-200",
           "opacity-0 group-hover:opacity-100",
         )}
       >
@@ -288,7 +288,7 @@ export function TenancyCardDetailed({ tenancy }: { tenancy: TenancyCardData }) {
   return (
     <div className={cn(
       "group w-full bg-white rounded-2xl border border-[#E6ECF4] shadow-[0_2px_8px_rgba(0,0,0,0.06)]",
-      "hover:shadow-md hover:border-blue-200/60 transition-all duration-200",
+      "hover:shadow-md hover:border-[var(--color-brand-100)]/60 transition-all duration-200",
     )}>
       {/* Identity row */}
       <div className="flex items-center gap-4 p-5 border-b border-slate-100">
@@ -306,7 +306,7 @@ export function TenancyCardDetailed({ tenancy }: { tenancy: TenancyCardData }) {
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <h3 className="text-[15px] font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+            <h3 className="text-[15px] font-bold text-slate-900 group-hover:text-[var(--brand)] transition-colors">
               {tenancy.tenant_name ?? "Unknown tenant"}
             </h3>
             <StatusBadge status={tenancy.status} />
@@ -377,7 +377,7 @@ export function TenancyCardDetailed({ tenancy }: { tenancy: TenancyCardData }) {
         )}
         <Link
           href={`/property-manager/portfolio/tenancies/${tenancy.id}`}
-          className="ml-auto flex items-center gap-1 text-[11px] text-blue-600 font-semibold hover:text-blue-700"
+          className="ml-auto flex items-center gap-1 text-[11px] text-[var(--brand)] font-semibold hover:text-[var(--brand)]"
         >
           Next action <ArrowRight className="w-3 h-3" />
         </Link>
@@ -387,7 +387,7 @@ export function TenancyCardDetailed({ tenancy }: { tenancy: TenancyCardData }) {
       <div className="flex items-center gap-2 px-5 py-3 flex-wrap">
         <Link
           href={`/property-manager/portfolio/tenancies/${tenancy.id}`}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 text-white text-[12px] font-semibold hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--brand)] text-white text-[12px] font-semibold hover:bg-[var(--brand-strong)] transition-colors"
         >
           View full profile <ChevronRight className="w-3.5 h-3.5" />
         </Link>
@@ -623,13 +623,13 @@ export function TenancyCardCompact({
       className={cn(
         "group flex items-center gap-3 px-4 py-2.5 border-b border-slate-100 cursor-pointer",
         "transition-colors duration-150",
-        selected ? "bg-blue-50/40" : "hover:bg-slate-50/60",
+        selected ? "bg-[var(--brand-soft)]/40" : "hover:bg-slate-50/60",
       )}
     >
       {/* Checkbox */}
       <div className="shrink-0 w-4" onClick={e => { e.stopPropagation(); onSelect?.(tenancy.id) }}>
         {selected
-          ? <CheckSquare className="w-3.5 h-3.5 text-blue-600" />
+          ? <CheckSquare className="w-3.5 h-3.5 text-[var(--brand)]" />
           : <Square className="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-400" />
         }
       </div>
@@ -680,7 +680,7 @@ export function TenancyCardCompact({
       {/* View button */}
       <button
         onClick={e => { e.stopPropagation(); onView?.(tenancy.id) }}
-        className="shrink-0 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-500 text-[10px] font-semibold hover:bg-blue-600 hover:text-white transition-colors"
+        className="shrink-0 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-500 text-[10px] font-semibold hover:bg-[var(--brand)] hover:text-white transition-colors"
       >
         View
       </button>
@@ -743,11 +743,11 @@ export function TenancyCardInlineEdit({
     })
   }
 
-  const inputCls = "w-full text-[12px] text-slate-800 bg-white border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
+  const inputCls = "w-full text-[12px] text-slate-800 bg-white border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-[var(--color-brand-400)] focus:ring-1 focus:ring-[var(--color-brand-100)] transition-all"
   const labelCls = "text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1 block"
 
   return (
-    <div className="w-full bg-white rounded-2xl border border-blue-200 shadow-[0_4px_16px_rgba(37,99,235,0.08)] overflow-hidden">
+    <div className="w-full bg-white rounded-2xl border border-[var(--color-brand-100)] shadow-[0_4px_16px_rgba(37,99,235,0.08)] overflow-hidden">
       {/* Identity row */}
       <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
         {tenancy.tenant_avatar ? (
@@ -841,7 +841,7 @@ export function TenancyCardInlineEdit({
       <div className="flex items-center gap-3 px-5 py-3.5 border-t border-slate-100 bg-slate-50/50">
         <button
           onClick={handleSave}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-[12px] font-bold hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--brand)] text-white text-[12px] font-bold hover:bg-[var(--brand-strong)] transition-colors"
         >
           <Check className="w-3.5 h-3.5" /> Save changes
         </button>
@@ -878,7 +878,7 @@ export function TenancyCardPaymentSummary({ tenancy }: { tenancy: TenancyCardDat
   return (
     <div className={cn(
       "group w-full bg-white rounded-2xl border border-[#E6ECF4] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden",
-      "hover:shadow-md hover:border-blue-200/60 transition-all duration-200",
+      "hover:shadow-md hover:border-[var(--color-brand-100)]/60 transition-all duration-200",
     )}>
       {/* Main content row */}
       <div className="flex items-start gap-6 p-5">
@@ -984,7 +984,7 @@ export function TenancyCardMobile({ tenancy, onView }: { tenancy: TenancyCardDat
   return (
     <div className={cn(
       "w-full max-w-sm bg-white rounded-2xl border border-[#E6ECF4] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden",
-      "hover:shadow-md hover:border-blue-200/60 transition-all duration-200",
+      "hover:shadow-md hover:border-[var(--color-brand-100)]/60 transition-all duration-200",
     )}>
       {/* Top row: avatar + name + status + menu */}
       <div className="flex items-center gap-3 px-4 pt-4 pb-2">
@@ -1071,7 +1071,7 @@ export function TenancyCardMobile({ tenancy, onView }: { tenancy: TenancyCardDat
       <div className="px-4 pb-4 pt-2">
         <button
           onClick={() => onView?.(tenancy.id)}
-          className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-blue-600 text-white text-[13px] font-bold hover:bg-blue-700 transition-colors"
+          className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-bold hover:bg-[var(--brand-strong)] transition-colors"
         >
           View details <ChevronRight className="w-4 h-4" />
         </button>

@@ -73,7 +73,7 @@ export function InvoiceStep3Review({ job, lines, includeVat }: InvoiceStep3Revie
           </div>
         </div>
       </div>
-      <div className="rounded-xl bg-blue-50/60 border border-blue-100 px-4 py-3 text-xs text-blue-700">
+      <div className="rounded-xl bg-[var(--brand-soft)]/60 border border-[var(--color-brand-100)] px-4 py-3 text-xs text-[var(--brand)]">
         The operator reviews and approves your invoice; payout follows once payment is released and all escrow
         conditions are met.
       </div>

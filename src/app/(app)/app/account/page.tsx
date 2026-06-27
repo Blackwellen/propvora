@@ -1,19 +1,70 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import {
   User, Shield, KeyRound, Bell, Sliders, Monitor, Activity, Link2, Lock,
 } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
+import { getUserPreferences } from "@/lib/actions/settings"
 
-// Quick-stat cards: values are honest signposts, not live-fetched data.
-// "Security Score" deliberately shows "Review" until MFA is confirmed enabled by the user.
-// "Active Sessions" links through to the sessions page which shows live data.
-const STATS = [
-  { label: "Security Score",  value: "Review",   sub: "Visit Security to configure MFA",  colour: "#D97706", icon: Shield },
-  { label: "Active Sessions", value: "—",        sub: "See Sessions & Devices",            colour: "#2563EB", icon: Monitor },
-  { label: "Notifications",   value: "—",        sub: "See Notifications to configure",   colour: "#059669", icon: Bell },
-  { label: "Last Login",      value: "—",        sub: "See Activity for login history",    colour: "#059669", icon: Activity },
-]
+type Stat = { label: string; value: string; sub: string; colour: string; icon: typeof Shield }
+
+/** Live quick-stats derived from the signed-in user's auth + preferences. */
+function useAccountStats(): Stat[] {
+  const [mfaEnabled, setMfaEnabled] = useState<boolean | null>(null)
+  const [lastLogin, setLastLogin] = useState<string | null>(null)
+  const [emailOn, setEmailOn] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        setLastLogin(user?.last_sign_in_at ?? null)
+        const { data } = await supabase.auth.mfa.listFactors()
+        setMfaEnabled((data?.totp ?? []).some(f => f.status === "verified"))
+      } catch {
+        setMfaEnabled(false)
+      }
+    })()
+    getUserPreferences().then(({ prefs }) => {
+      const np = prefs?.notification_prefs as { channelEmail?: boolean } | undefined
+      setEmailOn(np?.channelEmail ?? true)
+    }).catch(() => setEmailOn(null))
+  }, [])
+
+  return [
+    {
+      label: "Security Score",
+      value: mfaEnabled === null ? "…" : mfaEnabled ? "Strong" : "Review",
+      sub: mfaEnabled ? "Two-factor authentication on" : "Add 2FA in Security",
+      colour: mfaEnabled ? "#059669" : "#D97706",
+      icon: Shield,
+    },
+    {
+      label: "Active Sessions",
+      value: "This device",
+      sub: "Manage in Sessions & Devices",
+      colour: "#2563EB",
+      icon: Monitor,
+    },
+    {
+      label: "Email Alerts",
+      value: emailOn === null ? "…" : emailOn ? "On" : "Off",
+      sub: "Configure in Notifications",
+      colour: "#059669",
+      icon: Bell,
+    },
+    {
+      label: "Last Login",
+      value: lastLogin ? new Date(lastLogin).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "—",
+      sub: lastLogin ? new Date(lastLogin).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "See Activity",
+      colour: "#7C3AED",
+      icon: Activity,
+    },
+  ]
+}
 
 const SECTIONS = [
   { title: "Profile",            desc: "Name, email, phone, avatar, timezone",  href: "/property-manager/account/profile",            icon: User,     colour: "#2563EB" },
@@ -28,6 +79,7 @@ const SECTIONS = [
 ]
 
 export default function AccountOverviewPage() {
+  const stats = useAccountStats()
   return (
     <div>
       <div className="mb-8">
@@ -39,7 +91,7 @@ export default function AccountOverviewPage() {
 
       {/* Quick stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {STATS.map(stat => (
+        {stats.map(stat => (
           <div key={stat.label} className="bg-white rounded-2xl border border-slate-200 p-5">
             <div className="flex items-center gap-2 mb-3">
               <div
@@ -77,7 +129,7 @@ export default function AccountOverviewPage() {
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-bold text-slate-900 group-hover:text-[#2563EB] transition-colors">
+              <p className="text-[14px] font-bold text-slate-900 group-hover:text-[var(--brand)] transition-colors">
                 {section.title}
               </p>
               <p className="text-[12px] text-slate-500 mt-0.5 truncate">{section.desc}</p>

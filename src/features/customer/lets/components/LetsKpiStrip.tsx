@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 
 const KPIS = [
   { id: "saved", label: "Saved lets", value: "18", icon: Heart, bg: "bg-rose-50 text-rose-500" },
-  { id: "viewings", label: "Upcoming viewings", value: "4", icon: Calendar, bg: "bg-blue-50 text-blue-600" },
+  { id: "viewings", label: "Upcoming viewings", value: "4", icon: Calendar, bg: "bg-[var(--brand-soft)] text-[var(--brand)]" },
   { id: "apps", label: "Active applications", value: "3", icon: FileText, bg: "bg-violet-50 text-violet-600" },
   { id: "offers", label: "Offers in progress", value: "2", icon: Tag, bg: "bg-amber-50 text-amber-600" },
   { id: "tenancies", label: "Active tenancies", value: "1", icon: Key, bg: "bg-emerald-50 text-emerald-600" },

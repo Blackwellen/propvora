@@ -70,7 +70,7 @@ function AffiliateLoginInner() {
         </div>
         <div className="flex flex-1 items-center justify-center px-6 pb-12">
           <div className="w-full max-w-[400px]">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-[12px] font-semibold text-blue-600"><Sparkles className="h-3.5 w-3.5" /> Affiliate portal</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand-soft)] px-3 py-1 text-[12px] font-semibold text-[var(--brand)]"><Sparkles className="h-3.5 w-3.5" /> Affiliate portal</span>
             <h1 className="mt-4 text-2xl font-bold text-[#0D1B2A]">Sign in to your affiliate account</h1>
             <p className="mt-1.5 text-sm text-slate-500">Track referrals, see your earnings and manage payouts.</p>
 
@@ -85,20 +85,20 @@ function AffiliateLoginInner() {
                 <span className="mb-1 block text-[12.5px] font-semibold text-slate-600">Email</span>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="h-11 w-full rounded-xl border border-slate-200 pl-9 pr-3 text-[14px] outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100" />
+                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="h-11 w-full rounded-xl border border-slate-200 pl-9 pr-3 text-[14px] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--color-brand-100)]" />
                 </div>
               </label>
               <label className="block">
                 <span className="mb-1 block text-[12.5px] font-semibold text-slate-600">Password</span>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <input type={show ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-11 w-full rounded-xl border border-slate-200 pl-9 pr-10 text-[14px] outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100" />
+                  <input type={show ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-11 w-full rounded-xl border border-slate-200 pl-9 pr-10 text-[14px] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--color-brand-100)]" />
                   <button type="button" onClick={() => setShow((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">{show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
                 </div>
               </label>
-              <button type="submit" disabled={busy} className="h-11 w-full rounded-xl bg-[#2563EB] text-[14px] font-semibold text-white hover:bg-[#1d4ed8] disabled:opacity-60">{busy ? "Signing in…" : "Sign in"}</button>
+              <button type="submit" disabled={busy} className="h-11 w-full rounded-xl bg-[var(--brand)] text-[14px] font-semibold text-white hover:bg-[#1d4ed8] disabled:opacity-60">{busy ? "Signing in…" : "Sign in"}</button>
               <div className="text-right">
-                <Link href="/forgot-password" className="text-[12.5px] text-slate-500 hover:text-[#2563EB]">Forgot password?</Link>
+                <Link href="/forgot-password" className="text-[12.5px] text-slate-500 hover:text-[var(--brand)]">Forgot password?</Link>
               </div>
             </form>
 
@@ -112,8 +112,8 @@ function AffiliateLoginInner() {
             </button>
 
             <div className="mt-6 space-y-2 text-center text-[13px] text-slate-500">
-              <p>New to the programme? <Link href="/affiliate-programme/apply" className="font-semibold text-[#2563EB] hover:text-[#1d4ed8]">Apply to become an affiliate</Link></p>
-              <p>Have an approval code? <Link href="/register?next=/affiliate" className="font-semibold text-[#2563EB] hover:text-[#1d4ed8]">Create your account</Link></p>
+              <p>New to the programme? <Link href="/affiliate-programme/apply" className="font-semibold text-[var(--brand)] hover:text-[#1d4ed8]">Apply to become an affiliate</Link></p>
+              <p>Have an approval code? <Link href="/register?next=/affiliate" className="font-semibold text-[var(--brand)] hover:text-[#1d4ed8]">Create your account</Link></p>
             </div>
           </div>
         </div>

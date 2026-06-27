@@ -27,8 +27,8 @@ export function AccountingStepper({ steps, currentStep, className }: AccountingS
             <div className="flex items-center gap-3 shrink-0">
               <div className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all",
-                isCompleted ? "bg-[#2563EB] text-white" :
-                isActive ? "bg-[#2563EB] text-white ring-4 ring-[#2563EB]/20" :
+                isCompleted ? "bg-[var(--brand)] text-white" :
+                isActive ? "bg-[var(--brand)] text-white ring-4 ring-[var(--brand)]/20" :
                 "bg-slate-100 text-slate-400"
               )}>
                 {isCompleted ? <Check className="w-4 h-4" /> : step.number}
@@ -43,7 +43,7 @@ export function AccountingStepper({ steps, currentStep, className }: AccountingS
               </div>
             </div>
             {!isLast && (
-              <div className={cn("flex-1 h-px mx-4 min-w-[24px]", isCompleted ? "bg-[#2563EB]" : "bg-slate-200")} />
+              <div className={cn("flex-1 h-px mx-4 min-w-[24px]", isCompleted ? "bg-[var(--brand)]" : "bg-slate-200")} />
             )}
           </React.Fragment>
         )

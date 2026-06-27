@@ -55,7 +55,7 @@ export default async function PortalLandingPage({
           <noscript>
             <button
               type="submit"
-              className="inline-flex items-center justify-center rounded-lg bg-[#2563EB] px-4 py-2 text-sm font-semibold text-white"
+              className="inline-flex items-center justify-center rounded-lg bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white"
             >
               Continue to portal
             </button>
@@ -63,7 +63,7 @@ export default async function PortalLandingPage({
         </form>
 
         <div className="mt-6 flex items-center justify-center" aria-hidden>
-          <span className="h-5 w-5 rounded-full border-2 border-slate-200 border-t-[#2563EB] animate-spin" />
+          <span className="h-5 w-5 rounded-full border-2 border-slate-200 border-t-[var(--brand)] animate-spin" />
         </div>
 
         {/* Submit on load; runs in the browser only. */}

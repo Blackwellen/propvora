@@ -38,7 +38,7 @@ export default function TenancyTab() {
 
   const kpis = [
     { id: "active", label: "Active tenancies", value: String(data.filter((t) => t.status === "Active").length), icon: Key, bg: "bg-emerald-50 text-emerald-600" },
-    { id: "movein", label: "Upcoming move-ins", value: String(data.filter((t) => t.status === "Upcoming").length), icon: Truck, bg: "bg-blue-50 text-blue-600" },
+    { id: "movein", label: "Upcoming move-ins", value: String(data.filter((t) => t.status === "Upcoming").length), icon: Truck, bg: "bg-[var(--brand-soft)] text-[var(--brand)]" },
     { id: "rent", label: "Monthly rent due", value: formatPence(rentDue, "GBP"), icon: Wallet, bg: "bg-amber-50 text-amber-600" },
     { id: "notice", label: "Notice given", value: String(data.filter((t) => t.status === "Notice given").length), icon: FolderOpen, bg: "bg-rose-50 text-rose-500" },
   ]
@@ -49,7 +49,7 @@ export default function TenancyTab() {
       <Key className="w-8 h-8 text-slate-300 mx-auto mb-2" />
       <p className="text-[14px] font-semibold text-slate-700">No tenancies yet</p>
       <p className="text-[12.5px] text-slate-400 mt-1">Once you sign a tenancy, manage it here — rent, maintenance and documents.</p>
-      <Link href="/customer/lets?tab=search" className="mt-3 inline-block text-[12.5px] font-semibold text-blue-600">Browse lets →</Link>
+      <Link href="/customer/lets?tab=search" className="mt-3 inline-block text-[12.5px] font-semibold text-[var(--brand)]">Browse lets →</Link>
     </div>
   )
 
@@ -67,10 +67,10 @@ export default function TenancyTab() {
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-5 items-start">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-          <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">Your tenancies</h3><div className="relative"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" /><input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 w-36" /></div></div>
+          <div className="flex items-center justify-between mb-3"><h3 className="text-[14px] font-bold text-slate-900">Your tenancies</h3><div className="relative"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" /><input placeholder="Search" className="bg-slate-50 rounded-lg pl-8 pr-2 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--color-brand-400)] w-36" /></div></div>
           <div className="space-y-2">
             {data.map((t) => { const active = t.id === selectedId; return (
-              <button key={t.id} onClick={() => setSelectedId(t.id)} className={cn("w-full text-left flex items-center gap-3 p-3 rounded-xl transition-colors", active ? "outline outline-2 -outline-offset-2 outline-blue-500 bg-blue-50/30" : "hover:bg-slate-50")}>
+              <button key={t.id} onClick={() => setSelectedId(t.id)} className={cn("w-full text-left flex items-center gap-3 p-3 rounded-xl transition-colors", active ? "outline outline-2 -outline-offset-2 outline-[var(--brand)] bg-[var(--brand-soft)]/30" : "hover:bg-slate-50")}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={t.image} alt="" className="w-16 h-14 rounded-lg object-cover shrink-0" />
                 <div className="flex-1 min-w-0"><p className="text-[13px] font-semibold text-slate-900 truncate">{t.property}</p><p className="text-[11.5px] text-slate-400 truncate">{t.location}</p><p className="text-[11.5px] text-slate-500 mt-0.5">Next payment {t.nextPaymentDate}</p></div>

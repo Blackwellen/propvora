@@ -225,7 +225,7 @@ export function BookingCalendar({ bookings, onOpen }: Props) {
                   className={cn(
                     "text-[12px] font-semibold tabular-nums",
                     isToday
-                      ? "inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2563EB] text-white"
+                      ? "inline-flex items-center justify-center w-5 h-5 rounded-full bg-[var(--brand)] text-white"
                       : inMonth
                         ? "text-slate-700"
                         : "text-slate-300"

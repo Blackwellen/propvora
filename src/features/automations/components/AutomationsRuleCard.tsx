@@ -19,7 +19,7 @@ export default function AutomationsRuleCard({ rule, busy, onToggle, onDelete }: 
       <div className="flex min-w-0 flex-1 items-center gap-4">
         <span
           className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${
-            rule.enabled ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-400"
+            rule.enabled ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "bg-slate-100 text-slate-400"
           }`}
         >
           <Zap className="h-4 w-4" />

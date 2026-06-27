@@ -167,7 +167,7 @@ export default function EmailPage() {
               </span>
             </div>
             <p className="text-[12px] text-slate-500 mb-4">{provider.desc}</p>
-            <button className="w-full py-2 rounded-xl border border-[#2563EB] text-[#2563EB] text-[12.5px] font-semibold hover:bg-blue-50 transition-colors">
+            <button className="w-full py-2 rounded-xl border border-[var(--brand)] text-[var(--brand)] text-[12.5px] font-semibold hover:bg-[var(--brand-soft)] transition-colors">
               Configure {provider.name}
             </button>
           </div>
@@ -191,7 +191,7 @@ export default function EmailPage() {
                 value={value}
                 placeholder={placeholder}
                 onChange={(e) => { setter(e.target.value); setIsDirty(true) }}
-                className="w-full max-w-[420px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] transition-all"
+                className="w-full max-w-[420px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[var(--brand)] transition-all"
               />
             </div>
           ))}
@@ -205,12 +205,12 @@ export default function EmailPage() {
               value={testEmail}
               placeholder="your@email.com"
               onChange={(e) => setTestEmail(e.target.value)}
-              className="w-full max-w-[300px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] transition-all"
+              className="w-full max-w-[300px] px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[var(--brand)] transition-all"
             />
             <button
               onClick={handleSendTest}
               disabled={!testEmail}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12.5px] font-semibold transition-colors bg-[#2563EB] text-white hover:bg-[#1d4ed8] disabled:opacity-40"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12.5px] font-semibold transition-colors bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-40"
             >
               <Send className="w-3.5 h-3.5" />
               Send test
@@ -222,7 +222,7 @@ export default function EmailPage() {
             <button
               onClick={handleSaveSettings}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-[13px] font-semibold hover:bg-[#1d4ed8] transition-colors disabled:opacity-70"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-70"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {saving ? "Saving…" : "Save settings"}
@@ -241,8 +241,8 @@ export default function EmailPage() {
       <div className="bg-white rounded-2xl border border-slate-200 p-6">
         <div className="flex items-center justify-between gap-3 mb-1">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-              <Mail className="w-4 h-4 text-[#2563EB]" />
+            <div className="w-9 h-9 rounded-xl bg-[var(--brand-soft)] flex items-center justify-center shrink-0">
+              <Mail className="w-4 h-4 text-[var(--brand)]" />
             </div>
             <div>
               <h3 className="text-[14px] font-bold text-slate-900">Email Templates</h3>
@@ -263,7 +263,7 @@ export default function EmailPage() {
                 key={template.key}
                 className={cn(
                   "rounded-2xl border bg-white overflow-hidden transition-all",
-                  expanded ? "border-[#2563EB] shadow-sm sm:col-span-2" : "border-slate-200 hover:border-slate-300 hover:shadow-sm"
+                  expanded ? "border-[var(--brand)] shadow-sm sm:col-span-2" : "border-slate-200 hover:border-slate-300 hover:shadow-sm"
                 )}
               >
                 <button
@@ -273,9 +273,9 @@ export default function EmailPage() {
                   <div className="flex items-start gap-3 min-w-0">
                     <div className={cn(
                       "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
-                      customised ? "bg-emerald-50" : template.editable ? "bg-blue-50" : "bg-slate-100"
+                      customised ? "bg-emerald-50" : template.editable ? "bg-[var(--brand-soft)]" : "bg-slate-100"
                     )}>
-                      <Mail className={cn("w-4 h-4", customised ? "text-emerald-600" : template.editable ? "text-[#2563EB]" : "text-slate-400")} />
+                      <Mail className={cn("w-4 h-4", customised ? "text-emerald-600" : template.editable ? "text-[var(--brand)]" : "text-slate-400")} />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -314,7 +314,7 @@ export default function EmailPage() {
                         className={cn(
                           "flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-[12px] font-semibold transition-colors",
                           template.editable
-                            ? "border-[#2563EB] text-white bg-[#2563EB] hover:bg-[#1d4ed8]"
+                            ? "border-[var(--brand)] text-white bg-[var(--brand)] hover:bg-[var(--brand-strong)]"
                             : "border-slate-200 text-slate-400 cursor-not-allowed"
                         )}
                       >

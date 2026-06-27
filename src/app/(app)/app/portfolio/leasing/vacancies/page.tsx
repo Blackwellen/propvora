@@ -98,7 +98,7 @@ const STATUS_FILTERS: { key: VacancyStatus | "All"; label: string }[] = [
 
 const statusStyle: Record<VacancyStatus, string> = {
   "Draft":       "bg-slate-50 text-slate-700 border-slate-200",
-  "Active":      "bg-blue-50 text-blue-700 border-blue-200",
+  "Active":      "bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--color-brand-100)]",
   "Under Offer": "bg-amber-50 text-amber-700 border-amber-200",
   "Let":         "bg-green-50 text-green-700 border-green-200",
 }
@@ -130,7 +130,7 @@ export default function VacanciesPage() {
             <h1 className="text-lg font-semibold text-slate-900">Vacancies</h1>
             <p className="text-[13px] text-slate-500 mt-0.5">{vacancies.length} total vacancies</p>
           </div>
-          <button onClick={() => router.push("/property-manager/portfolio/units/new")} className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+          <button onClick={() => router.push("/property-manager/portfolio/units/new")} className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
             <Plus className="w-3.5 h-3.5" />
             New Vacancy
           </button>
@@ -145,7 +145,7 @@ export default function VacanciesPage() {
               className={cn(
                 "text-xs font-medium px-3 py-1 rounded-full border transition-colors",
                 activeFilter === f.key
-                  ? "bg-blue-600 text-white border-blue-600"
+                  ? "bg-[var(--brand)] text-white border-[var(--brand)]"
                   : "border-slate-200 text-slate-600 hover:bg-slate-50",
               )}
             >
@@ -165,7 +165,7 @@ export default function VacanciesPage() {
               className={cn(
                 "text-xs font-medium px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap shrink-0",
                 activeFilter === f.key
-                  ? "bg-blue-600 text-white border-blue-600"
+                  ? "bg-[var(--brand)] text-white border-[var(--brand)]"
                   : "border-slate-200 text-slate-600 hover:bg-slate-50",
               )}
             >
@@ -229,7 +229,7 @@ export default function VacanciesPage() {
                 </div>
 
                 {/* Rent */}
-                <p className="text-xl font-bold text-blue-600 mt-2">{v.rent}</p>
+                <p className="text-xl font-bold text-[var(--brand)] mt-2">{v.rent}</p>
 
                 {/* Portal status */}
                 <div className="flex items-center gap-2 mt-3">

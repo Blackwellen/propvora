@@ -34,8 +34,8 @@ export default function BookingKpiCards({ bookings = [] }: { bookings?: Booking[
       subtitle: 'Next 7 days',
       trend: null,
       icon: CalendarCheck,
-      iconBg: 'bg-blue-50',
-      iconColor: 'text-blue-600',
+      iconBg: 'bg-[var(--brand-soft)]',
+      iconColor: 'text-[var(--brand)]',
     },
     {
       label: 'Active stays',

@@ -38,7 +38,7 @@ function SecRow({
           <p className="text-[11px] text-slate-400">{sub}</p>
         </div>
       </div>
-      <button onClick={onClick} className="text-[11.5px] font-semibold text-blue-600">
+      <button onClick={onClick} className="text-[11.5px] font-semibold text-[var(--brand)]">
         {cta}
       </button>
     </div>

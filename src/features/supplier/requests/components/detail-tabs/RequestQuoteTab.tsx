@@ -27,7 +27,7 @@ export function RequestQuoteTab({ request: r, newQuoteHref }: RequestQuoteTabPro
             <span className="text-sm text-slate-500">Amount</span>
             <span className="text-sm font-semibold text-slate-900">{moneyPence(r.quoteAmountPence)}</span>
           </div>
-          <Link href={`/supplier/quotes/${r.quoteId}`} className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600">
+          <Link href={`/supplier/quotes/${r.quoteId}`} className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand)]">
             View quote
           </Link>
         </div>

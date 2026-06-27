@@ -54,7 +54,7 @@ export default async function LandlordPropertyDetail({ params }: { params: Promi
       {/* Summary hero */}
       <PortalCard className="overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr]">
-          <div className="relative h-44 lg:h-auto bg-gradient-to-br from-[#1E3A8A] to-[#2563EB]">
+          <div className="relative h-44 lg:h-auto bg-gradient-to-br from-[#1E3A8A] to-[var(--brand)]">
             {extra?.cover_image_url
               // eslint-disable-next-line @next/next/no-img-element
               ? <img src={extra.cover_image_url as string} alt={label} className="absolute inset-0 w-full h-full object-cover" />
@@ -116,7 +116,7 @@ export default async function LandlordPropertyDetail({ params }: { params: Promi
             <PortalButtonLink href={`${base}/documents`} variant="ghost" className="w-full justify-center">View documents</PortalButtonLink>
           </PortalSectionCard>
           <PortalSectionCard title="Recent activity" icon={History}>
-            <ol className="space-y-2.5">{lastPay && <li className="flex gap-3"><span className="w-2 h-2 rounded-full bg-[#2563EB] mt-1.5 shrink-0" /><div><p className="text-sm text-slate-700">Rent received</p><p className="text-[11px] text-slate-400">{formatDate(lastPay.created_at)}</p></div></li>}</ol>
+            <ol className="space-y-2.5">{lastPay && <li className="flex gap-3"><span className="w-2 h-2 rounded-full bg-[var(--brand)] mt-1.5 shrink-0" /><div><p className="text-sm text-slate-700">Rent received</p><p className="text-[11px] text-slate-400">{formatDate(lastPay.created_at)}</p></div></li>}</ol>
           </PortalSectionCard>
         </div>
       </div>

@@ -19,7 +19,7 @@ function UrgencyBadge({ label, urgency }: { label: string; urgency: Urgency }) {
   const styles: Record<Urgency, string> = {
     red: "bg-red-50 text-red-700 border border-red-200",
     amber: "bg-amber-50 text-amber-700 border border-amber-200",
-    blue: "bg-blue-50 text-blue-700 border border-blue-200",
+    blue: "bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]",
   }
   return (
     <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0 ${styles[urgency]}`}>
@@ -32,12 +32,12 @@ function UrgencyIcon({ urgency }: { urgency: Urgency }) {
   const iconClass: Record<Urgency, string> = {
     red: "text-red-500",
     amber: "text-amber-500",
-    blue: "text-blue-500",
+    blue: "text-[var(--brand)]",
   }
   const bgClass: Record<Urgency, string> = {
     red: "bg-red-50",
     amber: "bg-amber-50",
-    blue: "bg-blue-50",
+    blue: "bg-[var(--brand-soft)]",
   }
   const icons = {
     red: AlertTriangle,
@@ -86,7 +86,7 @@ export function HomePriorityPanel({ items }: HomePriorityPanelProps) {
               >
                 <UrgencyIcon urgency={item.urgency} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+                  <p className="text-[13px] font-medium text-slate-900 truncate group-hover:text-[var(--brand)] transition-colors">
                     {item.title}
                   </p>
                   <p className="text-[12px] text-slate-500 truncate mt-0.5">{item.subtitle}</p>

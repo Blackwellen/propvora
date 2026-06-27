@@ -6,22 +6,22 @@ import { cn } from "@/lib/utils"
    Shared Tenant/Landlord portal UI primitives — one consistent visual system
    across every portal page (matches the redesign images). Server-component
    safe (no "use client"); pure presentational. Tokens: navy ink #071B4D,
-   blue #2563EB, slate borders #E2EAF6, rounded-2xl cards, soft shadow.
+   blue var(--brand), slate borders #E2EAF6, rounded-2xl cards, soft shadow.
 ─────────────────────────────────────────────────────────────────────────── */
 
 export type PortalTone = "blue" | "emerald" | "amber" | "red" | "violet" | "slate"
 
 const TONE_TEXT: Record<PortalTone, string> = {
-  blue: "text-[#2563EB]", emerald: "text-emerald-600", amber: "text-amber-600",
+  blue: "text-[var(--brand)]", emerald: "text-emerald-600", amber: "text-amber-600",
   red: "text-red-600", violet: "text-violet-600", slate: "text-slate-900",
 }
 const TONE_SOFT: Record<PortalTone, string> = {
-  blue: "bg-[#EFF6FF] text-[#2563EB]", emerald: "bg-emerald-50 text-emerald-600",
+  blue: "bg-[var(--brand-soft)] text-[var(--brand)]", emerald: "bg-emerald-50 text-emerald-600",
   amber: "bg-amber-50 text-amber-600", red: "bg-red-50 text-red-600",
   violet: "bg-violet-50 text-violet-600", slate: "bg-slate-100 text-slate-500",
 }
 const CHIP: Record<PortalTone, string> = {
-  blue: "bg-[#EFF6FF] text-[#2563EB] border-[#DBE8FF]",
+  blue: "bg-[var(--brand-soft)] text-[var(--brand)] border-[#DBE8FF]",
   emerald: "bg-emerald-50 text-emerald-700 border-emerald-200",
   amber: "bg-amber-50 text-amber-700 border-amber-200",
   red: "bg-red-50 text-red-700 border-red-200",
@@ -38,7 +38,7 @@ export function PortalPageHeader({
   return (
     <div className="space-y-3">
       {backHref && (
-        <Link href={backHref} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-[#2563EB] transition-colors">
+        <Link href={backHref} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-[var(--brand)] transition-colors">
           <ArrowLeft className="w-4 h-4" /> {backLabel}
         </Link>
       )}
@@ -74,11 +74,11 @@ export function PortalSectionCard({
     <PortalCard className={className}>
       <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-[#EEF3FB]">
         <div className="flex items-center gap-2 min-w-0">
-          {Icon && <Icon className="w-4 h-4 text-[#2563EB] shrink-0" />}
+          {Icon && <Icon className="w-4 h-4 text-[var(--brand)] shrink-0" />}
           <h2 className="text-sm font-semibold text-[#071B4D] truncate">{title}</h2>
         </div>
         {action ?? (viewAllHref && (
-          <Link href={viewAllHref} className="inline-flex items-center gap-0.5 text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] shrink-0">
+          <Link href={viewAllHref} className="inline-flex items-center gap-0.5 text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] shrink-0">
             {viewAllLabel} <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         ))}
@@ -152,9 +152,9 @@ export function PortalSkeleton({ rows = 4 }: { rows?: number }) {
 }
 
 /* ── Buttons (link + action) ────────────────────────────────────────────────── */
-const BTN_BASE = "inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-xl text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 disabled:opacity-50"
+const BTN_BASE = "inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-xl text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40 disabled:opacity-50"
 export function PortalButtonLink({ href, variant = "outline", icon: Icon, children, className }: { href: string; variant?: "primary" | "outline" | "ghost"; icon?: LucideIcon; children: React.ReactNode; className?: string }) {
-  const v = variant === "primary" ? "bg-[#2563EB] text-white hover:bg-[#1d4ed8] shadow-sm" : variant === "ghost" ? "text-slate-600 hover:bg-slate-100" : "bg-white border border-[#E2EAF6] text-[#071B4D] hover:border-[#2563EB]/40 hover:text-[#2563EB] shadow-sm"
+  const v = variant === "primary" ? "bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] shadow-sm" : variant === "ghost" ? "text-slate-600 hover:bg-slate-100" : "bg-white border border-[#E2EAF6] text-[#071B4D] hover:border-[var(--brand)]/40 hover:text-[var(--brand)] shadow-sm"
   return <Link href={href} className={cn(BTN_BASE, v, className)}>{Icon && <Icon className="w-4 h-4" />}{children}</Link>
 }
 

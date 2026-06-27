@@ -80,7 +80,7 @@ export default function VacancyDetailPage() {
         {!loading && !vacancy && (
           <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
             <p className="text-slate-500 text-sm">Vacancy not found.</p>
-            <button onClick={() => router.push("/property-manager/portfolio/leasing/vacancies")} className="mt-4 text-blue-600 text-sm font-medium hover:underline">
+            <button onClick={() => router.push("/property-manager/portfolio/leasing/vacancies")} className="mt-4 text-[var(--brand)] text-sm font-medium hover:underline">
               Back to vacancies
             </button>
           </div>
@@ -137,7 +137,7 @@ export default function VacancyDetailPage() {
               </button>
               <button
                 onClick={() => router.push("/property-manager/portfolio/tenancies/new")}
-                className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-4 py-2 rounded-lg transition-colors"
+                className="bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-4 py-2 rounded-lg transition-colors"
               >
                 Mark as let
               </button>

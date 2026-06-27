@@ -32,7 +32,7 @@ export function WorkPipelinePanel({ pipelineData, completionRate, isLoading }: W
         <h2 className="text-base font-semibold text-slate-900">Work Pipeline</h2>
         <Link
           href="/property-manager/work/board"
-          className="text-xs font-semibold text-[#2563EB] hover:text-[#1d4ed8] flex items-center gap-0.5"
+          className="text-xs font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] flex items-center gap-0.5"
         >
           View Board <ChevronRight className="w-3 h-3" />
         </Link>

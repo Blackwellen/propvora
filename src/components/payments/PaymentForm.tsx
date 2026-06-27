@@ -222,7 +222,7 @@ export default function PaymentForm({
         <label className="block text-[12px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
           Card details
         </label>
-        <div className="rounded-xl border border-[#D6E0F0] bg-white px-3.5 py-3.5 min-h-[48px] focus-within:border-[#1D4ED8] focus-within:ring-2 focus-within:ring-[#2563EB]/20 transition-colors">
+        <div className="rounded-xl border border-[#D6E0F0] bg-white px-3.5 py-3.5 min-h-[48px] focus-within:border-[var(--brand-strong)] focus-within:ring-2 focus-within:ring-[var(--brand)]/20 transition-colors">
           {phase === "loading" && (
             <span className="flex items-center gap-2 text-[13px] text-slate-400">
               <Loader2 className="w-4 h-4 animate-spin" /> Loading secure card field…
@@ -251,7 +251,7 @@ export default function PaymentForm({
         type="button"
         onClick={handleSubmit}
         disabled={phase !== "ready"}
-        className="w-full h-12 rounded-xl bg-[#1D4ED8] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+        className="w-full h-12 rounded-xl bg-[var(--brand-strong)] text-white text-[14.5px] font-semibold hover:bg-[#1A45BE] disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"
       >
         {phase === "submitting" ? (
           <>

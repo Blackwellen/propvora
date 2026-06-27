@@ -78,7 +78,7 @@ export function PermissionMatrix({ columns, roles, matrix, onToggle }: Permissio
                             aria-label={`${checked ? "Revoke" : "Grant"} ${col} for ${role} in ${group}`}
                           >
                             {checked ? (
-                              <CheckSquare className="w-4 h-4 text-[#2563EB] mx-auto" />
+                              <CheckSquare className="w-4 h-4 text-[var(--brand)] mx-auto" />
                             ) : (
                               <Square className="w-4 h-4 text-slate-300 mx-auto" />
                             )}

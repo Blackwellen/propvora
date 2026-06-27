@@ -28,7 +28,7 @@ export function TenantPortalMaintenanceWizardStep2({
               onClick={() => onPriorityChange(p)}
               className={`capitalize rounded-lg px-3 py-1.5 text-[12px] font-semibold border ${
                 priority === p
-                  ? "bg-blue-600 text-white border-blue-600"
+                  ? "bg-[var(--brand)] text-white border-[var(--brand)]"
                   : "border-slate-200 text-slate-600 hover:bg-slate-50"
               }`}
             >

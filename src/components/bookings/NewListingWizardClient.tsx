@@ -229,7 +229,7 @@ export function NewListingWizardClient({ properties, defaultCountry }: Props) {
                   type="button"
                   onClick={next}
                   disabled={pending}
-                  className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-sm font-semibold bg-[#2563EB] text-white hover:bg-blue-700 disabled:opacity-60 transition-colors"
+                  className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-sm font-semibold bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] disabled:opacity-60 transition-colors"
                 >
                   {pending ? "Creating…" : step === 5 ? "Create listing" : "Continue"}
                   {!pending && <ArrowRight className="w-4 h-4" />}

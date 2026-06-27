@@ -44,7 +44,7 @@ const ICON: Record<ToastKind, typeof Info> = {
 }
 const ACCENT: Record<ToastKind, string> = {
   success: "text-emerald-600 bg-emerald-50",
-  info: "text-blue-600 bg-blue-50",
+  info: "text-[var(--brand)] bg-[var(--brand-soft)]",
   warning: "text-amber-600 bg-amber-50",
   error: "text-red-600 bg-red-50",
 }

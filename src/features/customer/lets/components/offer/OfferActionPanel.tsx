@@ -62,7 +62,7 @@ export default function OfferActionPanel({ o }: { o: Offer }) {
         <p className="text-[13px] font-bold text-slate-900 mb-3">Actions</p>
         <button
           onClick={() => toast("Counter-offer accepted", "success")}
-          className="w-full inline-flex items-center justify-center gap-1.5 bg-[#2563EB] text-white rounded-xl py-2.5 text-[13px] font-semibold mb-2"
+          className="w-full inline-flex items-center justify-center gap-1.5 bg-[var(--brand)] text-white rounded-xl py-2.5 text-[13px] font-semibold mb-2"
         >
           <Check className="w-4 h-4" /> {o.status === "Counter offer" ? "Accept counter-offer" : "Accept offer"}
         </button>
@@ -103,8 +103,8 @@ export default function OfferActionPanel({ o }: { o: Offer }) {
         </ol>
       </div>
 
-      <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-3 flex items-start gap-2.5">
-        <ShieldCheck className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+      <div className="bg-[var(--brand-soft)]/70 border border-[var(--color-brand-100)] rounded-2xl p-3 flex items-start gap-2.5">
+        <ShieldCheck className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
         <p className="text-[11.5px] text-slate-600">
           Holding deposits are protected and refundable under the Tenant Fees Act if the landlord withdraws.
         </p>

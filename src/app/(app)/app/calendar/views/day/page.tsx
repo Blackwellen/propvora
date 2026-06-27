@@ -52,7 +52,7 @@ function EventCard({ item }: { item: CalendarItem }) {
             <span className={cn("text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0", meta.chip)}>{item.sourceLabel}</span>
           </div>
           <div className="flex items-center gap-2 mt-3 flex-wrap">
-            <Link href={item.href} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-blue-600 text-white text-[12px] font-semibold hover:bg-blue-700 transition-colors">
+            <Link href={item.href} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[var(--brand)] text-white text-[12px] font-semibold hover:bg-[var(--brand-strong)] transition-colors">
               <ExternalLink className="w-3.5 h-3.5" />
               {item.isNative ? "Open Event" : `Open in ${item.sourceLabel}`}
             </Link>
@@ -131,19 +131,19 @@ export default function CalendarDayPage() {
         <span className="text-[13px] font-medium text-slate-500 mr-1">View:</span>
         <CalendarViewsSwitcher />
         <div className="ml-auto flex items-center gap-2">
-          <Link href={sectionLink("/property-manager/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold">
+          <Link href={sectionLink("/property-manager/calendar/events/new")} className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-md bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] font-semibold">
             <Plus className="w-3.5 h-3.5" />New Event
           </Link>
         </div>
       </div>
 
       <div className="px-6 py-3 bg-white border-b border-slate-100 flex items-center gap-3">
-        <button onClick={prevDay} aria-label="Previous day" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"><ChevronLeft className="w-4 h-4" /></button>
+        <button onClick={prevDay} aria-label="Previous day" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"><ChevronLeft className="w-4 h-4" /></button>
         <div className="flex-1 text-center">
           <h2 className="text-[15px] font-bold text-slate-900">{dayLabel}</h2>
-          {isToday && <p className="text-[11px] text-blue-600 font-semibold">Today</p>}
+          {isToday && <p className="text-[11px] text-[var(--brand)] font-semibold">Today</p>}
         </div>
-        <button onClick={nextDay} aria-label="Next day" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"><ChevronRight className="w-4 h-4" /></button>
+        <button onClick={nextDay} aria-label="Next day" className="p-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/40"><ChevronRight className="w-4 h-4" /></button>
         <button onClick={goToday} className="text-[12px] px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium ml-2">Today</button>
       </div>
 

@@ -9,11 +9,13 @@ export const metadata: Metadata = {
   title: "Help Centre",
   description:
     "Propvora Help Centre — getting-started guides and answers for running your property operations, compliance and money.",
+  alternates: { canonical: "/help" },
   openGraph: {
     title: "Help Centre | Propvora",
     description:
       "Getting-started guides and answers for running your property operations on Propvora.",
     type: "website",
+    url: "/help",
   },
 }
 
