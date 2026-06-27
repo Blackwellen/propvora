@@ -265,6 +265,10 @@ export interface NodeConfigField {
   options?: Array<{ value: string; label: string }>
   help?: string
   supportsTokens?: boolean
+  /** For number fields — input bounds/step (default min 0, step 1). */
+  min?: number
+  max?: number
+  step?: number
 }
 
 /**

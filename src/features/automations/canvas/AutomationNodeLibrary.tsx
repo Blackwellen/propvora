@@ -1,10 +1,12 @@
 "use client"
 
-// Left panel: searchable, categorised node library with drag-to-canvas support.
+// Left panel: searchable, categorised node library. Click a node to add it to
+// the canvas (click-to-add, like n8n/Zapier). Every registry group is reachable
+// via the category pills + search.
 
 import React, { useMemo, useState } from "react"
 import {
-  Search, ChevronDown, ChevronRight, GripVertical,
+  Search, ChevronDown, ChevronRight, Plus,
   Zap, GitBranch, Play, ShieldCheck, MessageSquare, Flag,
   Clock, Sparkles, Lock, Scale, Plug, Wrench, AlertTriangle, Split, Webhook,
 } from "lucide-react"
@@ -19,10 +21,12 @@ import type { CanvasFlowNodeData } from "./types"
 import type { Node } from "@xyflow/react"
 
 // ── Category filter pills ─────────────────────────────────────────────────────
+// Every registry group must appear in at least one pill, or those nodes become
+// unreachable when a filter is active. "Legal" was previously omitted entirely.
 const FILTER_PILLS = [
   { id: "all",   label: "All" },
   { id: "core",  label: "Core",  groups: ["Trigger", "Condition", "Branch", "Delay"] },
-  { id: "ops",   label: "Ops",   groups: ["Action", "Approval"] },
+  { id: "ops",   label: "Ops",   groups: ["Action", "Approval", "Legal"] },
   { id: "comm",  label: "Comm",  groups: ["Communication"] },
   { id: "fin",   label: "Fin",   groups: ["Payment"] },
   { id: "ai",    label: "AI",    groups: ["AI"] },
@@ -245,7 +249,9 @@ function NodeItem({
         riskColor,
       ].join(" ")}
     >
-      <GripVertical className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-300 group-hover:text-slate-400" />
+      <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded text-slate-300 group-hover:bg-blue-100 group-hover:text-blue-600 transition">
+        <Plus className="h-3 w-3" />
+      </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-[12px] font-medium text-slate-800">{def.label}</p>
         <p className="mt-0.5 line-clamp-1 text-[11px] text-slate-400">{def.description}</p>

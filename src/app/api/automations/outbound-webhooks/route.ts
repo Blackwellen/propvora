@@ -5,6 +5,8 @@ import { randomBytes } from "node:crypto"
 import { gateAutomation } from "@/lib/billing/gates"
 import { captureException, requestIdFrom } from "@/lib/observability"
 import { resolveAuthedWorkspace } from "../_shared"
+import { OUTBOUND_WEBHOOK_EVENT_KEYS } from "@/lib/automation/webhook-events"
+import { assertSafeWebhookUrl } from "@/lib/automation/url-safety"
 
 // Outbound webhook CRUD — Propvora → external systems.
 // Distinct from the INBOUND receiver (automation_webhook_endpoints).
@@ -13,11 +15,17 @@ export const dynamic = "force-dynamic"
 const TABLE = "automation_webhooks"
 const LOGS_TABLE = "automation_webhook_logs"
 
+// event_types must be drawn from the canonical OUTBOUND_WEBHOOK_EVENTS registry
+// (no free-form strings), so the UI picker and the API agree.
+const eventTypesSchema = z
+  .array(z.enum(OUTBOUND_WEBHOOK_EVENT_KEYS as [string, ...string[]]))
+  .min(1, "Select at least one event type")
+
 const createSchema = z.object({
   workspaceId: z.string().min(1).max(100).optional(),
   url: z.string().url("Must be a valid https:// URL").startsWith("https://", "Webhook URLs must use HTTPS"),
   description: z.string().max(500).optional(),
-  event_types: z.array(z.string()).min(1, "Select at least one event type"),
+  event_types: eventTypesSchema,
   withSecret: z.boolean().optional(),
 })
 
@@ -26,7 +34,7 @@ const updateSchema = z.object({
   id: z.string().uuid(),
   url: z.string().url().startsWith("https://").optional(),
   description: z.string().max(500).optional(),
-  event_types: z.array(z.string()).optional(),
+  event_types: eventTypesSchema.optional(),
   enabled: z.boolean().optional(),
 })
 
@@ -101,6 +109,10 @@ export async function POST(request: NextRequest) {
     }
     const { workspaceId, url: webhookUrl, description, event_types, withSecret } = parsed.data
 
+    // SSRF guard — block internal/private/loopback/link-local destinations.
+    const safe = assertSafeWebhookUrl(webhookUrl)
+    if (!safe.ok) return NextResponse.json({ error: safe.reason }, { status: 400 })
+
     const g = await gatedCtx(workspaceId)
     if ("error" in g) return NextResponse.json({ error: g.error, upgrade: g.upgrade, tier: g.tier }, { status: g.status })
     const { ctx } = g
@@ -137,6 +149,12 @@ export async function PATCH(request: NextRequest) {
     const parsed = updateSchema.safeParse(await request.json())
     if (!parsed.success) return NextResponse.json({ error: "A webhook id is required." }, { status: 400 })
     const { workspaceId, id, ...updates } = parsed.data
+
+    // If the URL is being changed, re-run the SSRF guard.
+    if (updates.url) {
+      const safe = assertSafeWebhookUrl(updates.url)
+      if (!safe.ok) return NextResponse.json({ error: safe.reason }, { status: 400 })
+    }
 
     const g = await gatedCtx(workspaceId)
     if ("error" in g) return NextResponse.json({ error: g.error }, { status: g.status })
@@ -200,6 +218,11 @@ export async function PUT(request: NextRequest) {
       .eq("workspace_id", ctx.workspaceId!)
       .single()
     if (fetchErr || !webhook) return NextResponse.json({ error: "Webhook not found." }, { status: 404 })
+
+    // SSRF guard on the stored URL before we actually fetch it — covers rows that
+    // pre-date this guard or were altered out-of-band.
+    const safe = assertSafeWebhookUrl(String(webhook.url))
+    if (!safe.ok) return NextResponse.json({ error: `Blocked: ${safe.reason}` }, { status: 400 })
 
     const payload = {
       event: "test.webhook",

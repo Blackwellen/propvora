@@ -8,10 +8,7 @@ import {
   Plus,
   CheckCircle2,
   Clock,
-  Download,
   X,
-  Bell,
-  AlertTriangle,
   FileSignature,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -65,7 +62,7 @@ function useAgreements(workspaceId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("tenancy_agreements")
-        .select(`*, agreement_signatories ( * )`)
+        .select(`*, agreement_signatories ( * ), tenancies ( id, tenancy_ref, properties ( nickname, address_line_1 ) )`)
         .eq("workspace_id", workspaceId!)
         .order("created_at", { ascending: false })
       if (error) throw error
@@ -84,7 +81,12 @@ function useAgreements(workspaceId: string | undefined) {
         return {
           id: a.id,
           title: a.title,
-          tenancy: a.tenancy_id ?? "—",
+          tenancy: (() => {
+            const t = Array.isArray(a.tenancies) ? a.tenancies[0] : a.tenancies
+            if (!t) return a.tenancy_id ? a.tenancy_id.slice(0, 8) + "…" : "—"
+            const prop = Array.isArray(t.properties) ? t.properties[0] : t.properties
+            return t.tenancy_ref ?? prop?.nickname ?? prop?.address_line_1 ?? "—"
+          })(),
           signatories: sigs,
           created: new Date(a.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
           deadline: a.signing_deadline
@@ -288,17 +290,6 @@ export default function AgreementsPage() {
                         >
                           View
                         </button>
-                        {(agreement.status === "Partially Signed") && (
-                          <button className="flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors">
-                            <Bell className="w-3 h-3" />
-                            Remind
-                          </button>
-                        )}
-                        {agreement.status === "Expired" && (
-                          <button className="flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors">
-                            Resend
-                          </button>
-                        )}
                       </div>
                     </td>
                   </tr>
@@ -378,23 +369,10 @@ export default function AgreementsPage() {
               ))}
             </div>
 
-            {/* Footer actions */}
+            {/* Footer actions — only show wired actions */}
             <div className="px-6 py-4 border-t border-slate-100 space-y-2 shrink-0">
-              {drawerAgreement.status === "Fully Signed" && (
-                <button className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors">
-                  <Download className="w-4 h-4" />
-                  Download Signed PDF
-                </button>
-              )}
-              {(drawerAgreement.status === "Sent" || drawerAgreement.status === "Partially Signed") && (
-                <button className="w-full flex items-center justify-center gap-2 bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors">
-                  <Bell className="w-4 h-4" />
-                  Send Reminder
-                </button>
-              )}
-              <button className="w-full flex items-center justify-center gap-2 border border-red-200 text-red-600 hover:bg-red-50 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors">
-                <AlertTriangle className="w-4 h-4" />
-                Void Agreement
+              <button onClick={() => setDrawerAgreement(null)} className="w-full flex items-center justify-center gap-2 border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors">
+                Close
               </button>
             </div>
           </div>

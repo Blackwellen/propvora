@@ -4,15 +4,18 @@
 
 import React, { useState } from "react"
 import type { Node } from "@xyflow/react"
-import { Settings, Database, Code2, TestTube2, FileJson, Copy, Check } from "lucide-react"
+import { Settings, Database, TestTube2, FileJson, Copy, Check } from "lucide-react"
 import type { CanvasFlowNodeData, InspectorTab } from "./types"
 import { nodeConfigSchema, getAvailableVars } from "@/lib/automation/node-registry"
 
+// Inspector tabs. The previous "Code" tab was a non-functional stub (Format/
+// Validate had no handlers and Save never persisted — the compiler/executor
+// never read freeform code), so it was removed per the no-stub rule. Node
+// behaviour is configured via Settings and viewed as data via JSON.
 const TABS: Array<{ id: InspectorTab; label: string; icon: React.ElementType }> = [
   { id: "settings", label: "Settings",  icon: Settings },
   { id: "inputs",   label: "Inputs",    icon: Database },
   { id: "json",     label: "JSON",      icon: FileJson },
-  { id: "code",     label: "Code",      icon: Code2 },
   { id: "test",     label: "Test Data", icon: TestTube2 },
 ]
 
@@ -54,6 +57,7 @@ function SettingsTab({
   const contextVars = hasTokenFields
     ? getAvailableVars(triggerNodeType ?? null, upstreamNodeTypes ?? [])
     : []
+  const [copiedToken, setCopiedToken] = useState<string | null>(null)
 
   function handleFieldChange(key: string, value: string | number | boolean) {
     onUpdateConfig(node.id, { [key]: value })
@@ -128,6 +132,7 @@ function SettingsTab({
               ) : (
                 <input
                   type={field.kind === "number" ? "number" : "text"}
+                  {...(field.kind === "number" ? { min: field.min ?? 0, step: field.step ?? 1, ...(field.max != null ? { max: field.max } : {}) } : {})}
                   value={String(config?.[field.key] ?? field.default ?? "")}
                   onChange={(e) =>
                     handleFieldChange(
@@ -163,17 +168,24 @@ function SettingsTab({
           </p>
           <div className="max-h-[180px] overflow-y-auto space-y-1 rounded-xl border border-violet-100 bg-violet-50 px-2.5 py-2">
             {contextVars.map((v) => (
-              <div key={v.token} className="flex items-center justify-between gap-2">
-                <span className="rounded bg-white px-1.5 py-0.5 font-mono text-[10px] text-violet-700 border border-violet-200 shrink-0">
+              <button
+                key={v.token}
+                type="button"
+                onClick={() => { void navigator.clipboard?.writeText(v.token).then(() => setCopiedToken(v.token)).then(() => setTimeout(() => setCopiedToken(null), 1500)).catch(() => {}) }}
+                title={`Copy ${v.token}`}
+                className="flex w-full items-center justify-between gap-2 rounded px-1 py-0.5 text-left hover:bg-violet-100/70 transition"
+              >
+                <span className="inline-flex items-center gap-1 rounded bg-white px-1.5 py-0.5 font-mono text-[10px] text-violet-700 border border-violet-200 shrink-0">
+                  {copiedToken === v.token ? <Check className="h-2.5 w-2.5 text-emerald-500" /> : <Copy className="h-2.5 w-2.5 text-violet-400" />}
                   {v.token}
                 </span>
                 <span className="truncate text-[10px] text-slate-500">{v.label}</span>
                 <span className="shrink-0 text-[9px] text-slate-400 uppercase">{v.type}</span>
-              </div>
+              </button>
             ))}
           </div>
           <p className="mt-1 text-[10px] text-violet-400">
-            Click a token to copy, then paste into any token-enabled field above.
+            {copiedToken ? `Copied ${copiedToken} — paste into any token-enabled field above.` : "Click a token to copy, then paste into any token-enabled field above."}
           </p>
         </div>
       )}
@@ -277,48 +289,6 @@ function JsonPreviewTab({ node }: { node: Node<CanvasFlowNodeData> }) {
       <pre className="max-h-[400px] overflow-auto rounded-xl border border-slate-200 bg-slate-900 p-4 text-[11px] leading-relaxed text-emerald-300 whitespace-pre-wrap">
         {json}
       </pre>
-    </div>
-  )
-}
-
-// ── Code tab ─────────────────────────────────────────────────────────────────
-function CodeTab({ node }: { node: Node<CanvasFlowNodeData> }) {
-  const [code, setCode] = useState(() =>
-    `// ${node.data.label}\n// Node type: ${node.data.nodeType}\n// Category: ${node.data.category}\n\n// Config override (optional — leave empty to use Settings):\nconst config = ${JSON.stringify(node.data.config, null, 2)}\n`
-  )
-  const [saved, setSaved] = useState(false)
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-          Code editor
-        </span>
-        <div className="flex items-center gap-1.5">
-          <button className="rounded-lg border border-slate-200 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50 transition">
-            Format
-          </button>
-          <button className="rounded-lg border border-slate-200 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50 transition">
-            Validate
-          </button>
-          <button
-            onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000) }}
-            className="rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-blue-700 transition"
-          >
-            {saved ? "Saved" : "Save"}
-          </button>
-        </div>
-      </div>
-      <textarea
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        rows={16}
-        spellCheck={false}
-        className="w-full resize-none rounded-xl border border-slate-200 bg-slate-900 p-4 font-mono text-[11px] leading-relaxed text-emerald-300 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
-      />
-      <p className="text-[11px] text-slate-400">
-        Code is stored in the node config. Format/Validate before saving.
-      </p>
     </div>
   )
 }
@@ -431,8 +401,6 @@ export function AutomationNodeInspector({ node, onUpdateConfig, onUpdateLabel, o
           <InputsTab node={node} />
         ) : activeTab === "json" ? (
           <JsonPreviewTab node={node} />
-        ) : activeTab === "code" ? (
-          <CodeTab node={node} />
         ) : (
           <TestDataTab node={node} />
         )}

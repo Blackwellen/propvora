@@ -217,7 +217,7 @@ export default function ProspectsPage() {
                 Table
               </button>
             </div>
-            <button className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+            <button onClick={() => router.push("/property-manager/contacts/new")} className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
               <Plus className="w-3.5 h-3.5" />
               Add Prospect
             </button>
@@ -297,6 +297,7 @@ export default function ProspectsPage() {
                       {colProspects.map((p, idx) => (
                         <div
                           key={p.id}
+                          onClick={() => router.push(`/property-manager/portfolio/leasing/prospects/${p.id}`)}
                           className="bg-white border border-slate-200 rounded-lg p-3 cursor-pointer hover:shadow-md transition-shadow"
                         >
                           <div className="flex items-center gap-2">
@@ -352,7 +353,7 @@ export default function ProspectsPage() {
                   </tr>
                 )}
                 {filtered.map((p, idx) => (
-                  <tr key={p.id} className="hover:bg-slate-50/50 transition-colors cursor-pointer" onClick={() => router.push(`/property-manager/contacts/new?name=${encodeURIComponent(p.name)}`)}>
+                  <tr key={p.id} className="hover:bg-slate-50/50 transition-colors cursor-pointer" onClick={() => router.push(`/property-manager/portfolio/leasing/prospects/${p.id}`)}>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <div className={cn("w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0", avatarColors[idx % avatarColors.length])}>
@@ -380,7 +381,7 @@ export default function ProspectsPage() {
                     <td className="px-4 py-3 text-[11px] text-slate-600">{p.budget}</td>
                     <td className="px-4 py-3 text-[11px] text-slate-600">{p.daysInPipeline}d</td>
                     <td className="px-4 py-3">
-                      <button className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors">
+                      <button onClick={e => { e.stopPropagation(); router.push(`/property-manager/portfolio/leasing/prospects/${p.id}`) }} className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors">
                         View
                       </button>
                     </td>

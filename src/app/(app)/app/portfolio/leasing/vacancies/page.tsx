@@ -6,16 +6,13 @@ import { createClient } from "@/lib/supabase/client"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import {
   Plus,
-  Download,
   BedDouble,
   Users,
   Clock,
   Eye,
-  Pencil,
   CalendarDays,
   CheckCircle2,
   XCircle,
-  Trash2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
@@ -133,7 +130,7 @@ export default function VacanciesPage() {
             <h1 className="text-lg font-semibold text-slate-900">Vacancies</h1>
             <p className="text-[13px] text-slate-500 mt-0.5">{vacancies.length} total vacancies</p>
           </div>
-          <button className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+          <button onClick={() => router.push("/property-manager/portfolio/units/new")} className="bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
             <Plus className="w-3.5 h-3.5" />
             New Vacancy
           </button>
@@ -266,19 +263,14 @@ export default function VacanciesPage() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 mt-3">
-                  <button className="flex items-center gap-1 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                  <button onClick={() => router.push(`/property-manager/portfolio/leasing/vacancies/${v.id}`)} className="flex items-center gap-1 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
                     <Eye className="w-3 h-3" />
                     View
-                  </button>
-                  <button className="flex items-center gap-1 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
-                    <Pencil className="w-3 h-3" />
-                    Edit
                   </button>
                   <div className="ml-auto">
                     <ActionMenu
                       align="right"
                       items={[
-                        { label: "View listing", icon: Eye, onClick: () => router.push("/property-manager/portfolio/units") },
                         { label: "Schedule viewing", icon: CalendarDays, onClick: () => router.push("/property-manager/portfolio/leasing/viewings") },
                         { label: "Mark as let", icon: CheckCircle2, onClick: () => router.push("/property-manager/portfolio/tenancies/new") },
                       ]}
@@ -291,31 +283,6 @@ export default function VacanciesPage() {
         </div>
         )}
 
-        {/* Portal Export info card */}
-        <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden p-5">
-          <div className="flex flex-col md:flex-row items-start md:justify-between gap-4">
-            <div>
-              <h3 className="text-[13px] font-semibold text-slate-800">Portal Export</h3>
-              <p className="text-[12px] text-slate-500 mt-1 max-w-2xl">
-                Rightmove doesn&apos;t offer a direct API. Download property data feeds to upload to your portal dashboards.
-              </p>
-            </div>
-            <div className="flex items-center gap-2 shrink-0 flex-wrap">
-              <button className="flex items-center gap-1.5 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
-                <Download className="w-3.5 h-3.5" />
-                Export Rightmove BLM
-              </button>
-              <button className="flex items-center gap-1.5 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
-                <Download className="w-3.5 h-3.5" />
-                Export Zoopla RTDF
-              </button>
-              <button className="flex items-center gap-1.5 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
-                <Download className="w-3.5 h-3.5" />
-                Export OnTheMarket XML
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </>
   )

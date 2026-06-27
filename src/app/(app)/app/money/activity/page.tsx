@@ -1,6 +1,6 @@
 ﻿"use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import {
   Activity,
   Calendar,
@@ -21,12 +21,16 @@ import {
   Bell,
   XCircle,
   Clock,
+  ArrowDownLeft,
+  ArrowUpRight,
 } from "lucide-react"
 import { MoneyTabNav, MoneyKpiCard, MoneyPageHeader } from "@/components/money"
 import { ActionMenu } from "@/components/portfolio/ActionMenu"
 import MobileTopBar from "@/components/mobile/MobileTopBar"
 import MobilePageHeader from "@/components/mobile/MobilePageHeader"
 import { cn } from "@/lib/utils"
+import { useMoneyActivity, type MoneyActivityRow } from "@/hooks/useMoneyData"
+import { useWorkspace } from "@/providers/AuthProvider"
 
 // â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -99,7 +103,32 @@ const FILTER_CHIPS: { key: FilterKey; label: string }[] = [
   { key: "system", label: "System" },
 ]
 
-const ACTIVITY_ROWS: ActivityRow[] = []
+function mapActivityRow(r: MoneyActivityRow): ActivityRow {
+  const isIncome = r.event_type === "income_received"
+  const isExpense = r.event_type === "expense_paid"
+  const meta = r.metadata as Record<string, unknown> | null
+  const amount = meta?.amount as number | undefined
+  const amountStr = amount != null ? `${isExpense ? "-" : "+"}£${(amount / 100).toFixed(2)}` : undefined
+  return {
+    time: new Date(r.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+    dotColor: isIncome ? "bg-emerald-500" : isExpense ? "bg-red-400" : "bg-slate-400",
+    iconBg: isIncome ? "bg-emerald-50" : isExpense ? "bg-red-50" : "bg-slate-100",
+    iconColor: isIncome ? "text-emerald-600" : isExpense ? "text-red-500" : "text-slate-500",
+    icon: isIncome ? <ArrowDownLeft className="w-4 h-4" /> : isExpense ? <ArrowUpRight className="w-4 h-4" /> : <Activity className="w-4 h-4" />,
+    avatarInitials: (r.performed_by ?? "SY").slice(0, 2).toUpperCase(),
+    avatarBg: "bg-slate-200 text-slate-600",
+    contactName: r.performed_by ?? "System",
+    contactType: r.performed_by ? "User" : "Auto",
+    contactTypeBg: r.performed_by ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500",
+    eventTitle: r.description || (isIncome ? "Income received" : isExpense ? "Expense paid" : r.event_type.replace(/_/g, " ")),
+    description: r.entity_type,
+    chip: r.event_type.replace(/_/g, " "),
+    chipBg: isIncome ? "bg-emerald-50 text-emerald-700" : isExpense ? "bg-red-50 text-red-700" : "bg-slate-100 text-slate-600",
+    amount: amountStr,
+    amountColor: isIncome ? "text-emerald-600" : "text-red-500",
+    filter: isIncome || isExpense ? "payments" : "system",
+  }
+}
 
 const MOST_ACTIVE: MostActiveContact[] = []
 
@@ -177,13 +206,29 @@ export default function ActivityPage() {
   const [showSystemEvents, setShowSystemEvents] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const { workspace } = useWorkspace()
+  const { data: activityData = [], isLoading } = useMoneyActivity(workspace?.id)
+
+  const activityRows = useMemo(() => activityData.map(mapActivityRow), [activityData])
+
+  // Derived KPIs from real data
+  const now = new Date()
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+  const weekStart = todayStart - 6 * 24 * 60 * 60 * 1000
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
+
+  const eventsToday = activityData.filter(r => new Date(r.created_at).getTime() >= todayStart).length
+  const eventsWeek = activityData.filter(r => new Date(r.created_at).getTime() >= weekStart).length
+  const eventsMonth = activityData.filter(r => new Date(r.created_at).getTime() >= monthStart).length
+  const systemActions = activityData.filter(r => !r.performed_by).length
+  const userActions = activityData.filter(r => !!r.performed_by).length
 
   function showToast(msg: string) {
     setToastMessage(msg)
     setTimeout(() => setToastMessage(null), 3000)
   }
 
-  const filteredRows = ACTIVITY_ROWS.filter((row) => {
+  const filteredRows = activityRows.filter((row) => {
     if (!showSystemEvents && row.filter === "system") return false
     if (activeFilter !== "all" && row.filter !== activeFilter) return false
     if (
@@ -236,32 +281,32 @@ export default function ActivityPage() {
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
           <MoneyKpiCard
             label="Events Today"
-            value="—"
-            subtitle="Requires live data"
+            value={isLoading ? "—" : String(eventsToday)}
+            subtitle={`${eventsMonth} this month`}
             icon={<Activity className="w-5 h-5" />}
             iconBg="bg-blue-50"
             iconColor="text-blue-600"
           />
           <MoneyKpiCard
             label="This Week"
-            value="—"
-            subtitle="Requires live data"
+            value={isLoading ? "—" : String(eventsWeek)}
+            subtitle="Last 7 days"
             icon={<Calendar className="w-5 h-5" />}
             iconBg="bg-emerald-50"
             iconColor="text-emerald-600"
           />
           <MoneyKpiCard
             label="System Actions"
-            value="—"
-            subtitle="Requires live data"
+            value={isLoading ? "—" : String(systemActions)}
+            subtitle="Automated events"
             icon={<Cpu className="w-5 h-5" />}
             iconBg="bg-violet-50"
             iconColor="text-violet-600"
           />
           <MoneyKpiCard
             label="User Actions"
-            value="—"
-            subtitle="Requires live data"
+            value={isLoading ? "—" : String(userActions)}
+            subtitle="Manual actions"
             icon={<Users className="w-5 h-5" />}
             iconBg="bg-amber-50"
             iconColor="text-amber-600"
@@ -475,19 +520,19 @@ export default function ActivityPage() {
               <div className="flex flex-col gap-2 mb-5">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-500">Today</span>
-                  <span className="font-semibold text-slate-900">—</span>
+                  <span className="font-semibold text-slate-900">{isLoading ? "—" : eventsToday}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-500">This week</span>
-                  <span className="font-semibold text-slate-900">—</span>
+                  <span className="font-semibold text-slate-900">{isLoading ? "—" : eventsWeek}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-500">This month</span>
-                  <span className="font-semibold text-slate-900">—</span>
+                  <span className="font-semibold text-slate-900">{isLoading ? "—" : eventsMonth}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-500">vs last month</span>
-                  <span className="font-semibold text-slate-400">—</span>
+                  <span className="text-slate-500">Total loaded</span>
+                  <span className="font-semibold text-slate-900">{isLoading ? "—" : activityData.length}</span>
                 </div>
               </div>
 

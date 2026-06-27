@@ -44,6 +44,7 @@ export default function TeamPage() {
   const [busyId, setBusyId] = useState<string | null>(null)
 
   const ROLE_OPTIONS = ["owner", "admin", "manager", "member", "read_only"]
+  const [resendingId, setResendingId] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -126,6 +127,27 @@ export default function TeamPage() {
     setBusyId(null)
     if (!res.ok) { setActionError(res.error ?? "Could not change role."); return }
     setMembers((prev) => prev.map((m) => (m.id === id ? { ...m, role: newRole } : m)))
+  }
+
+  async function handleResendInvite(memberId: string, memberEmail: string) {
+    if (!workspaceId || resendingId) return
+    setResendingId(memberId)
+    try {
+      await fetch("/api/email/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          inviteeEmail: memberEmail,
+          inviteeName: "",
+          workspaceName: "",
+          invitationId: memberId,
+        }),
+      })
+    } catch {
+      console.warn("[team] Resend invite email failed (non-critical)")
+    } finally {
+      setResendingId(null)
+    }
   }
 
   async function handleSendInvite() {
@@ -373,9 +395,13 @@ export default function TeamPage() {
                     </ConfirmDialog>
                   )}
                   {m.status === "invited" && (
-                    <button className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-lg text-[13px] font-medium text-blue-600 hover:bg-blue-50 transition-colors">
-                      <RefreshCw className="w-4 h-4" />
-                      Resend
+                    <button
+                      onClick={() => handleResendInvite(m.id, m.email)}
+                      disabled={resendingId === m.id}
+                      className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-lg text-[13px] font-medium text-blue-600 hover:bg-blue-50 transition-colors disabled:opacity-50"
+                    >
+                      <RefreshCw className={cn("w-4 h-4", resendingId === m.id && "animate-spin")} />
+                      {resendingId === m.id ? "Sending…" : "Resend"}
                     </button>
                   )}
                 </>
@@ -512,11 +538,13 @@ export default function TeamPage() {
                           )}
                           {member.status === "invited" && (
                             <button
+                              onClick={() => handleResendInvite(member.id, member.email)}
+                              disabled={resendingId === member.id}
                               aria-label={`Resend invite to ${member.name}`}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors disabled:opacity-50"
                               title="Resend invite"
                             >
-                              <RefreshCw className="w-3.5 h-3.5" />
+                              <RefreshCw className={cn("w-3.5 h-3.5", resendingId === member.id && "animate-spin")} />
                             </button>
                           )}
                         </>
