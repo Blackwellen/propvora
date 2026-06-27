@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { MapPin, Star, ChevronRight } from "lucide-react"
-import { useCustomerToast } from "../../components/toast"
 import { propertyImages as IMG } from "../../data/mock"
 import type { Booking } from "../data/bookings"
 
@@ -13,7 +12,6 @@ function Card({ title, icon: Icon, children }: { title: string; icon: typeof Map
 interface Props { b: Booking }
 
 export default function BookingPropertyHostCards({ b }: Props) {
-  const { toast } = useCustomerToast()
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <Card title="Property & location" icon={MapPin}>
@@ -32,7 +30,7 @@ export default function BookingPropertyHostCards({ b }: Props) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3"><span className="w-11 h-11 rounded-full bg-slate-200 shrink-0" /><div><p className="text-[13px] font-semibold text-slate-800">{b.host} <span className="text-[10.5px] text-amber-600 font-semibold ml-1">Superhost</span></p><p className="text-[11.5px] text-slate-500 flex items-center gap-1"><Star className="w-3 h-3 fill-amber-400 text-amber-400" /> 4.9 (87)</p><p className="text-[11px] text-slate-400">Response: 98% · within 1 hour</p></div></div>
         </div>
-        <button onClick={() => toast("Opening host profile…", "info")} className="mt-2 text-[12px] font-semibold text-slate-700 border border-slate-200 rounded-lg px-3 py-1.5">View host profile</button>
+        <Link href="/customer/messages" className="mt-2 inline-block text-[12px] font-semibold text-slate-700 border border-slate-200 rounded-lg px-3 py-1.5">Message host</Link>
       </Card>
     </div>
   )

@@ -4,7 +4,6 @@ import { Search, Filter, CreditCard } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatPence } from "@/lib/marketplace/money"
 import { StatusPill, type PillTone } from "../../components/StatusPill"
-import { useCustomerToast } from "../../components/toast"
 
 interface Pay {
   id: string; property: string; desc: string; image: string; amountPence: number; due: string
@@ -18,8 +17,6 @@ interface Props {
 }
 
 export default function PaymentHistoryTable({ payments, selectedId, onSelect }: Props) {
-  const { toast } = useCustomerToast()
-
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
       <div className="flex items-center justify-between mb-3">
@@ -76,14 +73,14 @@ export default function PaymentHistoryTable({ payments, selectedId, onSelect }: 
               <div className="mt-2.5 pt-2 border-t border-slate-100 flex justify-end">
                 {p.canPay ? (
                   <button
-                    onClick={(e) => { e.stopPropagation(); toast("Opening payment…", "info") }}
+                    onClick={(e) => { e.stopPropagation(); window.location.assign(`/customer/bookings/${p.id}`) }}
                     className="bg-[#2563EB] text-white rounded-lg px-3 py-1.5 text-[11.5px] font-semibold"
                   >
                     Pay now
                   </button>
                 ) : (
                   <button
-                    onClick={(e) => { e.stopPropagation(); toast("Opening receipt…", "info") }}
+                    onClick={(e) => { e.stopPropagation(); window.open(`/api/customer/bookings/${p.id}/receipt`, "_blank", "noopener") }}
                     className="text-[11.5px] font-semibold text-blue-600"
                   >
                     View receipt
@@ -129,9 +126,9 @@ export default function PaymentHistoryTable({ payments, selectedId, onSelect }: 
                   <td className="py-3 px-2 text-slate-500 whitespace-nowrap">{p.method}</td>
                   <td className="py-3 px-2">
                     {p.canPay ? (
-                      <button onClick={(e) => { e.stopPropagation(); toast("Opening payment…", "info") }} className="bg-[#2563EB] text-white rounded-lg px-2.5 py-1 text-[11.5px] font-semibold">Pay now</button>
+                      <button onClick={(e) => { e.stopPropagation(); window.location.assign(`/customer/bookings/${p.id}`) }} className="bg-[#2563EB] text-white rounded-lg px-2.5 py-1 text-[11.5px] font-semibold">Pay now</button>
                     ) : (
-                      <button onClick={(e) => { e.stopPropagation(); toast("Opening receipt…", "info") }} className="text-[11.5px] font-semibold text-blue-600">View</button>
+                      <button onClick={(e) => { e.stopPropagation(); window.open(`/api/customer/bookings/${p.id}/receipt`, "_blank", "noopener") }} className="text-[11.5px] font-semibold text-blue-600">View</button>
                     )}
                   </td>
                 </tr>

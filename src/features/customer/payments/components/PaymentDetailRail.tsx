@@ -1,10 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { Download, ShieldCheck, RotateCcw, Headphones } from "lucide-react"
+import { Download, ShieldCheck, Headphones } from "lucide-react"
 import { formatPence } from "@/lib/marketplace/money"
 import { StatusPill, type PillTone } from "../../components/StatusPill"
-import { useCustomerToast } from "../../components/toast"
 
 interface Pay {
   id: string; property: string; desc: string; image: string; amountPence: number; due: string
@@ -17,7 +16,6 @@ function Row({ l, r }: { l: string; r: string }) {
 interface Props { selected: Pay }
 
 export default function PaymentDetailRail({ selected }: Props) {
-  const { toast } = useCustomerToast()
   return (
     <aside className="space-y-5 sticky top-[84px]">
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
@@ -34,7 +32,7 @@ export default function PaymentDetailRail({ selected }: Props) {
         </div>
         <div className="mt-3 space-y-2">
           {selected.canPay && <Link href={`/customer/bookings/${selected.id}`} className="block w-full bg-[#2563EB] text-white rounded-xl py-2.5 text-[13px] font-semibold text-center">Pay {formatPence(selected.amountPence, "GBP")}</Link>}
-          <button onClick={() => toast("Downloading receipt…", "info")} className="w-full inline-flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><Download className="w-4 h-4" /> Download receipt</button>
+          <a href={`/api/customer/bookings/${selected.id}/receipt`} target="_blank" rel="noopener noreferrer" className="w-full inline-flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><Download className="w-4 h-4" /> Download receipt</a>
         </div>
       </div>
 

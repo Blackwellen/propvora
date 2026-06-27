@@ -7,7 +7,7 @@ import { useCustomerToast } from "../components/toast"
 import type { Booking } from "../data/bookings"
 import BookingsKpiStrip from "./components/BookingsKpiStrip"
 import BookingsTabBar from "./components/BookingsTabBar"
-import BookingsToolbar from "./components/BookingsToolbar"
+import BookingsToolbar, { type BookingSort } from "./components/BookingsToolbar"
 import BookingsTableView from "./components/BookingsTableView"
 import BookingsCardsView from "./components/BookingsCardsView"
 import BookingsOverviewView from "./components/BookingsOverviewView"
@@ -46,12 +46,24 @@ export default function BookingsClient({ initialView = "overview", bookings = []
   const [tab, setTab] = useState<Tab>("all")
   const [selectedId, setSelectedId] = useState<string>("")
   const [checked, setChecked] = useState<Record<string, boolean>>({})
+  const [sort, setSort] = useState<BookingSort>("recent")
+  const [search, setSearch] = useState("")
 
   const rows = useMemo(() => {
-    if (tab === "stays") return bookings.filter((b) => b.type === "Stay")
-    if (tab === "lets") return bookings.filter((b) => b.type === "Let")
-    return bookings
-  }, [tab, bookings])
+    let r = bookings
+    if (tab === "stays") r = r.filter((b) => b.type === "Stay")
+    else if (tab === "lets") r = r.filter((b) => b.type === "Let")
+    const q = search.trim().toLowerCase()
+    if (q) r = r.filter((b) => `${b.property} ${b.location} ${b.host} ${b.ref}`.toLowerCase().includes(q))
+    const sorted = [...r]
+    switch (sort) {
+      case "oldest": sorted.reverse(); break
+      case "price_desc": sorted.sort((a, b) => b.totalPence - a.totalPence); break
+      case "price_asc": sorted.sort((a, b) => a.totalPence - b.totalPence); break
+      // "recent" keeps the server order (check_in desc)
+    }
+    return sorted
+  }, [tab, bookings, search, sort])
 
   const selected = bookings.find((b) => b.id === selectedId) ?? rows[0]
   const checkedRows = bookings.filter((b) => checked[b.id])
@@ -110,6 +122,10 @@ export default function BookingsClient({ initialView = "overview", bookings = []
       <BookingsToolbar
         checkedCount={checkedCount}
         showBulk={view === "table"}
+        sort={sort}
+        onSortChange={setSort}
+        search={search}
+        onSearchChange={setSearch}
         onBulkMessage={() => router.push("/customer/messages")}
         onBulkDownload={() => { if (checkedRows.length === 0) { toast("Select bookings first.", "info"); return } exportBookingsCsv(checkedRows); toast("Exported selected bookings.", "success") }}
         onBulkCancel={requestCancellations}

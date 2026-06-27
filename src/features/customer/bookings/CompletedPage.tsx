@@ -54,9 +54,9 @@ export default function CompletedPage() {
             <div className="flex flex-col"><span className="text-[11px] text-slate-500">Payment status</span><span className="text-[12px] font-semibold text-emerald-700 bg-emerald-100 rounded-full px-2 py-0.5 w-fit mt-0.5">Paid in full</span></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4">
-            <ActBtn icon={Download} onClick={() => toast("Opening receipt…", "info")}>View receipt</ActBtn>
-            <ActBtn icon={Download} onClick={() => toast("Opening invoice…", "info")}>View invoice</ActBtn>
-            <ActBtn icon={Calendar} onClick={() => toast("Added to calendar", "success")}>Add to calendar</ActBtn>
+            <ActBtn icon={Download} onClick={() => window.location.assign("/customer/bookings")}>View receipt</ActBtn>
+            <ActBtn icon={Download} onClick={() => window.location.assign("/customer/bookings")}>View invoice</ActBtn>
+            <ActBtn icon={Calendar} onClick={() => window.location.assign("/customer/bookings")}>View bookings</ActBtn>
           </div>
         </div>
 

@@ -83,13 +83,8 @@ export default function BookingDetailPage({ b }: { b: Booking }) {
               </div>
             </Card>
             <Card title="Important documents" icon={FileText}>
-              {[["House manual", "PDF · 2.4 MB"], ["Wi-Fi details", "PDF · 0.6 MB"], ["Local guide", "PDF · 3.1 MB"]].map(([n, s]) => (
-                <button key={n} onClick={() => toast(`Downloading ${n}…`, "info")} className="w-full flex items-center justify-between py-1 group">
-                  <span className="text-left"><span className="block text-[12px] font-medium text-slate-700">{n}</span><span className="block text-[10.5px] text-slate-400">{s}</span></span>
-                  <Download className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
-                </button>
-              ))}
-              <Link href="/customer/lets/tenancies/x/documents" className="mt-1 inline-block text-[12px] font-semibold text-blue-600">View all documents →</Link>
+              <p className="text-[11.5px] text-slate-400 py-1">Documents your host shares for this stay (house manual, Wi-Fi, local guide) will appear here.</p>
+              <a href={`/api/customer/bookings/${b.id}/receipt`} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1.5 text-[12px] font-semibold text-blue-600"><Download className="w-3.5 h-3.5" /> Download booking receipt</a>
             </Card>
             <Card title="Receipt summary" icon={FileText}>
               {b.perNightPence ? <Tiny l={`Subtotal (${b.nights ?? 1} night${(b.nights ?? 1) === 1 ? "" : "s"})`} r={formatPence(b.perNightPence * (b.nights ?? 1), "GBP")} /> : null}
