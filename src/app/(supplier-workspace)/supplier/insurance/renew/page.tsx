@@ -17,6 +17,8 @@ import {
 } from "lucide-react"
 import { SupplierWizardShell, type WizardStepMeta } from "@/components/supplier-workspace/wizard/SupplierWizardShell"
 import { moneyPence, shortDate } from "@/components/supplier-workspace/format"
+import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
+import { useSupplierApiUrl, useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 
 const STEPS: WizardStepMeta[] = [
   { label: "Policy details", subtitle: "Insurer & coverage", icon: FileText },
@@ -30,12 +32,15 @@ const COVERAGE_BY_SERVICE = [
   { service: "General maintenance", requiredPence: 100000000, label: "£1m public liability" },
 ]
 
-const CURRENT_POLICY = {
-  insurer: "Hiscox",
-  policyNumber: "PL-44821-2024",
-  coverPence: 200000000,
-  expiresAt: new Date(Date.now() - 4 * 86_400_000).toISOString(), // expired
-  status: "Active" as const,
+interface InsurancePolicy {
+  id: string
+  insurance_type: string
+  provider: string | null
+  policy_number_masked: string | null
+  coverage_amount_pence: number | null
+  valid_to: string | null
+  status: string
+  expired: boolean
 }
 
 function poundsToPence(s: string): number {
@@ -50,17 +55,26 @@ export default function SupplierInsuranceRenewPage() {
 function InsuranceRenewInner() {
   const router = useRouter()
   const params = useSearchParams()
+  const { workspaceId } = useSupplierWorkspace()
   const stepParam = params.get("step")
   const initialStep = stepParam === "upload" ? 1 : stepParam === "review" ? 2 : 0
 
+  const verification = useSupplierApi<InsurancePolicy[]>(
+    useSupplierApiUrl("/api/supplier/verification"),
+    { select: (j) => (j as { insurance?: InsurancePolicy[] }).insurance ?? [] }
+  )
+  const currentPolicy = (verification.data ?? [])[0] ?? null
+
   const [current, setCurrent] = useState(initialStep)
   const [finishing, setFinishing] = useState(false)
-  const [insurer, setInsurer] = useState(CURRENT_POLICY.insurer)
+  const [insurer, setInsurer] = useState("")
   const [policyNumber, setPolicyNumber] = useState("")
-  const [coverPounds, setCoverPounds] = useState((CURRENT_POLICY.coverPence / 100).toString())
+  const [coverPounds, setCoverPounds] = useState("2000000")
   const [expiry, setExpiry] = useState("")
-  const [fileName, setFileName] = useState<string | null>(null)
+  const [file, setFile] = useState<File | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const fileName = file?.name ?? null
 
   const coverPence = poundsToPence(coverPounds)
   const maxRequired = Math.max(...COVERAGE_BY_SERVICE.map((c) => c.requiredPence))
@@ -72,23 +86,67 @@ function InsuranceRenewInner() {
     { label: "Policy number entered", ok: policyNumber.trim().length > 2 },
     { label: `Cover meets ${moneyPence(maxRequired)} minimum`, ok: coverOk },
     { label: "Expiry date is in the future", ok: expiryOk },
-    { label: "Certificate uploaded", ok: !!fileName },
-  ], [insurer, policyNumber, coverOk, expiryOk, fileName, maxRequired])
+    { label: "Certificate uploaded", ok: !!file },
+  ], [insurer, policyNumber, coverOk, expiryOk, file, maxRequired])
 
   const canContinue = current === 0
     ? validations.slice(0, 4).every((v) => v.ok)
     : current === 1
-      ? !!fileName
+      ? !!file
       : validations.every((v) => v.ok)
 
   function back() { router.push("/supplier/insurance") }
-  function submit() {
+
+  async function submit() {
+    if (!workspaceId || !file) {
+      setError("Workspace not ready or no certificate attached.")
+      return
+    }
     setFinishing(true)
-    // STUB: TODO upload to supplier-workspaces/{wsId}/compliance/insurance/… then
-    // POST renewal + audit `insurance.renewed`. Optimistic redirect.
-    setTimeout(() => router.push("/supplier/insurance"), 600)
+    setError(null)
+    try {
+      // 1) Upload the certificate to R2.
+      const form = new FormData()
+      form.append("file", file)
+      form.append("workspaceId", workspaceId)
+      form.append("folder", "compliance/insurance")
+      const upRes = await fetch("/api/upload", { method: "POST", body: form })
+      if (!upRes.ok) {
+        const b = (await upRes.json().catch(() => null)) as { error?: string } | null
+        setError(b?.error ?? "Upload failed. Please try again.")
+        setFinishing(false)
+        return
+      }
+      const up = (await upRes.json()) as { key: string }
+
+      // 2) Record the policy against verification (status "uploaded", awaiting review).
+      const postRes = await fetch("/api/supplier/verification", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          workspaceId,
+          kind: "insurance",
+          insuranceType: "public_liability",
+          provider: insurer.trim(),
+          policyNumber: policyNumber.trim(),
+          coverageAmountPence: coverPence,
+          validTo: expiry || null,
+          r2Key: up.key,
+        }),
+      })
+      if (!postRes.ok) {
+        const b = (await postRes.json().catch(() => null)) as { error?: string } | null
+        setError(b?.error ?? "Could not submit the renewal. Please try again.")
+        setFinishing(false)
+        return
+      }
+      router.push("/supplier/insurance")
+    } catch {
+      setError("Network error. Please try again.")
+      setFinishing(false)
+    }
   }
-  function onFile(f: File | undefined) { if (f) setFileName(f.name) }
+  function onFile(f: File | undefined) { if (f) setFile(f) }
 
   const badgeImpact = coverOk && expiryOk
 
@@ -96,12 +154,20 @@ function InsuranceRenewInner() {
     <div className="space-y-4">
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2">Current policy</p>
-        <p className="text-sm font-semibold text-slate-900">{CURRENT_POLICY.insurer}</p>
-        <p className="text-xs text-slate-400">{CURRENT_POLICY.policyNumber}</p>
-        <dl className="mt-2 space-y-1 text-sm">
-          <div className="flex justify-between"><dt className="text-slate-500">Cover</dt><dd className="font-semibold text-slate-800">{moneyPence(CURRENT_POLICY.coverPence)}</dd></div>
-          <div className="flex justify-between"><dt className="text-slate-500">Expiry</dt><dd className="font-semibold text-red-600">{shortDate(CURRENT_POLICY.expiresAt)}</dd></div>
-        </dl>
+        {verification.loading ? (
+          <p className="text-xs text-slate-400">Loading…</p>
+        ) : currentPolicy ? (
+          <>
+            <p className="text-sm font-semibold text-slate-900">{currentPolicy.provider ?? "Policy on file"}</p>
+            <p className="text-xs text-slate-400">{currentPolicy.policy_number_masked ?? "—"}</p>
+            <dl className="mt-2 space-y-1 text-sm">
+              <div className="flex justify-between"><dt className="text-slate-500">Cover</dt><dd className="font-semibold text-slate-800">{currentPolicy.coverage_amount_pence != null ? moneyPence(currentPolicy.coverage_amount_pence) : "—"}</dd></div>
+              <div className="flex justify-between"><dt className="text-slate-500">Expiry</dt><dd className={`font-semibold ${currentPolicy.expired ? "text-red-600" : "text-slate-800"}`}>{currentPolicy.valid_to ? shortDate(currentPolicy.valid_to) : "—"}</dd></div>
+            </dl>
+          </>
+        ) : (
+          <p className="text-sm text-slate-500">No policy on file yet. Upload your certificate to add one.</p>
+        )}
       </div>
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2">Trust badge impact</p>
@@ -191,7 +257,7 @@ function InsuranceRenewInner() {
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0"><FileCheck2 className="w-5 h-5" /></div>
               <div className="flex-1 min-w-0"><p className="text-sm font-semibold text-slate-800 truncate">{fileName}</p><p className="text-xs text-slate-400">Ready to submit</p></div>
-              <button onClick={() => setFileName(null)} className="p-2 text-slate-400 hover:text-red-500" aria-label="Remove"><Trash2 className="w-4 h-4" /></button>
+              <button onClick={() => setFile(null)} className="p-2 text-slate-400 hover:text-red-500" aria-label="Remove"><Trash2 className="w-4 h-4" /></button>
             </div>
           )}
         </div>
@@ -213,6 +279,7 @@ function InsuranceRenewInner() {
           <div className={`rounded-xl border px-4 py-3 text-sm ${badgeImpact ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-amber-50 border-amber-100 text-amber-700"}`}>
             {badgeImpact ? "This renewal keeps your Insured trust badge and marketplace eligibility." : "Heads up: this policy doesn't meet every service's minimum cover — some listings may be paused."}
           </div>
+          {error && <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">{error}</div>}
         </div>
       )}
     </SupplierWizardShell>

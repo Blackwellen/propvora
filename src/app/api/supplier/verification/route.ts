@@ -7,7 +7,19 @@ import {
   loadVerification,
   isInsuranceExpired,
   isLicenceExpired,
+  ensureVerification,
+  recordInsurance,
+  recordDocument,
+  type InsuranceType,
+  type SupplierDocType,
 } from "@/lib/supplier-verification"
+
+const INSURANCE_TYPES: InsuranceType[] = [
+  "public_liability", "employers_liability", "professional_indemnity", "contractors_all_risk", "other",
+]
+const DOC_TYPES: SupplierDocType[] = [
+  "passport", "driving_licence", "national_id", "proof_of_address", "other",
+]
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -74,5 +86,79 @@ export async function GET(request: Request) {
   } catch (err) {
     captureException(err, { source: "api/supplier/verification GET", requestId })
     return NextResponse.json({ error: "Failed to load verification", requestId }, { status: 500 })
+  }
+}
+
+/**
+ * POST /api/supplier/verification
+ * Body: { workspaceId, kind: "insurance" | "document", ...fields }
+ *
+ * Records an uploaded evidence row (status "uploaded", awaiting admin review).
+ * Nothing here auto-approves — verification level is recomputed from evidence by
+ * the admin review flow. The file must already be uploaded to R2 (pass its key).
+ */
+export async function POST(request: Request) {
+  const requestId = requestIdFrom(request.headers)
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+
+    const body = (await request.json().catch(() => null)) as Record<string, unknown> | null
+    if (!body) return NextResponse.json({ error: "Expected a JSON body" }, { status: 400 })
+
+    const workspaceId = typeof body.workspaceId === "string" ? body.workspaceId.trim() : ""
+    const kind = typeof body.kind === "string" ? body.kind.trim() : ""
+    if (!workspaceId) return NextResponse.json({ error: "workspaceId is required" }, { status: 400 })
+    if (!(await isSupplierWorkspaceMember(supabase, workspaceId, user.id))) {
+      return NextResponse.json({ error: "Not a member of this workspace" }, { status: 403 })
+    }
+
+    const verification = await ensureVerification(workspaceId, user.id)
+    if (!verification) {
+      return NextResponse.json({ error: "Verification is not ready yet." }, { status: 503 })
+    }
+
+    if (kind === "insurance") {
+      const insuranceType = typeof body.insuranceType === "string" && INSURANCE_TYPES.includes(body.insuranceType as InsuranceType)
+        ? (body.insuranceType as InsuranceType)
+        : "public_liability"
+      const result = await recordInsurance({
+        verificationId: verification.id,
+        supplierWorkspaceId: workspaceId,
+        insuranceType,
+        provider: typeof body.provider === "string" ? body.provider : null,
+        policyNumber: typeof body.policyNumber === "string" ? body.policyNumber : null,
+        coverageAmountPence: typeof body.coverageAmountPence === "number" ? body.coverageAmountPence : null,
+        validFrom: typeof body.validFrom === "string" ? body.validFrom : null,
+        validTo: typeof body.validTo === "string" ? body.validTo : null,
+        r2Key: typeof body.r2Key === "string" ? body.r2Key : null,
+      })
+      if (!result) return NextResponse.json({ error: "Could not save the policy." }, { status: 503 })
+      return NextResponse.json({ id: result.id, status: "uploaded" }, { status: 201 })
+    }
+
+    if (kind === "document") {
+      const docType = typeof body.docType === "string" && DOC_TYPES.includes(body.docType as SupplierDocType)
+        ? (body.docType as SupplierDocType)
+        : "other"
+      const result = await recordDocument({
+        verificationId: verification.id,
+        supplierWorkspaceId: workspaceId,
+        docType,
+        documentCountry: typeof body.documentCountry === "string" ? body.documentCountry : null,
+        documentNumber: typeof body.documentNumber === "string" ? body.documentNumber : null,
+        expiryDate: typeof body.expiryDate === "string" ? body.expiryDate : null,
+        nameOnDocument: typeof body.nameOnDocument === "string" ? body.nameOnDocument : null,
+        r2KeyFront: typeof body.r2Key === "string" ? body.r2Key : null,
+      })
+      if (!result) return NextResponse.json({ error: "Could not save the document." }, { status: 503 })
+      return NextResponse.json({ id: result.id, status: "uploaded" }, { status: 201 })
+    }
+
+    return NextResponse.json({ error: "kind must be 'insurance' or 'document'" }, { status: 400 })
+  } catch (err) {
+    captureException(err, { source: "api/supplier/verification POST", requestId })
+    return NextResponse.json({ error: "Failed to submit verification", requestId }, { status: 500 })
   }
 }

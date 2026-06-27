@@ -16,6 +16,7 @@ import {
   Building2, Upload, CheckCircle2, Circle, FileCheck2, Trash2, ShieldCheck, Lock,
 } from "lucide-react"
 import { SupplierWizardShell, type WizardStepMeta } from "@/components/supplier-workspace/wizard/SupplierWizardShell"
+import { useSupplierWorkspace } from "@/components/supplier-workspace/SupplierWorkspaceContext"
 
 const STEPS: WizardStepMeta[] = [
   { label: "Business details", subtitle: "Company information", icon: Building2 },
@@ -37,6 +38,7 @@ export default function SupplierBusinessVerificationPage() {
 function BusinessVerificationInner() {
   const router = useRouter()
   const params = useSearchParams()
+  const { workspaceId } = useSupplierWorkspace()
   const stepParam = params.get("step")
   const initialStep = stepParam === "review" ? 2 : stepParam === "upload" ? 1 : 0
 
@@ -46,30 +48,74 @@ function BusinessVerificationInner() {
   const [companyNumber, setCompanyNumber] = useState("")
   const [tradingAddress, setTradingAddress] = useState("")
   const [proofType, setProofType] = useState(PROOF_TYPES[0])
-  const [fileName, setFileName] = useState<string | null>(null)
+  const [file, setFile] = useState<File | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const fileName = file?.name ?? null
 
   const checklist = useMemo(() => [
     { label: "Legal business name", ok: legalName.trim().length > 1 },
     { label: "Company / registration number", ok: companyNumber.trim().length > 3 },
     { label: "Trading address", ok: tradingAddress.trim().length > 4 },
-    { label: "Proof document uploaded", ok: !!fileName },
-  ], [legalName, companyNumber, tradingAddress, fileName])
+    { label: "Proof document uploaded", ok: !!file },
+  ], [legalName, companyNumber, tradingAddress, file])
 
   const canContinue = current === 0
     ? checklist.slice(0, 3).every((c) => c.ok)
     : current === 1
-      ? !!fileName
+      ? !!file
       : checklist.every((c) => c.ok)
 
   function back() { router.push("/supplier/verification") }
-  function submit() {
+
+  async function submit() {
+    if (!workspaceId || !file) {
+      setError("Workspace not ready or no document attached.")
+      return
+    }
     setFinishing(true)
-    // STUB: TODO upload to supplier-workspaces/{wsId}/verification/business/ then
-    // POST check + audit `verification.business.submitted`. Optimistic redirect.
-    setTimeout(() => router.push("/supplier/verification"), 600)
+    setError(null)
+    try {
+      // 1) Upload the proof document to R2.
+      const form = new FormData()
+      form.append("file", file)
+      form.append("workspaceId", workspaceId)
+      form.append("folder", "verification/business")
+      const upRes = await fetch("/api/upload", { method: "POST", body: form })
+      if (!upRes.ok) {
+        const b = (await upRes.json().catch(() => null)) as { error?: string } | null
+        setError(b?.error ?? "Upload failed. Please try again.")
+        setFinishing(false)
+        return
+      }
+      const up = (await upRes.json()) as { key: string }
+
+      // 2) Record the document against the supplier's verification (status "uploaded").
+      const postRes = await fetch("/api/supplier/verification", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          workspaceId,
+          kind: "document",
+          docType: "other",
+          nameOnDocument: legalName.trim(),
+          documentNumber: companyNumber.trim(),
+          r2Key: up.key,
+        }),
+      })
+      if (!postRes.ok) {
+        const b = (await postRes.json().catch(() => null)) as { error?: string } | null
+        setError(b?.error ?? "Could not submit verification. Please try again.")
+        setFinishing(false)
+        return
+      }
+      router.push("/supplier/verification")
+    } catch {
+      setError("Network error. Please try again.")
+      setFinishing(false)
+    }
   }
-  function onFile(f: File | undefined) { if (f) setFileName(f.name) }
+  function onFile(f: File | undefined) { if (f) setFile(f) }
 
   const livePanel = (
     <div className="space-y-4">
@@ -140,7 +186,7 @@ function BusinessVerificationInner() {
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0"><FileCheck2 className="w-5 h-5" /></div>
               <div className="flex-1 min-w-0"><p className="text-sm font-semibold text-slate-800 truncate">{fileName}</p><p className="text-xs text-slate-400">{proofType}</p></div>
-              <button onClick={() => setFileName(null)} className="p-2 text-slate-400 hover:text-red-500" aria-label="Remove"><Trash2 className="w-4 h-4" /></button>
+              <button onClick={() => setFile(null)} className="p-2 text-slate-400 hover:text-red-500" aria-label="Remove"><Trash2 className="w-4 h-4" /></button>
             </div>
           )}
         </div>
@@ -160,6 +206,7 @@ function BusinessVerificationInner() {
             <Row k="Document" v={fileName ?? "Not uploaded"} />
           </div>
           <div className="rounded-xl bg-blue-50/60 border border-blue-100 px-4 py-3 text-xs text-blue-700">Our team typically reviews business verification within 1–2 working days. You&apos;ll be notified of the outcome.</div>
+          {error && <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-xs text-red-700">{error}</div>}
         </div>
       )}
     </SupplierWizardShell>
