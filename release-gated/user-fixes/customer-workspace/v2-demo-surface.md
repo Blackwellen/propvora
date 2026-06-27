@@ -56,20 +56,28 @@ round-trip on favourites / addresses / collections (all HTTP 201).
   "Download your data", "Download data", and "Delete / export account" raise real support tickets.
 - **Security** — password change + 2FA via Supabase Auth (no table needed).
 
-### Remaining customer button wiring (next tranche — schema now live, all unblocked)
-These are lower-value demo affordances; each is now buildable against the live tables:
-- Favourites card-grid hydration (resolve saved `ref` → public stay/let card data) + per-card
-  remove + compare view.
-- Bookings: export, bulk cancel, modify/dispute/report-issue persistence (tables:
-  `customer_bookings`, `customer_booking_disputes`).
-- Payments: add card / autopay (`customer_payment_methods`, `customer_autopay_mandates`) — needs
-  Stripe SetupIntent for real card capture.
-- Profile: avatar upload (R2 → store key), emergency contact, profile field persistence.
-- Identity verification flow (`customer_*` + the existing admin id-verification pipeline).
-- Notification preferences (`customer_notification_preferences`).
+### Also wired since (FIX-660…664)
+- **Favourites page hydration** — slug-based saves now resolve to real stay cards and appear on
+  the favourites grid; per-card remove/re-add persists.
+- **Notification preferences** — the 4 toggles load + persist to `customer_notification_preferences`.
+- **Profile** — full name / phone / DOB persist to auth `user_metadata`; email read-only.
+- **Avatar upload** — wired to the private `customer-files` bucket (`customers/{uid}/avatars/`),
+  1-year signed URL stored in auth metadata, photo rendered.
+- **Saved addresses** — panel renders real `customer_saved_addresses`, refreshes after add.
+
+### Remaining customer button wiring (genuine long tail — larger features or external setup)
+- **Saved searches** — "Save search" on stays/long-term + lets. `customer_saved_searches` table +
+  helpers exist; needs the current filter criteria captured (some filter controls are themselves
+  demo stubs, so this is a larger task than a single button).
+- **Bookings management** — export, bulk cancel, modify (tables `customer_bookings`,
+  `customer_booking_disputes`; report-issue already uses `/api/customer/issues`).
+- **Payments** — add card / autopay (`customer_payment_methods`, `customer_autopay_mandates`).
+  Needs a **Stripe SetupIntent** flow for real card capture — external Stripe setup, not a quick wire.
+- **Identity verification** — would reuse the existing admin id-verification pipeline.
+- **Compare view / emergency contact** — low-value polish.
 
 The customer workspace remains **flag-gated OFF** until a full QA pass — none of this ships to V1
-users yet, but it now works end-to-end the moment the flag is enabled.
+users yet, but everything wired above works end-to-end the moment the flag is enabled.
 
 ## To promote the customer workspace to a live V1.5/V2 surface
 
