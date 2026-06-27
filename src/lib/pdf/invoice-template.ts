@@ -12,7 +12,7 @@ export interface InvoiceLine {
 }
 
 export interface InvoicePdfData {
-  docType?: "INVOICE" | "BILL" | "STATEMENT"
+  docType?: "INVOICE" | "BILL" | "STATEMENT" | "RECEIPT"
   number: string
   status?: string
   issueDate?: string | null

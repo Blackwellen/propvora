@@ -75,22 +75,32 @@ round-trip on favourites / addresses / collections (all HTTP 201).
   `identity_verification` request ticket.
 - **Emergency contact** — real modal persisting to `auth.user_metadata.emergency_contact`.
 
-### Intentionally NOT a gap (design decision — not built)
-- **Payments add-card / autopay** — by design, cards are added via Stripe-hosted checkout and
-  managed through the **Stripe billing portal**; there is deliberately no customer-managed card
-  API (`PaymentMethodsSection` documents this). A SetupIntent flow would contradict the existing
-  design, so it is **not** built. If self-service card management is wanted later, that's a
-  deliberate new feature (SetupIntent + Elements + `customer_payment_methods`), not a bug fix.
+### The three larger integrations — now BUILT IN FULL (FIX-671…673)
+- **Receipt PDFs** — `/api/customer/bookings/[id]/receipt` generates a real branded PDF (pdf-lib via
+  the shared invoice template) from the RLS-scoped booking. "View receipt" / "Download receipt"
+  buttons open it; the booking-detail receipt card shows real figures.
+- **Automated KYC (Stripe Identity)** — `/api/customer/identity/start` records an
+  `identity_verifications` row and mints a real `stripe.identity.verificationSessions.create`
+  (document + selfie + liveness), redirecting the customer to the Stripe-hosted flow; the webhook
+  flips the row to verified/rejected. Falls back to a request ticket if Stripe Identity isn't
+  enabled on the account.
+- **Self-service card management (Stripe SetupIntent)** — `/api/customer/payment-methods` (list +
+  detach) and `/setup-intent` (create), backed by a per-user Stripe Customer cached on
+  `customer_account_settings.metadata`. `AddCardModal` confirms a card with the Stripe.js Payment
+  Element (card data never touches our server). `PaymentMethodsSection` is now a real saved-cards
+  manager (add / list / remove).
 
-### Remaining genuine long tail (larger features)
-- **Bookings modify** (date/guest change) and **receipt PDFs** — need operator-side booking
-  lifecycle + a PDF generator.
-- **Full KYC identity verification** — the request ticket is wired; an automated KYC provider
-  (document capture + checks) is a separate integration.
-- **Favourites compare view** — no comparison page exists; low-value polish.
+**External enablement note:** all three degrade gracefully to a clear 503 (or fallback) when Stripe
+is not configured, or when **Stripe Identity** isn't enabled on the account. The code paths are
+complete — to make KYC live, enable **Stripe Identity** in the Stripe dashboard; card management +
+receipts work as soon as the standard Stripe secret/publishable keys are set (already configured).
+
+### Remaining (minor polish only)
+- "Important documents" demo cards on the booking detail (house manual / Wi-Fi) are placeholder
+  host content — not receipt-related; left as demo until hosts can attach real docs.
 
 The customer workspace remains **flag-gated OFF** until a full QA pass — none of this ships to V1
-users yet, but everything wired above works end-to-end the moment the flag is enabled.
+users yet, but everything above works end-to-end the moment the flag is enabled.
 
 ## To promote the customer workspace to a live V1.5/V2 surface
 

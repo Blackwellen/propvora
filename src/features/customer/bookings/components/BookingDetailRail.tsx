@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { MessageSquare, Download, PencilLine, Flag, Shield, CheckCircle2, HelpCircle, LifeBuoy, Phone, ChevronRight } from "lucide-react"
-import { useCustomerToast } from "../../components/toast"
 import { formatPence } from "@/lib/marketplace/money"
 import type { Booking } from "../data/bookings"
 
@@ -20,19 +19,14 @@ function Act({ tone, title, sub, when, last }: { tone: string; title: string; su
 function NeedLink({ icon: Icon, title, sub, href }: { icon: typeof HelpCircle; title: string; sub: string; href: string }) {
   return <Link href={href} className="flex items-center gap-2.5 py-2 group"><span className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600 shrink-0"><Icon className="w-4 h-4" /></span><div className="flex-1 min-w-0"><p className="text-[12px] font-semibold text-slate-800">{title}</p><p className="text-[10.5px] text-slate-500 truncate">{sub}</p></div><ChevronRight className="w-4 h-4 text-slate-300 shrink-0" /></Link>
 }
-function RailBtn({ icon: Icon, children, onClick }: { icon: typeof Download; children: React.ReactNode; onClick: () => void }) {
-  return <button onClick={onClick} className="w-full inline-flex items-center justify-center gap-2 border border-slate-200 rounded-xl py-2.5 text-[13px] font-semibold text-slate-700 hover:bg-slate-50"><Icon className="w-4 h-4" /> {children}</button>
-}
-
 interface Props { b: Booking }
 
 export default function BookingDetailRail({ b }: Props) {
-  const { toast } = useCustomerToast()
   return (
     <aside className="space-y-5 sticky top-[84px]">
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-2">
         <Link href="/customer/messages" className="w-full inline-flex items-center justify-center gap-2 bg-[#0D1B2A] text-white rounded-xl py-2.5 text-[13px] font-semibold"><MessageSquare className="w-4 h-4" /> Message host</Link>
-        <RailBtn icon={Download} onClick={() => toast("Downloading receipt…", "info")}>Download receipt</RailBtn>
+        <a href={`/api/customer/bookings/${b.id}/receipt`} target="_blank" rel="noopener noreferrer" className="w-full inline-flex items-center justify-center gap-2 border border-slate-200 rounded-xl py-2.5 text-[13px] font-semibold text-slate-700 hover:bg-slate-50"><Download className="w-4 h-4" /> Download receipt</a>
         <Link href={`/customer/bookings/${b.id}/modify`} className="w-full inline-flex items-center justify-center gap-2 border border-slate-200 rounded-xl py-2.5 text-[13px] font-semibold text-slate-700 hover:bg-slate-50"><PencilLine className="w-4 h-4" /> Request a change</Link>
         <Link href={`/customer/bookings/${b.id}/modify`} className="w-full inline-flex items-center justify-center gap-2 border border-rose-200 text-rose-600 rounded-xl py-2.5 text-[13px] font-semibold hover:bg-rose-50"><Flag className="w-4 h-4" /> Cancel booking</Link>
         <Link href={`/customer/bookings/${b.id}/dispute`} className="w-full inline-flex items-center justify-center gap-2 border border-slate-200 text-slate-700 rounded-xl py-2.5 text-[13px] font-semibold hover:bg-slate-50"><Shield className="w-4 h-4" /> Open dispute</Link>

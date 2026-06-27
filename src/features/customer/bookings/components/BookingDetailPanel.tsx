@@ -54,7 +54,7 @@ export default function BookingDetailPanel({ b, onClose }: Props) {
 
       <div className="mt-3 pt-3 border-t border-slate-100">
         <p className="text-[12px] font-semibold text-slate-700 mb-1.5">Payment status</p>
-        <div className="flex items-center justify-between"><StatusPill tone={paymentTone(b.payment)}>{b.payment}</StatusPill><Link href={`/customer/bookings/${b.id}`} className="text-[12px] font-semibold text-blue-600">View receipt</Link></div>
+        <div className="flex items-center justify-between"><StatusPill tone={paymentTone(b.payment)}>{b.payment}</StatusPill><a href={`/api/customer/bookings/${b.id}/receipt`} target="_blank" rel="noopener noreferrer" className="text-[12px] font-semibold text-blue-600">View receipt</a></div>
       </div>
 
       <div className="mt-3 pt-3 border-t border-slate-100">

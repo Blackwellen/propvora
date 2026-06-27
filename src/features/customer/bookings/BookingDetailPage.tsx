@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useCustomerToast } from "../components/toast"
 import { StatusPill, bookingStatusTone } from "../components/StatusPill"
+import { formatPence } from "@/lib/marketplace/money"
 import type { Booking } from "../data/bookings"
 import BookingDetailGallery from "./components/BookingDetailGallery"
 import BookingPropertyHostCards from "./components/BookingPropertyHostCards"
@@ -91,11 +92,11 @@ export default function BookingDetailPage({ b }: { b: Booking }) {
               <Link href="/customer/lets/tenancies/x/documents" className="mt-1 inline-block text-[12px] font-semibold text-blue-600">View all documents →</Link>
             </Card>
             <Card title="Receipt summary" icon={FileText}>
-              <Tiny l="Subtotal (4 nights)" r="£880.00" />
-              <Tiny l="Cleaning fee" r="£60.00" />
-              <Tiny l="Service fee" r="£54.40" />
-              <div className="flex items-center justify-between pt-1.5 mt-1.5 border-t border-slate-100"><span className="text-[12.5px] font-semibold text-slate-700">Total paid</span><span className="text-[13px] font-bold text-slate-900">£994.40</span></div>
-              <Link href="/customer/payments" className="mt-1 inline-block text-[12px] font-semibold text-blue-600">View payment breakdown →</Link>
+              {b.perNightPence ? <Tiny l={`Subtotal (${b.nights ?? 1} night${(b.nights ?? 1) === 1 ? "" : "s"})`} r={formatPence(b.perNightPence * (b.nights ?? 1), "GBP")} /> : null}
+              {b.cleaningPence ? <Tiny l="Cleaning fee" r={formatPence(b.cleaningPence, "GBP")} /> : null}
+              {b.servicePence ? <Tiny l="Service fee" r={formatPence(b.servicePence, "GBP")} /> : null}
+              <div className="flex items-center justify-between pt-1.5 mt-1.5 border-t border-slate-100"><span className="text-[12.5px] font-semibold text-slate-700">Total paid</span><span className="text-[13px] font-bold text-slate-900">{formatPence(b.totalPence, "GBP")}</span></div>
+              <a href={`/api/customer/bookings/${b.id}/receipt`} target="_blank" rel="noopener noreferrer" className="mt-1.5 inline-flex items-center gap-1.5 text-[12px] font-semibold text-blue-600"><Download className="w-3.5 h-3.5" /> Download receipt (PDF)</a>
             </Card>
           </div>
 

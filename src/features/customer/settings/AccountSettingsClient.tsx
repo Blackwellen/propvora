@@ -138,6 +138,23 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
     }
   }
 
+  async function startIdentityVerification() {
+    toast("Starting identity verification…", "info")
+    try {
+      const res = await fetch("/api/customer/identity/start", { method: "POST" })
+      if (res.ok) {
+        const data = (await res.json()) as { url?: string | null }
+        if (data.url) { window.location.assign(data.url); return }
+        toast("Verification started — check your email for the next steps.", "success")
+        return
+      }
+      // Stripe Identity not enabled yet → fall back to a request ticket so the user still has a path.
+      await submitTicket("Identity verification request", "identity_verification", "Identity verification requested — we'll email you the next steps.")
+    } catch {
+      toast("Could not start verification. Please try again.", "error")
+    }
+  }
+
   return (
     <div className="space-y-5 pb-16">
       <div>
@@ -200,7 +217,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
                 )}
               </Panel>
               <Panel title="Identity verification">
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2.5"><span className="w-9 h-9 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center"><Fingerprint className="w-4 h-4" /></span><div><p className="text-[12.5px] font-semibold text-slate-800">Identity not yet verified</p><p className="text-[11.5px] text-slate-400">Complete verification to unlock all features</p></div></div><button onClick={() => submitTicket("Identity verification request", "identity_verification", "Identity verification requested — we'll email you the next steps.")} className="text-[11.5px] font-semibold text-blue-600">Start verification</button></div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2.5"><span className="w-9 h-9 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center"><Fingerprint className="w-4 h-4" /></span><div><p className="text-[12.5px] font-semibold text-slate-800">Identity not yet verified</p><p className="text-[11.5px] text-slate-400">Complete verification to unlock all features</p></div></div><button onClick={startIdentityVerification} className="text-[11.5px] font-semibold text-blue-600">Start verification</button></div>
               </Panel>
             </>
           )}
@@ -252,7 +269,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
           </Panel>
           <Panel title="Quick actions">
             <QA icon={KeyRound} label="Change password" onClick={() => setModal("password")} />
-            <QA icon={Fingerprint} label="Verify identity" onClick={() => submitTicket("Identity verification request", "identity_verification", "Identity verification requested — we'll email you the next steps.")} />
+            <QA icon={Fingerprint} label="Verify identity" onClick={startIdentityVerification} />
             <QA icon={CreditCard} label="Manage cards" onClick={() => router.push("/customer/payments")} />
             <QA icon={Download} label="Download data" onClick={() => submitTicket("Data export request", "data_export", "Data export requested — we'll email you a copy.")} />
           </Panel>
