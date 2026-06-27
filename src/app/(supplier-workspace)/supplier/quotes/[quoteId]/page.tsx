@@ -96,12 +96,17 @@ export default function SupplierQuoteDetailPage() {
             <Link href={reviseHref}>
               <SupplierButton variant="outline"><Send className="w-4 h-4" /> Revise quote</SupplierButton>
             </Link>
-            <SupplierButton
-              disabled={!accepted}
-              onClick={() => setBanner({ tone: "emerald", msg: accepted ? "Converting to job…" : "Quote must be accepted first." })}
-            >
-              <ArrowRightCircle className="w-4 h-4" /> Convert to job
-            </SupplierButton>
+            {accepted ? (
+              <Link href="/supplier/jobs">
+                <SupplierButton><ArrowRightCircle className="w-4 h-4" /> View job</SupplierButton>
+              </Link>
+            ) : (
+              <span title="A job is created automatically once the client accepts this quote.">
+                <SupplierButton disabled>
+                  <ArrowRightCircle className="w-4 h-4" /> Awaiting client acceptance
+                </SupplierButton>
+              </span>
+            )}
           </SupplierActionBar>
         }
       />

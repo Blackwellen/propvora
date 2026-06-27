@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { Hammer, ArrowLeft, Tag, Banknote, Settings2, Pencil, ChevronRight, BarChart3, Clock, ShieldCheck, FileText } from "lucide-react"
+import { Hammer, ArrowLeft, Tag, Banknote, Settings2, Pencil, ChevronRight, BarChart3 } from "lucide-react"
 import { MobileTopBar } from "@/components/mobile"
 import { InlineEditField } from "@/components/editing"
 import {
@@ -176,42 +176,24 @@ export default function SupplierServiceDetailPage() {
 
           {tab === "performance" && isTeam && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <PerfStat icon={Clock} label="SLA performance" value="94%" tone="emerald" />
-                <PerfStat icon={ShieldCheck} label="First-time fix" value="88%" tone="emerald" />
-                <PerfStat icon={Banknote} label="Revenue (90d)" value={moneyPence(5840000)} tone="blue" />
-                <PerfStat icon={BarChart3} label="Complaints" value="2" tone="amber" />
-              </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <SupplierCard className="p-5">
-                  <h2 className="text-sm font-semibold text-slate-900 mb-3">Worker eligibility</h2>
-                  <ul className="space-y-2 text-sm">
-                    {[["Gas Safe", true], ["Manufacturer training", true], ["Min. 2 years experience", false]].map(([l, ok]) => (
-                      <li key={l as string} className="flex items-center gap-2"><ShieldCheck className={`w-4 h-4 ${ok ? "text-emerald-500" : "text-slate-300"}`} /><span className={ok ? "text-slate-600" : "text-slate-400"}>{l as string}</span></li>
-                    ))}
-                  </ul>
-                </SupplierCard>
-                <SupplierCard className="p-5">
-                  <h2 className="text-sm font-semibold text-slate-900 mb-3">Linked compliance documents</h2>
-                  <ul className="divide-y divide-slate-50 text-sm">
-                    {["Gas Safe certificate", "Public liability insurance"].map((d) => (
-                      <li key={d} className="flex items-center gap-2 py-2"><FileText className="w-4 h-4 text-slate-400" /><span className="text-slate-700 flex-1">{d}</span><SupplierStatusBadge tone="emerald">Valid</SupplierStatusBadge></li>
-                    ))}
-                  </ul>
-                  <Link href="/supplier/compliance" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-blue-600">Manage documents <ChevronRight className="w-3.5 h-3.5" /></Link>
-                </SupplierCard>
-              </div>
+              <SupplierCard className="p-8">
+                <SupplierEmptyState
+                  icon={BarChart3}
+                  title="Per-service performance analytics"
+                  description="SLA performance, first-time-fix rate and revenue per service will populate here once you have completed jobs linked to this service. Manage the compliance documents that qualify workers for this service from the Compliance section."
+                  action={
+                    <Link href="/supplier/compliance" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2563EB]">
+                      Manage compliance documents <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  }
+                />
+              </SupplierCard>
             </div>
           )}
         </>
       )}
     </div>
   )
-}
-
-function PerfStat({ icon: Icon, label, value, tone }: { icon: typeof Clock; label: string; value: string; tone: "blue" | "emerald" | "amber" }) {
-  const c = tone === "blue" ? "text-[#2563EB]" : tone === "emerald" ? "text-emerald-600" : "text-amber-600"
-  return <SupplierCard className="p-4"><div className="flex items-center justify-between"><span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span><Icon className="w-3.5 h-3.5 text-slate-300" /></div><p className={`text-lg font-bold mt-1 ${c}`}>{value}</p></SupplierCard>
 }
 
 function DRow({ label, children, stacked }: { label: string; children: React.ReactNode; stacked?: boolean }) {

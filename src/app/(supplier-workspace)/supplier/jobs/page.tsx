@@ -75,6 +75,13 @@ function JobsListWithKpi({ isTeam }: { isTeam: boolean }) {
   const activeCount = rows.filter((j) => ACTIVE.has((j.status ?? "").toLowerCase())).length
   const unassignedCount = rows.filter((j) => (j.status ?? "").toLowerCase() === "assigned").length
   const completedCount = rows.filter((j) => (j.status ?? "").toLowerCase() === "completed").length
+  // SLA risk = active (not completed) jobs scheduled in the past or within the next 24h.
+  const slaThreshold = Date.now() + 24 * 60 * 60 * 1000
+  const slaRiskCount = rows.filter((j) => {
+    if (!ACTIVE.has((j.status ?? "").toLowerCase())) return false
+    if (!j.scheduled_for) return false
+    return new Date(j.scheduled_for).getTime() <= slaThreshold
+  }).length
 
   return (
     <>
@@ -84,7 +91,7 @@ function JobsListWithKpi({ isTeam }: { isTeam: boolean }) {
           stats={[
             { label: "Active jobs", value: String(activeCount), tone: "blue" },
             { label: "Awaiting assignment", value: String(unassignedCount), tone: "amber" },
-            { label: "SLA risk", value: "0", tone: "red" },
+            { label: "SLA risk", value: String(slaRiskCount), tone: "red" },
             { label: "Completed", value: String(completedCount), tone: "slate" },
           ]}
         />

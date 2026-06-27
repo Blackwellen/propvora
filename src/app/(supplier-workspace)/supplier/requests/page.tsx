@@ -55,6 +55,18 @@ function RequestsWithKpi({ isTeam }: { isTeam: boolean }) {
     : totalClosed > 0
     ? `${Math.round((wonRows.length / totalClosed) * 100)}%`
     : "0%"
+  // Due soon = open/quoted requests with a due date inside the next 48h.
+  const dueSoonThreshold = Date.now() + 48 * 60 * 60 * 1000
+  const dueSoon = loading
+    ? "—"
+    : String(
+        rows.filter((r) => {
+          if (r.tab !== "new" && r.tab !== "quoted") return false
+          if (!r.dueAt) return false
+          const t = new Date(r.dueAt).getTime()
+          return t >= Date.now() && t <= dueSoonThreshold
+        }).length
+      )
 
   return (
     <>
@@ -65,7 +77,7 @@ function RequestsWithKpi({ isTeam }: { isTeam: boolean }) {
             { label: "Open leads / RFQs", value: openLeads, tone: "blue" },
             { label: "Quoted (awaiting decision)", value: awaitingApproval, tone: "amber" },
             { label: "Win rate", value: winRate, tone: "emerald" },
-            { label: "Avg response", value: "— Requires live data", tone: "slate" },
+            { label: "Due soon (48h)", value: dueSoon, tone: "slate" },
           ]}
         />
       )}

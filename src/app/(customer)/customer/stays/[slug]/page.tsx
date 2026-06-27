@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { CheckCircle, Share2, Heart, MapPin, Clock, Star, Wifi, Tv, UtensilsCrossed, WashingMachine, BedDouble, Bath } from 'lucide-react'
+import { CheckCircle, MapPin, Clock, Star, Wifi, Tv, UtensilsCrossed, WashingMachine, BedDouble, Bath } from 'lucide-react'
 import StayGallery from '@/components/public-marketplace/profiles/StayGallery'
+import StayDetailActions from './StayDetailActions'
 import StayBookingCard from '@/components/public-marketplace/profiles/StayBookingCard'
 import StayCard from '@/components/public-marketplace/cards/StayCard'
 import { getPublicStayBySlug, getPublicStays } from '@/lib/public-marketplace/queries'
@@ -44,14 +45,7 @@ export default async function CustomerStayDetailPage({ params }: { params: Promi
               </span>
             )}
           </div>
-          <div className="flex items-center gap-3">
-            <button className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900">
-              <Heart className="h-4 w-4" /> Save
-            </button>
-            <button className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900">
-              <Share2 className="h-4 w-4" /> Share
-            </button>
-          </div>
+          <StayDetailActions title={stay.title} />
         </div>
         <h1 className="text-3xl font-bold text-slate-900 mb-1">{stay.title}</h1>
         <div className="flex items-center gap-4 text-sm text-slate-500">
