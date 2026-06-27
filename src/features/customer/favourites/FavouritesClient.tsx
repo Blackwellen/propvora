@@ -8,6 +8,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useCustomerToast } from "../components/toast"
 import { CustomerPropertyCard, type PropertyCardData } from "../components/PropertyCard"
+import { CompareModal } from "./CompareModal"
 
 interface CollectionRow { id: string; name: string; description: string | null }
 
@@ -64,6 +65,7 @@ export default function FavouritesClient({ savedItems = [] }: { savedItems?: Sav
   const [saved, setSaved] = useState<Record<string, boolean>>(() => Object.fromEntries(savedItems.map((s) => [s.id, true])))
   const [compare, setCompare] = useState<string[]>([])
   const [showCreate, setShowCreate] = useState(false)
+  const [showCompare, setShowCompare] = useState(false)
   const [collections, setCollections] = useState<CollectionRow[]>([])
 
   // Load the customer's real collections.
@@ -174,7 +176,7 @@ export default function FavouritesClient({ savedItems = [] }: { savedItems?: Sav
       {compare.length > 0 && (
         <div className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[#0D1B2A] text-white rounded-full shadow-lg pl-4 pr-2 py-2 flex items-center gap-3">
           <span className="text-[12.5px] font-semibold">{compare.length} selected to compare</span>
-          <button onClick={() => toast("Comparison view — coming soon", "info")} className="inline-flex items-center gap-1.5 bg-white text-[#0D1B2A] rounded-full px-3 py-1.5 text-[12px] font-semibold"><Scale className="w-3.5 h-3.5" /> Compare</button>
+          <button onClick={() => setShowCompare(true)} className="inline-flex items-center gap-1.5 bg-white text-[#0D1B2A] rounded-full px-3 py-1.5 text-[12px] font-semibold"><Scale className="w-3.5 h-3.5" /> Compare</button>
           <button onClick={() => setCompare([])} className="w-7 h-7 rounded-full hover:bg-white/10 flex items-center justify-center"><X className="w-4 h-4" /></button>
         </div>
       )}
@@ -183,6 +185,20 @@ export default function FavouritesClient({ savedItems = [] }: { savedItems?: Sav
         <CreateCollectionModal
           onClose={() => setShowCreate(false)}
           onCreated={(c) => { setCollections((prev) => [c, ...prev]); setTab("collections"); toast("Collection created.", "success") }}
+        />
+      )}
+
+      {showCompare && compare.length > 0 && (
+        <CompareModal
+          items={SAVED.filter((s) => compare.includes(s.id))}
+          onClose={() => setShowCompare(false)}
+          onRemove={(id) => {
+            setCompare((c) => {
+              const next = c.filter((x) => x !== id)
+              if (next.length === 0) setShowCompare(false)
+              return next
+            })
+          }}
         />
       )}
     </div>

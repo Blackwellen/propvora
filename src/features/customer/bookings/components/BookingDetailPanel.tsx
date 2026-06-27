@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { X, Download, MessageSquare, Flag, Star as StarIcon } from "lucide-react"
+import { X, MessageSquare, Flag, Star as StarIcon, PencilLine } from "lucide-react"
 import { formatPence } from "@/lib/marketplace/money"
 import { StatusPill, bookingStatusTone, paymentTone } from "../../components/StatusPill"
 import type { Booking } from "../data/bookings"
@@ -19,7 +19,7 @@ function Row({ l, r }: { l: string; r: string }) {
   return <div className="flex items-center justify-between text-[12px] py-0.5"><span className="text-slate-500">{l}</span><span className="text-slate-700 font-medium">{r}</span></div>
 }
 
-export default function BookingDetailPanel({ b, onClose, toast }: Props) {
+export default function BookingDetailPanel({ b, onClose }: Props) {
   return (
     <aside className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sticky top-[84px]">
       <div className="flex items-center justify-between">
@@ -54,22 +54,22 @@ export default function BookingDetailPanel({ b, onClose, toast }: Props) {
 
       <div className="mt-3 pt-3 border-t border-slate-100">
         <p className="text-[12px] font-semibold text-slate-700 mb-1.5">Payment status</p>
-        <div className="flex items-center justify-between"><StatusPill tone={paymentTone(b.payment)}>{b.payment}</StatusPill><button onClick={() => toast("Opening receipt…", "info")} className="text-[12px] font-semibold text-blue-600">View receipt</button></div>
+        <div className="flex items-center justify-between"><StatusPill tone={paymentTone(b.payment)}>{b.payment}</StatusPill><Link href={`/customer/bookings/${b.id}`} className="text-[12px] font-semibold text-blue-600">View receipt</Link></div>
       </div>
 
       <div className="mt-3 pt-3 border-t border-slate-100">
         <p className="text-[12px] font-semibold text-slate-700 mb-1.5">Host / Operator</p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2"><span className="w-8 h-8 rounded-full bg-slate-200" /><div><p className="text-[12.5px] font-semibold text-slate-800">{b.host}</p>{b.superhost && <p className="text-[10.5px] text-amber-600">Superhost</p>}</div></div>
-          <button onClick={() => toast(`Messaging ${b.host}…`, "info")} className="text-[12px] font-semibold text-blue-600 border border-slate-200 rounded-lg px-2.5 py-1">Message</button>
+          <Link href="/customer/messages" className="text-[12px] font-semibold text-blue-600 border border-slate-200 rounded-lg px-2.5 py-1">Message</Link>
         </div>
       </div>
 
       <div className="mt-4 space-y-2">
         <Link href={`/customer/bookings/${b.id}`} className="block text-center bg-[#0D1B2A] hover:bg-[#0b1622] text-white rounded-xl py-2.5 text-[13px] font-semibold">View booking detail</Link>
         <div className="grid grid-cols-2 gap-2">
-          <button onClick={() => toast(`Messaging ${b.host}…`, "info")} className="inline-flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><MessageSquare className="w-4 h-4" /> Message host</button>
-          <button onClick={() => toast("Downloading receipt…", "info")} className="inline-flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><Download className="w-4 h-4" /> Receipt</button>
+          <Link href="/customer/messages" className="inline-flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><MessageSquare className="w-4 h-4" /> Message host</Link>
+          <Link href={`/customer/bookings/${b.id}/modify`} className="inline-flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"><PencilLine className="w-4 h-4" /> Request change</Link>
         </div>
         <Link href={`/customer/bookings/${b.id}/dispute`} className="flex items-center justify-center gap-1.5 border border-rose-200 text-rose-600 rounded-xl py-2 text-[12.5px] font-semibold hover:bg-rose-50"><Flag className="w-4 h-4" /> Open dispute</Link>
       </div>
