@@ -1,9 +1,8 @@
 "use client"
 
-import { Download } from "lucide-react"
+import { CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatPence } from "@/lib/marketplace/money"
-import { useCustomerToast } from "../../../components/toast"
 import { StatusPill, type PillTone } from "../../../components/StatusPill"
 
 interface Sched {
@@ -23,8 +22,6 @@ interface Props {
 }
 
 export default function RentScheduleTable({ schedule, selectedId, onSelect }: Props) {
-  const { toast } = useCustomerToast()
-
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
       <h3 className="text-[14px] font-bold text-slate-900 mb-3">Rent schedule</h3>
@@ -39,7 +36,7 @@ export default function RentScheduleTable({ schedule, selectedId, onSelect }: Pr
               onClick={() => onSelect(s.id)}
               className={cn(
                 "rounded-xl border p-3 cursor-pointer",
-                active ? "border-blue-500 bg-blue-50/40" : "border-slate-100 bg-slate-50"
+                active ? "border-[var(--brand)] bg-[var(--brand-soft)]/40" : "border-slate-100 bg-slate-50"
               )}
             >
               <div className="flex items-center justify-between mb-2">
@@ -55,12 +52,7 @@ export default function RentScheduleTable({ schedule, selectedId, onSelect }: Pr
               <div className="flex items-center justify-between text-[11px]">
                 <span className="text-slate-500">{s.method}</span>
                 {s.status === "Paid" ? (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); toast("Downloading receipt…", "info") }}
-                    className="text-blue-600 flex items-center gap-1 font-semibold"
-                  >
-                    <Download className="w-3.5 h-3.5" /> Receipt
-                  </button>
+                  <span className="text-emerald-600 flex items-center gap-1 font-semibold"><CheckCircle2 className="w-3.5 h-3.5" /> Paid</span>
                 ) : (
                   <span className="text-slate-300">—</span>
                 )}
@@ -92,7 +84,7 @@ export default function RentScheduleTable({ schedule, selectedId, onSelect }: Pr
                   onClick={() => onSelect(s.id)}
                   className={cn(
                     "text-[12.5px] cursor-pointer",
-                    active ? "bg-blue-50/40 outline outline-2 -outline-offset-2 outline-blue-500" : "hover:bg-slate-50"
+                    active ? "bg-[var(--brand-soft)]/40 outline outline-2 -outline-offset-2 outline-[var(--brand)]" : "hover:bg-slate-50"
                   )}
                 >
                   <td className="py-3 pr-2 font-semibold text-slate-800">{s.month}</td>
@@ -102,12 +94,7 @@ export default function RentScheduleTable({ schedule, selectedId, onSelect }: Pr
                   <td className="py-3 px-2 text-slate-500">{s.method}</td>
                   <td className="py-3 px-2">
                     {s.status === "Paid" ? (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); toast("Downloading receipt…", "info") }}
-                        className="text-blue-600"
-                      >
-                        <Download className="w-4 h-4" />
-                      </button>
+                      <span className="text-emerald-600 inline-flex"><CheckCircle2 className="w-4 h-4" /></span>
                     ) : (
                       <span className="text-slate-300">—</span>
                     )}

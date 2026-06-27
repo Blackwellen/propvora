@@ -40,16 +40,16 @@ export default function MoveIn({ t }: { t: Tenancy }) {
   }
 
   const KPIS = [
-    { id: "completion", label: "Checklist completion", value: `${pct}%`, icon: ClipboardCheck, bg: "bg-blue-50 text-blue-600" },
+    { id: "completion", label: "Checklist completion", value: `${pct}%`, icon: ClipboardCheck, bg: "bg-[var(--brand-soft)] text-[var(--brand)]" },
     { id: "items", label: "Items completed", value: `${done}`, icon: CheckCircle2, bg: "bg-emerald-50 text-emerald-600" },
     { id: "pending", label: "Pending actions", value: `${items.length - done}`, icon: Clock, bg: "bg-amber-50 text-amber-600" },
     { id: "date", label: "Move-in date", value: t.moveIn, icon: Calendar, bg: "bg-violet-50 text-violet-600" },
-    { id: "docs", label: "Documents uploaded", value: "6", icon: FileText, bg: "bg-blue-50 text-blue-600" },
+    { id: "docs", label: "Documents uploaded", value: "6", icon: FileText, bg: "bg-[var(--brand-soft)] text-[var(--brand)]" },
   ]
 
   return (
     <div className="space-y-5">
-      <Link href={`/customer/lets/tenancies/${t.id}`} className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue-600 hover:text-blue-700">
+      <Link href={`/customer/lets/tenancies/${t.id}`} className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--brand)] hover:text-[var(--brand)]">
         <ArrowLeft className="w-4 h-4" /> Back to tenancy
       </Link>
       <div className="flex items-center justify-between gap-3">
@@ -80,7 +80,7 @@ export default function MoveIn({ t }: { t: Tenancy }) {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-5 items-start">
-        <MoveInChecklist items={items} done={done} pct={pct} onToggle={toggle} />
+        <MoveInChecklist items={items} done={done} pct={pct} onToggle={toggle} tenancyId={t.id} />
 
         <aside className="space-y-5 sticky top-[84px]">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
@@ -98,16 +98,16 @@ export default function MoveIn({ t }: { t: Tenancy }) {
                 <p className="text-[10.5px] text-slate-400">Letting agent</p>
               </div>
             </div>
-            <button
-              onClick={() => toast("Messaging…", "info")}
+            <Link
+              href="/customer/messages"
               className="mt-2 w-full inline-flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12px] font-semibold text-slate-700 hover:bg-slate-50"
             >
               <MessageSquare className="w-4 h-4" /> Message agent
-            </button>
+            </Link>
           </div>
           <button
             onClick={() => toast(pct === 100 ? "Move-in marked complete" : "Complete all items first", pct === 100 ? "success" : "warning")}
-            className={cn("w-full rounded-xl py-3 text-[13px] font-semibold", pct === 100 ? "bg-emerald-600 text-white" : "bg-[#2563EB] text-white")}
+            className={cn("w-full rounded-xl py-3 text-[13px] font-semibold", pct === 100 ? "bg-emerald-600 text-white" : "bg-[var(--brand)] text-white")}
           >
             Mark move-in complete
           </button>

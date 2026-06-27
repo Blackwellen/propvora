@@ -66,14 +66,14 @@ export default function ApplicationWizard({ app, appId }: { app: Application; ap
           <button onClick={back} disabled={step === 0} className={cn("inline-flex items-center gap-1.5 border border-slate-200 rounded-xl px-3 py-2 text-[12.5px] font-semibold", step === 0 ? "text-slate-300" : "text-slate-700 hover:bg-slate-50")}>
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
-          <button onClick={next} className="inline-flex items-center gap-1.5 bg-[#2563EB] text-white rounded-xl px-3 py-2 text-[12.5px] font-semibold">
+          <button onClick={next} className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-white rounded-xl px-3 py-2 text-[12.5px] font-semibold">
             {step === STEPS.length - 1 ? "Submit" : "Next"} <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      <div className="flex items-start gap-2.5 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+      <div className="flex items-start gap-2.5 rounded-xl border border-[var(--color-brand-100)] bg-[var(--brand-soft)]/70 px-4 py-3">
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--brand)]" />
         <p className="text-[12.5px] leading-relaxed text-slate-600">
           <strong className="text-slate-700">Why we ask for these documents.</strong> Your letting agent or
           landlord is legally required to carry out a <strong>Right to Rent</strong> check (Immigration Act 2014,
@@ -86,7 +86,7 @@ export default function ApplicationWizard({ app, appId }: { app: Application; ap
 
       <div className="grid grid-cols-1 xl:grid-cols-[260px_1fr_300px] gap-5 items-start">
         <WizardProgressRail steps={STEPS} currentStep={step} app={app} />
-        <WizardStepPanel stepName={STEPS[step]} stepIndex={step} groups={UPLOAD_GROUPS[step]} />
+        <WizardStepPanel stepName={STEPS[step]} stepIndex={step} groups={UPLOAD_GROUPS[step]} applicationId={appId} />
         <WizardSummaryRail steps={STEPS} currentStep={step} app={app} />
       </div>
     </div>

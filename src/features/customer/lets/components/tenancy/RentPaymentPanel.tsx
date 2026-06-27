@@ -1,9 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { Download, FileText, Headphones, RefreshCw } from "lucide-react"
+import { Headphones, RefreshCw, Loader2, CheckCircle2 } from "lucide-react"
 import { formatPence } from "@/lib/marketplace/money"
-import { useCustomerToast } from "../../../components/toast"
 import { StatusPill, type PillTone } from "../../../components/StatusPill"
 
 interface Sched {
@@ -18,6 +17,11 @@ interface Sched {
 
 interface Props {
   selected: Sched
+  onPay: (scheduleId: string) => void
+  paying: boolean
+  autopayOn: boolean
+  onToggleAutopay: () => void
+  autopayBusy: boolean
 }
 
 function Row({ l, r }: { l: string; r: string }) {
@@ -29,27 +33,8 @@ function Row({ l, r }: { l: string; r: string }) {
   )
 }
 
-function Btn({
-  icon: Icon,
-  children,
-  onClick,
-}: {
-  icon: typeof Download
-  children: React.ReactNode
-  onClick: () => void
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-full inline-flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"
-    >
-      <Icon className="w-4 h-4" /> {children}
-    </button>
-  )
-}
-
-export default function RentPaymentPanel({ selected }: Props) {
-  const { toast } = useCustomerToast()
+export default function RentPaymentPanel({ selected, onPay, paying, autopayOn, onToggleAutopay, autopayBusy }: Props) {
+  const unpaid = selected.status !== "Paid"
   return (
     <aside className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sticky top-[84px]">
       <p className="text-[12px] text-slate-400">{selected.month} — Payment details</p>
@@ -57,28 +42,27 @@ export default function RentPaymentPanel({ selected }: Props) {
       <StatusPill tone={selected.tone}>{selected.status}</StatusPill>
       <div className="mt-3 pt-3 border-t border-slate-100 space-y-1.5">
         <Row l="Rent" r={formatPence(selected.amountPence, "GBP")} />
-        <Row l="Service charge" r="£0.00" />
         <Row l="Due date" r={selected.due} />
         <Row l="Payment method" r={selected.method} />
       </div>
       <div className="mt-3 space-y-2">
-        {selected.status === "Due" && (
+        {unpaid && (
           <button
-            onClick={() => toast("Opening secure payment…", "info")}
-            className="w-full bg-[#2563EB] text-white rounded-xl py-2.5 text-[13px] font-semibold"
+            onClick={() => onPay(selected.id)}
+            disabled={paying}
+            className="w-full bg-[var(--brand)] text-white rounded-xl py-2.5 text-[13px] font-semibold inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
           >
-            Pay {formatPence(selected.amountPence, "GBP")}
+            {paying && <Loader2 className="w-4 h-4 animate-spin" />} Pay {formatPence(selected.amountPence, "GBP")}
           </button>
         )}
-        <Btn icon={Download} onClick={() => toast("Downloading receipt…", "info")}>
-          Download receipt
-        </Btn>
-        <Btn icon={FileText} onClick={() => toast("Downloading pro forma…", "info")}>
-          Download pro forma invoice
-        </Btn>
-        <Btn icon={RefreshCw} onClick={() => toast("Autopay — coming soon", "info")}>
-          Set up autopay
-        </Btn>
+        <button
+          onClick={onToggleAutopay}
+          disabled={autopayBusy}
+          className={`w-full inline-flex items-center justify-center gap-1.5 border rounded-xl py-2 text-[12.5px] font-semibold disabled:opacity-60 ${autopayOn ? "border-emerald-200 text-emerald-700 bg-emerald-50/40" : "border-slate-200 text-slate-700 hover:bg-slate-50"}`}
+        >
+          {autopayBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : autopayOn ? <CheckCircle2 className="w-4 h-4" /> : <RefreshCw className="w-4 h-4" />}
+          {autopayOn ? "Autopay on — turn off" : "Set up autopay"}
+        </button>
         <Link
           href="/customer/help"
           className="w-full inline-flex items-center justify-center gap-1.5 border border-slate-200 rounded-xl py-2 text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50"
