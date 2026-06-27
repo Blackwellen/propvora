@@ -2,8 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, ChevronRight, Upload } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Upload } from "lucide-react"
 import { useCustomerToast } from "../components/toast"
 import type { Booking } from "../data/bookings"
 import BookingsKpiStrip from "./components/BookingsKpiStrip"
@@ -19,8 +18,25 @@ import BookingSummaryRail from "./components/BookingSummaryRail"
 type View = "overview" | "cards" | "table" | "map"
 type Tab = "all" | "stays" | "lets"
 
-function PageBtn({ children, active }: { children: React.ReactNode; active?: boolean }) {
-  return <button className={cn("min-w-[30px] h-[30px] rounded-lg text-[12.5px] font-semibold inline-flex items-center justify-center", active ? "bg-blue-600 text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50")}>{children}</button>
+function csvCell(v: string | number): string {
+  const s = String(v ?? "")
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+}
+
+function exportBookingsCsv(rows: Booking[]) {
+  const headers = ["Ref", "Property", "Location", "Type", "Check in", "Check out", "Guests", "Status", "Payment", "Total (£)", "Host"]
+  const lines = rows.map((b) =>
+    [b.ref, b.property, b.location, b.type, b.checkIn, b.checkOut, b.guests, b.status, b.payment, (b.totalPence / 100).toFixed(2), b.host]
+      .map(csvCell).join(",")
+  )
+  const csv = [headers.join(","), ...lines].join("\n")
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `propvora-bookings-${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 export default function BookingsClient({ initialView = "overview", bookings = [] }: { initialView?: View; bookings?: Booking[] }) {
@@ -38,12 +54,37 @@ export default function BookingsClient({ initialView = "overview", bookings = []
   }, [tab, bookings])
 
   const selected = bookings.find((b) => b.id === selectedId) ?? rows[0]
-  const checkedCount = Object.values(checked).filter(Boolean).length
+  const checkedRows = bookings.filter((b) => checked[b.id])
+  const checkedCount = checkedRows.length
 
   function changeView(v: View) {
     setView(v)
     const q = v === "overview" ? "" : `?view=${v}`
     router.replace(`/customer/bookings${q}`, { scroll: false })
+  }
+
+  async function requestCancellations() {
+    if (checkedRows.length === 0) return
+    toast(`Requesting cancellation for ${checkedRows.length} booking${checkedRows.length === 1 ? "" : "s"}…`, "info")
+    let ok = 0
+    for (const b of checkedRows) {
+      try {
+        const res = await fetch("/api/customer/issues", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            bookingId: b.id,
+            category: "cancellation",
+            severity: "normal",
+            subject: `Cancellation request — ${b.ref}`,
+            detail: `Customer requested to cancel booking ${b.ref} (${b.property}).`,
+          }),
+        })
+        if (res.ok) ok++
+      } catch { /* continue */ }
+    }
+    toast(ok > 0 ? `Cancellation request sent for ${ok} booking${ok === 1 ? "" : "s"}. The host will be in touch.` : "Could not send cancellation requests.", ok > 0 ? "success" : "error")
+    if (ok > 0) setChecked({})
   }
 
   return (
@@ -55,7 +96,7 @@ export default function BookingsClient({ initialView = "overview", bookings = []
           <p className="text-[13.5px] text-slate-500 mt-1">Manage all your stays and lets in one place.</p>
         </div>
         <button
-          onClick={() => toast("Preparing your bookings export…", "info")}
+          onClick={() => { if (rows.length === 0) { toast("No bookings to export.", "info"); return } exportBookingsCsv(rows); toast("Bookings exported.", "success") }}
           className="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 shrink-0"
         >
           <Upload className="w-4 h-4" /> Export bookings
@@ -69,10 +110,10 @@ export default function BookingsClient({ initialView = "overview", bookings = []
       <BookingsToolbar
         checkedCount={checkedCount}
         showBulk={view === "table"}
-        onBulkMessage={() => toast("Messaged selected hosts", "success")}
-        onBulkDownload={() => toast("Downloading receipts…", "info")}
-        onBulkCancel={() => toast("Cancellation flow — coming soon", "info")}
-        onBulkMore={() => toast("More actions — coming soon", "info")}
+        onBulkMessage={() => router.push("/customer/messages")}
+        onBulkDownload={() => { if (checkedRows.length === 0) { toast("Select bookings first.", "info"); return } exportBookingsCsv(checkedRows); toast("Exported selected bookings.", "success") }}
+        onBulkCancel={requestCancellations}
+        onBulkMore={() => router.push("/customer/help")}
       />
 
       {/* Content + right rail */}
@@ -83,14 +124,9 @@ export default function BookingsClient({ initialView = "overview", bookings = []
           {view === "overview" && <BookingsOverviewView rows={rows} selectedId={selected?.id} onSelect={setSelectedId} />}
           {view === "map" && <BookingsMapView rows={rows} selectedId={selected?.id} onSelect={setSelectedId} />}
 
-          {/* Pagination */}
+          {/* Count */}
           <div className="flex items-center justify-between mt-4 text-[12.5px] text-slate-500">
             <span>Showing {rows.length} of {bookings.length} bookings</span>
-            <div className="flex items-center gap-1">
-              <PageBtn><ChevronLeft className="w-4 h-4" /></PageBtn>
-              <PageBtn active>1</PageBtn><PageBtn>2</PageBtn><PageBtn>3</PageBtn>
-              <PageBtn><ChevronRight className="w-4 h-4" /></PageBtn>
-            </div>
           </div>
         </div>
 

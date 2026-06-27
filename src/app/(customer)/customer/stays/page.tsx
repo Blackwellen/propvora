@@ -5,6 +5,7 @@ import PublicResultsToolbar from '@/components/public-marketplace/PublicResultsT
 import MarketplaceTrustStrip from '@/components/public-marketplace/MarketplaceTrustStrip'
 import StayCard from '@/components/public-marketplace/cards/StayCard'
 import { getPublicStays } from '@/lib/public-marketplace/queries'
+import SaveSearchButton from './SaveSearchButton'
 
 export const metadata: Metadata = {
   title: 'Find a Stay · Propvora',
@@ -37,8 +38,9 @@ export default async function CustomerStaysPage() {
       </section>
 
       {/* Filter row */}
-      <div className="sticky top-16 z-30 -mx-4 sm:-mx-6 lg:-mx-8 bg-white border-y border-slate-100 px-4 sm:px-6 lg:px-8 py-3">
+      <div className="sticky top-16 z-30 -mx-4 sm:-mx-6 lg:-mx-8 bg-white border-y border-slate-100 px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3">
         <PublicFilterChips chips={FILTER_CHIPS} />
+        <div className="shrink-0"><SaveSearchButton basePath="/user/stays" /></div>
       </div>
 
       {/* Results */}

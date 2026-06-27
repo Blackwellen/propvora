@@ -65,16 +65,29 @@ round-trip on favourites / addresses / collections (all HTTP 201).
   1-year signed URL stored in auth metadata, photo rendered.
 - **Saved addresses** — panel renders real `customer_saved_addresses`, refreshes after add.
 
-### Remaining customer button wiring (genuine long tail — larger features or external setup)
-- **Saved searches** — "Save search" on stays/long-term + lets. `customer_saved_searches` table +
-  helpers exist; needs the current filter criteria captured (some filter controls are themselves
-  demo stubs, so this is a larger task than a single button).
-- **Bookings management** — export, bulk cancel, modify (tables `customer_bookings`,
-  `customer_booking_disputes`; report-issue already uses `/api/customer/issues`).
-- **Payments** — add card / autopay (`customer_payment_methods`, `customer_autopay_mandates`).
-  Needs a **Stripe SetupIntent** flow for real card capture — external Stripe setup, not a quick wire.
-- **Identity verification** — would reuse the existing admin id-verification pipeline.
-- **Compare view / emergency contact** — low-value polish.
+### Also wired (FIX-665…668)
+- **Saved searches** — new `/api/customer/saved-searches` + a "Save search" button/dropdown on the
+  stays page (capture current query → persist → apply/remove). New additive feature.
+- **Bookings** — Export = real CSV; bulk-export = CSV of selected; bulk-"cancel" = a real
+  cancellation **request** per booking via `/api/customer/issues` (honest: a customer can't
+  unilaterally cancel an operator booking); fake "1 2 3" pagination removed.
+- **Identity verification** — "Verify identity" / "Start verification" raise a real
+  `identity_verification` request ticket.
+- **Emergency contact** — real modal persisting to `auth.user_metadata.emergency_contact`.
+
+### Intentionally NOT a gap (design decision — not built)
+- **Payments add-card / autopay** — by design, cards are added via Stripe-hosted checkout and
+  managed through the **Stripe billing portal**; there is deliberately no customer-managed card
+  API (`PaymentMethodsSection` documents this). A SetupIntent flow would contradict the existing
+  design, so it is **not** built. If self-service card management is wanted later, that's a
+  deliberate new feature (SetupIntent + Elements + `customer_payment_methods`), not a bug fix.
+
+### Remaining genuine long tail (larger features)
+- **Bookings modify** (date/guest change) and **receipt PDFs** — need operator-side booking
+  lifecycle + a PDF generator.
+- **Full KYC identity verification** — the request ticket is wired; an automated KYC provider
+  (document capture + checks) is a separate integration.
+- **Favourites compare view** — no comparison page exists; low-value polish.
 
 The customer workspace remains **flag-gated OFF** until a full QA pass — none of this ships to V1
 users yet, but everything wired above works end-to-end the moment the flag is enabled.

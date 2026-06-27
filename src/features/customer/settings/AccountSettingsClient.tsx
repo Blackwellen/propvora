@@ -14,6 +14,7 @@ import { StatusPill } from "../components/StatusPill"
 import { customerInputClass } from "@/components/customer/ui"
 import { PasswordChangeModal, TwoFactorModal } from "./SecurityModals"
 import { AddressModal } from "./AddressModal"
+import { EmergencyContactModal } from "./EmergencyContactModal"
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -29,7 +30,8 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
   const { toast } = useCustomerToast()
   const [tab, setTab] = useState(initialTab)
   const [dirty, setDirty] = useState(false)
-  const [modal, setModal] = useState<null | "password" | "2fa" | "address">(null)
+  const [modal, setModal] = useState<null | "password" | "2fa" | "address" | "emergency">(null)
+  const [emergencyContact, setEmergencyContact] = useState<{ name: string; phone: string; relationship?: string } | null>(null)
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
@@ -64,6 +66,8 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
         setPhone(typeof m.phone === "string" ? m.phone : "")
         setDob(typeof m.date_of_birth === "string" ? m.date_of_birth : "")
         setAvatarUrl(typeof m.avatar_url === "string" ? m.avatar_url : "")
+        const ec = m.emergency_contact as { name?: string; phone?: string; relationship?: string } | undefined
+        setEmergencyContact(ec?.name && ec?.phone ? { name: ec.name, phone: ec.phone, relationship: ec.relationship } : null)
         setEmail(user.email ?? "")
       } catch { /* keep blanks */ }
     })()
@@ -186,11 +190,17 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
                   ))
                 )}
               </Panel>
-              <Panel title="Emergency contact" action={<AddBtn label="Add contact" onClick={() => toast("Add emergency contact — coming soon", "info")} />}>
-                <p className="text-[12.5px] text-slate-400 py-2">No emergency contact added yet.</p>
+              <Panel title="Emergency contact" action={<AddBtn label="Add contact" onClick={() => setModal("emergency")} />}>
+                {emergencyContact ? (
+                  <div className="flex items-center justify-between py-1">
+                    <div><p className="text-[12.5px] font-semibold text-slate-800">{emergencyContact.name}</p><p className="text-[11.5px] text-slate-400">{emergencyContact.phone}{emergencyContact.relationship ? ` · ${emergencyContact.relationship}` : ""}</p></div>
+                  </div>
+                ) : (
+                  <p className="text-[12.5px] text-slate-400 py-2">No emergency contact added yet.</p>
+                )}
               </Panel>
               <Panel title="Identity verification">
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2.5"><span className="w-9 h-9 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center"><Fingerprint className="w-4 h-4" /></span><div><p className="text-[12.5px] font-semibold text-slate-800">Identity not yet verified</p><p className="text-[11.5px] text-slate-400">Complete verification to unlock all features</p></div></div><StatusPill tone="slate">Unverified</StatusPill></div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2.5"><span className="w-9 h-9 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center"><Fingerprint className="w-4 h-4" /></span><div><p className="text-[12.5px] font-semibold text-slate-800">Identity not yet verified</p><p className="text-[11.5px] text-slate-400">Complete verification to unlock all features</p></div></div><button onClick={() => submitTicket("Identity verification request", "identity_verification", "Identity verification requested — we'll email you the next steps.")} className="text-[11.5px] font-semibold text-blue-600">Start verification</button></div>
               </Panel>
             </>
           )}
@@ -242,7 +252,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
           </Panel>
           <Panel title="Quick actions">
             <QA icon={KeyRound} label="Change password" onClick={() => setModal("password")} />
-            <QA icon={Fingerprint} label="Verify identity" onClick={() => toast("Identity verification — coming soon", "info")} />
+            <QA icon={Fingerprint} label="Verify identity" onClick={() => submitTicket("Identity verification request", "identity_verification", "Identity verification requested — we'll email you the next steps.")} />
             <QA icon={CreditCard} label="Manage cards" onClick={() => router.push("/customer/payments")} />
             <QA icon={Download} label="Download data" onClick={() => submitTicket("Data export request", "data_export", "Data export requested — we'll email you a copy.")} />
           </Panel>
@@ -274,6 +284,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
       {modal === "password" && <PasswordChangeModal onClose={() => setModal(null)} onDone={(m) => toast(m, "success")} />}
       {modal === "2fa" && <TwoFactorModal onClose={() => setModal(null)} onDone={(m) => toast(m, "success")} />}
       {modal === "address" && <AddressModal onClose={() => setModal(null)} onSaved={(m) => { toast(m, "success"); void loadAddresses() }} />}
+      {modal === "emergency" && <EmergencyContactModal initial={emergencyContact} onClose={() => setModal(null)} onSaved={(c) => { setEmergencyContact(c); toast("Emergency contact saved.", "success") }} />}
     </div>
   )
 }
