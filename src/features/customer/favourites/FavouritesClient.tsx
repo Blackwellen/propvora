@@ -83,7 +83,29 @@ export default function FavouritesClient({ savedItems = [] }: { savedItems?: Sav
   const rows = SAVED.filter((s) => saved[s.id]).filter((s) => (tab === "stays" ? s.kind === "stay" : tab === "lets" ? s.kind === "let" : true))
 
   function toggleSave(id: string) {
-    setSaved((s) => { const next = { ...s, [id]: !s[id] }; toast(next[id] ? "Saved to favourites" : "Removed from favourites", next[id] ? "success" : "info"); return next })
+    const willSave = !saved[id]
+    setSaved((s) => ({ ...s, [id]: willSave }))
+    const item = SAVED.find((s) => s.id === id)
+    void (async () => {
+      try {
+        const res = willSave
+          ? await fetch("/api/customer/favourites", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ entityType: item?.kind === "let" ? "let" : "stay", ref: id, label: item?.title }),
+            })
+          : await fetch(`/api/customer/favourites?ref=${encodeURIComponent(id)}`, { method: "DELETE" })
+        if (!res.ok) {
+          setSaved((s) => ({ ...s, [id]: !willSave })) // roll back
+          toast("Could not update favourites. Please try again.", "error")
+          return
+        }
+        toast(willSave ? "Saved to favourites" : "Removed from favourites", willSave ? "success" : "info")
+      } catch {
+        setSaved((s) => ({ ...s, [id]: !willSave }))
+        toast("Could not update favourites. Please try again.", "error")
+      }
+    })()
   }
   function toggleCompare(id: string) {
     setCompare((c) => c.includes(id) ? c.filter((x) => x !== id) : c.length < 3 ? [...c, id] : c)

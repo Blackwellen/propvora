@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
@@ -101,10 +101,10 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
 
           {(tab === "overview" || tab === "notifications") && (
             <Panel title="Communication preferences">
-              <PrefRow icon={Mail} title="Email notifications" sub="Booking updates, receipts and offers" defaultOn />
-              <PrefRow icon={MessageSquare} title="SMS notifications" sub="Time-sensitive booking alerts" defaultOn />
-              <PrefRow icon={Smartphone} title="Push notifications" sub="On your devices" />
-              <PrefRow icon={Bell} title="Marketing &amp; offers" sub="Curated deals and credits" defaultOn />
+              <PrefRow icon={Mail} title="Email notifications" sub="Booking updates, receipts and offers" defaultOn channel="email" category="all" />
+              <PrefRow icon={MessageSquare} title="SMS notifications" sub="Time-sensitive booking alerts" defaultOn channel="sms" category="all" />
+              <PrefRow icon={Smartphone} title="Push notifications" sub="On your devices" channel="push" category="all" />
+              <PrefRow icon={Bell} title="Marketing &amp; offers" sub="Curated deals and credits" defaultOn channel="email" category="marketing" />
             </Panel>
           )}
 
@@ -205,9 +205,42 @@ function AddBtn({ label, onClick }: { label: string; onClick: () => void }) {
 function AddrRow({ label, value, primary }: { label: string; value: string; primary?: boolean }) {
   return <div className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0"><span className="w-9 h-9 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center shrink-0"><MapPin className="w-4 h-4" /></span><div className="flex-1 min-w-0"><p className="text-[12.5px] font-semibold text-slate-800">{label} {primary && <StatusPill tone="blue">Primary</StatusPill>}</p><p className="text-[11.5px] text-slate-400 truncate">{value}</p></div></div>
 }
-function PrefRow({ icon: Icon, title, sub, defaultOn }: { icon: typeof Mail; title: string; sub: string; defaultOn?: boolean }) {
+function PrefRow({ icon: Icon, title, sub, defaultOn, channel, category }: { icon: typeof Mail; title: string; sub: string; defaultOn?: boolean; channel?: string; category?: string }) {
   const [on, setOn] = useState(!!defaultOn)
-  return <div className="flex items-center justify-between py-2"><div className="flex items-center gap-2.5"><span className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center"><Icon className="w-4 h-4" /></span><div><p className="text-[12.5px] font-semibold text-slate-800" dangerouslySetInnerHTML={{ __html: title }} /><p className="text-[11px] text-slate-400">{sub}</p></div></div><button onClick={() => setOn(!on)} className={cn("w-9 h-5 rounded-full p-0.5 transition", on ? "bg-emerald-500" : "bg-slate-200")}><span className={cn("block w-4 h-4 rounded-full bg-white transition-transform", on && "translate-x-4")} /></button></div>
+  const [loaded, setLoaded] = useState(false)
+
+  // When a channel is provided, this row persists to the notification-preferences
+  // backend and reflects the stored value on load.
+  useEffect(() => {
+    if (!channel) return
+    let active = true
+    void (async () => {
+      try {
+        const res = await fetch("/api/customer/notification-preferences", { headers: { accept: "application/json" } })
+        if (!res.ok || !active) return
+        const data = (await res.json()) as { items?: { channel: string; category: string; enabled: boolean }[] }
+        const match = (data.items ?? []).find((i) => i.channel === channel && i.category === (category ?? "all"))
+        if (active && match) setOn(match.enabled)
+      } catch { /* keep default */ } finally { if (active) setLoaded(true) }
+    })()
+    return () => { active = false }
+  }, [channel, category])
+
+  async function toggle() {
+    const next = !on
+    setOn(next)
+    if (!channel) return // privacy/local rows persist nothing
+    try {
+      const res = await fetch("/api/customer/notification-preferences", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ channel, category: category ?? "all", enabled: next }),
+      })
+      if (!res.ok) setOn(!next) // roll back
+    } catch { setOn(!next) }
+  }
+
+  return <div className="flex items-center justify-between py-2"><div className="flex items-center gap-2.5"><span className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center"><Icon className="w-4 h-4" /></span><div><p className="text-[12.5px] font-semibold text-slate-800" dangerouslySetInnerHTML={{ __html: title }} /><p className="text-[11px] text-slate-400">{sub}</p></div></div><button onClick={toggle} disabled={!!channel && !loaded} className={cn("w-9 h-5 rounded-full p-0.5 transition disabled:opacity-50", on ? "bg-emerald-500" : "bg-slate-200")}><span className={cn("block w-4 h-4 rounded-full bg-white transition-transform", on && "translate-x-4")} /></button></div>
 }
 function FinRow({ label, value }: { label: string; value: string }) {
   return <div className="flex items-center justify-between py-1.5"><span className="text-[12px] text-slate-500">{label}</span><span className="text-[12px] font-semibold text-slate-800">{value}</span></div>
