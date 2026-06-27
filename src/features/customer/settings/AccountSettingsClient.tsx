@@ -36,6 +36,19 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
     router.replace(id === "overview" ? "/customer/account-settings" : `/customer/account-settings?tab=${id}`, { scroll: false })
   }
 
+  async function submitTicket(subject: string, category: string, doneMsg: string) {
+    try {
+      const res = await fetch("/api/customer/help-tickets", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ subject, category }),
+      })
+      toast(res.ok ? doneMsg : "Could not submit your request. Please try again.", res.ok ? "success" : "error")
+    } catch {
+      toast("Something went wrong. Please try again.", "error")
+    }
+  }
+
   return (
     <div className="space-y-5 pb-16">
       <div>
@@ -108,7 +121,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
             <Panel title="Security">
               <SecRow icon={KeyRound} title="Password" sub="Update your login password" cta="Change password" onClick={() => setModal("password")} />
               <SecRow icon={Smartphone} title="Two-factor authentication" sub="Not yet enabled" cta="Enable 2FA" onClick={() => setModal("2fa")} />
-              <SecRow icon={Download} title="Download your data" sub="Get a copy of your account data" cta="Request" onClick={() => toast("Data export requested", "success")} />
+              <SecRow icon={Download} title="Download your data" sub="Get a copy of your account data" cta="Request" onClick={() => submitTicket("Data export request", "data_export", "Data export requested — we'll email you a copy.")} />
             </Panel>
           )}
 
@@ -117,7 +130,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
               <PrefRow icon={ShieldCheck} title="Profile visibility" sub="Show profile to hosts you book with" defaultOn />
               <PrefRow icon={Lock} title="Search personalisation" sub="Use my activity to improve results" defaultOn />
               <div className="pt-2 mt-2 border-t border-slate-100">
-                <button onClick={() => toast("Account deletion — opens secure flow", "warning")} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-rose-600"><Trash2 className="w-4 h-4" /> Delete / export account</button>
+                <button onClick={() => submitTicket("Account deletion request", "account_deletion", "Account deletion requested — our team will be in touch to confirm.")} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-rose-600"><Trash2 className="w-4 h-4" /> Delete / export account</button>
               </div>
             </Panel>
           )}
@@ -135,7 +148,7 @@ export default function AccountSettingsClient({ initialTab = "overview" }: { ini
             <QA icon={KeyRound} label="Change password" onClick={() => setModal("password")} />
             <QA icon={Fingerprint} label="Verify identity" onClick={() => toast("Identity verification — coming soon", "info")} />
             <QA icon={CreditCard} label="Manage cards" onClick={() => router.push("/customer/payments")} />
-            <QA icon={Download} label="Download data" onClick={() => toast("Data export requested", "success")} />
+            <QA icon={Download} label="Download data" onClick={() => submitTicket("Data export request", "data_export", "Data export requested — we'll email you a copy.")} />
           </Panel>
           <Panel title="Payment summary">
             <Row l="Saved cards" r="—" />

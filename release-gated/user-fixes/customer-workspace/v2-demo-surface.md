@@ -37,27 +37,39 @@ because the entire surface is gated off for V1.
 These three are genuinely live because they depend only on the public marketplace queries and
 Supabase Auth — neither needs the customer backend migration.
 
-## ⚠️ ONE GATED STEP — apply the customer backend migration
+## ✅ MIGRATION APPLIED (2026-06-27, founder-authorized)
 
-Everything else (favourites persistence, saved searches, bookings actions, payments, profile
-fields, collections, identity verification, data export) needs the **55-table customer-workspace
-migration applied to the live Supabase project first**:
+`supabase/migrations/20260617230000_customer_workspace_tables.sql` (55 additive tables, 65
+`customer_*` RLS policies) was applied to the live project `oovgfknmzjcgbilwumch` via the
+Management API PAT after explicit founder authorization. Verified: table presence + real insert
+round-trip on favourites / addresses / collections (all HTTP 201).
 
-```
-supabase/migrations/20260617230000_customer_workspace_tables.sql
-```
+### Now wired to real persistence (this session)
+- **Favourites** — `/api/customer/favourites` (GET/POST/DELETE). Stays detail Save button persists
+  by slug, reflects saved state on load, optimistic toggle with rollback.
+- **Collections** — `/api/customer/favourites/collections` (GET/POST). Favourites "Create
+  collection" modal + collections tab load real data.
+- **Saved addresses** — `/api/customer/addresses` (GET/POST/DELETE). Account-settings "Add
+  address" modal.
+- **Account settings** — `/api/customer/account` (GET/PATCH: locale/timezone/currency/marketing).
+- **Help / data export / account deletion** — `/api/customer/help-tickets` (POST). Account-settings
+  "Download your data", "Download data", and "Delete / export account" raise real support tickets.
+- **Security** — password change + 2FA via Supabase Auth (no table needed).
 
-It is **purely additive + idempotent** (`CREATE TABLE IF NOT EXISTS`, skips existing tables, no
-ALTER/DROP) and its RLS is workspace-membership + `auth.uid()` anchored. Claude Code attempted to
-apply it via the Management API but the production-deploy safety gate **correctly held it for
-explicit founder authorization** (it's a live shared DB and was previously flagged "review first").
+### Remaining customer button wiring (next tranche — schema now live, all unblocked)
+These are lower-value demo affordances; each is now buildable against the live tables:
+- Favourites card-grid hydration (resolve saved `ref` → public stay/let card data) + per-card
+  remove + compare view.
+- Bookings: export, bulk cancel, modify/dispute/report-issue persistence (tables:
+  `customer_bookings`, `customer_booking_disputes`).
+- Payments: add card / autopay (`customer_payment_methods`, `customer_autopay_mandates`) — needs
+  Stripe SetupIntent for real card capture.
+- Profile: avatar upload (R2 → store key), emergency contact, profile field persistence.
+- Identity verification flow (`customer_*` + the existing admin id-verification pipeline).
+- Notification preferences (`customer_notification_preferences`).
 
-**To unblock the rest of the customer backend build, do ONE of:**
-1. Authorize Claude Code to apply it via the Management API PAT (project `oovgfknmzjcgbilwumch`), or
-2. Apply it yourself: `supabase db push` / paste the SQL in the Supabase SQL editor.
-
-Once applied, the remaining `/api/customer/*` endpoints + button wiring can be built and tested
-end-to-end (each endpoint is 42P01-tolerant so they degrade safely until then).
+The customer workspace remains **flag-gated OFF** until a full QA pass — none of this ships to V1
+users yet, but it now works end-to-end the moment the flag is enabled.
 
 ## To promote the customer workspace to a live V1.5/V2 surface
 
