@@ -4,6 +4,8 @@ import { Mail, MapPin } from "lucide-react"
 import CookiePreferencesLink from "@/components/consent/CookiePreferencesLink"
 import NewsletterSignup from "@/components/marketing/NewsletterSignup"
 import { getServerLocale, t } from "@/lib/i18n"
+import { isFeatureEnabled } from "@/lib/flags"
+import { createClient } from "@/lib/supabase/server"
 
 const footerLinks = {
   product: [
@@ -31,7 +33,12 @@ const footerLinks = {
 export default async function PublicFooter() {
   const locale = await getServerLocale()
   const tr = (k: string) => t(locale, `marketing.${k}`)
-  const productLinks = footerLinks.product
+  // Marketplace footer links (Stays, Suppliers & Services) are V2 surfaces —
+  // hidden until the marketplace flag is on, so the footer never points at a
+  // flag-gated route that redirects/404s in V1.
+  const supabase = await createClient()
+  const marketplaceOn = await isFeatureEnabled("marketplaceEnabled", { supabase })
+  const productLinks = footerLinks.product.filter((l) => !l.mk || marketplaceOn)
   return (
     <footer className="bg-white border-t border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">

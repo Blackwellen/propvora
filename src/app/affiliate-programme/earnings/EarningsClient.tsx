@@ -2,16 +2,25 @@
 
 import { useState } from "react"
 import { levelForReferrals } from "@/lib/affiliate/levels"
+import { getPlans } from "@/lib/billing/plans"
 
 const REFERRAL_TIERS = [3, 10, 25, 50, 100]
-const PLAN_PRICES = [29, 49, 79, 129]
+// Real, canonical monthly plan prices (£) from the billing catalogue — Starter,
+// Operator, Scale, Pro/Agency (£29/£79/£169/£329). Never hardcode: if the Stripe
+// catalogue changes, the earnings examples follow automatically.
+const PLAN_PRICES = getPlans()
+  .map((p) => p.monthlyAmount)
+  .filter((a): a is number => a != null && a > 0)
+  .map((a) => Math.round(a / 100))
+// Default to the popular Operator tier where available.
+const DEFAULT_PLAN = PLAN_PRICES[1] ?? PLAN_PRICES[0] ?? 79
 
 function gbp(n: number): string {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(n)
 }
 
 export default function EarningsClient() {
-  const [plan, setPlan] = useState(49)
+  const [plan, setPlan] = useState(DEFAULT_PLAN)
 
   return (
     <div className="max-w-3xl mx-auto">

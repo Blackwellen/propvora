@@ -9,6 +9,7 @@ import InstallPrompt from "@/components/pwa/InstallPrompt"
 import OfflineBanner from "@/components/pwa/OfflineBanner"
 import CookieConsent from "@/components/consent/CookieConsent"
 import Analytics from "@/components/consent/Analytics"
+import MaintenanceBanner from "@/components/MaintenanceBanner"
 import "./globals.css"
 
 const inter = Inter({
@@ -172,6 +173,7 @@ export default function RootLayout({
             // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
           />
+          <MaintenanceBanner />
           <QueryProvider>
             <AuthProvider>
               <Suspense fallback={null}>

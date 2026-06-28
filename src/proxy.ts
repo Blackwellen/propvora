@@ -51,6 +51,61 @@ async function isPlatformAdmin(
   return false
 }
 
+/** Maintenance config (4 tiers) resolved from platform_settings + env override. */
+type MaintenanceMode = "full" | "restricted" | "degraded"
+interface MaintenanceConfig {
+  enabled: boolean
+  mode: MaintenanceMode
+  allowAdmins: boolean
+  allowlist: string[]
+  message: string
+}
+const MAINTENANCE_OFF: MaintenanceConfig = {
+  enabled: false, mode: "full", allowAdmins: true, allowlist: [], message: "",
+}
+
+// Best-effort in-instance cache (warm middleware persists module state) so we
+// don't hit the DB on every request — toggles take effect within ~20s.
+let _maintCache: { v: MaintenanceConfig; exp: number } | null = null
+
+/**
+ * Resolve maintenance state. The server env var MAINTENANCE_MODE=true is an
+ * emergency FULL-lockdown override (no DB read). Otherwise the source of truth
+ * is platform_settings(key='maintenance'), set from the admin console.
+ */
+async function getMaintenanceConfig(supabase: ProxySupabaseClient): Promise<MaintenanceConfig> {
+  if (process.env.MAINTENANCE_MODE === "true" || process.env.NEXT_PUBLIC_MAINTENANCE_MODE === "true") {
+    return { enabled: true, mode: "full", allowAdmins: true, allowlist: [], message: "" }
+  }
+  const now = Date.now()
+  if (_maintCache && _maintCache.exp > now) return _maintCache.v
+  let v = MAINTENANCE_OFF
+  try {
+    const { data } = await supabase
+      .from("platform_settings")
+      .select("value")
+      .eq("key", "maintenance")
+      .maybeSingle()
+    const raw = ((data as { value?: Record<string, unknown> } | null)?.value ?? {}) as Record<string, unknown>
+    if (raw.enabled === true) {
+      const mode = (["full", "restricted", "degraded"] as const).includes(raw.mode as MaintenanceMode)
+        ? (raw.mode as MaintenanceMode)
+        : "full"
+      v = {
+        enabled: true,
+        mode,
+        allowAdmins: raw.allow_admins !== false,
+        allowlist: Array.isArray(raw.allowlist) ? (raw.allowlist as string[]) : [],
+        message: typeof raw.message === "string" ? raw.message : "",
+      }
+    }
+  } catch {
+    // Fail OPEN (no maintenance) — never lock everyone out on a transient error.
+  }
+  _maintCache = { v, exp: now + 20_000 }
+  return v
+}
+
 export async function proxy(request: NextRequest) {
   // Forward pathname so Server Components can read it via headers()
   const requestHeaders = new Headers(request.headers)
@@ -140,39 +195,48 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // ── Maintenance mode ──────────────────────────────────────────────────────
-  // Toggled via the server env var MAINTENANCE_MODE=true (NEXT_PUBLIC_ variant
-  // also honoured so client bundles can read it if needed). When ON, everyone
-  // is redirected to /maintenance EXCEPT:
-  //   - platform admins (so they can keep working / verify the deploy)
-  //   - a small allowlist of paths that must keep functioning
-  // The matcher already excludes _next/static, _next/image, favicon and image
-  // assets, so those are inherently allowed.
-  const maintenanceOn =
-    process.env.MAINTENANCE_MODE === "true" ||
-    process.env.NEXT_PUBLIC_MAINTENANCE_MODE === "true"
-
-  if (maintenanceOn) {
-    const maintenanceAllowlist = [
-      "/maintenance",
-      "/api/health",
-      "/bw-console-x9f3",
-    ]
-    const isAllowlisted =
-      maintenanceAllowlist.some(
-        (p) => pathname === p || pathname.startsWith(`${p}/`)
-      ) ||
+  // ── Maintenance mode (4 tiers) ────────────────────────────────────────────
+  // Source of truth: platform_settings(key='maintenance') from the admin
+  // console (env var MAINTENANCE_MODE=true is an emergency FULL override).
+  //   off        — nothing.
+  //   degraded   — everything online; site-wide banner only (MaintenanceBanner
+  //                renders it from the same row — no gating here).
+  //   restricted — read-only: non-admin write requests (POST/PUT/PATCH/DELETE)
+  //                are blocked (503); GET/reads pass through.
+  //   full       — non-admins / non-allowlisted paths redirect to /maintenance.
+  // Admins (and an optional email allowlist) always bypass. The matcher already
+  // excludes _next/static, _next/image, favicon and image assets.
+  const maint = await getMaintenanceConfig(supabase)
+  if (maint.enabled && maint.mode !== "degraded") {
+    const maintenanceAllowlist = ["/maintenance", "/api/health", "/bw-console-x9f3"]
+    const isAllowlistedPath =
+      maintenanceAllowlist.some((p) => pathname === p || pathname.startsWith(`${p}/`)) ||
       pathname.startsWith("/_next/") ||
       pathname.startsWith("/_vercel/")
 
-    if (!isAllowlisted) {
-      // Let verified platform admins through so they can keep operating.
-      const isAdmin = user ? await isPlatformAdmin(supabase, user.id) : false
-      if (!isAdmin) {
-        const url = request.nextUrl.clone()
-        url.pathname = "/maintenance"
-        url.search = ""
-        return applySecurityHeaders(NextResponse.redirect(url))
+    if (!isAllowlistedPath) {
+      const adminBypass = maint.allowAdmins && user ? await isPlatformAdmin(supabase, user.id) : false
+      const email = (user as { email?: string } | null)?.email?.toLowerCase()
+      const emailBypass = !!email && maint.allowlist.some((a) => a.toLowerCase() === email)
+
+      if (!adminBypass && !emailBypass) {
+        if (maint.mode === "restricted") {
+          // Read-only: block mutating methods; let reads through.
+          if (["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) {
+            return applySecurityHeaders(
+              NextResponse.json(
+                { error: "Propvora is in read-only maintenance — changes are temporarily disabled.", maintenance: true },
+                { status: 503 },
+              ),
+            )
+          }
+        } else {
+          // full lockdown
+          const url = request.nextUrl.clone()
+          url.pathname = "/maintenance"
+          url.search = ""
+          return applySecurityHeaders(NextResponse.redirect(url))
+        }
       }
     }
   }

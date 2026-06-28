@@ -3,7 +3,7 @@ import LegalLayout from "@/components/marketing/LegalLayout"
 
 export const metadata: Metadata = {
   title: "Affiliate Terms | Propvora",
-  description: "Propvora Affiliate Programme terms — 20% recurring commission, 12-month tracking, payout terms, and programme rules.",
+  description: "Propvora Affiliate Programme terms — 10% recurring commission (up to 15% at higher bands), 6-month tracking, payout terms, and programme rules.",
 }
 
 export default function AffiliateTermsPage() {
@@ -35,18 +35,19 @@ export default function AffiliateTermsPage() {
       <Section num="3" title="Commission Structure">
         <p>Affiliates earn the following commission:</p>
         <ul>
-          <li><strong>Rate:</strong> 20% of the monthly subscription fee paid by each referred customer</li>
-          <li><strong>Duration:</strong> Commission is paid for 12 months from the date of the referred customer&rsquo;s first payment</li>
-          <li><strong>Recurring:</strong> Commission is paid monthly as long as the referred customer&rsquo;s subscription remains active, up to the 12-month limit</li>
-          <li><strong>Plan coverage:</strong> Commission applies to Starter, Pro, and Business plans</li>
-          <li><strong>Annual plans:</strong> Commission on annual plans is paid as 20% of the effective monthly rate, paid monthly over 12 months</li>
+          <li><strong>Rate:</strong> 10% of the monthly subscription fee paid by each referred customer, rising to 12% (10+ active referrals) and 15% (25+ active referrals) as you reach higher partner bands</li>
+          <li><strong>Duration:</strong> Commission is paid for 6 months from the date of the referred customer&rsquo;s first payment</li>
+          <li><strong>Recurring:</strong> Commission is paid monthly as long as the referred customer&rsquo;s subscription remains active, up to the 6-month limit</li>
+          <li><strong>Plan coverage:</strong> Commission applies to the Starter, Operator, Scale and Pro / Agency plans</li>
+          <li><strong>Annual plans:</strong> Commission on annual plans is paid as 10% of the effective monthly rate, paid monthly over 6 months</li>
         </ul>
 
         <h3>Commission Calculation Examples</h3>
+        <p>Examples use the base 10% band; higher bands earn more.</p>
         <ul>
-          <li>Referred customer on Pro monthly (£79/mo): Commission = £15.80/mo for up to 12 months (max £189.60)</li>
-          <li>Referred customer on Business monthly (£149/mo): Commission = £29.80/mo for up to 12 months (max £357.60)</li>
-          <li>Referred customer on Starter monthly (£29/mo): Commission = £5.80/mo for up to 12 months (max £69.60)</li>
+          <li>Referred customer on Operator monthly (£79/mo): Commission = £7.90/mo for up to 6 months (max £47.40)</li>
+          <li>Referred customer on Scale monthly (£169/mo): Commission = £16.90/mo for up to 6 months (max £101.40)</li>
+          <li>Referred customer on Starter monthly (£29/mo): Commission = £2.90/mo for up to 6 months (max £17.40)</li>
         </ul>
 
         <p>
