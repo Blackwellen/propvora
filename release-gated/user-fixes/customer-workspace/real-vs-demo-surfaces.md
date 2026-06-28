@@ -50,6 +50,19 @@ Seeded realistic data for the dev customer (4 properties, 2 tenancies, 4 viewing
 applications). Remaining Lets long-tail (rent payment via Stripe, autopay, application doc upload,
 move-in meter readings) routes into the real wizard / messages or is documented below.
 
+### 1b. Search filter pickers (Lets + Stays) — ✅ WIRED (FIX-681)
+**Status: done.** The previously "coming soon" toast pickers are now real client-side filters:
+- **Lets** (`src/features/customer/lets/LetsSearch.tsx`): location text, move-in date (filters on
+  `availableFrom`), monthly-budget brackets, bedrooms, furnishing, sort (recommended / price / beds /
+  available-soonest), and Pet-friendly / Bills-included / Parking / Garden chips — all applied over
+  `EXPANDED_LONG_TERM_RENTALS` with a live result count, empty state and "clear filters". The 5 KPIs
+  (saved / viewings / applications / offers / tenancies) now read real counts from
+  `/api/customer/lets?type=all` + `/api/customer/favourites`.
+- **Stays** (`src/app/(customer)/customer/stays/page.tsx` → new `CustomerStaysFilterClient.tsx`):
+  replaced the toggle-only `PublicFilterChips` (which wrote `?filters` but never applied them) with
+  the canonical shared `FilterBar` — price range, type multi-select, bedrooms/bathrooms steppers,
+  pets/instant/verified/short/long toggles, sort + infinite scroll, scoped to `/user/stays`.
+
 <details><summary>Original (now historical) note</summary>
 
 - **Data source today:** `src/features/customer/data/lets.ts` (static `tenancies`, `offers`,
