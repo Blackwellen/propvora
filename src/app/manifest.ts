@@ -24,7 +24,8 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: "/propvora-favicon.png", sizes: "any", type: "image/png", purpose: "any" },
       { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      // Maskable carries a safe-zone margin; transparent background per the no-bg brand.
+      // Maskable = full-bleed brand-navy background + safe-zone mark (mobile home
+      // screen / Android adaptive icons must NOT be transparent).
       { src: "/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
