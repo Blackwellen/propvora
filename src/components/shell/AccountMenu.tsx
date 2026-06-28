@@ -5,6 +5,7 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import { ChevronDown, User, Settings, LogOut, ShieldCheck, LifeBuoy } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { useFeatureFlag } from "@/hooks/useFeatureFlag"
 import PersonaLinks from "./PersonaLinks"
 
 interface AccountMenuProps {
@@ -25,6 +26,9 @@ export default function AccountMenu({
   initials,
 }: AccountMenuProps) {
   const [open, setOpen] = useState(false)
+  // Customer is a staged V2 surface — only expose the cross-persona door when
+  // the customerWorkspace flag is on (off by default in V1).
+  const customerEnabled = useFeatureFlag("customerWorkspace")
   const [dropPos, setDropPos] = useState({ top: 0, right: 0 })
   const [liveUser, setLiveUser] = useState<{ name: string; email: string | null; avatarUrl: string | null } | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
@@ -144,8 +148,8 @@ export default function AccountMenu({
         </Link>
         {/* Cross-persona shortcut — customer is excluded from the workspace
             switcher, so it gets an explicit door here (only if the account has
-            a customer workspace). */}
-        <PersonaLinks targets={["customer"]} onNavigate={() => setOpen(false)} />
+            a customer workspace AND the customerWorkspace flag is enabled). */}
+        {customerEnabled && <PersonaLinks targets={["customer"]} onNavigate={() => setOpen(false)} />}
         <Link
           href="/property-manager/help"
           onClick={() => setOpen(false)}
