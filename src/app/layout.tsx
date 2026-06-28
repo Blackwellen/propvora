@@ -10,6 +10,7 @@ import OfflineBanner from "@/components/pwa/OfflineBanner"
 import CookieConsent from "@/components/consent/CookieConsent"
 import Analytics from "@/components/consent/Analytics"
 import MaintenanceBanner from "@/components/MaintenanceBanner"
+import AnnouncementBanner from "@/components/AnnouncementBanner"
 import "./globals.css"
 
 const inter = Inter({
@@ -174,6 +175,7 @@ export default function RootLayout({
             dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
           />
           <MaintenanceBanner />
+          <AnnouncementBanner />
           <QueryProvider>
             <AuthProvider>
               <Suspense fallback={null}>
