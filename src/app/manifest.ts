@@ -18,9 +18,13 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#0D1B2A",
     categories: ["business", "productivity", "finance"],
     icons: [
-      // Transparent brand mark (no background) — used for the favicon + PWA "any" icon.
+      // Transparent brand mark (no background) — favicon + PWA "any" icons. The
+      // 192/512 give installers proper-sized transparent options so the desktop
+      // app tile has no white box.
       { src: "/propvora-favicon.png", sizes: "any", type: "image/png", purpose: "any" },
-      // Maskable keeps a full-bleed background by design (Android adaptive icons need a safe zone).
+      { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      // Maskable carries a safe-zone margin; transparent background per the no-bg brand.
       { src: "/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [

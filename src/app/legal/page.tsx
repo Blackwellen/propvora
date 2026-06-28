@@ -6,6 +6,8 @@ import {
 } from "lucide-react"
 import PublicNav from "@/components/marketing/PublicNav"
 import PublicFooter from "@/components/marketing/PublicFooter"
+import { isFeatureEnabled } from "@/lib/flags"
+import { createClient } from "@/lib/supabase/server"
 
 export const metadata: Metadata = {
   title: "Policies & Legal | Propvora",
@@ -13,8 +15,10 @@ export const metadata: Metadata = {
     "Every Propvora policy, agreement and disclaimer in one place — platform terms, privacy, bookings, hosting, marketplace and affiliate.",
 }
 
-type Doc = { title: string; href: string; desc?: string }
-type Group = { key: string; title: string; icon: typeof FileText; color: string; bg: string; docs: Doc[] }
+// `flag` gates a doc/group to a V2 surface — hidden at V1 until the flag is on.
+type V2Flag = "marketplaceEnabled" | "bookingManagement"
+type Doc = { title: string; href: string; desc?: string; flag?: V2Flag }
+type Group = { key: string; title: string; icon: typeof FileText; color: string; bg: string; docs: Doc[]; flag?: V2Flag }
 
 const GROUPS: Group[] = [
   {
@@ -39,13 +43,14 @@ const GROUPS: Group[] = [
     bg: "bg-sky-50",
     docs: [
       { title: "AI Disclaimer", href: "/legal/ai-disclaimer", desc: "What our AI Copilot does and doesn't do." },
-      { title: "Booking AI Disclaimer", href: "/legal/booking-ai-disclaimer", desc: "AI assistance limits in booking flows." },
-      { title: "Guest Data Notice", href: "/legal/guest-data-notice", desc: "How guest data is handled for bookings." },
+      { title: "Booking AI Disclaimer", href: "/legal/booking-ai-disclaimer", desc: "AI assistance limits in booking flows.", flag: "bookingManagement" },
+      { title: "Guest Data Notice", href: "/legal/guest-data-notice", desc: "How guest data is handled for bookings.", flag: "bookingManagement" },
     ],
   },
   {
     key: "bookings",
     title: "Bookings & stays (guests)",
+    flag: "bookingManagement",
     icon: CalendarCheck,
     color: "text-rose-600",
     bg: "bg-rose-50",
@@ -67,6 +72,7 @@ const GROUPS: Group[] = [
   {
     key: "hosts",
     title: "Hosts & landlords",
+    flag: "bookingManagement",
     icon: Home,
     color: "text-emerald-600",
     bg: "bg-emerald-50",
@@ -84,6 +90,7 @@ const GROUPS: Group[] = [
   {
     key: "marketplace",
     title: "Marketplace & suppliers",
+    flag: "marketplaceEnabled",
     icon: Store,
     color: "text-indigo-600",
     bg: "bg-indigo-50",
@@ -105,7 +112,21 @@ const GROUPS: Group[] = [
   },
 ]
 
-export default function LegalPage() {
+export default async function LegalPage() {
+  // Hide V2 policy groups/docs (bookings, hosts, marketplace) until their flag
+  // is on. At V1 only the live policies (platform, AI, affiliate) are listed.
+  const supabase = await createClient()
+  const [marketplaceOn, bookingsOn] = await Promise.all([
+    isFeatureEnabled("marketplaceEnabled", { supabase }),
+    isFeatureEnabled("bookingManagement", { supabase }),
+  ])
+  const flagOn = (f?: V2Flag) =>
+    !f || (f === "marketplaceEnabled" ? marketplaceOn : bookingsOn)
+  const groups = GROUPS
+    .filter((g) => flagOn(g.flag))
+    .map((g) => ({ ...g, docs: g.docs.filter((d) => flagOn(d.flag)) }))
+    .filter((g) => g.docs.length > 0)
+
   return (
     <div className="min-h-screen bg-white">
       <PublicNav />
@@ -129,7 +150,7 @@ export default function LegalPage() {
         {/* Grouped documents */}
         <section className="py-14">
           <div className="mx-auto max-w-5xl space-y-10 px-4 sm:px-6 lg:px-8">
-            {GROUPS.map((g) => {
+            {groups.map((g) => {
               const Icon = g.icon
               return (
                 <div key={g.key}>

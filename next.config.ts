@@ -73,6 +73,16 @@ const nextConfig: NextConfig = {
       // boundary on any page that renders the user's Google avatar (FIX-652).
       { protocol: "https", hostname: "*.googleusercontent.com" },
     ],
+    // Next 16 blocks local <Image> srcs that carry a query string unless they are
+    // allow-listed here. `?v=rel2` is the marketing product-screenshot cache-bust
+    // appended in src/components/marketing/PremiumProductImage.tsx. Without this,
+    // every marketing page that renders a product image (/, /features,
+    // /affiliate-programme, …) throws and returns 500 (P0). Keep the search value
+    // in sync if that release tag is bumped.
+    localPatterns: [
+      { pathname: "/**", search: "" },
+      { pathname: "/**", search: "?v=rel2" },
+    ],
   },
   headers: async () => [
     {

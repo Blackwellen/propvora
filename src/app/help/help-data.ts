@@ -464,6 +464,7 @@ export const STATIC_HELP_ARTICLES: HelpArticle[] = [
     title: "Find and save stays",
     summary: "Search, filter and save places you love.",
     readMins: 2,
+    flag: "marketplace",
     sections: [
       { heading: "Search & filter", body: "Use the search bar and filters (price, type, bedrooms, pets, instant book and more) to narrow results to what suits you." },
       { heading: "Save favourites", body: "Tap the heart on any stay to save it. Saving requires a free account so your favourites follow you across devices." },
@@ -476,6 +477,7 @@ export const STATIC_HELP_ARTICLES: HelpArticle[] = [
     title: "Manage your bookings",
     summary: "View, message and manage trips from your customer workspace.",
     readMins: 2,
+    flag: "marketplace",
     sections: [
       { heading: "Your trips", body: "All your upcoming and past stays live in My bookings, with dates, guests, totals and status." },
       { heading: "Message the host", body: "Message your host directly from the booking for arrival details or special requests." },
@@ -488,6 +490,7 @@ export const STATIC_HELP_ARTICLES: HelpArticle[] = [
     title: "Applying for a long-term let",
     summary: "Request viewings and apply for long-term rentals.",
     readMins: 3,
+    flag: "marketplace",
     sections: [
       { heading: "Request a viewing", body: "On a long-let listing, request a viewing with your preferred dates. The landlord or agent confirms a slot." },
       { heading: "Apply", body: "Submit an application with the required details. You'll be guided through each step, and can track its status in your workspace." },

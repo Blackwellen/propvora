@@ -75,6 +75,34 @@
 
 ---
 
+### 4b. Stripe Identity — customer KYC go-live 🔑 (Stripe Dashboard toggle)
+**Section:** Customer workspace → Account settings → Verify identity / Start verification
+**Why:** The customer identity-verification flow is **fully coded** (`/api/customer/identity/start`
+mints a real `stripe.identity.verificationSessions.create`; the webhook flips the
+`identity_verifications` row to verified/rejected). It only needs Stripe Identity **enabled on the
+account** — until then the endpoint returns a graceful 503 and the UI falls back to a
+verification-request ticket.
+
+1. Stripe Dashboard → **Identity → Get started** → enable Identity verification for the account.
+2. Confirm the webhook endpoint receives `identity.verification_session.*` events (the handler
+   already exists in `/api/webhooks/stripe`).
+3. Test: customer → Account settings → Security → **Start verification** → completes the
+   Stripe-hosted document + selfie flow → row flips to `verified`.
+
+**Until done:** "Verify identity" raises a verification-request support ticket (no broken UI).
+
+### 4c. Customer Stripe surfaces ALREADY LIVE (no gate) ✅
+On the **standard** Stripe secret/publishable keys (already set), these work today the moment the
+customer workspace flag is on — no extra toggle:
+- **Self-service card management** (SetupIntent + Payment Element) — add / list / remove saved cards.
+- **Rent payment** (Stripe Checkout) + **autopay mandates** in the Lets tenancy flow.
+- **Booking receipt PDFs** (pdf-lib) on bookings + payments.
+
+Only **Stripe Identity** (4b) and **Stripe Connect** (4) need dashboard enablement; everything else
+in the customer Stripe surface is keyed off the existing secret.
+
+---
+
 ## P2 — Complete within first week of go-live
 
 ### 5. AI web/market search API key 🤖 (can wire once key provided)
