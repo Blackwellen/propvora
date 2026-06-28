@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import SupplierAppShell from "@/components/shells/SupplierAppShell"
 import { createClient } from "@/lib/supabase/server"
 import { getGlobalFlag } from "@/lib/flags/public"
+import { isFeatureEnabled } from "@/lib/flags"
 import BrandingStyle from "@/lib/branding/BrandingStyle"
 import type { BrandColours } from "@/lib/branding/theme"
 
@@ -64,9 +65,19 @@ export default async function SupplierWorkspaceLayout({
     // non-fatal — fall back to Propvora defaults
   }
 
+  // Guided Help is a V1 kill-switch (default ON). Resolved server-side here for
+  // parity with the operator AppShell so when the flag is OFF the supplier shell
+  // also suppresses the tour launcher + first-use modal (not just the operator).
+  let guidedHelp = true
+  try {
+    guidedHelp = await isFeatureEnabled("guidedHelp", { supabase })
+  } catch {
+    guidedHelp = true
+  }
+
   return (
     <BrandingStyle brandColor={brandColor} brandColours={brandColours}>
-      <SupplierAppShell brandLogoUrl={brandLogoUrl}>{children}</SupplierAppShell>
+      <SupplierAppShell brandLogoUrl={brandLogoUrl} guidedHelp={guidedHelp}>{children}</SupplierAppShell>
     </BrandingStyle>
   )
 }

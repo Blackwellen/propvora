@@ -31,7 +31,7 @@ import { OPEN_COPILOT_EVENT } from "@/lib/copilot/open"
 
 const SUPPLIER_BASE = "/supplier"
 
-function SupplierShellChrome({ children, brandLogoUrl }: { children: React.ReactNode; brandLogoUrl?: string | null }) {
+function SupplierShellChrome({ children, brandLogoUrl, guidedHelp = true }: { children: React.ReactNode; brandLogoUrl?: string | null; guidedHelp?: boolean }) {
   const { workspace } = useWorkspace()
   const { planType, memberCount } = useSupplierPlan()
 
@@ -91,7 +91,7 @@ function SupplierShellChrome({ children, brandLogoUrl }: { children: React.React
               The onOpenCopilot prop injects the Ask AI button into the
               topbar's right action group (no extra wrapper needed). */}
           <div className="hidden lg:block pt-4 pr-4 shrink-0">
-            <TopNavigation base={SUPPLIER_BASE} onOpenCopilot={() => setCopilotOpen(true)} />
+            <TopNavigation base={SUPPLIER_BASE} onOpenCopilot={() => setCopilotOpen(true)} guidedHelp={guidedHelp} />
           </div>
 
           {/* Supplier-specific quick rail — without this, ShellContent falls back
@@ -114,7 +114,7 @@ function SupplierShellChrome({ children, brandLogoUrl }: { children: React.React
           )}
         </AnimatePresence>
 
-        <FirstUseModal />
+        {guidedHelp && <FirstUseModal />}
       </div>
     </GuidedHelpProvider>
   )
@@ -126,6 +126,7 @@ export default function SupplierAppShell({
   teamMemberCount = 1,
   planType,
   brandLogoUrl,
+  guidedHelp = true,
 }: {
   children: React.ReactNode
   workspaceId?: string | null
@@ -133,11 +134,13 @@ export default function SupplierAppShell({
   planType?: SupplierPlanType
   /** Optional workspace brand logo URL; falls back to Propvora logo when not set. */
   brandLogoUrl?: string | null
+  /** Guided-help kill-switch (default ON); when OFF, suppresses tour launcher + first-use modal. */
+  guidedHelp?: boolean
 }) {
   return (
     <SupplierWorkspaceProvider workspaceId={workspaceId}>
       <SupplierPlanProvider seedPlanType={planType} seedMemberCount={teamMemberCount}>
-        <SupplierShellChrome brandLogoUrl={brandLogoUrl}>{children}</SupplierShellChrome>
+        <SupplierShellChrome brandLogoUrl={brandLogoUrl} guidedHelp={guidedHelp}>{children}</SupplierShellChrome>
       </SupplierPlanProvider>
     </SupplierWorkspaceProvider>
   )
