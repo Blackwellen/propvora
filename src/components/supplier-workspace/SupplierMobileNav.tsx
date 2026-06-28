@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { MoreHorizontal, LifeBuoy } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MobileSheet } from "@/components/mobile"
+import MobileWorkspaceSwitcher from "@/components/mobile/MobileWorkspaceSwitcher"
 import {
   SUPPLIER_PRIMARY,
   SUPPLIER_MORE,
@@ -105,6 +106,7 @@ export default function SupplierMobileBottomNav() {
 
       <MobileSheet open={moreOpen} onClose={() => setMoreOpen(false)} title="More" description="Manage your supplier workspace">
         <div className="pb-2">
+          <MobileWorkspaceSwitcher onSwitch={() => setMoreOpen(false)} />
           <div className="grid grid-cols-4 gap-2">
             {moreGroups.flatMap((g) => g.items).map((item) => {
               const active = isSupplierNavActive(pathname, item.href)
