@@ -20,7 +20,11 @@ export default function PremiumProductImage({
         {label && <span className="ml-3 truncate text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{label}</span>}
       </div>
       <Image
-        src={src}
+        // `?v=` busts the Next.js image-optimizer cache when the product
+        // screenshots are re-captured (the optimizer keys on the full URL, so a
+        // changed source file alone can otherwise keep serving the stale render).
+        // Bump this when the screenshots are regenerated.
+        src={`${src}${src.includes("?") ? "&" : "?"}v=rel2`}
         alt={alt}
         width={1536}
         height={1024}
