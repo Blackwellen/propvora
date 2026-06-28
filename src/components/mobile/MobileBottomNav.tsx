@@ -26,6 +26,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import MobileSheet from "./MobileSheet"
+import MobileWorkspaceSwitcher from "./MobileWorkspaceSwitcher"
 
 const MANAGER_BASE = "/property-manager"
 
@@ -252,6 +253,8 @@ export default function MobileBottomNav({
 
       <MobileSheet open={moreOpen} onClose={() => setMoreOpen(false)} title="More" description="Jump to any section">
         <div className="pb-2">
+          {/* Workspace switcher — mobile counterpart of the desktop top-nav chip */}
+          <MobileWorkspaceSwitcher onSwitch={() => setMoreOpen(false)} />
           {/* Flat icon-widget grid — no category labels on mobile */}
           <div className="grid grid-cols-4 gap-2">
             {moreGroups.flatMap((g) => g.items).map((item) => {
