@@ -307,12 +307,17 @@ function LoginForm() {
               </div>
 
               {/* Persona switch — one account, choose where to sign in. The same
-                  email can be a customer, property manager and supplier. */}
+                  email can be a customer, property manager and supplier. Hidden
+                  entirely when only one persona is available (e.g. Customer and
+                  Supplier registration flags off) — a single-option switcher
+                  reads as a broken half-empty box, so we drop it altogether. */}
+              {visiblePersonas.length > 1 && (
               <div className="mb-5">
                 <div
                   role="tablist"
                   aria-label="Sign in as"
-                  className="grid grid-cols-3 gap-1 rounded-2xl bg-slate-100/80 p-1"
+                  className="grid gap-1 rounded-2xl bg-slate-100/80 p-1"
+                  style={{ gridTemplateColumns: `repeat(${visiblePersonas.length}, minmax(0, 1fr))` }}
                 >
                   {visiblePersonas.map((p) => {
                     const active = persona === p.id
@@ -337,6 +342,7 @@ function LoginForm() {
                   })}
                 </div>
               </div>
+              )}
 
               {/* Session timeout notice */}
               {timedOut && (
