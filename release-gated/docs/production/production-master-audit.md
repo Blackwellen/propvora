@@ -168,6 +168,19 @@ Logged in as a test PM operator (JT Property Manager, Enterprise). Findings:
 | **MFA — SECURITY GAP FOUND + FIXED** | ⚠️→✅ A platform admin with **no enrolled MFA factor** reached the **full console with only a password** (confirmed live). `getAdminMfaState()` returned "ok" for MFA-less admins. **Fixed** (`d488e8f8`): MFA is now mandatory — no factor → new "enroll" state → layout redirects to MFA enrolment before any privileged page renders; enrolled+aal1 still → challenge → aal2. **Needs re-test with the admin account once deployed.** |
 | Data fix while there | Created missing `workspace_feature_flags` table (was 404ing on every flag check). |
 
+## 3f. Portals — boundary enforcement (code + live)
+
+| Portal | Enforcement | Result |
+|---|---|---|
+| Supplier | `(supplier-workspace)/layout.tsx` — auth + `supplierWorkspace` flag + supplier-workspace membership | ✅ gated (operator hitting `/supplier` bounced to `/property-manager` live) |
+| Tenant / Landlord / extended | Token model via `src/lib/portal/verify.ts` | ✅ **strong**: SHA-256 hashed token, **fail-closed** on unknown/expired/revoked at token AND grant level, scope frozen into session, no token enumeration, unknown access-type → most-restrictive "generic" portal |
+| Affiliate | `/affiliate-login` split in proxy | (not yet exercised) |
+
+Full end-to-end portal isolation (log in AS a tenant/landlord/supplier and confirm
+they can't read other tenants' / the workspace's data) requires **portal-user
+magic-links/logins**, which were not available this session — code-level boundary
+enforcement is verified strong; live E2E is the remaining gap.
+
 ## 4. Remaining audit scope (not yet executed)
 
 The directive's full matrix (auth/MFA/session deep-dive, billing/Stripe webhook
