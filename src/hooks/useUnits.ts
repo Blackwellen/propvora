@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import type { UnitStatus } from '@/types/database'
 
 export interface Unit {
   id: string
@@ -15,9 +16,11 @@ export interface Unit {
   floor_area_sqm: number | null
   target_rent: number | null
   notes: string | null
-  // App vocabulary. Mapped to the live `units.status` CHECK
-  // (available|occupied|maintenance|offline) at the adapter boundary.
-  status: 'occupied' | 'vacant' | 'under_works' | 'reserved'
+  // Canonical unit status — matches the live `units.status` CHECK exactly
+  // (available|occupied|maintenance|offline). No translation: one vocabulary
+  // across DB + app. ("available" = vacant/lettable, "maintenance" = under works,
+  // "offline" = held back / not in service.)
+  status: UnitStatus
   cover_image_url: string | null
   is_demo: boolean
   created_at: string
@@ -47,34 +50,19 @@ export interface UpdateUnit extends Partial<InsertUnit> {
   id?: string
 }
 
-// Live table is `units` (rich lineage: label/rent_amount/size_sqm). Adapter maps to app Unit.
+// Live table is `units` (rich lineage: label/rent_amount/size_sqm). The adapter
+// only ALIASES column names (label↔unit_name, rent_amount↔target_rent,
+// size_sqm↔floor_area_sqm); status uses the canonical DB vocabulary verbatim
+// (available|occupied|maintenance|offline) — no translation.
 const TABLE = 'units'
 const KEY = 'units'
 
-// Live `units.status` CHECK = available|occupied|maintenance|offline.
-// The app UI speaks vacant/occupied/under_works/reserved, so we translate at
-// the adapter boundary in BOTH directions. Any write therefore always lands a
-// value the DB accepts — never a raw 'vacant'/'reserved' that the CHECK rejects.
-const STATUS_TO_DB: Record<string, string> = {
-  vacant: 'available',
-  available: 'available',
-  occupied: 'occupied',
-  under_works: 'maintenance',
-  maintenance: 'maintenance',
-  reserved: 'offline',
-  offline: 'offline',
-}
-const STATUS_FROM_DB: Record<string, Unit['status']> = {
-  available: 'vacant',
-  occupied: 'occupied',
-  maintenance: 'under_works',
-  offline: 'reserved',
-}
+const UNIT_STATUSES: UnitStatus[] = ['available', 'occupied', 'maintenance', 'offline']
 
 function fromDb(r: Record<string, unknown>): Unit {
   const g = (k: string): any => r[k]
   const floorRaw = g('floor')
-  const dbStatus = (g('status') ?? 'available') as string
+  const dbStatus = (g('status') ?? 'available') as UnitStatus
   return {
     id: g('id'),
     workspace_id: g('workspace_id'),
@@ -87,7 +75,7 @@ function fromDb(r: Record<string, unknown>): Unit {
     floor_area_sqm: g('size_sqm') ?? null,
     target_rent: g('rent_amount') ?? null,
     notes: g('notes') ?? null,
-    status: STATUS_FROM_DB[dbStatus] ?? 'vacant',
+    status: UNIT_STATUSES.includes(dbStatus) ? dbStatus : 'available',
     cover_image_url: g('cover_image_url') ?? null,
     is_demo: false,
     created_at: g('created_at'),
@@ -102,7 +90,7 @@ function toDb(p: Record<string, any>): Record<string, unknown> {
   if ('floor_area_sqm' in p) o.size_sqm = p.floor_area_sqm
   if ('target_rent' in p) o.rent_amount = p.target_rent
   if ('floor' in p) o.floor = p.floor == null ? null : String(p.floor)
-  if ('status' in p) o.status = STATUS_TO_DB[String(p.status)] ?? 'available'
+  if ('status' in p) o.status = UNIT_STATUSES.includes(p.status) ? p.status : 'available'
   if ('notes' in p) o.notes = p.notes
   for (const k of ['workspace_id', 'property_id', 'bedrooms', 'bathrooms'] as const) {
     if (k in p) o[k] = (p as Record<string, unknown>)[k]

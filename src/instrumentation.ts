@@ -28,12 +28,11 @@ export async function register() {
 
   try {
     // Dynamically load Sentry to keep it optional. The `@sentry/nextjs` package
-    // must be installed by the operator (not bundled by default).
-    const Sentry = await import(
-      /* webpackIgnore: true */
-      // @ts-expect-error: optional peer dependency — not declared in package.json
-      "@sentry/nextjs"
-    )
+    // must be installed by the operator (not bundled by default). Variable
+    // specifier so the bundler/TS don't statically resolve the optional package
+    // (and so installing it later doesn't trip an unused-directive error).
+    const sentryModule = "@sentry/nextjs"
+    const Sentry = await import(/* webpackIgnore: true */ sentryModule)
 
     Sentry.init({
       dsn,

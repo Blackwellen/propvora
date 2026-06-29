@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
+import { formatCurrencyAmount } from "@/lib/i18n/format"
 import { Edit2, ArrowUpRight, ArrowDownRight } from "lucide-react"
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -92,6 +93,11 @@ export const COMPLIANCE_DUE = new Set(["due_soon", "due", "expiring", "expiring_
 
 export const STATUS_DISPLAY: Record<string, string> = {
   occupied: "Occupied",
+  // Unit status (units.status CHECK): available|occupied|maintenance|offline.
+  available: "Vacant",
+  maintenance: "Under works",
+  offline: "Offline",
+  // Property status (separate enum) legitimately uses these.
   vacant: "Vacant",
   under_works: "Under Works",
   reserved: "Reserved",
@@ -106,8 +112,13 @@ export const STATUS_DISPLAY: Record<string, string> = {
 /* ─────────────────────────────────────────────────────────────────────
    HELPER FUNCTIONS
 ───────────────────────────────────────────────────────────────────── */
-export const fmt = (n: number) =>
-  new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(n)
+/**
+ * Money formatter for property-detail tabs. Pass the property's currency
+ * (`prop.currency`) so a EUR/AED property renders in its own currency, not £.
+ * Delegates to the shared i18n core (A11); defaults to GBP for back-compat.
+ */
+export const fmt = (n: number, currency?: string | null) =>
+  formatCurrencyAmount(n, currency || "GBP", undefined, { maximumFractionDigits: 0 })
 
 /** Returns a CSS gradient keyed by property type */
 export function getPropertyGradient(propertyType: string | null | undefined): string {
@@ -193,6 +204,9 @@ export function complianceStatusLabel(c: ComplianceItemRow): "Compliant" | "Due 
 export function StatusPill({ status }: { status: string }) {
   const map: Record<string, string> = {
     occupied: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    available: "bg-slate-100 text-slate-600 border border-slate-200",
+    maintenance: "bg-amber-50 text-amber-700 border border-amber-200",
+    offline: "bg-violet-50 text-violet-700 border border-violet-200",
     vacant: "bg-slate-100 text-slate-600 border border-slate-200",
     under_works: "bg-amber-50 text-amber-700 border border-amber-200",
     reserved: "bg-violet-50 text-violet-700 border border-violet-200",

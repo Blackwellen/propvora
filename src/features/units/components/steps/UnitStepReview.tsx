@@ -11,9 +11,10 @@ const UNIT_TYPE_LABELS: Record<string, string> = {
 }
 
 const STATUS_LABELS: Record<string, string> = {
-  vacant:      "Vacant",
-  reserved:    "Reserved",
-  under_works: "Under Works",
+  available:   "Vacant",
+  occupied:    "Occupied",
+  maintenance: "Under works",
+  offline:     "Offline",
 }
 
 interface UnitStepReviewData {

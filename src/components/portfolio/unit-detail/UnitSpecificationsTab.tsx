@@ -25,8 +25,8 @@ export function UnitSpecificationsTab({ unit, complianceItems, complianceLoaded,
     { label: "Floor Area (m²)", field: "floor_area_sqm", type: "number" },
     { label: "Target Rent", field: "target_rent", type: "number", prefix: "£" },
     { label: "Status", field: "status", type: "select", options: [
-      { value: "occupied", label: "Occupied" }, { value: "vacant", label: "Vacant" },
-      { value: "under_works", label: "Under Works" }, { value: "reserved", label: "Reserved" },
+      { value: "occupied", label: "Occupied" }, { value: "available", label: "Vacant" },
+      { value: "maintenance", label: "Under works" }, { value: "offline", label: "Offline" },
     ] },
   ]
 

@@ -10,6 +10,7 @@
 
 import { createClient } from "@/lib/supabase/client"
 import { resolveEntityHref } from "@/lib/notifications/routes"
+import { unitStatusLabel } from "@/lib/portfolio/unit-status"
 
 export type ResultGroup =
   | "Properties"
@@ -82,7 +83,7 @@ export async function runEntitySearch(
           hits.push({
             id: u.id, group: "Units",
             title: u.label || "Unit",
-            subtitle: u.status ? `Unit · ${u.status}` : "Unit",
+            subtitle: u.status ? `Unit · ${unitStatusLabel(u.status)}` : "Unit",
             href: resolveEntityHref("unit", u.id)!,
           })
         }

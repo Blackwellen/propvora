@@ -26,7 +26,7 @@ export interface UnitCardData {
   bathrooms?: number | null
   floor_area_sqm?: number | null
   target_rent?: number | null
-  status: "occupied" | "vacant" | "under_works" | "reserved"
+  status: "available" | "occupied" | "maintenance" | "offline"
   tenant_name?: string | null
   tenant_avatar?: string | null
   tenancy_end?: string | null
@@ -52,9 +52,9 @@ const ROOM_GRADIENTS = [
 
 const STATUS_CFG: Record<string, { label: string; dot: string; text: string; bg: string }> = {
   occupied:    { label: "Occupied",    dot: "bg-emerald-500", text: "text-emerald-700", bg: "bg-emerald-50 border border-emerald-200" },
-  vacant:      { label: "Vacant",      dot: "bg-slate-400",   text: "text-slate-600",   bg: "bg-slate-100 border border-slate-200" },
-  under_works: { label: "Maintenance", dot: "bg-amber-500",   text: "text-amber-700",   bg: "bg-amber-50 border border-amber-200" },
-  reserved:    { label: "Reserved",    dot: "bg-violet-500",  text: "text-violet-700",  bg: "bg-violet-50 border border-violet-200" },
+  available:   { label: "Vacant",      dot: "bg-slate-400",   text: "text-slate-600",   bg: "bg-slate-100 border border-slate-200" },
+  maintenance: { label: "Under works", dot: "bg-amber-500",   text: "text-amber-700",   bg: "bg-amber-50 border border-amber-200" },
+  offline:     { label: "Offline",     dot: "bg-violet-500",  text: "text-violet-700",  bg: "bg-violet-50 border border-violet-200" },
 }
 
 function fmt(n: number) {
@@ -71,7 +71,7 @@ function daysUntil(d: string) {
 export function UnitCard({ unit }: { unit: UnitCardData }) {
   const router = useRouter()
   const [imgError, setImgError] = useState(false)
-  const cfg = STATUS_CFG[unit.status] ?? STATUS_CFG.vacant
+  const cfg = STATUS_CFG[unit.status] ?? STATUS_CFG.available
   const gradIdx = unit.id.charCodeAt(unit.id.length - 1) % ROOM_GRADIENTS.length
   const coverGradient = ROOM_GRADIENTS[gradIdx]
   const coverUrl = unit.coverImageUrl ?? unit.cover_image ?? null
@@ -218,7 +218,7 @@ export function UnitCard({ unit }: { unit: UnitCardData }) {
               <ChevronRight className="w-3 h-3 text-slate-300 ml-auto" />
             </div>
           )}
-          {unit.status === "vacant" && (
+          {unit.status === "available" && (
             <div className="flex items-center mt-2 pt-2 border-t border-slate-100">
               <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
                 <Calendar className="w-3 h-3" />Available — no active tenancy

@@ -17,10 +17,14 @@ import {
   Plus,
   Eye, Trash2, Search, SlidersHorizontal,
 } from "lucide-react"
-import { StatusPill, fmt, Card } from "./shared"
+import { StatusPill, fmt as fmtMoney, Card } from "./shared"
+import { usePropertyJurisdiction } from "@/lib/jurisdiction/usePropertyJurisdiction"
 
 export function UnitsTab({ unitsList, propertyId }: { unitsList: Unit[]; propertyId: string }) {
   const router = useRouter()
+  // Unit rents render in the property's currency, not hardcoded £.
+  const { currency } = usePropertyJurisdiction(propertyId)
+  const fmt = (n: number) => fmtMoney(n, currency)
   const { workspace } = useWorkspace()
   const deleteUnit = useDeleteUnit()
   const updateUnit = useUpdateUnit()
@@ -33,9 +37,9 @@ export function UnitsTab({ unitsList, propertyId }: { unitsList: Unit[]; propert
   }
   const UNIT_STATUS_OPTS = [
     { value: "occupied", label: "Occupied" },
-    { value: "vacant", label: "Vacant" },
-    { value: "under_works", label: "Under Works" },
-    { value: "reserved", label: "Reserved" },
+    { value: "available", label: "Vacant" },
+    { value: "maintenance", label: "Under works" },
+    { value: "offline", label: "Offline" },
   ]
   const UNIT_TYPE_OPTS = [
     { value: "Room", label: "Room" },
@@ -75,9 +79,9 @@ export function UnitsTab({ unitsList, propertyId }: { unitsList: Unit[]; propert
           {[
             { label: "All", value: "All" },
             { label: "Occupied", value: "occupied" },
-            { label: "Vacant", value: "vacant" },
-            { label: "Under Works", value: "under_works" },
-            { label: "Reserved", value: "reserved" },
+            { label: "Vacant", value: "available" },
+            { label: "Under works", value: "maintenance" },
+            { label: "Offline", value: "offline" },
           ].map((s) => (
             <option key={s.value} value={s.value}>{s.label}</option>
           ))}

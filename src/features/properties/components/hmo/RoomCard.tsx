@@ -7,9 +7,9 @@ import type { Unit } from "@/hooks/useUnits"
 
 const STATUS_BADGE: Record<Unit["status"], { label: string; classes: string }> = {
   occupied:    { label: "Occupied",    classes: "bg-green-50 text-green-700 border border-green-200" },
-  vacant:      { label: "Vacant",      classes: "bg-amber-50 text-amber-700 border border-amber-200" },
-  reserved:    { label: "Reserved",    classes: "bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]" },
-  under_works: { label: "Under Works", classes: "bg-orange-50 text-orange-700 border border-orange-200" },
+  available:   { label: "Vacant",      classes: "bg-amber-50 text-amber-700 border border-amber-200" },
+  offline:     { label: "Offline",     classes: "bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--color-brand-100)]" },
+  maintenance: { label: "Under works", classes: "bg-orange-50 text-orange-700 border border-orange-200" },
 }
 
 interface RoomCardProps {
@@ -51,7 +51,7 @@ export function RoomCard({ room, propertyId }: RoomCardProps) {
           <p className="text-slate-400 uppercase tracking-wide font-medium">Target Rent</p>
           <p className="text-slate-700 font-semibold">
             {room.target_rent ? `${room.target_rent.toLocaleString()}/mo` : "—"}
-            {room.status === "vacant" ? " asking" : ""}
+            {room.status === "available" ? " asking" : ""}
           </p>
         </div>
         {room.floor !== null && (
@@ -69,7 +69,7 @@ export function RoomCard({ room, propertyId }: RoomCardProps) {
       </div>
 
       <div className="flex items-center gap-2 pt-1 border-t border-slate-50">
-        {room.status === "vacant" ? (
+        {room.status === "available" ? (
           <Link
             href={`/property-manager/portfolio/properties/${propertyId}/hmo/rooms`}
             className="flex-1 bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)] text-xs font-medium px-3 py-1.5 rounded-lg text-center transition-colors"

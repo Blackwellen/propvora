@@ -95,7 +95,7 @@ export default function UnitDetailLayout({ children }: { children: React.ReactNo
           overflowActions={[
             ...(unit.property_id ? [{ label: "View parent property", icon: Building2, href: `/property-manager/portfolio/properties/${unit.property_id}` }] : []),
             { label: "View work", icon: Wrench, href: `/property-manager/work?unitId=${unitId}` },
-            { label: "Archive unit", icon: Archive, onClick: () => save("status", "reserved") },
+            { label: "Archive unit", icon: Archive, onClick: () => save("status", "offline") },
           ]}
         />
 
@@ -149,9 +149,9 @@ export default function UnitDetailLayout({ children }: { children: React.ReactNo
                 />
                 <span className="inline-flex items-center gap-1">
                   {unit.status === "occupied" && <StatusPill label="Occupied" color="emerald" />}
-                  {unit.status === "vacant" && <StatusPill label="Vacant" color="amber" />}
-                  {unit.status === "reserved" && <StatusPill label="Reserved" color="blue" />}
-                  {unit.status === "under_works" && <StatusPill label="Under Works" color="slate" />}
+                  {unit.status === "available" && <StatusPill label="Vacant" color="amber" />}
+                  {unit.status === "offline" && <StatusPill label="Offline" color="blue" />}
+                  {unit.status === "maintenance" && <StatusPill label="Under works" color="slate" />}
                   <InlineEditSelect
                     value={unit.status}
                     onSave={(v) => save("status", v)}
@@ -159,9 +159,9 @@ export default function UnitDetailLayout({ children }: { children: React.ReactNo
                     label="Status"
                     options={[
                       { value: "occupied", label: "Occupied" },
-                      { value: "vacant", label: "Vacant" },
-                      { value: "under_works", label: "Under Works" },
-                      { value: "reserved", label: "Reserved" },
+                      { value: "available", label: "Vacant" },
+                      { value: "maintenance", label: "Under works" },
+                      { value: "offline", label: "Offline" },
                     ]}
                     displayClassName="sr-only"
                   />
@@ -193,7 +193,7 @@ export default function UnitDetailLayout({ children }: { children: React.ReactNo
                       { label: "View parent property", icon: Building2, onClick: () => router.push(`/property-manager/portfolio/properties/${unit.property_id}`) },
                       { label: "Create tenancy", icon: Users, onClick: () => router.push(`/property-manager/portfolio/tenancies/new?unitId=${unitId}`) },
                       { label: "View work", icon: Wrench, onClick: () => router.push(`/property-manager/work?unitId=${unitId}`) },
-                      { label: "Archive unit", icon: Archive, onClick: () => save("status", "reserved") },
+                      { label: "Archive unit", icon: Archive, onClick: () => save("status", "offline") },
                       { label: "Delete unit", icon: Trash2, variant: "danger", onClick: openDelete },
                     ]}
                   />

@@ -49,6 +49,47 @@ export function minorUnitExponent(currency: string): number {
 }
 
 /**
+ * Shared currency core. Formats a **major-unit** amount with explicit fraction
+ * digits, defaulting to the "whole → 0, fractional → currency exponent" rule
+ * that `formatMoney` uses. Every other money formatter in the app delegates
+ * here so there is a single `Intl` currency code path (A11 consolidation);
+ * callers that need a fixed fraction rule (always 0, always 2) pass `opts` to
+ * preserve their exact output with zero value drift.
+ *
+ * @param amount major units (e.g. 1234.56 → £1,234.56). null/NaN → "—".
+ * @param currency ISO-4217 code (default GBP).
+ * @param locale   BCP-47 locale (default en-GB).
+ * @param opts     explicit min/max fraction digits to override the default rule.
+ */
+export function formatCurrencyAmount(
+  amount: number | null | undefined,
+  currency = "GBP",
+  locale?: LocaleInput,
+  opts?: { minimumFractionDigits?: number; maximumFractionDigits?: number }
+): string {
+  if (amount == null || Number.isNaN(amount)) return "—"
+  const code = (currency || "GBP").toUpperCase()
+  const exp = minorUnitExponent(code)
+  const isWhole = amount % 1 === 0
+  const minimumFractionDigits = opts?.minimumFractionDigits ?? (isWhole ? 0 : exp)
+  const maximumFractionDigits = opts?.maximumFractionDigits ?? exp
+  try {
+    return new Intl.NumberFormat(asLocale(locale), {
+      style: "currency",
+      currency: code,
+      minimumFractionDigits,
+      maximumFractionDigits,
+    }).format(amount)
+  } catch {
+    // Unknown currency / locale: degrade to a plain number, never throw.
+    return `${amount.toLocaleString(asLocale(locale), {
+      minimumFractionDigits,
+      maximumFractionDigits,
+    })} ${code}`
+  }
+}
+
+/**
  * Format an integer amount of minor units (pence/cents) in the given currency.
  *
  * @param minorUnits integer minor units (e.g. 123456 → £1,234.56). null/NaN → "—".
@@ -65,20 +106,7 @@ export function formatMoney(
 ): string {
   if (minorUnits == null || Number.isNaN(minorUnits)) return "—"
   const code = (currency || "GBP").toUpperCase()
-  const exp = minorUnitExponent(code)
-  const amount = minorUnits / 10 ** exp
-  const isWhole = amount % 1 === 0
-  try {
-    return new Intl.NumberFormat(asLocale(locale), {
-      style: "currency",
-      currency: code,
-      minimumFractionDigits: isWhole ? 0 : exp,
-      maximumFractionDigits: exp,
-    }).format(amount)
-  } catch {
-    // Unknown currency / locale: degrade to a plain number, never throw.
-    return `${amount.toLocaleString(asLocale(locale))} ${code}`
-  }
+  return formatCurrencyAmount(minorUnits / 10 ** minorUnitExponent(code), code, locale)
 }
 
 /**
@@ -91,19 +119,30 @@ export function formatMoneyMajor(
   currency = "GBP",
   locale?: LocaleInput
 ): string {
+  return formatCurrencyAmount(amount, currency, locale)
+}
+
+/**
+ * Compact currency for KPI cards / charts, e.g. "£3.2K" / "€1.2M" — locale- and
+ * currency-aware (German renders "3,2 Mio. €"). Takes a MAJOR-unit amount.
+ * Used by dashboards that previously hardcoded `"£" + (n/1000) + "k"`.
+ */
+export function formatMoneyCompact(
+  amount: number | null | undefined,
+  currency = "GBP",
+  locale?: LocaleInput
+): string {
   if (amount == null || Number.isNaN(amount)) return "—"
   const code = (currency || "GBP").toUpperCase()
-  const exp = minorUnitExponent(code)
-  const isWhole = amount % 1 === 0
   try {
     return new Intl.NumberFormat(asLocale(locale), {
       style: "currency",
       currency: code,
-      minimumFractionDigits: isWhole ? 0 : exp,
-      maximumFractionDigits: exp,
+      notation: "compact",
+      maximumFractionDigits: 1,
     }).format(amount)
   } catch {
-    return `${amount.toLocaleString(asLocale(locale))} ${code}`
+    return formatCurrencyAmount(amount, code, locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
   }
 }
 
