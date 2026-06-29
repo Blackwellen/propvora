@@ -197,14 +197,28 @@ enforcement is verified strong; live E2E is the remaining gap.
 | Delivery | ✅ test emails sent to support@, info@, and a personal inbox — **receipt confirmed by owner** |
 | Link hygiene | ✅ body links use `https://www.propvora.com/...` (no localhost) + Propvora branding |
 
-## 3i. External portals — live surface
+## 3i. External portals — gated OFF in production (correct V1 posture)
 
-`NEXT_PUBLIC_PORTALS_EXTERNAL_ENABLED=true` and `/api/portal/verify` is live
-(dummy token → 303 → `/portal/expired`, i.e. processed + fail-closed, not disabled).
-So tenant/landlord/supplier external portals ARE live in production. Full live
-isolation E2E (mint a magic-link per persona via PAT, log in, confirm cross-tenant
-data blocked) is the remaining step; code-level boundary enforcement already
-verified strong (§3f).
+The external portal **login surface** is gated by `isExternalPortalEnabled()` =
+`NEXT_PUBLIC_PORTALS_EXTERNAL_ENABLED === "true"` (a build-time NEXT_PUBLIC var,
+default OFF, fail-closed).
+
+**Live finding:** it is **OFF in the deployed build** — `/portal?token=…` redirects
+to `/portal/expired` *before* processing the token (the landing page checks the
+flag first). My local `.env.local` has it `true`, but Vercel production does not
+set it, so the build inlines `false`.
+
+**Verified by experiment:** minted a valid tenant magic-link via PAT (real grant +
+token, SHA-256 matched, not expired) and opened it in an isolated browser context
+→ still `/portal/expired`. So tenant/landlord/supplier **external portals are not
+reachable in production** right now. Test grant/token were cleaned up.
+
+**Implication:**
+- If external portals are intentionally V1-OFF → correct, nothing to do; the
+  code-level boundary enforcement (§3f) is the relevant guarantee.
+- To go live + run the isolation E2E: set `NEXT_PUBLIC_PORTALS_EXTERNAL_ENABLED=true`
+  in **Vercel production** env and redeploy; then a per-persona magic-link can
+  establish a scoped session and cross-tenant isolation can be tested live.
 
 ## 4. Remaining audit scope (not yet executed)
 
