@@ -9,6 +9,8 @@ import {
   loadQuickBarPrefs,
   loadQuickBarPrefsFromDb,
   gateWidgets,
+  QUICKBAR_CHANGED_EVENT,
+  QUICKBAR_STORAGE_KEY,
   type QuickBarPrefs,
 } from "@/lib/quickbar"
 import { useQuickbarFlags } from "@/hooks/useQuickbarFlags"
@@ -25,11 +27,25 @@ export default function ShellTabsRail() {
     loadQuickBarPrefsFromDb().then(db => { if (db) setPrefs(db) })
   }, [])
 
-  // Re-read prefs when window gets focus (user saved in settings)
+  // Re-read prefs the instant they change. Three triggers:
+  //   • same-tab save  → custom QUICKBAR_CHANGED_EVENT (the settings page lives in
+  //     the SAME tab, so the rail would otherwise never see a toggle until the
+  //     window lost+regained focus — this is the "switched on, nothing happened" fix)
+  //   • other-tab save → native `storage` event
+  //   • window refocus  → belt-and-braces for any missed update
   useEffect(() => {
-    const onFocus = () => setPrefs(loadQuickBarPrefs())
-    window.addEventListener("focus", onFocus)
-    return () => window.removeEventListener("focus", onFocus)
+    const reread = () => setPrefs(loadQuickBarPrefs())
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === QUICKBAR_STORAGE_KEY || e.key === null) reread()
+    }
+    window.addEventListener(QUICKBAR_CHANGED_EVENT, reread)
+    window.addEventListener("storage", onStorage)
+    window.addEventListener("focus", reread)
+    return () => {
+      window.removeEventListener(QUICKBAR_CHANGED_EVENT, reread)
+      window.removeEventListener("storage", onStorage)
+      window.removeEventListener("focus", reread)
+    }
   }, [])
 
   // Scroll transparency

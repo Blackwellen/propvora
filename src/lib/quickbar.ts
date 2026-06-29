@@ -89,7 +89,7 @@ export const ALL_QUICK_WIDGETS: QuickBarWidget[] = [
   { key: "compliance",     label: "Compliance",    href: `${MANAGER_BASE}/compliance`,                icon: ShieldCheck,    colour: "#DC2626", bg: "#FEF2F2", group: "Other",      defaultVisible: false },
   { key: "automations",    label: "Automations",   href: `${MANAGER_BASE}/automations`,               icon: GitBranch,      colour: "#7C3AED", bg: "#F5F3FF", group: "Other",      defaultVisible: false, flag: "canvasLite" },
   { key: "legal",          label: "Legal",         href: `${MANAGER_BASE}/legal`,                     icon: FileText,       colour: "#0E7490", bg: "#ECFEFF", group: "Other",      defaultVisible: false, flag: "legalSection" },
-  { key: "reports",        label: "Reports",       href: `${MANAGER_BASE}/money`,                     icon: FileText,       colour: "#64748B", bg: "#F8FAFC", group: "Other",      defaultVisible: false },
+  { key: "reports",        label: "Reports",       href: `${MANAGER_BASE}/work/reports`,              icon: FileText,       colour: "#64748B", bg: "#F8FAFC", group: "Other",      defaultVisible: false },
 ]
 
 export const QUICKBAR_STORAGE_KEY = "propvora-quickbar-v1"
@@ -99,11 +99,41 @@ export interface QuickBarPrefs {
   order: string[]
 }
 
+/** Fired (same-tab) whenever quick-bar prefs are written, so the live rail can
+ *  re-read immediately — `storage` events only fire in OTHER tabs, never the one
+ *  that made the change, which is why a toggle+save felt like "nothing happened". */
+export const QUICKBAR_CHANGED_EVENT = "propvora:quickbar-changed"
+
+/**
+ * Reconcile stored prefs against the CURRENT widget catalogue. Stored prefs are
+ * persisted snapshots — when new widgets ship (or links/groups change) an old
+ * snapshot is missing those keys, so they'd never appear in settings OR the rail
+ * and couldn't be toggled on. This merges both ways:
+ *   • order   — keep the user's saved order for keys still in the catalogue, then
+ *               append every catalogue key not already present (in catalogue order).
+ *   • visible — every catalogue key gets a boolean: the user's saved value if set,
+ *               otherwise the widget's defaultVisible. Stale keys are dropped.
+ */
+export function normalizeQuickBarPrefs(p: QuickBarPrefs): QuickBarPrefs {
+  const knownKeys = ALL_QUICK_WIDGETS.map(w => w.key)
+  const known = new Set(knownKeys)
+  const inOrder = new Set(p.order)
+  const order = [
+    ...p.order.filter(k => known.has(k)),
+    ...knownKeys.filter(k => !inOrder.has(k)),
+  ]
+  const visible: Record<string, boolean> = {}
+  for (const w of ALL_QUICK_WIDGETS) {
+    visible[w.key] = typeof p.visible?.[w.key] === "boolean" ? p.visible[w.key] : w.defaultVisible
+  }
+  return { order, visible }
+}
+
 export function loadQuickBarPrefs(): QuickBarPrefs {
   if (typeof window === "undefined") return getDefaultPrefs()
   try {
     const raw = localStorage.getItem(QUICKBAR_STORAGE_KEY)
-    if (raw) return JSON.parse(raw) as QuickBarPrefs
+    if (raw) return normalizeQuickBarPrefs(JSON.parse(raw) as QuickBarPrefs)
   } catch {
     // ignore
   }
@@ -113,6 +143,12 @@ export function loadQuickBarPrefs(): QuickBarPrefs {
 export function saveQuickBarPrefs(prefs: QuickBarPrefs): void {
   if (typeof window === "undefined") return
   localStorage.setItem(QUICKBAR_STORAGE_KEY, JSON.stringify(prefs))
+  // Notify the live rail in THIS tab (storage events don't fire same-tab).
+  try {
+    window.dispatchEvent(new Event(QUICKBAR_CHANGED_EVENT))
+  } catch {
+    /* non-fatal */
+  }
 }
 
 export function getDefaultPrefs(): QuickBarPrefs {
@@ -140,8 +176,9 @@ export async function loadQuickBarPrefsFromDb(): Promise<QuickBarPrefs | null> {
     const { prefs } = await getUserPreferences()
     const qb = prefs?.quickbar
     if (isValidPrefs(qb)) {
-      saveQuickBarPrefs(qb)
-      return qb
+      const normalized = normalizeQuickBarPrefs(qb)
+      saveQuickBarPrefs(normalized)
+      return normalized
     }
   } catch {
     /* ignore — fall back to localStorage/defaults */
