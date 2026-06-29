@@ -159,6 +159,15 @@ Logged in as a test PM operator (JT Property Manager, Enterprise). Findings:
 | **P1 BUG FOUND + FIXED** | Home dashboard showed **UNITS=0 / occupancy 0%** — code queried the **dropped** `property_units` table (404, gracefully degraded to empty). The consolidate migration dropped the table in the DB but the code wasn't repointed. Fixed 3 consumers → `units` table (commit `444ebe22`, deploying). Verified the data exists (units page shows 22). |
 | Console (dashboard) | React #419 (Suspense SSR fallback — recovers to client render) + the `property_units` 404 (now fixed) + a benign `workspace_feature_flags` single-row 404 |
 
+## 3e. Platform admin panel + MFA
+
+| Check | Result |
+|---|---|
+| Role gate (fail-closed) | ✅ correct — access granted via `platform_admins` table / `platform_role='admin'`; non-grants → /bw-console-x9f3 |
+| Admin console | ✅ renders with real data (16 workspaces, 26 users, £73k GMV); **honest about billing** — refuses to show MRR/ARR without live Stripe data ("not shown to avoid fabricated numbers") |
+| **MFA — SECURITY GAP FOUND + FIXED** | ⚠️→✅ A platform admin with **no enrolled MFA factor** reached the **full console with only a password** (confirmed live). `getAdminMfaState()` returned "ok" for MFA-less admins. **Fixed** (`d488e8f8`): MFA is now mandatory — no factor → new "enroll" state → layout redirects to MFA enrolment before any privileged page renders; enrolled+aal1 still → challenge → aal2. **Needs re-test with the admin account once deployed.** |
+| Data fix while there | Created missing `workspace_feature_flags` table (was 404ing on every flag check). |
+
 ## 4. Remaining audit scope (not yet executed)
 
 The directive's full matrix (auth/MFA/session deep-dive, billing/Stripe webhook
