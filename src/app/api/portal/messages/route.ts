@@ -54,9 +54,13 @@ export async function POST(req: NextRequest) {
       const { data, error } = await admin
         .from("message_threads")
         .insert({
+          // type carries the portal vertical (tenant/landlord/supplier/…) so the
+          // operator inbox can badge it. Must be one of message_threads_type_check
+          // (extended for portal verticals in FIX-653) — a flat "portal" string
+          // violated that constraint and broke "start conversation" (FIX-654).
           workspace_id: session.workspaceId,
           title: (body.subject ?? "").trim() || `${senderName} — ${session.portalType} portal`,
-          type: "portal",
+          type: session.portalType,
           related_type: target.relatedType,
           related_id: target.relatedId,
           archived: false,
@@ -77,7 +81,12 @@ export async function POST(req: NextRequest) {
       .insert({
         thread_id: threadId,
         workspace_id: session.workspaceId,
-        sender_id: session.contactId,
+        // messages.sender_id is an FK to auth.users — a portal contact is NOT an
+        // auth user, so storing the contact id here raised a FK violation and
+        // broke every portal send (FIX-655). Portal-contact messages carry a
+        // null sender_id; identity is preserved in sender_name. The portal read
+        // path treats null sender_id as "from the contact" (fromMe).
+        sender_id: null,
         sender_name: senderName,
         content,
       })

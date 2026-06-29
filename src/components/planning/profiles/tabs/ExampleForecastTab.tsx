@@ -10,6 +10,7 @@ import { useWorkspaceJurisdiction } from '@/hooks/useWorkspaceJurisdiction'
 import { computeIncomeTax } from '@/lib/planning/interest-relief'
 import { disposalTax } from '@/lib/planning/disposal-tax'
 import { formatMoneyMajor } from '@/lib/i18n'
+import { getCountryPack } from '@/lib/i18n/country-packs'
 import { NotLegalAdviceNotice } from '@/components/jurisdiction'
 
 interface Props {
@@ -37,7 +38,7 @@ function InterestReliefPanel() {
   const [interest, setInterest] = useState('8000')
   const [rate, setRate] = useState('40')
 
-  const ccy = country === 'GB' ? 'GBP' : country === 'US' ? 'USD' : 'EUR'
+  const ccy = getCountryPack(country).currency
   const r = useMemo(
     () =>
       computeIncomeTax({
@@ -124,7 +125,7 @@ function DisposalTaxPanel() {
   const [nonResident, setNonResident] = useState(false)
   const [higherRate, setHigherRate] = useState(true)
 
-  const ccy = country === 'GB' ? 'GBP' : country === 'US' ? 'USD' : country === 'AU' ? 'AUD' : 'EUR'
+  const ccy = getCountryPack(country).currency
   const r = useMemo(
     () => disposalTax({ countryCode: country, gain: Number(gain) || 0, holdingYears: Number(holdingYears) || 0, isMainResidence: mainResidence, isNonResident: nonResident, higherRate }),
     [country, gain, holdingYears, mainResidence, nonResident, higherRate],

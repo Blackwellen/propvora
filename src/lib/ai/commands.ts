@@ -25,11 +25,15 @@ export type CommandCategory =
   | "Supplier"
   | "Payments"
   | "Compliance"
+  | "Legal"
   | "Automations"
   | "Communication"
   | "Tasks & Work"
   | "Planning"
   | "Money"
+  | "Calendar"
+  | "Contacts"
+  | "Documents"
   | "General"
 
 /** Which capability flag must be true for this command to be offered. */
@@ -491,6 +495,130 @@ export const COPILOT_COMMANDS: CopilotCommand[] = [
     prompt:
       "Respond in plain text only. No asterisks, no markdown headers. Suggest 3 high-value automation recipes for this workspace type and its active modules. For each recipe show the trigger, condition, and action. Explain the time saved per week (estimate clearly labelled as illustrative). Output format: numbered list — Recipe name, Trigger: / Condition: / Action: / Time saved: — each on its own line. End with: 'Build and enable these in the Automations section — they are suggestions only.' Under 220 words.",
     requiresApproval: false,
+  },
+
+  // --- Calendar ---
+  {
+    slug: "/whats-coming-up",
+    label: "/whats-coming-up",
+    description: "Upcoming calendar events and deadlines",
+    category: "Calendar",
+    capability: "always",
+    pack: "ai-core",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Summarise what's coming up for this workspace using the live items in WORKSPACE CONTEXT and KEY RECORDS (upcoming calendar events, compliance due dates, tenancy renewals, task due dates). Order by date, soonest first, and name the REAL item where records are present (e.g. 'Tue — Gas safety inspection at 22 Park Road'). For each give a one-line prep action. If no dated records are present, say the calendar looks clear for the period. Under 200 words. Never invent dates.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/draft-event",
+    label: "/draft-event",
+    description: "Draft a calendar event to add",
+    category: "Calendar",
+    capability: "always",
+    pack: "ai-core",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Turn the user's request into a calendar event draft. Output format: five labelled fields — Title: (one line), Type: (Inspection / Viewing / Meeting / Maintenance / Reminder / Other), When: (date and time, or a clear window if unspecified), Location/property: (placeholder {PROPERTY_ADDRESS} if not given), Notes: (1-2 sentences). End with: 'Review and confirm to add this to the Calendar.' Do NOT claim it was created.",
+    requiresApproval: true,
+    mutationType: "event-draft",
+  },
+
+  // --- Contacts ---
+  {
+    slug: "/find-contact",
+    label: "/find-contact",
+    description: "Find a contact and their linked records",
+    category: "Contacts",
+    capability: "portfolio",
+    pack: "portfolio",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Using the contacts and related records in KEY RECORDS / RELEVANT RECORDS, locate the contact the user describes (by name, role or linked property) and summarise who they are: contact type (tenant, landlord, supplier, etc.), key details present in the records, and which properties or tenancies they are linked to. Name the REAL contact and links. If no matching contact appears in the records, say so and suggest how to refine the search. Under 200 words. Never invent contact details.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/draft-contact-intro",
+    label: "/draft-contact-intro",
+    description: "Draft an introduction message to a contact",
+    category: "Communication",
+    capability: "portfolio",
+    pack: "portfolio",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Draft a professional introduction or first-contact message. Output format: labelled sections — Subject: (one line), Message body: (covering who you are, the reason for contact, and a clear next step, using placeholders {CONTACT_NAME}, {YOUR_NAME}, {PROPERTY_ADDRESS} where specifics are not provided), Sign-off:. Keep it courteous and under 150 words. End with: 'This is a DRAFT — review and send it yourself from the Messages section.' Nothing has been sent.",
+    requiresApproval: true,
+    mutationType: "message-draft",
+  },
+
+  // --- Documents ---
+  {
+    slug: "/find-document",
+    label: "/find-document",
+    description: "Find a document and where it's linked",
+    category: "Documents",
+    capability: "always",
+    pack: "ai-core",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Using the documents and certificates in KEY RECORDS / RELEVANT RECORDS, find the document the user describes (by type, property or date) and report: document name/type, the property or record it is linked to, its status, and any expiry date present. Name the REAL document. If nothing matches the records, say so and note where that document type would normally live (Compliance certificates, property documents, etc.). Under 200 words. Never invent a document.",
+    requiresApproval: false,
+  },
+
+  // --- Legal (V1 — gated by the compliance/legal capability) ---
+  {
+    slug: "/possession-options",
+    label: "/possession-options",
+    description: "Explain possession routes for a tenancy",
+    category: "Legal",
+    capability: "compliance",
+    pack: "compliance",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Explain the general routes a UK landlord may consider to recover possession of a residential property: Section 21 (no-fault, where still applicable), Section 8 (grounds-based, e.g. arrears ground 8/10/11), and the accelerated vs standard court process at a high level. Note key prerequisites (valid deposit protection, EPC/EICR/gas served, How to Rent guide, correct notice periods). Output format: numbered list — route name, when it may apply, key prerequisites, typical timeline. Frame everything as general information, NOT legal advice, and strongly recommend confirming with a solicitor before serving any notice. Under 260 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/draft-inspection-notice",
+    label: "/draft-inspection-notice",
+    description: "Draft a tenant inspection / access notice",
+    category: "Legal",
+    capability: "portfolio",
+    pack: "portfolio",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Draft a courteous tenant notice giving the legally-required minimum 24 hours' written notice for property access (routine inspection or maintenance) under a UK residential tenancy. Include placeholders {TENANT_NAME}, {PROPERTY_ADDRESS}, {VISIT_DATE}, {VISIT_TIME}, {REASON}, {PM_NAME}. Make clear access is at a reasonable time and the tenant can propose an alternative. Output format: letter/message body with clear paragraphs. End with: 'This is a DRAFT — review and send it yourself; ensure at least 24 hours notice. General information, not legal advice.' Nothing has been sent.",
+    requiresApproval: true,
+    mutationType: "document-draft",
+  },
+
+  // --- Money (expanded) ---
+  {
+    slug: "/rent-roll",
+    label: "/rent-roll",
+    description: "Summarise the rent roll across tenancies",
+    category: "Money",
+    capability: "portfolio",
+    pack: "money",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Build a rent-roll summary from the ACTIVE TENANCIES and property records in KEY RECORDS: list each tenancy by tenant and property with its monthly rent where present, then give the total monthly rent across the portfolio. Use ONLY real figures from the records — never invent rent amounts. Flag any tenancy showing arrears or a missing rent figure. Output format: numbered list — tenant + property + monthly rent, then a TOTAL line and a one-line note on anything to chase. If no tenancies are present, say so. Under 220 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/expense-summary",
+    label: "/expense-summary",
+    description: "Summarise expenses and where money is going",
+    category: "Money",
+    capability: "payments",
+    pack: "money",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Summarise the workspace's outgoings using the expense, bill and invoice records in KEY RECORDS / RELEVANT RECORDS. Group by category where the records allow (maintenance, mortgage/finance, fees, utilities, other), give the real total per category, and highlight the largest cost driver and any unpaid bills. Use ONLY real figures from the records — never invent amounts. Output format: labelled categories with totals, then a one-line note on the biggest spend and anything overdue. If no expense records are present, say so. Under 220 words.",
+    requiresApproval: false,
+  },
+  {
+    slug: "/rent-increase-letter",
+    label: "/rent-increase-letter",
+    description: "Draft a rent increase notice",
+    category: "Communication",
+    capability: "portfolio",
+    pack: "money",
+    prompt:
+      "Respond in plain text only. No asterisks, no markdown headers. Draft a UK rent increase notice for an assured shorthold tenancy. Include placeholders {TENANT_NAME}, {PROPERTY_ADDRESS}, {CURRENT_RENT}, {NEW_RENT}, {EFFECTIVE_DATE}, {PM_NAME}. State the new rent, the effective date (respecting the minimum one month / one rent-period notice and not within the first 12 months of a periodic increase via Section 13 where relevant), and a courteous rationale. Output format: letter body with clear paragraphs. End with: 'This is a DRAFT — confirm the correct statutory notice and period with your solicitor before serving. General information, not legal advice.' Nothing has been sent.",
+    requiresApproval: true,
+    mutationType: "document-draft",
   },
 ]
 

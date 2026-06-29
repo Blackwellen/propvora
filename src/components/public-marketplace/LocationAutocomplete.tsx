@@ -108,7 +108,8 @@ export function LocationAutocomplete({
     setLoading(true)
     setError(false)
     try {
-      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=gb&format=json&limit=5&addressdetails=1`
+      // Global place search (no country lock) so non-UK locations resolve too.
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1`
       const res = await fetch(url, {
         headers: { "User-Agent": "Propvora/1.0 (propvora.com)" },
         signal: abortRef.current.signal,

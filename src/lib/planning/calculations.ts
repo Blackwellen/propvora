@@ -1,3 +1,5 @@
+import { formatCurrencyAmount } from "@/lib/i18n/format"
+
 // ─── Core Types ─────────────────────────────────────────────────────────────
 
 export interface RoomIncome {
@@ -554,12 +556,12 @@ export function calculateScenario(
 // ─── Formatting Helpers ──────────────────────────────────────────────────────
 
 export function formatCurrency(n: number): string {
-  return new Intl.NumberFormat("en-GB", {
-    style: "currency",
-    currency: "GBP",
+  // Delegates to the shared i18n currency core (A11), preserving this helper's
+  // whole-pounds rule (no decimals).
+  return formatCurrencyAmount(n, "GBP", "en-GB", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(n)
+  })
 }
 
 export function formatPercent(n: number, decimals = 1): string {

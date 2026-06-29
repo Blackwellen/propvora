@@ -47,7 +47,7 @@ const nextConfig: NextConfig = {
   // runs on CI/Vercel and any build without the flag. Only safe because types are
   // verified separately via `tsc --noEmit` and `eslint`. Mirrors BUILD_CPUS.
   ...(process.env.SKIP_TS_CHECK === "true"
-    ? { typescript: { ignoreBuildErrors: true }, eslint: { ignoreDuringBuilds: true } }
+    ? { typescript: { ignoreBuildErrors: true } }
     : {}),
   experimental: {
     optimizePackageImports: ["lucide-react"],
@@ -74,14 +74,14 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.googleusercontent.com" },
     ],
     // Next 16 blocks local <Image> srcs that carry a query string unless they are
-    // allow-listed here. `?v=rel2` is the marketing product-screenshot cache-bust
+    // allow-listed here. `?v=rel3` is the marketing product-screenshot cache-bust
     // appended in src/components/marketing/PremiumProductImage.tsx. Without this,
     // every marketing page that renders a product image (/, /features,
     // /affiliate-programme, …) throws and returns 500 (P0). Keep the search value
     // in sync if that release tag is bumped.
     localPatterns: [
       { pathname: "/**", search: "" },
-      { pathname: "/**", search: "?v=rel2" },
+      { pathname: "/**", search: "?v=rel3" },
     ],
   },
   headers: async () => [
@@ -161,6 +161,11 @@ const nextConfig: NextConfig = {
     { source: "/admin/global/translations", destination: "/admin/global-translations", permanent: false },
     { source: "/admin/announcements/bar", destination: "/admin/announcement-bar", permanent: false },
 
+    // Billing canonical — /property-manager/billing → the subscription/checkout
+    // page (the real route lives under /workspace/billing). Safety net so any
+    // intuitive "billing" link (incl. legacy upgrade CTAs) never 404s.
+    { source: "/property-manager/billing", destination: "/property-manager/workspace/billing", permanent: false },
+    { source: "/property-manager/billing/:path*", destination: "/property-manager/workspace/billing/:path*", permanent: false },
     // Settings canonical — /property-manager/settings → workspace settings hub
     { source: "/property-manager/settings", destination: "/property-manager/workspace-settings", permanent: false },
     { source: "/property-manager/settings/:path*", destination: "/property-manager/workspace-settings/:path*", permanent: false },

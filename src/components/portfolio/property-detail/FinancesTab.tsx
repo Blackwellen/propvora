@@ -7,9 +7,11 @@ import type { Tenancy } from "@/hooks/useTenancies"
 import type { Unit } from "@/hooks/useUnits"
 import type { Property } from "@/types/database"
 import { ArrowUpRight, PoundSterling } from "lucide-react"
-import { fmt, fmtDate, Card } from "./shared"
+import { fmt as fmtMoney, fmtDate, Card } from "./shared"
 
 export function FinancesTab({ tenanciesList, unitsList, prop }: { tenanciesList: Tenancy[]; unitsList: Unit[]; prop: Property }) {
+  // All money on this tab renders in the property's currency, not hardcoded £.
+  const fmt = (n: number) => fmtMoney(n, prop.currency)
   const activeTenancies = tenanciesList.filter((t) => t.status === "active")
   const monthlyRent = activeTenancies.reduce((s, t) => s + (t.rent_amount ?? 0), 0)
   const totalDeposit = tenanciesList.reduce((s, t) => s + (t.deposit_amount ?? 0), 0)

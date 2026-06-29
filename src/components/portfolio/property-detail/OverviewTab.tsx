@@ -253,7 +253,7 @@ export function OverviewTab({
       {/* KPI strip — uniform grid (was a flex scroll with inconsistent widths) */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         <KpiCard icon={Users} iconColor="#2563EB" value={occupancyPct != null ? `${occupancyPct}%` : "0%"} label="Occupancy" sub={`${occupied} of ${totalUnits} units`} />
-        <KpiCard icon={PoundSterling} iconColor="#10B981" value={monthlyRent > 0 ? fmt(monthlyRent) : "£0"} label="Monthly Rent" sub="From active tenancies" />
+        <KpiCard icon={PoundSterling} iconColor="#10B981" value={fmt(monthlyRent > 0 ? monthlyRent : 0, prop.currency)} label="Monthly Rent" sub="From active tenancies" />
         <KpiCard icon={Home} iconColor="#7C3AED" value={String(totalUnits)} label="Units" sub={`${occupied} occupied`} />
         <KpiCard icon={FileText} iconColor="#F59E0B" value={String(tenanciesList.filter((t) => t.status === "active").length)} label="Tenancies" sub="Active leases" />
         <KpiCard icon={Wrench} iconColor="#EF4444" value={String(openWork)} label="Open Work" sub={`${openJobs} jobs · ${openTasks} tasks`} />
@@ -426,6 +426,7 @@ export function OverviewTab({
                     address: [prop.address_line1, prop.address_line2, prop.city, prop.postcode]
                       .filter(Boolean)
                       .join(", ") || null,
+                    country: prop.country_code,
                     label: prop.name,
                     sublabel: [prop.city, prop.postcode].filter(Boolean).join(" ") || undefined,
                   },
@@ -450,9 +451,9 @@ export function OverviewTab({
             />
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { label: "Monthly Rent (active)", value: monthlyRent > 0 ? fmt(monthlyRent) : "£0", color: "text-slate-900" },
-                { label: "Target Rent", value: prop.target_rent != null ? fmt(prop.target_rent) : "Not set", color: prop.target_rent != null ? "text-slate-900" : "text-slate-400" },
-                { label: "Annualised", value: monthlyRent > 0 ? fmt(monthlyRent * 12) : "£0", color: "text-emerald-600" },
+                { label: "Monthly Rent (active)", value: fmt(monthlyRent > 0 ? monthlyRent : 0, prop.currency), color: "text-slate-900" },
+                { label: "Target Rent", value: prop.target_rent != null ? fmt(prop.target_rent, prop.currency) : "Not set", color: prop.target_rent != null ? "text-slate-900" : "text-slate-400" },
+                { label: "Annualised", value: fmt(monthlyRent > 0 ? monthlyRent * 12 : 0, prop.currency), color: "text-emerald-600" },
               ].map((item) => (
                 <div key={item.label} className="bg-slate-50 rounded-xl p-3">
                   <p className={cn("text-[18px] font-bold tabular-nums", item.color)}>{item.value}</p>

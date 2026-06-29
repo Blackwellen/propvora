@@ -383,10 +383,12 @@ export async function getSubscriptionKpis(): Promise<SubscriptionKpis> {
       .select("plan, status, amount_pence, stripe_subscription_id")
       .limit(10000)
     if (error) {
-      if (isSchemaGap(error.code)) return empty
+      if (isSchemaGap(error.code)) return await deriveSubKpisFromWorkspaces(admin)
       return { ...empty, available: true }
     }
     const rows = data ?? []
+    // Pre-Stripe: no dedicated subscription rows yet → derive plan KPIs from workspaces.
+    if (rows.length === 0) return await deriveSubKpisFromWorkspaces(admin)
     const planMix: Record<string, number> = {}
     let active = 0, trialing = 0, pastDue = 0, canceled = 0, mrr = 0, stripeLinked = false, hasAmount = false
     for (const s of rows) {
@@ -410,6 +412,43 @@ export async function getSubscriptionKpis(): Promise<SubscriptionKpis> {
       mrrPence: hasAmount ? mrr : null,
       planMix: Object.entries(planMix).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value),
       stripeLinked,
+    }
+  } catch {
+    return empty
+  }
+}
+
+/** Pre-Stripe fallback: derive subscription KPIs from `workspaces.plan/plan_status`.
+ * MRR/ARR stay null (no real billing amounts) so the honesty banner still shows. */
+async function deriveSubKpisFromWorkspaces(admin: ReturnType<typeof createAdminClient>): Promise<SubscriptionKpis> {
+  const empty: SubscriptionKpis = {
+    available: false, total: 0, active: 0, trialing: 0, pastDue: 0, canceled: 0,
+    mrrPence: null, planMix: [], stripeLinked: false,
+  }
+  try {
+    const { data, error } = await admin.from("workspaces").select("plan, plan_status").limit(10000)
+    if (error || !data) return empty
+    const planMix: Record<string, number> = {}
+    let active = 0, trialing = 0, pastDue = 0, canceled = 0
+    for (const w of data) {
+      const plan = (w.plan as string) ?? "—"
+      const ps = ((w.plan_status as string) ?? "").toLowerCase()
+      const status = ps === "trial" ? "trialing"
+        : ps === "suspended" ? "past_due"
+        : ps || (plan.toLowerCase() === "trial" ? "trialing" : "active")
+      planMix[plan] = (planMix[plan] ?? 0) + 1
+      if (status === "active") active++
+      else if (status === "trialing") trialing++
+      else if (status === "past_due") pastDue++
+      else if (status === "canceled" || status === "cancelled") canceled++
+    }
+    return {
+      available: true,
+      total: data.length,
+      active, trialing, pastDue, canceled,
+      mrrPence: null,
+      planMix: Object.entries(planMix).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value),
+      stripeLinked: false,
     }
   } catch {
     return empty

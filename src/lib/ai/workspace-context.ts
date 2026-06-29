@@ -409,7 +409,7 @@ export async function fetchPropertyContext(
       address: (property as any).address ?? null,
       type: (property as any).property_type ?? null,
       units: units.length,
-      vacantUnits: units.filter((u: any) => u.status === "vacant").length,
+      vacantUnits: units.filter((u: any) => u.status === "available").length,
       activeTenancies: tenancies.filter((t: any) => t.status === "active").length,
     }
   } catch {

@@ -37,9 +37,20 @@ export interface ComplianceItem {
   action: string
 }
 
+/** The kind of a suggested action — drives the button's icon + accent. */
+export type ActionKind = "create" | "edit" | "update" | "draft" | "view" | "ask"
+
 export interface QuickAction {
   slug: string
   label: string
+  /**
+   * Free-text instruction to send when the chip is clicked. When present it is
+   * sent verbatim through the normal chat flow (which still routes mutations
+   * through the permission-gated approval card). Falls back to `slug` when absent.
+   */
+  prompt?: string
+  /** Visual treatment for model-suggested action buttons. */
+  kind?: ActionKind
 }
 
 /** One step of an agent plan. */

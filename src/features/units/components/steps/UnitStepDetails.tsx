@@ -14,9 +14,10 @@ const UNIT_TYPES = [
 ]
 
 const STATUSES = [
-  { key: "vacant",      label: "Vacant" },
-  { key: "reserved",    label: "Reserved" },
-  { key: "under_works", label: "Under Works" },
+  { key: "available",   label: "Vacant" },
+  { key: "occupied",    label: "Occupied" },
+  { key: "maintenance", label: "Under works" },
+  { key: "offline",     label: "Offline" },
 ]
 
 interface UnitStepDetailsData {

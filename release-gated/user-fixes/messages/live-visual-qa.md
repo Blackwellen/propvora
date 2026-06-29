@@ -84,11 +84,14 @@ Screens: `release-gated/docs/messages/screens/section10/`. Two real bugs were fo
 fixed: **FIX-651** (hydration `<p>`/`<div>` in the copilot panel footer) and **FIX-652**
 (`/user/messages` crashed for Google-OAuth users — `next/image` host not allowlisted).
 
-**Still owed:** the *authenticated portal inbox* UI capture — blocked only by shared-machine
-load (Turbopack could not compile the authed route chain in a stable window this session;
-`/property-manager` hung at 000 for 180s+ while other sessions thrashed the CPU). NOT a code
-blocker. The exact, validated method below works in any quiet window (no token forging, no
-classifier issue — it uses the real operator grant flow).
+**RESOLVED — authenticated portal inbox captured + E2E verified (2026-06-27, later in session).**
+Once a peer's stable dev server (:3002) was available, the recipe below was executed: a real
+magic link was minted via the operator grant flow, the tenant portal session was established,
+and the portal inbox was captured (1536/768/390 + sent state) under
+`release-gated/docs/messages/screens/section10/portal-tenant-messages-*.png`. The tenant→
+workspace send E2E exposed and fixed three P1 bugs (FIX-S10-PORTAL-1/2/3); after the fixes
+the tenant message persisted, rendered "You", and reached the operator inbox (DB-confirmed).
+The recipe is retained below for re-runs / other portal verticals.
 
 ### Validated recipe to capture the portal inbox (run in a quiet window)
 Pre-req: one dev server (Next allows only one per dir), logged in as an operator/owner in

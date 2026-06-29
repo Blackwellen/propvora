@@ -8,6 +8,7 @@ import { useWorkspaceJurisdiction } from '@/hooks/useWorkspaceJurisdiction'
 import { acquisitionTax } from '@/lib/planning/acquisition-tax'
 import { recurringTax, estimateRecurringTax } from '@/lib/money/recurring-tax'
 import { formatMoneyMajor } from '@/lib/i18n'
+import { getCountryPack } from '@/lib/i18n/country-packs'
 import { NotLegalAdviceNotice } from '@/components/jurisdiction'
 
 interface Props {
@@ -35,7 +36,9 @@ function AcquisitionTaxEstimator() {
   const [additional, setAdditional] = useState(false)
   const [nonResident, setNonResident] = useState(false)
 
-  const ccy = country === 'GB' ? 'GBP' : country === 'AE' ? 'AED' : country === 'AU' ? 'AUD' : 'EUR'
+  // Currency from the country pack (accurate for all 45 jurisdictions) rather
+  // than a hardcoded GB/AE/AU→EUR guess that mislabelled e.g. US as EUR.
+  const ccy = getCountryPack(country).currency
   const result = useMemo(
     () =>
       acquisitionTax({

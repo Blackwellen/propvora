@@ -8,10 +8,14 @@ import type { Job, Task } from "@/types/database"
 import {
   Plus, ArrowUpRight, Wrench, Clock, CheckCircle2, Activity, Eye,
 } from "lucide-react"
-import { StatusPill, Card, fmtDate, fmt } from "./shared"
+import { StatusPill, Card, fmtDate, fmt as fmtMoney } from "./shared"
+import { usePropertyJurisdiction } from "@/lib/jurisdiction/usePropertyJurisdiction"
 
 export function WorkTab({ jobs, tasks, propertyId }: { jobs: Job[]; tasks: Task[]; propertyId: string }) {
   const router = useRouter()
+  // Job quotes render in the property's currency, not hardcoded £.
+  const { currency } = usePropertyJurisdiction(propertyId)
+  const fmt = (n: number) => fmtMoney(n, currency)
   const JOB_DONE: string[] = ["complete", "closed", "disputed"]
   const TASK_DONE: string[] = ["done", "cancelled"]
   const openJobs = jobs.filter((j) => !JOB_DONE.includes(j.status))

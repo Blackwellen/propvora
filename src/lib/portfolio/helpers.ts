@@ -105,7 +105,7 @@ export function aggregateByProperty(
     const a = ensure(u.property_id)
     a.units += 1
     if (u.status === "occupied") a.occupied += 1
-    if (u.status === "vacant") a.vacant += 1
+    if (u.status === "available") a.vacant += 1
     a.unitRent += u.target_rent ?? 0
   }
   for (const t of tenancies) {

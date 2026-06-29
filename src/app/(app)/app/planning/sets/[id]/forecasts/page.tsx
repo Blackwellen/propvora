@@ -27,20 +27,8 @@ import {
 } from "recharts"
 import { createClient } from "@/lib/supabase/client"
 import { forecastForSet, hasSetFinancials, type PlanningSetSummary } from "@/lib/planning/set-forecast"
-
-// ── Formatters ────────────────────────────────────────────────────────────────
-
-function fmt(n: number): string {
-  const sign = n < 0 ? "-" : ""
-  const a = Math.abs(n)
-  if (a >= 1_000_000) return `${sign}£${(a / 1_000_000).toFixed(1)}m`
-  if (a >= 1_000) return `${sign}£${(a / 1_000).toFixed(0)}k`
-  return `${sign}£${a.toFixed(0)}`
-}
-
-function fmtFull(n: number): string {
-  return `£${Math.abs(n).toLocaleString("en-GB", { maximumFractionDigits: 0 })}`
-}
+import { usePlanningSetCurrency } from "@/hooks/usePlanningSetCurrency"
+import { formatCurrencyAmount, formatMoneyCompact } from "@/lib/i18n/format"
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
@@ -61,7 +49,7 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
 
 // ── Custom tooltip ────────────────────────────────────────────────────────────
 
-function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color?: string }[]; label?: string }) {
+function ChartTooltip({ active, payload, label, currency = "GBP", locale }: { active?: boolean; payload?: { name: string; value: number; color?: string }[]; label?: string; currency?: string; locale?: string }) {
   if (!active || !payload?.length) return null
   return (
     <div className="bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-lg text-xs">
@@ -69,7 +57,7 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
       {payload.map((p, i) => (
         <div key={i} className="flex items-center justify-between gap-3">
           <span style={{ color: p.color ?? "var(--text-muted)" }}>{p.name}</span>
-          <span className="font-bold text-slate-900">{fmtFull(p.value)}</span>
+          <span className="font-bold text-slate-900">{formatCurrencyAmount(Math.abs(p.value), currency, locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
         </div>
       ))}
     </div>
@@ -81,6 +69,11 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
 export default function ForecastsPage() {
   const params = useParams()
   const id = params.id as string
+  // Money renders in the set's currency (its jurisdiction), not hardcoded £.
+  const { currency, locale } = usePlanningSetCurrency(id)
+  const fmt = (n: number): string => formatMoneyCompact(n, currency, locale)
+  const fmtFull = (n: number): string =>
+    formatCurrencyAmount(Math.abs(n), currency, locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 
   const [set, setSet] = useState<PlanningSetSummary | null>(null)
   const [loading, setLoading] = useState(true)
@@ -214,7 +207,7 @@ export default function ForecastsPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
                       <XAxis dataKey="month" tick={{ fontSize: 9, fill: "#94A3B8" }} interval={2} />
                       <YAxis tick={{ fontSize: 9, fill: "#94A3B8" }} tickFormatter={fmt} />
-                      <Tooltip content={<ChartTooltip />} />
+                      <Tooltip content={<ChartTooltip currency={currency} locale={locale} />} />
                       <ReferenceLine y={0} stroke="#CBD5E1" strokeDasharray="4 2" />
                       <Bar dataKey="net" fill="#7C3AED" radius={[3, 3, 0, 0]} name="Net Cashflow" />
                       {optForecasts.length > 0 && (
@@ -230,7 +223,7 @@ export default function ForecastsPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
                       <XAxis dataKey="month" tick={{ fontSize: 9, fill: "#94A3B8" }} interval={2} />
                       <YAxis tick={{ fontSize: 9, fill: "#94A3B8" }} tickFormatter={fmt} />
-                      <Tooltip content={<ChartTooltip />} />
+                      <Tooltip content={<ChartTooltip currency={currency} locale={locale} />} />
                       <ReferenceLine y={0} stroke="#CBD5E1" strokeDasharray="4 2" label={{ value: "Breakeven", fill: "#94A3B8", fontSize: 9 }} />
                       {optForecasts.length > 0 && (
                         <Area type="monotone" dataKey="targetCumulative" stroke="#10B981" fill="#d1fae5" strokeWidth={1.5} name="Optimistic" dot={false} strokeDasharray="4 2" connectNulls />
@@ -246,7 +239,7 @@ export default function ForecastsPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
                       <XAxis dataKey="month" tick={{ fontSize: 9, fill: "#94A3B8" }} interval={2} />
                       <YAxis tick={{ fontSize: 9, fill: "#94A3B8" }} tickFormatter={fmt} />
-                      <Tooltip content={<ChartTooltip />} />
+                      <Tooltip content={<ChartTooltip currency={currency} locale={locale} />} />
                       <ReferenceLine y={0} stroke="#EF4444" strokeWidth={1.5} label={{ value: "Zero line", fill: "#EF4444", fontSize: 9 }} />
                       {breakevenLabel && (
                         <ReferenceLine x={breakevenLabel} stroke="#10B981" strokeDasharray="4 2" label={{ value: "Breakeven", fill: "#10B981", fontSize: 9 }} />
@@ -270,7 +263,7 @@ export default function ForecastsPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
                       <XAxis dataKey="month" tick={{ fontSize: 9, fill: "#94A3B8" }} interval={2} />
                       <YAxis tick={{ fontSize: 9, fill: "#94A3B8" }} tickFormatter={fmt} />
-                      <Tooltip content={<ChartTooltip />} />
+                      <Tooltip content={<ChartTooltip currency={currency} locale={locale} />} />
                       <Bar dataKey="gross" fill="#10B981" radius={[3, 3, 0, 0]} name="Gross Income" />
                       <Bar dataKey="costs" fill="#F59E0B" radius={[3, 3, 0, 0]} name="Total Costs" />
                     </ComposedChart>

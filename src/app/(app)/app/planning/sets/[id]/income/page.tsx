@@ -18,6 +18,8 @@ import {
   ResponsiveContainer,
 } from "recharts"
 import { createClient } from "@/lib/supabase/client"
+import { usePlanningSetCurrency } from "@/hooks/usePlanningSetCurrency"
+import { formatCurrencyAmount, formatMoneyCompact } from "@/lib/i18n/format"
 
 // ── Live schema rows ───────────────────────────────────────────────────────────
 // planning_income_lines is profile-scoped (no planning_set_id) — resilient → empty.
@@ -47,13 +49,6 @@ interface RoomLineRow {
 const COLOURS = ["#2563EB", "#7C3AED", "#10B981", "#F59E0B", "#F97316", "#06B6D4", "#8B5CF6", "#EF4444"]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function fmt(n: number, compact = false): string {
-  if (compact && n >= 1000) {
-    return "£" + (n / 1000).toFixed(1).replace(/\.0$/, "") + "k"
-  }
-  return "£" + n.toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })
-}
 
 function pct(a: number, total: number): string {
   if (!total) return "0%"
@@ -97,6 +92,13 @@ function Skeleton({ className }: { className?: string }) {
 
 export default function IncomePage() {
   const { id } = useParams<{ id: string }>()
+  // Money renders in the SET's currency (from its record-true jurisdiction), not
+  // hardcoded £. Compact form for charts/KPIs; 0-decimal otherwise.
+  const { currency, locale } = usePlanningSetCurrency(id)
+  const fmt = (n: number, compact = false): string =>
+    compact && n >= 1000
+      ? formatMoneyCompact(n, currency, locale)
+      : formatCurrencyAmount(n, currency, locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 
   const [incomeLines, setIncomeLines] = useState<IncomeLineRow[]>([])
   const [rooms, setRooms] = useState<RoomLineRow[]>([])

@@ -158,33 +158,37 @@ export default function SlashCommandPalette({
       style={{ maxHeight: 400 }}
     >
       <div className="flex h-full" style={{ minHeight: 320 }}>
-        {/* Left: Categories — hidden on phones so the command list gets full width. */}
-        <div className="hidden sm:flex w-[160px] shrink-0 border-r border-slate-100 bg-slate-50 p-3 flex-col gap-1">
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 px-2">
+        {/* Left: Categories — hidden on phones so the command list gets full width.
+            The category list scrolls independently (it can exceed the panel
+            height) while the Context card stays pinned at the bottom. */}
+        <div className="hidden sm:flex w-[160px] shrink-0 border-r border-slate-100 bg-slate-50 flex-col overflow-hidden">
+          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-3 mb-1 px-4">
             Categories
           </p>
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.label}
-              onClick={() => setActiveCategory(cat.label)}
-              className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-                activeCategory === cat.label
-                  ? "bg-[var(--brand)] text-white"
-                  : "text-slate-600 hover:bg-white hover:shadow-sm"
-              }`}
-            >
-              <span className="truncate">{cat.label}</span>
-              <span
-                className={`text-[10px] ml-1 shrink-0 ${
-                  activeCategory === cat.label ? "text-[var(--color-brand-100)]" : "text-slate-400"
+          <div className="flex-1 min-h-0 overflow-y-auto px-3 flex flex-col gap-1">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.label}
+                onClick={() => setActiveCategory(cat.label)}
+                className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all shrink-0 ${
+                  activeCategory === cat.label
+                    ? "bg-[var(--brand)] text-white"
+                    : "text-slate-600 hover:bg-white hover:shadow-sm"
                 }`}
               >
-                {cat.count}
-              </span>
-            </button>
-          ))}
-          {/* Context card */}
-          <div className="mt-auto pt-2 border-t border-slate-200">
+                <span className="truncate">{cat.label}</span>
+                <span
+                  className={`text-[10px] ml-1 shrink-0 ${
+                    activeCategory === cat.label ? "text-[var(--color-brand-100)]" : "text-slate-400"
+                  }`}
+                >
+                  {cat.count}
+                </span>
+              </button>
+            ))}
+          </div>
+          {/* Context card — pinned below the scrollable category list */}
+          <div className="shrink-0 px-3 pb-3 pt-2 mt-1 border-t border-slate-200">
             <div className="rounded-xl bg-[var(--brand-soft)] border border-[var(--color-brand-100)] p-2">
               <p className="text-[9px] font-bold text-[var(--brand)] uppercase tracking-wide">Context</p>
               <p className="text-[10px] text-[var(--brand-strong)] mt-0.5 leading-tight">{context.section}</p>

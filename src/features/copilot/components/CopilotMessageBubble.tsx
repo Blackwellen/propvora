@@ -7,8 +7,9 @@ import CopilotDraftMessageCard from "./CopilotDraftMessageCard"
 import CopilotApprovalCard from "./CopilotApprovalCard"
 import CopilotAgentPlan from "./CopilotAgentPlan"
 import CopilotBrandMark from "./CopilotBrandMark"
-import { ArrowRight } from "lucide-react"
-import type { QuickAction, ApprovalSpec, AgentPlanSpec } from "../types"
+import AiMarkdown from "./AiMarkdown"
+import { ArrowRight, Plus, Pencil, RefreshCw, FileText, Eye, MessageCircle } from "lucide-react"
+import type { QuickAction, ApprovalSpec, AgentPlanSpec, ActionKind } from "../types"
 
 interface CopilotMessageBubbleProps {
   role: "user" | "ai"
@@ -30,53 +31,45 @@ interface CopilotMessageBubbleProps {
   onQuickAction?: (slug: string) => void
 }
 
-/**
- * Renders AI response content as clean plain-text blocks.
- * Handles numbered lists (1. 2. 3.), dashed lists (- item), and paragraphs.
- * Does NOT render markdown — the AI is instructed to output plain text only.
- */
-function AiContentRenderer({ content }: { content: string }) {
-  const paragraphs = content.split(/\n\n+/)
+// Icon + accent per suggested-action kind. Model-suggested action buttons carry
+// a `kind`; plain slash-command follow-ups don't and render as simple pills.
+const ACTION_ICON: Record<ActionKind, React.ComponentType<{ className?: string }>> = {
+  create: Plus,
+  edit: Pencil,
+  update: RefreshCw,
+  draft: FileText,
+  view: Eye,
+  ask: MessageCircle,
+}
 
+function ActionButton({
+  action,
+  onClick,
+}: {
+  action: QuickAction
+  onClick: () => void
+}) {
+  // Rich action button (model-suggested): icon + label, button-like surface.
+  if (action.kind) {
+    const Icon = ACTION_ICON[action.kind] ?? MessageCircle
+    return (
+      <button
+        onClick={onClick}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-brand-100)] bg-white px-2.5 py-1.5 text-[11.5px] font-[600] text-[var(--brand)] shadow-sm transition-colors hover:bg-[var(--brand-soft)]"
+      >
+        <Icon className="h-3.5 w-3.5" />
+        {action.label}
+      </button>
+    )
+  }
+  // Plain slash-command follow-up chip.
   return (
-    <div className="space-y-2">
-      {paragraphs.map((para, i) => {
-        const lines = para.split("\n").filter((l) => l.trim() !== "")
-
-        if (lines.length === 0) return null
-
-        const isNumberedList = lines.length > 1 && lines.every((l) => /^\d+\./.test(l.trim()))
-        const isBulletList =
-          lines.length > 1 && lines.every((l) => /^[-—•]/.test(l.trim()))
-
-        if (isNumberedList) {
-          return (
-            <ol key={i} className="list-decimal list-inside space-y-1 text-[12.5px] leading-relaxed">
-              {lines.map((l, j) => (
-                <li key={j}>{l.replace(/^\d+\.\s*/, "")}</li>
-              ))}
-            </ol>
-          )
-        }
-
-        if (isBulletList) {
-          return (
-            <ul key={i} className="list-disc list-inside space-y-1 text-[12.5px] leading-relaxed">
-              {lines.map((l, j) => (
-                <li key={j}>{l.replace(/^[-—•]\s*/, "")}</li>
-              ))}
-            </ul>
-          )
-        }
-
-        // Multi-line block that isn't a list — render as a single paragraph preserving internal newlines
-        return (
-          <p key={i} className="text-[12.5px] leading-relaxed whitespace-pre-wrap">
-            {para}
-          </p>
-        )
-      })}
-    </div>
+    <button
+      onClick={onClick}
+      className="rounded-full border border-[var(--color-brand-100)] bg-[var(--brand-soft)] px-2.5 py-1 text-[11px] font-semibold text-[var(--brand)] transition-colors hover:bg-[var(--color-brand-100)]"
+    >
+      {action.label}
+    </button>
   )
 }
 
@@ -140,24 +133,22 @@ export default function CopilotMessageBubble({
             isUser ? (
               <span className="text-[12.5px] leading-relaxed whitespace-pre-wrap">{content}</span>
             ) : (
-              <AiContentRenderer content={content} />
+              <AiMarkdown content={content} />
             )
           ) : streaming ? (
             <TypingDots />
           ) : null}
         </div>
 
-        {/* Quick action chips — shown under AI messages only, after streaming completes */}
+        {/* Action buttons + quick-action chips — under AI messages, after streaming. */}
         {!isUser && !streaming && quickActions && quickActions.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-1">
-            {quickActions.map((action) => (
-              <button
-                key={action.slug}
-                onClick={() => onQuickAction?.(action.slug)}
-                className="px-2.5 py-1 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] text-[11px] font-semibold hover:bg-[var(--color-brand-100)] transition-colors border border-[var(--color-brand-100)]"
-              >
-                {action.label}
-              </button>
+            {quickActions.map((action, i) => (
+              <ActionButton
+                key={`${action.slug}-${i}`}
+                action={action}
+                onClick={() => onQuickAction?.(action.prompt ?? action.slug)}
+              />
             ))}
           </div>
         )}

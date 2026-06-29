@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
+import { formatCurrencyAmount, minorUnitExponent } from "@/lib/i18n/format"
 import type {
   AddressFormat,
   CountryCode,
@@ -227,15 +228,15 @@ export function formatCurrencyFromPence(
   profile: Pick<CountryProfile, "currencyCode" | "localeDefault">,
   pence: number
 ): string {
-  const major = pence / 100
-  try {
-    return new Intl.NumberFormat(profile.localeDefault || "en-GB", {
-      style: "currency",
-      currency: profile.currencyCode || "GBP",
-    }).format(major)
-  } catch {
-    return `${(profile.currencyCode || "GBP")} ${major.toFixed(2)}`
-  }
+  const code = profile.currencyCode || "GBP"
+  // Delegates to the shared i18n currency core (A11). Preserves the original
+  // Intl currency-default behaviour (always the currency's standard fraction
+  // digits) by pinning min = max = the currency's minor-unit exponent.
+  const exp = minorUnitExponent(code)
+  return formatCurrencyAmount(pence / 100, code, profile.localeDefault || "en-GB", {
+    minimumFractionDigits: exp,
+    maximumFractionDigits: exp,
+  })
 }
 
 /** Area unit implied by the measurement system. */

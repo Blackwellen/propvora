@@ -22,8 +22,8 @@ import MobileFilterSheet, { type FilterGroup } from "@/components/mobile/MobileF
 const PAGE_SIZE = 12
 const STATUSES = [
   { value: "all", label: "All" }, { value: "occupied", label: "Occupied" },
-  { value: "vacant", label: "Vacant" }, { value: "under_works", label: "Maintenance" },
-  { value: "reserved", label: "Reserved" },
+  { value: "available", label: "Vacant" }, { value: "maintenance", label: "Under works" },
+  { value: "offline", label: "Offline" },
 ]
 
 export default function UnitsListPage() {
@@ -98,7 +98,7 @@ export default function UnitsListPage() {
 
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
-  const vacantCount = filtered.filter((u) => u.status === "vacant").length
+  const vacantCount = filtered.filter((u) => u.status === "available").length
   const occupiedCount = filtered.filter((u) => u.status === "occupied").length
   const activeFilters = [filterStatus !== "all", filterProperty !== "all"].filter(Boolean).length
 

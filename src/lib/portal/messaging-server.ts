@@ -147,7 +147,10 @@ export async function getPortalThreadMessages(session: PortalSession, threadId: 
         senderName: (m.sender_name as string) || "Property manager",
         content: (m.content as string) ?? "",
         createdAt: m.created_at as string,
-        fromMe: (m.sender_id as string | null) === session.contactId,
+        // Portal-contact messages are stored with a null sender_id (the contact
+        // is not an auth user — see FIX-655); operator/staff replies always have
+        // a non-null auth sender_id. So "from the portal contact" === null sender.
+        fromMe: (m.sender_id as string | null) == null,
       }))
   } catch {
     return []

@@ -18,6 +18,7 @@
 | [impl-spec/PART-3-money-tax.md](impl-spec/PART-3-money-tax.md) | Full 13-facet build spec — dims 2,7,8,9,21,26 |
 | [impl-spec/PART-4-structural-and-rollup.md](impl-spec/PART-4-structural-and-rollup.md) | Full 13-facet build spec — dims 15,16,17,18,19,25,28 **+ Phase-0 spine, workspace→section rollup, onboarding & seed plan, master migration index** |
 | [INTEGRATION-TODO.md](INTEGRATION-TODO.md) | **The build to-do (A–K) with per-section QA GATES** — surfaces touched, checklist tier, i18n-critical checks; shipped items ticked |
+| [IMPLEMENTATION-EVIDENCE.md](IMPLEMENTATION-EVIDENCE.md) | **What actually shipped** — per-workstream status, FIX-533…595 + FIX-715…726, test/tsc/live-MCP verification, K57 live findings, release decision |
 | [qa/MASTER-QA-CHECKLISTS.md](qa/MASTER-QA-CHECKLISTS.md) | **Canonical release-readiness checklists** — Tier 1 main-section (220) · Tier 2 sub-tab (317) · Tier 3 nested + wizard/detail spine, with the i18n overlay |
 | [LIABILITY-disclaimer-and-customizability-plan.md](LIABILITY-disclaimer-and-customizability-plan.md) | **Liability posture + dismissible disclaimer pop-up + full customizability layer** |
 | [GAP-AUDIT-and-internal-signoff.md](GAP-AUDIT-and-internal-signoff.md) | Corpus gap audit + internal-review record (posture-corrected) |
@@ -47,10 +48,10 @@
 | 15,16 Money-format + Privacy | (in code: `src/lib/i18n/country-profiles.ts`) | all 45 |
 
 ## 4. Status of the programme
-- **Research/design phase: substantially complete** across all 28 dimensions (5 core dims cover all 45; deeper dims = Tier-A + key jurisdictions, cited).
+- **Research/design phase: complete** across all 28 dimensions (5 core dims cover all 45; deeper dims = Tier-A + key jurisdictions, cited).
+- **Implementation: substantially shipped** (FIX-533…595 + FIX-715…726) — spine + 45 country packs + jurisdiction-aware legal/compliance/tax/service-methods + record-true Add-Property + currency-correct money everywhere (sets/offers/property-detail) + supplier credentials + working foreign maps. **874 tests, `tsc` clean, live MCP acceptance against a seeded UK+ES+AE+DE portfolio.** See **[IMPLEMENTATION-EVIDENCE.md](IMPLEMENTATION-EVIDENCE.md)**.
 - **Posture locked:** `sourced` / informational / permanent disclaimer / fully customisable. **No counsel sign-off blocker.**
-- **Remaining research = breadth backfill** (small-jurisdiction cells on deeper dims) — low-value, continuation work, clearly marked in each doc.
-- **Next = implementation:** Phase 0 (per-property jurisdiction engine + active-jurisdiction context + money formatter) **+ the disclaimer/customizability layer**, then the typed packs built from these sourced docs.
+- **Remaining:** F43 analytics (mock-backed → belongs to the analytics-feature build), the exhaustive every-route × 8-viewport K57 pass, a few per-engine override write-UIs, and breadth backfill (small-jurisdiction cells on deeper dims) — all low-value continuation, none block V1.
 
 ## Encoding contract (for implementation)
 Every dimension becomes a typed pack consumed by a single `resolveValue(dimension, jurisdiction, context)` that walks the override chain **per-case ▸ per-property ▸ per-workspace ▸ Propvora sourced default ▸ blank**, and renders each value with an **"edit" affordance + source chip + permanent disclaimer**.

@@ -9,7 +9,11 @@ export type SubscriptionStatus =
   | "cancelled"
   | "paused"
 
-export type PlanCode = "starter" | "professional" | "business" | "enterprise"
+// Canonical plan tiers — MUST match src/lib/billing/plans.ts PlanTier and the
+// keys in catalog.generated.json so the in-app checkout shows the SAME price it
+// charges (no marketing/checkout drift) and selecting a plan maps to a real
+// Stripe price + entitlement. Do not reintroduce marketing-only aliases here.
+export type PlanCode = "starter" | "operator" | "scale" | "pro_agency" | "enterprise"
 
 export interface BillingPlan {
   id: string
@@ -55,7 +59,7 @@ export interface AddonCatalogItem {
   requiredFlag?: "canvasLite" | "marketplaceEnabled"
 }
 
-const PLAN_RANK: Record<PlanCode, number> = { starter: 1, professional: 2, business: 3, enterprise: 4 }
+const PLAN_RANK: Record<PlanCode, number> = { starter: 1, operator: 2, scale: 3, pro_agency: 4, enterprise: 5 }
 const RELEASE_RANK = { V1: 1, "V1.5": 2, V2: 3 } as const
 
 export function addonAvailableForPlan(item: AddonCatalogItem, plan: PlanCode, release: "V1" | "V1.5" | "V2" = "V1.5", flags?: Partial<Record<"canvasLite" | "marketplaceEnabled", boolean>>) {

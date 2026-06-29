@@ -333,9 +333,9 @@ export async function evaluateRule(
       case "void_period_started": {
         const { data, error } = await supabase
           .from("units")
-          .select("id, name, property_id, status, status_changed_at")
+          .select("id, name:label, property_id, status, status_changed_at")
           .eq("workspace_id", ws)
-          .eq("status", "vacant")
+          .eq("status", "available")
           .gte("status_changed_at", todayISO())
           .limit(limit)
         if (error || !data) return []
@@ -352,9 +352,9 @@ export async function evaluateRule(
         const cutoff = daysFromNow(-minDays)
         const { data, error } = await supabase
           .from("units")
-          .select("id, name, property_id, status, status_changed_at")
+          .select("id, name:label, property_id, status, status_changed_at")
           .eq("workspace_id", ws)
-          .eq("status", "vacant")
+          .eq("status", "available")
           .not("status_changed_at", "is", null)
           .lte("status_changed_at", cutoff)
           .limit(limit)
@@ -932,9 +932,9 @@ export async function evaluateRule(
       case "unit_vacant": {
         const { data, error } = await supabase
           .from("units")
-          .select("id, name, property_id, status, status_changed_at")
+          .select("id, name:label, property_id, status, status_changed_at")
           .eq("workspace_id", ws)
-          .eq("status", "vacant")
+          .eq("status", "available")
           .limit(limit)
         if (error || !data) return []
         return (data as Row[]).map((r) => ({
@@ -949,9 +949,9 @@ export async function evaluateRule(
         // HMO rooms (units) that are vacant — filter by property type if available
         const { data, error } = await supabase
           .from("units")
-          .select("id, name, property_id, status, status_changed_at, unit_type")
+          .select("id, name:label, property_id, status, status_changed_at, unit_type")
           .eq("workspace_id", ws)
-          .eq("status", "vacant")
+          .eq("status", "available")
           .in("unit_type", ["room", "hmo_room", "bedsit"])
           .limit(limit)
         if (error || !data) return []
@@ -1022,9 +1022,9 @@ export async function evaluateRule(
         const minDays = num(cfg.min_days_vacant, 7)
         const { data: units, error: unitsErr } = await supabase
           .from("units")
-          .select("id, name, property_id, status_changed_at")
+          .select("id, name:label, property_id, status_changed_at")
           .eq("workspace_id", ws)
-          .eq("status", "vacant")
+          .eq("status", "available")
           .lte("status_changed_at", daysFromNow(-minDays))
           .limit(limit)
         if (unitsErr || !units) return []

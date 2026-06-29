@@ -8,9 +8,6 @@ import {
   Banknote,
   MessageSquare,
   FileSignature,
-  CalendarDays,
-  ShoppingBag,
-  RefreshCw,
   Lock,
   ExternalLink,
   Info,
@@ -72,25 +69,6 @@ const INTEGRATIONS: Integration[] = [
     configHref: "/property-manager/workspace-settings/addons",
     badge: "Add-on",
   },
-  // Calendar
-  {
-    key: "google-calendar",
-    name: "Google Calendar",
-    desc: "Sync property inspections, lease events and reminders to Google Calendar.",
-    category: "Calendar",
-    icon: CalendarDays,
-    colour: "#4285F4",
-    comingSoon: true,
-  },
-  {
-    key: "outlook-calendar",
-    name: "Microsoft Outlook",
-    desc: "Sync compliance dates and appointments to Outlook / Microsoft 365.",
-    category: "Calendar",
-    icon: CalendarDays,
-    colour: "#0078D4",
-    comingSoon: true,
-  },
   // E-signature
   {
     key: "esignature",
@@ -124,25 +102,6 @@ const INTEGRATIONS: Integration[] = [
     icon: MapPin,
     colour: "#DC2626",
   },
-  // Marketplace
-  {
-    key: "rightmove",
-    name: "Rightmove",
-    desc: "Export property listings directly to Rightmove for marketing.",
-    category: "Portals",
-    icon: ShoppingBag,
-    colour: "#00DEB6",
-    comingSoon: true,
-  },
-  {
-    key: "zoopla",
-    name: "Zoopla",
-    desc: "Sync property listings with Zoopla for wider market exposure.",
-    category: "Portals",
-    icon: ShoppingBag,
-    colour: "#8600EB",
-    comingSoon: true,
-  },
   // API / Webhooks
   {
     key: "webhooks",
@@ -152,16 +111,6 @@ const INTEGRATIONS: Integration[] = [
     icon: Webhook,
     colour: "#D97706",
     configHref: "/property-manager/automations/webhooks",
-  },
-  // Zapier / n8n
-  {
-    key: "zapier",
-    name: "Zapier",
-    desc: "Connect Propvora to 6,000+ apps via Zapier automations.",
-    category: "Automation",
-    icon: RefreshCw,
-    colour: "#FF4A00",
-    comingSoon: true,
   },
 ]
 
@@ -211,11 +160,10 @@ export default function IntegrationsPage() {
       </div>
 
       {/* Stats strip */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-2 gap-3 mb-6">
         {[
           { label: "Available", value: availableCount.toString(), colour: "text-[var(--brand)]" },
           { label: "Connected", value: connectedCount.toString(), colour: "text-emerald-600" },
-          { label: "Coming soon", value: INTEGRATIONS.filter((i) => i.comingSoon).length.toString(), colour: "text-slate-400" },
         ].map((stat) => (
           <div key={stat.label} className="bg-white rounded-2xl border border-slate-200 p-4">
             <p className="text-[11px] text-slate-500 font-medium">{stat.label}</p>

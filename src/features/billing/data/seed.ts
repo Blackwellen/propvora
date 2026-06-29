@@ -1,81 +1,37 @@
-﻿import type {
+﻿import { getPlans } from "@/lib/billing/plans"
+import type {
   AddonCatalogItem,
   BillingPlan,
+  PlanCode,
 } from "./types"
 
-export const SEED_PLANS: BillingPlan[] = [
-  {
-    id: "plan-starter",
-    code: "starter",
-    name: "Starter",
-    monthlyPence: 2900,
-    annualPence: 2900 * 12 * 0.8, // 20% off annual
-    currency: "GBP",
-    isPopular: false,
-    sortOrder: 1,
-    features: [
-      "Up to 10 properties",
-      "1 team seat",
-      "Core portfolio & tenancy tools",
-      "Email support",
-      "Standard reporting",
-    ],
-  },
-  {
-    id: "plan-professional",
-    code: "professional",
-    name: "Professional",
-    monthlyPence: 7900,
-    annualPence: 7900 * 12 * 0.8,
-    currency: "GBP",
-    isPopular: true,
-    sortOrder: 2,
-    features: [
-      "Up to 50 properties",
-      "5 team seats",
-      "Automations & AI copilot",
-      "Marketplace access",
-      "Priority email support",
-      "Advanced reporting",
-    ],
-  },
-  {
-    id: "plan-business",
-    code: "business",
-    name: "Business",
-    monthlyPence: 14900,
-    annualPence: 14900 * 12 * 0.8,
-    currency: "GBP",
-    isPopular: false,
-    sortOrder: 3,
-    features: [
-      "Up to 200 properties",
-      "15 team seats",
-      "Full automation suite",
-      "Accounting & MTD",
-      "Premium support",
-      "Custom roles & audit log",
-    ],
-  },
-  {
-    id: "plan-enterprise",
-    code: "enterprise",
-    name: "Enterprise",
-    monthlyPence: 29900,
-    annualPence: 29900 * 12 * 0.8,
-    currency: "GBP",
-    isPopular: false,
-    sortOrder: 4,
-    features: [
-      "Unlimited properties",
-      "Unlimited team seats",
-      "White-label & SSO",
-      "Dedicated success manager",
-      "99.9% uptime SLA",
-      "Custom integrations",
-    ],
-  },
-]
+/**
+ * Plan cards for the in-app checkout — derived from the SINGLE canonical
+ * catalogue (src/lib/billing/plans.ts → catalog.generated.json), the exact
+ * source the public /pricing page uses. This guarantees the price the customer
+ * sees in-app is the price Stripe actually charges, the tier codes map 1:1 to
+ * real Stripe prices + entitlements, and there is no marketing/checkout drift.
+ *
+ * Previously this was a hand-maintained mock (Starter/Professional/Business/
+ * Enterprise at £29/79/149/299) that diverged from Stripe (Scale £169 shown as
+ * "Business £149", Pro/Agency £329 shown as "Enterprise £299") and advertised an
+ * unshipped "Marketplace access" feature — a P1 commercial misrepresentation.
+ *
+ * Enterprise has no self-serve Stripe price (contact-sales): its amounts come
+ * through as 0 and the checkout UI renders a "Contact sales" path instead of a
+ * Buy button (see isContactSalesPlan / PlanCheckoutTab).
+ */
+export const SEED_PLANS: BillingPlan[] = getPlans().map((p, i) => ({
+  id: `plan-${p.tier}`,
+  code: p.tier as PlanCode,
+  name: p.name,
+  monthlyPence: p.monthlyAmount ?? 0,
+  annualPence: p.annualAmount ?? 0,
+  currency: "GBP",
+  isPopular: p.popular ?? false,
+  sortOrder: i + 1,
+  features: p.highlights,
+}))
 
 export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
   {
@@ -99,7 +55,7 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
     defaultQty: 1,
     hasQuantity: false,
     available: true,
-    minPlan: "professional",
+    minPlan: "operator",
     releaseStage: "V1",
   },
   {
@@ -130,7 +86,7 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
     defaultQty: 1,
     hasQuantity: false,
     available: true,
-    minPlan: "business",
+    minPlan: "scale",
     releaseStage: "V1.5",
     requiredFlag: "canvasLite",
   },
@@ -143,7 +99,7 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
     defaultQty: 1,
     hasQuantity: false,
     available: true,
-    minPlan: "business",
+    minPlan: "scale",
     releaseStage: "V2",
     requiredFlag: "marketplaceEnabled",
   },
@@ -156,7 +112,7 @@ export const SEED_ADDON_CATALOG: AddonCatalogItem[] = [
     defaultQty: 1,
     hasQuantity: false,
     available: true,
-    minPlan: "business",
+    minPlan: "scale",
     releaseStage: "V1",
   },
   {

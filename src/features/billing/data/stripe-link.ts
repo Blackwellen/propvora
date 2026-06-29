@@ -1,34 +1,26 @@
 "use client"
 
 // Client bridge between the Billing-section UI vocabulary and the real billing
-// backend routes (/api/billing/*). The section UI uses:
-//   PlanCode    = starter | professional | business | enterprise
-//   AddonCode   = extra_listings | premium_support | ai_pack | ...
-// The canonical Stripe catalogue (src/lib/billing/plans.ts) uses tier + key.
-// These map 1:1 by price/role so nothing here fabricates pricing.
+// backend routes (/api/billing/*). The section UI now uses the CANONICAL tier
+// codes (starter | operator | scale | pro_agency | enterprise) — identical to
+// src/lib/billing/plans.ts PlanTier and catalog.generated.json — so PlanCode
+// maps 1:1 to a real Stripe price with no remap and nothing fabricates pricing.
 
 import { getPriceId, type PlanTier, type BillingInterval } from "@/lib/billing/plans"
 import { startCheckout, openBillingPortal } from "@/lib/billing/checkout"
 import type { AddonCode, BillingCycle, PlanCode } from "./types"
 
-/** Section PlanCode → canonical Stripe PlanTier. */
-const PLAN_TO_TIER: Record<PlanCode, PlanTier> = {
-  starter: "starter",
-  professional: "operator",
-  business: "scale",
-  enterprise: "pro_agency",
-}
-
 function toInterval(cycle: BillingCycle): BillingInterval {
   return cycle === "annual" ? "annual" : "monthly"
 }
 
+/** True when a tier has no self-serve Stripe price (Enterprise → contact sales). */
 export function isContactSalesPlan(plan: PlanCode): boolean {
-  return getPriceId(PLAN_TO_TIER[plan], "monthly") == null
+  return getPriceId(plan as PlanTier, "monthly") == null
 }
 
 export function priceIdFor(plan: PlanCode, cycle: BillingCycle): string | null {
-  return getPriceId(PLAN_TO_TIER[plan], toInterval(cycle))
+  return getPriceId(plan as PlanTier, toInterval(cycle))
 }
 
 /**

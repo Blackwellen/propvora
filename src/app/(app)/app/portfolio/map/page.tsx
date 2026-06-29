@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/Skeleton"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperties } from "@/hooks/useProperties"
 import { useUnits } from "@/hooks/useUnits"
+import { formatCurrencyAmount } from "@/lib/i18n/format"
 import { useTenancies } from "@/hooks/useTenancies"
 import { aggregateByProperty } from "@/lib/portfolio/helpers"
 import {
@@ -71,7 +72,8 @@ export const STATUS_BADGE: Record<string, "success" | "warning" | "primary" | "d
 }
 
 export function formatCurrency(n: number) {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: 0 }).format(n)
+  // Delegates to the shared i18n currency core (A11); min-0 / max-2 (GBP default).
+  return formatCurrencyAmount(n, "GBP", "en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 })
 }
 
 const TYPE_GRADIENTS: Record<string, string> = {

@@ -1,7 +1,7 @@
 ﻿"use client"
 import React, { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { User, Mail, Briefcase, CheckCircle, Target, AlertTriangle } from "lucide-react"
+import { User, Mail, Send, Briefcase, Shield, CheckCircle, Target, AlertTriangle } from "lucide-react"
 import { PossessionWizardShell } from "@/components/legal/PossessionWizardShell"
 import { LegalDisclaimer } from "@/components/legal/LegalDisclaimer"
 import { EvidenceUpload } from "@/components/work/EvidenceUpload"
@@ -12,13 +12,21 @@ import {
   useCreatePossessionEvidence,
 } from "../../../legal-data"
 import { computeExpiry } from "@/lib/legal/grounds"
+import { usePropertyJurisdiction } from "@/lib/jurisdiction/usePropertyJurisdiction"
+import {
+  serviceMethodsFor,
+  serviceMethodLabel,
+  type ServiceMethodIcon,
+} from "@/lib/legal/service-methods"
 
-const SERVICE_METHODS = [
-  { id: "hand", label: "Hand Delivered", icon: User, iconCls: "bg-[var(--color-brand-100)] text-[var(--brand)]", desc: "Delivered in person to the tenant." },
-  { id: "post", label: "First Class Post", icon: Mail, iconCls: "bg-slate-100 text-slate-600", desc: "Sent via Royal Mail First Class Post." },
-  { id: "email", label: "Email", icon: Mail, iconCls: "bg-slate-100 text-slate-600", desc: "Sent via email to tenant's known address." },
-  { id: "process", label: "Process Server", icon: Briefcase, iconCls: "bg-orange-100 text-orange-600", desc: "Served by a professional process server." },
-]
+// Map the engine's icon keys → lucide components + chip styling (UI-only).
+const METHOD_ICON: Record<ServiceMethodIcon, { Icon: React.ComponentType<{ className?: string }>; cls: string }> = {
+  user:     { Icon: User,     cls: "bg-[var(--color-brand-100)] text-[var(--brand)]" },
+  mail:     { Icon: Mail,     cls: "bg-slate-100 text-slate-600" },
+  send:     { Icon: Send,     cls: "bg-slate-100 text-slate-600" },
+  briefcase:{ Icon: Briefcase,cls: "bg-orange-100 text-orange-600" },
+  shield:   { Icon: Shield,   cls: "bg-emerald-100 text-emerald-600" },
+}
 
 export default function RecordServicePage() {
   return (
@@ -39,7 +47,23 @@ function RecordServiceInner() {
   const updateCase = useUpdatePossessionCase()
   const createEvidence = useCreatePossessionEvidence()
 
+  // C25 — the service methods offered (and the deemed-service hint) come from the
+  // PROPERTY's record-true jurisdiction, not a fixed England list. Scotland shows
+  // recorded delivery / sheriff officer; Ireland registered post; etc.
+  const jur = usePropertyJurisdiction(caseData?.property_id ?? undefined)
+  const methodSet = serviceMethodsFor(jur.countryCode, jur.region)
+  const methods = methodSet.methods
+  const noticeTerm = jur.pack.terms.notice || "notice"
+
   const [method, setMethod] = useState("hand")
+
+  // If the resolved jurisdiction doesn't offer the current method, fall back to
+  // its first valid method so an out-of-jurisdiction method can't be recorded.
+  React.useEffect(() => {
+    if (methods.length && !methods.some((m) => m.id === method)) {
+      setMethod(methods[0].id)
+    }
+  }, [methods, method])
   const [servedDate, setServedDate] = useState(new Date().toISOString().slice(0, 10))
   const [expiryDate, setExpiryDate] = useState("")
   const [recipient, setRecipient] = useState("")
@@ -61,7 +85,7 @@ function RecordServiceInner() {
     setSaving(true)
     setError(null)
     try {
-      const methodLabel = SERVICE_METHODS.find((m) => m.id === method)?.label ?? method
+      const methodLabel = serviceMethodLabel(methodSet, method)
       await updateCase.mutateAsync({
         id: caseId,
         workspaceId,
@@ -82,7 +106,7 @@ function RecordServiceInner() {
           workspace_id: workspaceId,
           possession_case_id: caseId,
           evidence_type: "notice_served",
-          description: `Section 8 notice served (${methodLabel})`,
+          description: `${noticeTerm.charAt(0).toUpperCase()}${noticeTerm.slice(1)} served (${methodLabel})`,
           event_date: new Date(servedDate || Date.now()).toISOString(),
           source: "manual",
         })
@@ -162,10 +186,13 @@ function RecordServiceInner() {
         />
 
         <div className="mb-5">
-          <label className="block text-[12px] font-semibold text-slate-700 mb-3">How was the notice served?</label>
+          <div className="flex items-center justify-between mb-3">
+            <label className="block text-[12px] font-semibold text-slate-700">How was the {noticeTerm} served?</label>
+            <span className="text-[10px] text-slate-400">Methods for {jur.pack.name}</span>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {SERVICE_METHODS.map((m) => {
-              const Icon = m.icon
+            {methods.map((m) => {
+              const { Icon, cls } = METHOD_ICON[m.icon] ?? METHOD_ICON.mail
               return (
                 <button
                   key={m.id}
@@ -175,16 +202,23 @@ function RecordServiceInner() {
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${m.iconCls}`}>
+                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${cls}`}>
                       <Icon className="w-3.5 h-3.5" />
                     </div>
                     <span className="text-[12px] font-semibold text-slate-800">{m.label}</span>
+                    {m.requiresAgreementClause && (
+                      <span className="text-[9px] font-medium text-amber-600 bg-amber-50 border border-amber-100 px-1 py-0.5 rounded">if permitted</span>
+                    )}
                   </div>
-                  <p className="text-[11px] text-slate-500">{m.desc}</p>
+                  <p className="text-[11px] text-slate-500">{m.description}</p>
+                  {m.deemedServiceDays ? (
+                    <p className="text-[10px] text-slate-400 mt-1">Deemed served +{m.deemedServiceDays} day{m.deemedServiceDays === 1 ? "" : "s"} (indicative)</p>
+                  ) : null}
                 </button>
               )
             })}
           </div>
+          <p className="text-[11px] text-slate-400 mt-2">{methodSet.note}</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">

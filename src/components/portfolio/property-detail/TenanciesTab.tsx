@@ -17,10 +17,14 @@ import {
   Building2, Plus,
   Eye, RefreshCw, XCircle, Search, SlidersHorizontal,
 } from "lucide-react"
-import { StatusPill, fmt, Card } from "./shared"
+import { StatusPill, fmt as fmtMoney, Card } from "./shared"
+import { usePropertyJurisdiction } from "@/lib/jurisdiction/usePropertyJurisdiction"
 
 export function TenanciesTab({ propertyId, tenanciesList, unitsList }: { propertyId: string; tenanciesList: Tenancy[]; unitsList: Unit[] }) {
   const router = useRouter()
+  // Rents/deposits render in the property's currency, not hardcoded £.
+  const { currency } = usePropertyJurisdiction(propertyId)
+  const fmt = (n: number) => fmtMoney(n, currency)
   const { workspace } = useWorkspace()
   const updateTenancy = useUpdateTenancy()
   const [search, setSearch] = useState("")

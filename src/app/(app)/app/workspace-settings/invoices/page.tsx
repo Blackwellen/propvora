@@ -1,25 +1,39 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { Download, FileText, Search } from "lucide-react"
 import { ResponsiveTable } from "@/components/mobile"
+import { formatMoney } from "@/lib/i18n/format"
 
+// Stripe statuses → the 3 display buckets.
 type InvoiceStatus = "paid" | "pending" | "failed"
 
 interface Invoice {
   id: string
-  date: string
+  date: string          // ISO
   description: string
-  amount: string
+  amount: number        // integer pence
+  currency: string
   status: InvoiceStatus
-  pdf: string
+  pdf: string | null
 }
 
-// Invoices are issued and stored by Stripe — they are retrieved through the
-// billing portal, not fabricated here. Until that integration surfaces them in
-// the app we show an honest empty state rather than placeholder invoices.
-const LIVE_INVOICES: Invoice[] = []
+interface ApiInvoice {
+  id: string
+  date: string | null
+  description: string
+  amount: number
+  currency: string
+  status: string
+  pdf: string | null
+}
+
+function mapStatus(s: string): InvoiceStatus {
+  if (s === "paid") return "paid"
+  if (s === "void" || s === "uncollectible") return "failed"
+  return "pending" // open | draft
+}
 
 const STATUS_STYLES: Record<InvoiceStatus, { bg: string; text: string; label: string }> = {
   paid:    { bg: "bg-emerald-50", text: "text-emerald-700", label: "Paid"    },
@@ -29,15 +43,46 @@ const STATUS_STYLES: Record<InvoiceStatus, { bg: string; text: string; label: st
 
 export default function InvoicesPage() {
   const [search, setSearch] = useState("")
+  const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const filtered = LIVE_INVOICES.filter(inv =>
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch("/api/billing/invoices")
+        const j = await res.json().catch(() => ({}))
+        if (cancelled) return
+        if (!res.ok) { setError("Couldn't load invoices."); return }
+        const rows = (j.invoices as ApiInvoice[] | undefined) ?? []
+        setInvoices(rows.map((r) => ({
+          id: r.id,
+          date: r.date ? new Date(r.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—",
+          description: r.description,
+          amount: r.amount,
+          currency: r.currency,
+          status: mapStatus(r.status),
+          pdf: r.pdf,
+        })))
+        if (typeof j.error === "string") setError(j.error)
+      } catch {
+        if (!cancelled) setError("Couldn't load invoices.")
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const filtered = invoices.filter(inv =>
     inv.description.toLowerCase().includes(search.toLowerCase()) ||
     inv.id.toLowerCase().includes(search.toLowerCase())
   )
 
-  const totalPaid = LIVE_INVOICES
+  const totalPaid = invoices
     .filter(i => i.status === "paid")
-    .reduce((sum, i) => sum + parseFloat(i.amount.replace("£", "")), 0)
+    .reduce((sum, i) => sum + i.amount, 0)
 
   return (
     <div>
@@ -47,12 +92,18 @@ export default function InvoicesPage() {
         <p className="text-[13.5px] text-slate-500 mt-1">Download and review your billing history</p>
       </div>
 
+      {error && (
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-[12.5px] text-amber-700">
+          {error} You can always view and download every invoice in the Stripe billing portal.
+        </div>
+      )}
+
       {/* Summary row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {[
-          { label: "Total invoices", value: `${LIVE_INVOICES.length}`, sub: "All time" },
-          { label: "Total paid",     value: `£${totalPaid.toFixed(2)}`, sub: "This year" },
-          { label: "Next invoice",   value: "—", sub: "Managed in Stripe" },
+          { label: "Total invoices", value: loading ? "—" : `${invoices.length}`, sub: "All time" },
+          { label: "Total paid",     value: loading ? "—" : formatMoney(totalPaid, invoices[0]?.currency ?? "GBP"), sub: "Paid invoices" },
+          { label: "Billing",        value: "Stripe", sub: "Secure & PCI-compliant" },
         ].map(stat => (
           <div key={stat.label} className="bg-white rounded-2xl border border-slate-200 p-4">
             <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">{stat.label}</p>
@@ -102,16 +153,20 @@ export default function InvoicesPage() {
             },
             fields: [
               { label: "Date", render: (inv) => inv.date },
-              { label: "Amount", render: (inv) => <span className="font-bold text-slate-900">{inv.amount}</span> },
+              { label: "Amount", render: (inv) => <span className="font-bold text-slate-900">{formatMoney(inv.amount, inv.currency)}</span> },
             ],
             actions: (inv) => (
-              <a
-                href={inv.pdf}
-                className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-lg text-[13px] font-medium text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Download PDF
-              </a>
+              inv.pdf ? (
+                <a
+                  href={inv.pdf}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-lg text-[13px] font-medium text-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Download PDF
+                </a>
+              ) : <span className="text-[12px] text-slate-300 px-3">—</span>
             ),
           }}
           emptyState={
@@ -164,7 +219,7 @@ export default function InvoicesPage() {
                         <span className="text-[12.5px] text-slate-800 font-medium">{inv.description}</span>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="text-[13px] font-bold text-slate-900">{inv.amount}</span>
+                        <span className="text-[13px] font-bold text-slate-900">{formatMoney(inv.amount, inv.currency)}</span>
                       </td>
                       <td className="px-5 py-3.5">
                         <span className={cn("text-[11px] font-semibold px-2.5 py-1 rounded-full", st.bg, st.text)}>
@@ -172,13 +227,17 @@ export default function InvoicesPage() {
                         </span>
                       </td>
                       <td className="px-5 py-3.5">
-                        <a
-                          href={inv.pdf}
-                          className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          PDF
-                        </a>
+                        {inv.pdf ? (
+                          <a
+                            href={inv.pdf}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            PDF
+                          </a>
+                        ) : <span className="text-[12px] text-slate-300">—</span>}
                       </td>
                     </tr>
                   )

@@ -10,6 +10,7 @@ import {
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { InlineEditField, InlineEditDate } from "@/components/editing"
+import { fmt as fmtMoney } from "./shared"
 import type { Property } from "@/types/database"
 
 interface RentToRentTabProps {
@@ -19,10 +20,6 @@ interface RentToRentTabProps {
   onSave: (field: string, value: unknown) => Promise<void>
   /** Tenancies with rent amounts (for financial summary) */
   tenanciesList: Array<{ id: string; rent_amount: number; status: string; tenant_name?: string | null }>
-}
-
-function fmt(n: number) {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: 0 }).format(n)
 }
 
 function fmtDate(d: string | null) {
@@ -36,6 +33,8 @@ function daysUntil(dateStr: string) {
 
 export function RentToRentTab({ prop, workspaceId, propertyId, onSave, tenanciesList }: RentToRentTabProps) {
   const router = useRouter()
+  // R2R income/cost/profit render in the property's currency, not hardcoded £.
+  const fmt = (n: number) => fmtMoney(n, prop.currency)
 
   // Derive financials from live tenancies
   const activeTenancies = tenanciesList.filter(t => t.status === "active")

@@ -30,19 +30,29 @@ interface NominatimResult {
   display_name: string
 }
 
-/** Forward geocode an address / postcode to candidate coordinates. */
+/**
+ * Forward geocode an address / postcode to candidate coordinates.
+ *
+ * `country` biases/limits results to an ISO-3166 alpha-2 code (e.g. "gb", "es").
+ * When omitted, geocoding is GLOBAL — pass the property's `country_code` so a
+ * Barcelona / Dubai / Berlin address resolves instead of being filtered to the
+ * UK. (Previously this defaulted to "gb", which silently dropped every foreign
+ * address → empty property maps.)
+ */
 export async function geocodeAddress(
   query: string,
   opts?: { country?: string; limit?: number; signal?: AbortSignal },
 ): Promise<GeocodeResult[]> {
   const q = query.trim()
   if (!q) return []
-  const country = opts?.country ?? "gb"
+  const country = (opts?.country ?? "").trim().toLowerCase()
   const limit = opts?.limit ?? 5
 
   try {
     if (KEY) {
-      const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(q)}.json?key=${KEY}&country=${country}&limit=${limit}`
+      // MapTiler caps at ISO-3166 alpha-2; only constrain when a country is given.
+      const countryParam = country ? `&country=${encodeURIComponent(country)}` : ""
+      const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(q)}.json?key=${KEY}${countryParam}&limit=${limit}`
       const res = await fetch(url, { signal: opts?.signal })
       if (!res.ok) throw new Error(`MapTiler geocode ${res.status}`)
       const data = (await res.json()) as MapTilerResponse
@@ -52,7 +62,8 @@ export async function geocodeAddress(
     }
 
     // Fallback — Nominatim (requires a descriptive UA; respect their usage policy).
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&countrycodes=${country}&limit=${limit}`
+    const ccParam = country ? `&countrycodes=${encodeURIComponent(country)}` : ""
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}${ccParam}&limit=${limit}`
     const res = await fetch(url, { headers: { Accept: "application/json" }, signal: opts?.signal })
     if (!res.ok) return []
     const data = (await res.json()) as NominatimResult[]

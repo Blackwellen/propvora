@@ -9,6 +9,8 @@ import {
   Sliders,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { usePlanningSetCurrency } from "@/hooks/usePlanningSetCurrency"
+import { formatCurrencyAmount } from "@/lib/i18n/format"
 import { InlineEditCell } from "@/components/editing"
 
 // ── Live schema row (planning_assumptions, FK planning_set_id) ─────────────────
@@ -63,16 +65,6 @@ const FIELDS: FieldDef[] = [
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
-function fmtValue(value: number | null, kind: FieldKind): string {
-  if (value == null) return "—"
-  switch (kind) {
-    case "money": return `£${value.toLocaleString("en-GB")}`
-    case "pct": return `${value}%`
-    case "months": return `${value} mo`
-    default: return value.toLocaleString("en-GB")
-  }
-}
-
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
 function Skeleton({ className }: { className?: string }) {
@@ -102,6 +94,17 @@ function KpiCard({ label, value, loading }: KpiCardProps) {
 export default function PlanningSetAssumptionsPage() {
   const params = useParams()
   const id = params.id as string
+  // Money assumptions render in the set's currency (its jurisdiction).
+  const { currency, locale } = usePlanningSetCurrency(id)
+  const fmtValue = (value: number | null, kind: FieldKind): string => {
+    if (value == null) return "—"
+    switch (kind) {
+      case "money": return formatCurrencyAmount(value, currency, locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+      case "pct": return `${value}%`
+      case "months": return `${value} mo`
+      default: return value.toLocaleString(locale)
+    }
+  }
 
   const [row, setRow] = useState<PlanningAssumptionRow | null>(null)
   const [loading, setLoading] = useState(true)

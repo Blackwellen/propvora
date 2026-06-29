@@ -86,7 +86,7 @@ export async function resolvePropertyMetrics(
     name: (property.nickname as string) ?? null,
     address: addr || null,
     units: units.length,
-    vacantUnits: units.filter((u) => String(u.status) === "vacant").length,
+    vacantUnits: units.filter((u) => String(u.status) === "available").length,
     activeTenancies: active.length,
     monthlyRent: active.reduce((sum, t) => sum + num(t.rent_amount), 0),
     openTasks,

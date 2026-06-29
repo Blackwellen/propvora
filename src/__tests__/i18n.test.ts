@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest"
 import {
   formatMoney,
   formatMoneyMajor,
+  formatMoneyCompact,
   formatNumber,
   formatPercent,
   formatRelativeTime,
@@ -67,6 +68,13 @@ describe("formatMoney — multi-currency & minor units", () => {
     expect(out).toContain("234")
   })
 
+  it("formatMoneyCompact renders compact currency in the right symbol", () => {
+    expect(formatMoneyCompact(3200, "GBP", "en-GB")).toMatch(/£3\.2K/i)
+    expect(formatMoneyCompact(1_200_000, "EUR", "en-GB")).toMatch(/€1\.2M/i)
+    expect(formatMoneyCompact(9500, "AED", "en-GB")).toMatch(/9\.5K/)
+    expect(formatMoneyCompact(null)).toBe("—")
+  })
+
   it("formatMoneyMajor does not divide by minor units", () => {
     expect(formatMoneyMajor(1234.56, "GBP", "en-GB")).toBe("£1,234.56")
   })
@@ -103,8 +111,10 @@ describe("t() — fallback chain & interpolation", () => {
   })
 
   it("falls back to en-GB for a missing key in the active locale", () => {
-    // fr-FR has no actions.upload → en-GB "Upload"
-    expect(t("fr-FR", "actions.upload")).toBe("Upload")
+    // fr-FR has the CORE vocab (actions.*) but not the marketing.* keys →
+    // falls back to the en-GB string. (Use a key outside the translated CORE
+    // set so this stays valid as more locales gain CORE coverage.)
+    expect(t("fr-FR", "marketing.trustEyebrow")).toBe("Trusted, UK-built infrastructure")
   })
 
   it("falls back to the key itself when nowhere defined", () => {

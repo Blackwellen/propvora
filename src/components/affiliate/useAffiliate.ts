@@ -7,7 +7,7 @@ export interface AffiliateRecord {
   workspace_id: string
   enrolled: boolean
   approved: boolean
-  band: number | null
+  band: number | string | null
   public_handle: string | null
   payout_email: string | null
   referral_code: string | null

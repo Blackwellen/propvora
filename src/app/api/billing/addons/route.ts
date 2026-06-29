@@ -188,6 +188,45 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ ok: true, addonKey, action, quantity, enabled })
 }
 
+/**
+ * GET /api/billing/addons — the buyable add-on catalogue for this workspace plus
+ * the keys that are currently active. Drives the Add-ons settings page so it
+ * shows REAL, purchasable add-ons (priced from the Stripe catalogue) and reflects
+ * what's already on the subscription — no hardcoded/fake list.
+ */
+export async function GET() {
+  const resolved = await resolveBillingContext()
+  if (resolved.response) return resolved.response
+  const { workspaceId, admin } = resolved.ctx
+
+  // Operator add-ons that have a real Stripe price and are GA (V1). Flag-gated
+  // V1.5/V2 add-ons are excluded here (surfaced only when their flag is on).
+  const catalogue = getAddons()
+    .filter((a) => a.audience === "operator" && a.priceId && a.releaseStage === "V1")
+    .map((a) => ({
+      key: a.key,
+      name: a.name,
+      description: a.description,
+      amount: a.amount,
+      interval: a.interval,
+      eligibility: a.eligibility ?? null,
+    }))
+
+  let active: string[] = []
+  try {
+    const { data } = await admin
+      .from("workspace_subscription_addons")
+      .select("addon_key")
+      .eq("workspace_id", workspaceId)
+      .eq("status", "active")
+    active = (data ?? []).map((r: { addon_key: string }) => r.addon_key)
+  } catch {
+    /* 42P01-tolerant: no addons table yet → none active */
+  }
+
+  return NextResponse.json({ addons: catalogue, active })
+}
+
 function existingActionVerb(action: AddonAction): string {
   return action === "set_quantity" ? "quantity updated" : "added"
 }

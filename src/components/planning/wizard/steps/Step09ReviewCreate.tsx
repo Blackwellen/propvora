@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { useWizard } from "@/components/planning/wizard/WizardContext"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { useWorkspaceJurisdiction } from "@/hooks/useWorkspaceJurisdiction"
 import { useCreatePlanningSet } from "@/hooks/usePlanningsets"
 import { cn } from "@/lib/utils"
 import { getProfileByKey } from "@/lib/planning/profiles"
@@ -92,6 +93,7 @@ export default function Step09ReviewCreate() {
   const { state, update, setStep, saveDraft } = useWizard()
   const router = useRouter()
   const { workspace } = useWorkspace()
+  const ws = useWorkspaceJurisdiction()
   const createPlanningSet = useCreatePlanningSet()
 
   const [showConvertConfirm, setShowConvertConfirm] = useState(false)
@@ -218,6 +220,11 @@ export default function Step09ReviewCreate() {
       breakeven_month: breakeven,
       risk_score: Math.round(riskScore),
       is_demo: false,
+      // Jurisdiction spine (I52) — tags the set with the workspace's jurisdiction
+      // so its tax engines + display currency resolve correctly. (When created
+      // from a property the property's jurisdiction takes over downstream.)
+      country_code: ws.countryCode || "GB",
+      region_code: ws.countryCode === "GB" ? ((ws.settings as { region?: string }).region || "EW") : null,
       address: state.address || null,
       postcode: state.postcode || null,
       notes: state.notes || null,

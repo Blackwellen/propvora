@@ -9,6 +9,7 @@ import {
 } from "@/components/supplier-workspace/ui"
 import { useSupplierApi } from "@/components/supplier-workspace/useSupplierApi"
 import { useSupplierApiUrl } from "@/components/supplier-workspace/SupplierWorkspaceContext"
+import { SupplierCredentialsCard } from "@/components/supplier-workspace/SupplierCredentialsCard"
 import { shortDate } from "@/components/supplier-workspace/format"
 import type {
   SupplierVerificationSummary, SupplierInsuranceRow, SupplierLicenceRow,
@@ -114,6 +115,9 @@ export default function SupplierVerificationPage() {
           </div>
         </div>
       )}
+
+      {/* Trade credentials — capture + persist to supplier_credentials. */}
+      <SupplierCredentialsCard />
     </div>
   )
 }

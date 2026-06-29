@@ -319,10 +319,10 @@ export function HomeDashboardPage() {
           .select("id, name:nickname, address_line1, city, postcode, status, template, category, target_rent:target_rent_pcm, bedrooms, cover_file_id, cover_image_url, updated_at")
           .eq("workspace_id", wid),
 
-        // 1: units  (live table is property_units)
+        // 1: units  (canonical units table — the one tenancies/bills/bookings FK to)
         supabase
-          .from("property_units")
-          .select("id, status, property_id, target_rent")
+          .from("units")
+          .select("id, status, property_id, rent_amount")
           .eq("workspace_id", wid),
 
         // 2: tenancies  (primary_contact_id → contact_id)
@@ -580,7 +580,7 @@ export function HomeDashboardPage() {
           const propTenants = (tenancies ?? []).filter(
             (t: { property_id?: string; status?: string }) => t.property_id === p.id && t.status === "active"
           ).length
-          const unitRent = propUnits.reduce((s: number, u: { target_rent?: number | null }) => s + (u.target_rent ?? 0), 0)
+          const unitRent = propUnits.reduce((s: number, u: { rent_amount?: number | null }) => s + (u.rent_amount ?? 0), 0)
           return {
             id: p.id,
             name: p.name,

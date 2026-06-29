@@ -1,22 +1,24 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { formatCurrencyAmount } from "@/lib/i18n/format"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-/** Format a number as currency (GBP by default) */
+/**
+ * Format a number as currency (GBP by default). Delegates to the shared i18n
+ * currency core (A11) preserving this helper's min-0 / max-2 fraction rule.
+ */
 export function formatCurrency(
   amount: number,
   currency = "GBP",
   locale = "en-GB"
 ): string {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
+  return formatCurrencyAmount(amount, currency, locale, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  }).format(amount)
+  })
 }
 
 /** Format a date to a readable string */

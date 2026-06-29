@@ -24,7 +24,7 @@ export default function PremiumProductImage({
         // screenshots are re-captured (the optimizer keys on the full URL, so a
         // changed source file alone can otherwise keep serving the stale render).
         // Bump this when the screenshots are regenerated.
-        src={`${src}${src.includes("?") ? "&" : "?"}v=rel2`}
+        src={`${src}${src.includes("?") ? "&" : "?"}v=rel3`}
         alt={alt}
         width={1536}
         height={1024}

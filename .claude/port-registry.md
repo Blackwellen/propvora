@@ -15,7 +15,8 @@
 | automations-section7-audit (session-auto7) | 3010 | 9228 | 2026-06-26 19:00 | active |
 | i18n-marketing-wire (session-i18nwire) | 3003 | 9229 | 2026-06-26 19:30 | active |
 | marketing-finality-landing-features-seo (session-mktgfinal) | 3005 | 9226 | 2026-06-27 13:00 | active |
-| full-app-audit-blanket-sweep (session-fullaudit) | 3002 | 9224 | 2026-06-28 00:00 | active |
+| full-app-audit-detailpages (session-fullaudit) | 3002 | 9224 | 2026-06-28 01:00 | active |
+| ocr-copilot-settings-qa (session-ocrqa) | 3001 | 9230 | 2026-06-29 | active |
 
 ---
 

@@ -37,9 +37,10 @@ const UNIT_TYPES = [
 ]
 
 const STATUSES = [
-  { key: "vacant",      label: "Vacant" },
-  { key: "reserved",    label: "Reserved" },
-  { key: "under_works", label: "Under Works" },
+  { key: "available",   label: "Vacant" },
+  { key: "occupied",    label: "Occupied" },
+  { key: "maintenance", label: "Under works" },
+  { key: "offline",     label: "Offline" },
 ]
 
 const STEPS = [
@@ -60,7 +61,7 @@ const defaultData: UnitWizardData = {
   bathrooms: 1,
   floor_area_sqm: 0,
   target_rent: 0,
-  status: "vacant",
+  status: "available",
   notes: "",
 }
 

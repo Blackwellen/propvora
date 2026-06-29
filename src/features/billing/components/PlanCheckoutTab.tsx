@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react"
 import Link from "next/link"
 import { Check, CreditCard, MapPin, Sparkles, ShoppingCart, ArrowRight } from "lucide-react"
-import { startPlanCheckout, openBillingPortal } from "../data/stripe-link"
+import { startPlanCheckout, openBillingPortal, isContactSalesPlan } from "../data/stripe-link"
 import { cn } from "@/lib/utils"
 import { formatPence } from "@/lib/marketplace/money"
 import { usePlans, useBillingProfile, usePaymentMethod, useBillingRole } from "../data/hooks"
@@ -21,7 +21,9 @@ export function PlanCheckoutTab() {
   const { canManageBilling } = useBillingRole()
 
   const [cycle, setCycle] = useState<BillingCycle>("monthly")
-  const [selected, setSelected] = useState<PlanCode>("professional")
+  // Default to the "popular" purchasable tier (Operator). Enterprise is
+  // contact-sales (no Stripe price) and is never auto-selected for checkout.
+  const [selected, setSelected] = useState<PlanCode>("operator")
   const [submitState, setSubmitState] = useState<"idle" | "processing">("idle")
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [portalError, setPortalError] = useState<string | null>(null)
@@ -84,10 +86,11 @@ export function PlanCheckoutTab() {
           </div>
         }
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {plans.map((p) => {
             const isSelected = p.code === selected
             const perMonth = planCyclePence(p, cycle)
+            const contactSales = isContactSalesPlan(p.code)
             return (
               <div
                 key={p.code}
@@ -107,12 +110,21 @@ export function PlanCheckoutTab() {
                   </span>
                 )}
                 <h4 className="text-[14px] font-bold text-slate-900">{p.name}</h4>
-                <div className="mt-1.5 flex items-baseline gap-1">
-                  <span className="text-[22px] font-bold text-slate-900">{formatPence(perMonth)}</span>
-                  <span className="text-[12px] text-slate-400">/mo</span>
-                </div>
-                {cycle === "annual" && (
-                  <p className="text-[11px] text-slate-400 mt-0.5">{formatPence(planAnnualPence(p))} billed annually</p>
+                {contactSales ? (
+                  <div className="mt-1.5">
+                    <span className="text-[22px] font-bold text-slate-900">Custom</span>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Tailored pricing — contact sales</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="mt-1.5 flex items-baseline gap-1">
+                      <span className="text-[22px] font-bold text-slate-900">{formatPence(perMonth)}</span>
+                      <span className="text-[12px] text-slate-400">/mo</span>
+                    </div>
+                    {cycle === "annual" && (
+                      <p className="text-[11px] text-slate-400 mt-0.5">{formatPence(planAnnualPence(p))} billed annually</p>
+                    )}
+                  </>
                 )}
                 <ul className="mt-3 space-y-1.5 flex-1">
                   {p.features.map((f) => (
@@ -122,16 +134,25 @@ export function PlanCheckoutTab() {
                     </li>
                   ))}
                 </ul>
-                <button
-                  onClick={() => setSelected(p.code)}
-                  disabled={!canManageBilling}
-                  className={cn(
-                    "mt-4 w-full rounded-xl py-2 text-[13px] font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed",
-                    isSelected ? "bg-[var(--brand)] text-white" : "border border-slate-200 text-slate-700 hover:bg-slate-50",
-                  )}
-                >
-                  {isSelected ? "Selected" : "Select plan"}
-                </button>
+                {contactSales ? (
+                  <a
+                    href="mailto:sales@propvora.com?subject=Enterprise%20plan%20enquiry"
+                    className="mt-4 w-full rounded-xl py-2 text-[13px] font-semibold transition-colors border border-slate-200 text-slate-700 hover:bg-slate-50 text-center"
+                  >
+                    Contact sales
+                  </a>
+                ) : (
+                  <button
+                    onClick={() => setSelected(p.code)}
+                    disabled={!canManageBilling}
+                    className={cn(
+                      "mt-4 w-full rounded-xl py-2 text-[13px] font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed",
+                      isSelected ? "bg-[var(--brand)] text-white" : "border border-slate-200 text-slate-700 hover:bg-slate-50",
+                    )}
+                  >
+                    {isSelected ? "Selected" : "Select plan"}
+                  </button>
+                )}
               </div>
             )
           })}

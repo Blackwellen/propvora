@@ -28,6 +28,7 @@ export function MapTab({ prop }: { prop: Property }) {
             address: [prop.address_line1, prop.address_line2, prop.city, prop.postcode]
               .filter(Boolean)
               .join(", ") || null,
+            country: prop.country_code,
             label: prop.name,
             sublabel: [prop.city, prop.postcode].filter(Boolean).join(" ") || undefined,
             href: `/property-manager/portfolio/properties/${prop.id}`,

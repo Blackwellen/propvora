@@ -11,6 +11,7 @@ import CopilotMessageBubble from "../components/CopilotMessageBubble"
 import CopilotChatInput from "../components/CopilotChatInput"
 import { useCopilotPageContext } from "../context/useCopilotPageContext"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { stripActions, parseActions } from "../lib/parseActions"
 import type { ChatMessage, QuickAction, ApprovalSpec } from "../types"
 
 const THREAD_STORAGE_KEY = "propvora_copilot_thread_id"
@@ -177,20 +178,19 @@ export default function CopilotChatScreen() {
       // ── Client-only commands — never sent to the API ──────────────────────
       if (trimmed === "/help" || trimmed === "?") {
         const helpText = [
-          "Available slash commands:",
+          "**Available slash commands:**",
           "",
-          "/summarise — Summarise this workspace",
-          "/issues — List open issues",
-          "/cashflow-forecast — Cashflow forecast",
-          "/review-compliance — Compliance review",
-          "/explain-portfolio — Portfolio breakdown",
-          "/create-task — Draft a task",
-          "/chase-arrears — Draft arrears chase",
-          "/void-properties — List void properties",
-          "/tenancy-renewals — Upcoming renewals",
+          "- `/summarise` — Summarise this workspace",
+          "- `/issues` — List open issues",
+          "- `/cashflow-forecast` — Cashflow forecast",
+          "- `/review-compliance` — Compliance review",
+          "- `/explain-portfolio` — Portfolio breakdown",
+          "- `/create-task` — Draft a task",
+          "- `/chase-arrears` — Draft arrears chase",
+          "- `/void-properties` — List void properties",
+          "- `/tenancy-renewals` — Upcoming renewals",
           "",
-          "Type /clear to reset this chat.",
-          "Type ? or /help to show this again.",
+          "Type `/clear` to reset this chat, or `?` / `/help` to show this again.",
         ].join("\n")
         const helpMsg: ChatMessage = {
           id: `help-${Date.now()}`,
@@ -288,7 +288,7 @@ export default function CopilotChatScreen() {
         if (navHeader) {
           const [route, label] = navHeader.split("|")
           const full = await res.text()
-          setMessages((prev) => prev.map((m) => (m.id === aiId ? { ...m, content: full || `Opening ${label}…`, navTarget: { route, label } } : m)))
+          setMessages((prev) => prev.map((m) => (m.id === aiId ? { ...m, content: stripActions(full) || `Opening ${label}…`, navTarget: { route, label } } : m)))
           setStreaming(false); setStreamingId(null)
           // Give the user a beat to read, then navigate.
           setTimeout(() => { try { router.push(route) } catch { /* noop */ } }, 700)
@@ -312,12 +312,20 @@ export default function CopilotChatScreen() {
             ? { tool: toolName, args: serverArgs ?? deriveToolArgs(toolName, draft), workspaceId: workspace?.id, chatId: newThread ?? threadId, estimateCredits: toolCost }
             : undefined
 
+        // Merge model-suggested action buttons (parsed from the reply's action
+        // block) with the command's static follow-up chips.
+        const mergeActions = (raw: string): QuickAction[] | undefined => {
+          const cmdActions = commandSlug ? QUICK_ACTION_MAP[commandSlug] : undefined
+          const merged = [...parseActions(raw), ...(cmdActions ?? [])]
+          return merged.length ? merged : undefined
+        }
+
         const reader = res.body?.getReader()
         if (!reader) {
           const full = await res.text()
-          const quickActions = commandSlug ? QUICK_ACTION_MAP[commandSlug] : undefined
+          const cleaned = stripActions(full)
           setMessages((prev) =>
-            prev.map((m) => (m.id === aiId ? { ...m, content: full, quickActions, approval: buildApproval(full) } : m))
+            prev.map((m) => (m.id === aiId ? { ...m, content: cleaned, quickActions: mergeActions(full), approval: buildApproval(cleaned) } : m))
           )
           return
         }
@@ -327,16 +335,19 @@ export default function CopilotChatScreen() {
           const { done, value } = await reader.read()
           if (done) break
           acc += decoder.decode(value, { stream: true })
-          setMessages((prev) => prev.map((m) => (m.id === aiId ? { ...m, content: acc } : m)))
+          // Display the text with any (partial) action block stripped so raw
+          // markers never flash on screen mid-stream.
+          const display = stripActions(acc)
+          setMessages((prev) => prev.map((m) => (m.id === aiId ? { ...m, content: display } : m)))
         }
-        // After stream completes, inject quick actions + approval card if applicable
-        const quickActions = commandSlug ? QUICK_ACTION_MAP[commandSlug] : undefined
-        const approval = buildApproval(acc)
-        if (quickActions || approval) {
-          setMessages((prev) =>
-            prev.map((m) => (m.id === aiId ? { ...m, quickActions, approval } : m))
-          )
-        }
+        // After stream completes, finalise the text + attach action buttons and
+        // the approval card if applicable.
+        const cleaned = stripActions(acc)
+        const quickActions = mergeActions(acc)
+        const approval = buildApproval(cleaned)
+        setMessages((prev) =>
+          prev.map((m) => (m.id === aiId ? { ...m, content: cleaned, quickActions, approval } : m))
+        )
       } catch {
         setMessages((prev) =>
           prev.map((m) =>
@@ -370,7 +381,7 @@ export default function CopilotChatScreen() {
           Upgrade to Scale or above to unlock AI assistance for your portfolio.
         </p>
         <Link
-          href="/property-manager/billing"
+          href="/property-manager/workspace/billing"
           className="px-4 py-2 rounded-lg bg-[var(--brand)] text-white text-[13px] font-[600] hover:bg-[var(--brand-strong)] transition-colors"
         >
           Upgrade plan
@@ -433,9 +444,11 @@ export default function CopilotChatScreen() {
             onQuickAction={handleQuickAction}
           />
         ))}
-        {/* Welcome state: surface instant, connected actions so it's never empty. */}
+        {/* Welcome state: surface instant, connected actions so it's never empty.
+            "Create" chips run THROUGH the Copilot (onSend) instead of leaving
+            for a wizard; "Jump to" chips still navigate. */}
         {!historyLoading && messages.length === 1 && messages[0].id === "welcome" && (
-          <CopilotQuickActions />
+          <CopilotQuickActions onSend={handleSend} />
         )}
       </div>
 
@@ -469,7 +482,7 @@ export default function CopilotChatScreen() {
           {capInfo.used >= capInfo.limit && (
             <p className="text-[10px] text-amber-600 mt-1 font-[500]">
               Limit reached.{" "}
-              <Link href="/property-manager/billing" className="underline">
+              <Link href="/property-manager/workspace/billing" className="underline">
                 Upgrade plan
               </Link>{" "}
               for more messages.

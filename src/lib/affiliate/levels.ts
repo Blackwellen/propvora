@@ -146,8 +146,12 @@ export function levelForReferrals(activeReferrals: number): AffiliateLevel {
 }
 
 /** Resolve a level by its stored band number (fallback to band 1). */
-export function levelByBand(band: number | null | undefined): AffiliateLevel {
-  return AFFILIATE_LEVELS.find((l) => l.band === band) ?? AFFILIATE_LEVELS[0]
+export function levelByBand(band: number | string | null | undefined): AffiliateLevel {
+  const legacyNames: Record<string, number> = {
+    bronze: 1, silver: 2, gold: 3, platinum: 4, diamond: 5, elite: 5,
+  }
+  const resolved = typeof band === "string" ? legacyNames[band.toLowerCase()] : band
+  return AFFILIATE_LEVELS.find((l) => l.band === resolved) ?? AFFILIATE_LEVELS[0]
 }
 
 export function formatPence(pence: number): string {

@@ -6,8 +6,10 @@ import { SITE_WIZARDS } from "@/lib/ai/site-map"
 
 // ============================================================================
 // Copilot quick actions — instant, visible entry points so the Copilot feels
-// CONNECTED and action-rich on open (no model latency). "Create" chips launch
-// real wizards; "Go to" chips jump to a section. Both navigate immediately.
+// CONNECTED and action-rich on open (no model latency). "Create" chips run the
+// action THROUGH the Copilot (send it into the conversation so it executes via
+// the approval/tool flow, gathering any extra detail) rather than bouncing the
+// user out to a wizard page. "Jump to" chips still navigate to a section.
 // ============================================================================
 
 const ICON: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -32,11 +34,25 @@ const GO_TO: { label: string; route: string }[] = [
   { label: "Calendar", route: "/property-manager/calendar" },
 ]
 
-export default function CopilotQuickActions({ onNavigate }: { onNavigate?: () => void }) {
+export default function CopilotQuickActions({
+  onNavigate,
+  onSend,
+}: {
+  onNavigate?: () => void
+  /** Run the action THROUGH the Copilot (send it into the conversation). When
+   *  provided, "Create" chips send the action instead of navigating away. */
+  onSend?: (prompt: string) => void
+}) {
   const router = useRouter()
   const go = (route: string) => {
     onNavigate?.()
     router.push(route)
+  }
+  // "Create" chips: prefer running through Copilot; fall back to opening the
+  // wizard only when no send handler is wired.
+  const create = (w: (typeof SITE_WIZARDS)[number]) => {
+    if (onSend) onSend(w.action)
+    else go(w.route)
   }
   const wizards = FEATURED
     .map((a) => SITE_WIZARDS.find((w) => w.action === a))
@@ -52,7 +68,7 @@ export default function CopilotQuickActions({ onNavigate }: { onNavigate?: () =>
             return (
               <button
                 key={w.route}
-                onClick={() => go(w.route)}
+                onClick={() => create(w)}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50/60 px-2.5 py-1.5 text-[11.5px] font-[600] text-violet-700 transition-colors hover:bg-violet-100"
               >
                 <Icon className="h-3.5 w-3.5" /> {w.action}

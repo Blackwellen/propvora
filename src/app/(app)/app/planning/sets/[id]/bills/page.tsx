@@ -18,6 +18,8 @@ import {
   Receipt,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { usePlanningSetCurrency } from "@/hooks/usePlanningSetCurrency"
+import { formatCurrencyAmount } from "@/lib/i18n/format"
 
 // ── Live schema row (planning_bill_lines, FK planning_set_id) ──────────────────
 
@@ -34,10 +36,6 @@ interface BillLineRow {
 const DONUT_COLORS = ["#2563EB", "#F59E0B", "#06B6D4", "#10B981", "#7C3AED", "#EF4444", "#84CC16", "#F97316", "#8B5CF6", "#94A3B8"]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function fmt(n: number) {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)
-}
 
 function fmtDec(n: number, dp = 1) {
   return n.toFixed(dp)
@@ -65,6 +63,8 @@ function KpiCard({ label, value, sub, subColor }: { label: string; value: string
 
 export default function BillsPage() {
   const params = useParams()
+  const setCcy = usePlanningSetCurrency(params.id as string)
+  const fmt = (n: number) => formatCurrencyAmount(n, setCcy.currency, setCcy.locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
   const router = useRouter()
   const id = params.id as string
 

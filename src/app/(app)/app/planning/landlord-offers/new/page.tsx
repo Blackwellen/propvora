@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { getProfileByKey } from "@/lib/planning/profiles"
 import { useWorkspace } from "@/providers/AuthProvider"
+import { useWorkspaceJurisdiction } from "@/hooks/useWorkspaceJurisdiction"
 import { usePlanningSets } from "@/hooks/usePlanningsets"
+import { formatCurrencyAmount } from "@/lib/i18n/format"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import {
@@ -94,8 +96,10 @@ function makeDefaultData(): WizardData {
 /* ------------------------------------------------------------------ */
 /* Helpers                                                               */
 /* ------------------------------------------------------------------ */
-function fmt(n: number) {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: 0 }).format(n)
+function fmt(n: number, ccy = "GBP") {
+  // Delegates to the shared i18n currency core (A11). Currency passed by the
+  // composer from the workspace jurisdiction; the saved offer persists it.
+  return formatCurrencyAmount(n, ccy, undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
 }
 
 function MoneyInput({ label, value, onChange, note }: { label: string; value: number; onChange: (v: number) => void; note?: string }) {
@@ -251,6 +255,7 @@ function SummaryRail({ data }: { data: WizardData }) {
 export default function NewLandlordOfferPage() {
   const router = useRouter()
   const { workspace } = useWorkspace()
+  const ws = useWorkspaceJurisdiction()
   const { data: liveSets = [] } = usePlanningSets(workspace?.id)
   const [step, setStep] = useState(1)
   const [data, setData] = useState<WizardData>(makeDefaultData)
@@ -273,6 +278,9 @@ export default function NewLandlordOfferPage() {
           planning_set_id: data.planningSetId || null,
           landlord_contact_id: null,
           property_address: data.landlordAddress || data.planningSetTitle || "Untitled property",
+          // Persist the offer's currency from the workspace jurisdiction so the
+          // detail page renders its money correctly (defaults GBP).
+          currency: ws.currency || "GBP",
           proposed_rent: data.offerAmount,
           proposed_term_months: data.termMonths || null,
           break_clause_months: data.breakMonth || null,

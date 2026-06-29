@@ -46,14 +46,20 @@ const TabsTrigger = React.forwardRef<
       "text-sm font-medium transition-all duration-150 motion-reduce:transition-none",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/30",
       "disabled:pointer-events-none disabled:opacity-50",
-      // Underline variant
-      "[data-variant=underline]_&:px-3 [data-variant=underline]_&:py-2.5",
-      "[data-variant=underline]_&:text-slate-500 [data-variant=underline]_&:border-b-2 [data-variant=underline]_&:border-transparent",
-      "[data-variant=underline]_&:data-[state=active]:text-[var(--brand)] [data-variant=underline]_&:data-[state=active]:border-[var(--brand)]",
-      "[data-variant=underline]_&:hover:text-slate-700",
+      // Underline variant — parent-attribute arbitrary variant needs the FULL
+      // selector wrapped in its own brackets: [[data-variant=underline]_&]:…
+      // (the bare [data-variant=underline]_&:… form Tailwind cannot parse, so it
+      // emitted no CSS — underline tabs lost padding + active state app-wide).
+      "[[data-variant=underline]_&]:px-3 [[data-variant=underline]_&]:py-2.5",
+      "[[data-variant=underline]_&]:text-slate-500 [[data-variant=underline]_&]:border-b-2 [[data-variant=underline]_&]:border-transparent",
+      "[[data-variant=underline]_&]:data-[state=active]:text-[var(--brand)] [[data-variant=underline]_&]:data-[state=active]:border-[var(--brand)]",
+      "[[data-variant=underline]_&]:hover:text-slate-700",
       // Pills variant
-      "[data-variant=pills]_&:px-3 [data-variant=pills]_&:py-1.5 [data-variant=pills]_&:rounded-lg",
-      "[data-variant=pills]_&:text-slate-600 [data-variant=pills]_&:data-[state=active]:bg-white [data-variant=pills]_&:data-[state=active]:text-slate-900 [data-variant=pills]_&:data-[state=active]:shadow-sm",
+      "[[data-variant=pills]_&]:px-3 [[data-variant=pills]_&]:py-1.5 [[data-variant=pills]_&]:rounded-lg",
+      "[[data-variant=pills]_&]:text-slate-600 [[data-variant=pills]_&]:data-[state=active]:bg-white [[data-variant=pills]_&]:data-[state=active]:text-slate-900 [[data-variant=pills]_&]:data-[state=active]:shadow-sm",
+      // Boxed variant
+      "[[data-variant=boxed]_&]:px-3 [[data-variant=boxed]_&]:py-1.5 [[data-variant=boxed]_&]:rounded-md",
+      "[[data-variant=boxed]_&]:text-slate-600 [[data-variant=boxed]_&]:data-[state=active]:bg-[var(--brand-soft)] [[data-variant=boxed]_&]:data-[state=active]:text-[var(--brand)]",
       className
     )}
     {...props}

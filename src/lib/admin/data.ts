@@ -712,21 +712,60 @@ export async function listSubscriptions(limit = 500): Promise<{ available: boole
       .select("id, workspace_id, plan, status, stripe_subscription_id, current_period_end")
       .order("created_at", { ascending: false })
       .limit(limit)
-    if (error) {
-      if (isSchemaGap(error.code)) return { available: false, rows: [] }
-      return { available: true, rows: [] }
+    if (!error && data && data.length > 0) {
+      const names = await workspaceNameMap()
+      return {
+        available: true,
+        rows: data.map((s) => ({
+          id: s.id as string,
+          workspaceId: s.workspace_id as string,
+          workspaceName: names[s.workspace_id as string] ?? "—",
+          plan: (s.plan as string) ?? "—",
+          status: (s.status as string) ?? "—",
+          stripeSubscriptionId: (s.stripe_subscription_id as string) ?? null,
+          periodEnd: (s.current_period_end as string) ?? null,
+        })),
+      }
     }
-    const names = await workspaceNameMap()
+    // No dedicated subscription rows yet (table missing or empty pre-Stripe) —
+    // derive each workspace's plan/status from `workspaces` so the admin
+    // Subscriptions page reflects real plan state instead of looking unbuilt.
+    return await deriveSubscriptionsFromWorkspaces(limit)
+  } catch {
+    return { available: false, rows: [] }
+  }
+}
+
+/** Normalise a workspace `plan_status` (+ plan) onto the subscription-status vocab. */
+export function normaliseWorkspacePlanStatus(planStatus: string | null | undefined, plan: string | null | undefined): string {
+  const s = (planStatus ?? "").toLowerCase()
+  if (s === "active" || s === "trialing" || s === "past_due" || s === "canceled" || s === "cancelled") return s
+  if (s === "trial") return "trialing"
+  if (s === "suspended") return "past_due"
+  if ((plan ?? "").toLowerCase() === "trial") return "trialing"
+  return "active"
+}
+
+/** Pre-Stripe fallback: present each workspace's plan as a subscription row. */
+async function deriveSubscriptionsFromWorkspaces(limit: number): Promise<{ available: boolean; rows: AdminSubscriptionRow[] }> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from("workspaces")
+      .select("id, name, plan, plan_status, created_at")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    if (error || !data) return { available: false, rows: [] }
     return {
       available: true,
-      rows: (data ?? []).map((s) => ({
-        id: s.id as string,
-        workspaceId: s.workspace_id as string,
-        workspaceName: names[s.workspace_id as string] ?? "—",
-        plan: (s.plan as string) ?? "—",
-        status: (s.status as string) ?? "—",
-        stripeSubscriptionId: (s.stripe_subscription_id as string) ?? null,
-        periodEnd: (s.current_period_end as string) ?? null,
+      rows: data.map((w) => ({
+        id: w.id as string,
+        workspaceId: w.id as string,
+        workspaceName: (w.name as string) ?? "Workspace",
+        plan: (w.plan as string) ?? "—",
+        status: normaliseWorkspacePlanStatus(w.plan_status as string | null, w.plan as string | null),
+        stripeSubscriptionId: null,
+        periodEnd: null,
       })),
     }
   } catch {

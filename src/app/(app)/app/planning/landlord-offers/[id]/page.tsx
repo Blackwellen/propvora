@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
+import { formatCurrencyAmount } from "@/lib/i18n/format"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useCreateProperty } from "@/hooks/useProperties"
@@ -37,8 +38,10 @@ import type { PlanningLandlordOffer, LandlordOfferStatus } from "@/types/databas
 /* ------------------------------------------------------------------ */
 /* Helpers                                                              */
 /* ------------------------------------------------------------------ */
-function fmt(n: number) {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: 0 }).format(n)
+function fmt(n: number, ccy = "GBP") {
+  // Delegates to the shared i18n currency core (A11) in the OFFER's currency,
+  // which is set from the linked planning set / property's jurisdiction.
+  return formatCurrencyAmount(n, ccy, undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
 }
 function fmtDate(d: string | null) {
   if (!d) return "—"
@@ -330,11 +333,11 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
       {/* KPI strip */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
         {[
-          { label: "Proposed Rent", value: fmt(offer.proposed_rent), sub: "/month" },
+          { label: "Proposed Rent", value: fmt(offer.proposed_rent, offer.currency), sub: "/month" },
           { label: "Term", value: offer.proposed_term_months ? `${offer.proposed_term_months} months` : "—" },
           { label: "Break Clause", value: offer.break_clause_months ? `Month ${offer.break_clause_months}` : "None" },
           { label: "Bills Included", value: offer.bills_included ? "Yes" : "No" },
-          { label: "Contract Value", value: contractValue > 0 ? fmt(contractValue) : "—", highlight: true },
+          { label: "Contract Value", value: contractValue > 0 ? fmt(contractValue, offer.currency) : "—", highlight: true },
         ].map((kpi) => (
           <div key={kpi.label} className={cn("rounded-2xl border p-4", kpi.highlight ? "bg-violet-50 border-violet-100" : "bg-white border-[#E2E8F0] shadow-sm")}>
             <p className="text-xs font-medium text-slate-400 mb-1.5">{kpi.label}</p>
@@ -465,10 +468,10 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
         {activeTab === "financials" && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "Proposed Rent", value: fmt(offer.proposed_rent) + "/mo", colour: "#DC2626" },
-              { label: "Indicative Upfront", value: fmt(totalUpfront), colour: "#7C3AED" },
-              { label: "Annual Rent Cost", value: fmt(offer.proposed_rent * 12) + "/yr", colour: "#2563EB" },
-              { label: "Total Contract Value", value: contractValue > 0 ? fmt(contractValue) : "—", colour: "#059669" },
+              { label: "Proposed Rent", value: fmt(offer.proposed_rent, offer.currency) + "/mo", colour: "#DC2626" },
+              { label: "Indicative Upfront", value: fmt(totalUpfront, offer.currency), colour: "#7C3AED" },
+              { label: "Annual Rent Cost", value: fmt(offer.proposed_rent * 12, offer.currency) + "/yr", colour: "#2563EB" },
+              { label: "Total Contract Value", value: contractValue > 0 ? fmt(contractValue, offer.currency) : "—", colour: "#059669" },
             ].map((k) => (
               <div key={k.label} className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm p-4">
                 <p className="text-xs font-medium text-slate-400 mb-2">{k.label}</p>

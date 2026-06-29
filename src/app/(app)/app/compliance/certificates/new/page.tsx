@@ -13,7 +13,8 @@ import { useProperties } from "@/hooks/useProperties"
 import { useContacts } from "@/hooks/useContacts"
 import { useCreateTask } from "@/hooks/useTasks"
 import { type ComplianceIconKey, type ComplianceRequirementDef } from "@/lib/compliance/requirements"
-import { useComplianceRequirements } from "@/lib/compliance/useComplianceRequirements"
+import { usePropertyComplianceRequirements } from "@/lib/compliance/useComplianceRequirements"
+import { OcrScanner } from "@/components/ocr/OcrScanner"
 import type { Property } from "@/types/database"
 import {
   Flame,
@@ -37,6 +38,7 @@ import {
   Star,
   ToggleLeft,
   ToggleRight,
+  ScanText,
 } from "lucide-react"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -151,6 +153,30 @@ function monthsUntil(date: string): string {
   const d = daysUntil(date)
   if (d <= 0) return "Expired"
   return `${Math.round(d / 30)} months`
+}
+
+/** Parse an OCR-detected date string (UK DD/MM/YYYY or "1 June 2025") to ISO yyyy-mm-dd, or "". */
+function parseToIso(raw: string): string {
+  const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+  // 1 June 2025 / 01 Jun 25
+  const m1 = raw.match(/^(\d{1,2})\s+([A-Za-z]{3,9})\s+(\d{2,4})$/)
+  if (m1) {
+    const day = m1[1].padStart(2, "0")
+    const mon = MONTHS.indexOf(m1[2].slice(0, 3).toLowerCase())
+    if (mon >= 0) {
+      const yr = m1[3].length === 2 ? `20${m1[3]}` : m1[3]
+      return `${yr}-${String(mon + 1).padStart(2, "0")}-${day}`
+    }
+  }
+  // DD/MM/YYYY · DD-MM-YYYY · DD.MM.YY  (UK day-first)
+  const m2 = raw.match(/^(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{2,4})$/)
+  if (m2) {
+    const day = m2[1].padStart(2, "0")
+    const mon = m2[2].padStart(2, "0")
+    const yr = m2[3].length === 2 ? `20${m2[3]}` : m2[3]
+    if (Number(mon) >= 1 && Number(mon) <= 12 && Number(day) >= 1 && Number(day) <= 31) return `${yr}-${mon}-${day}`
+  }
+  return ""
 }
 
 // ─── Step Components ──────────────────────────────────────────────────────────
@@ -440,6 +466,31 @@ function Step5({
         )}
       </div>
       <p className="text-xs text-slate-400 italic">Documents are stored securely and accessible only to authorised users.</p>
+
+      {/* Free on-device OCR — extract the reference number / dates from a photo of
+          the certificate so the user can prefill the form without retyping. */}
+      <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
+        <div className="flex items-center gap-2 mb-1">
+          <ScanText className="w-4 h-4 text-[var(--brand)]" />
+          <p className="text-[13px] font-semibold text-slate-800">Scan a certificate photo</p>
+        </div>
+        <p className="text-[12px] text-slate-500 mb-3">
+          Read text from an image on this device (no upload, no API key). Tap a detected reference or date to apply it.
+        </p>
+        <OcrScanner
+          onApplyReference={(ref) => update({ referenceNumber: ref })}
+          onApplyDate={(d) => {
+            const iso = parseToIso(d)
+            if (!iso) return
+            update(!state.issueDate ? { issueDate: iso } : { expiryDate: iso })
+          }}
+        />
+        {(state.referenceNumber || state.issueDate || state.expiryDate) && (
+          <p className="text-[11px] text-emerald-600 font-medium mt-2">
+            Applied: {[state.referenceNumber && `ref ${state.referenceNumber}`, state.issueDate && `issued ${state.issueDate}`, state.expiryDate && `expires ${state.expiryDate}`].filter(Boolean).join(" · ")}
+          </p>
+        )}
+      </div>
     </div>
   )
 }
@@ -613,7 +664,13 @@ function SummaryRail({ state, certTypes }: { state: WizardState; certTypes: Cert
 export default function NewCertificatePage() {
   const router                    = useRouter()
   const { workspace }             = useWorkspace()
-  const { requirements, note }    = useComplianceRequirements()
+  const [step, setStep]           = useState(1)
+  const [state, setState]         = useState<WizardState>(DEFAULT_STATE)
+  // D31 — source the certificate catalogue (and each item's `kind`) from the
+  // SELECTED PROPERTY's record-true jurisdiction, not the workspace default. A
+  // German property shows DE certs even in a UK workspace. With no property
+  // chosen yet (Step 1) this falls back to the workspace default jurisdiction.
+  const { requirements, note }    = usePropertyComplianceRequirements(state.property || undefined)
   const certTypes                 = React.useMemo(() => toCertTypes(requirements), [requirements])
   const { data: properties = [] } = useProperties(workspace?.id)
   const { data: liveContacts = [] } = useContacts(workspace?.id)
@@ -622,8 +679,15 @@ export default function NewCertificatePage() {
     () => liveContacts.map((c) => ({ id: c.id, name: c.full_name || c.company_name || "Contact" })),
     [liveContacts]
   )
-  const [step, setStep]           = useState(1)
-  const [state, setState]         = useState<WizardState>(DEFAULT_STATE)
+
+  // If the chosen property's jurisdiction no longer offers the previously-picked
+  // certificate type, clear it so a stale (wrong-jurisdiction) kind can never be
+  // saved. The user simply re-picks from the now-correct catalogue.
+  React.useEffect(() => {
+    if (state.certType && !certTypes.some((t) => t.key === state.certType)) {
+      setState((prev) => ({ ...prev, certType: null }))
+    }
+  }, [certTypes, state.certType])
   const [saving, setSaving]       = useState(false)
   const [saved, setSaved]         = useState(false)
   const [newId, setNewId]         = useState<string | null>(null)

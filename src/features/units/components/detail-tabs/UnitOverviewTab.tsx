@@ -3,6 +3,7 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 import { Home, Users, DollarSign, Calendar, ShieldCheck } from "lucide-react"
+import { unitStatusLabel } from "@/lib/portfolio/unit-status"
 
 export interface UnitSummary {
   id: string
@@ -23,7 +24,7 @@ export interface UnitOverviewTabProps {
 
 export function UnitOverviewTab({ unit }: UnitOverviewTabProps) {
   const details = [
-    { label: "Status",      value: unit.status,                                 icon: Home       },
+    { label: "Status",      value: unitStatusLabel(unit.status),                 icon: Home       },
     { label: "Bedrooms",    value: unit.bedrooms ? `${unit.bedrooms} bed` : "—", icon: Home       },
     { label: "Bathrooms",   value: unit.bathrooms ? `${unit.bathrooms} bath`: "—",icon: Home      },
     { label: "Floor area",  value: unit.floorArea ? `${unit.floorArea} sqft` : "—",icon: Home     },

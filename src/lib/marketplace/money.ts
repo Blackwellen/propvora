@@ -1,3 +1,5 @@
+import { formatCurrencyAmount } from "@/lib/i18n/format"
+
 /**
  * Format a pence/minor-unit integer as a currency string.
  *
@@ -16,21 +18,15 @@ export function formatPence(
   locale = "en-GB"
 ): string {
   if (pence === null || pence === undefined || !Number.isFinite(Number(pence))) return "—"
-  const code = (currency ?? "GBP").toUpperCase()
-  const safeLocale = locale || "en-GB"
   const major = Number(pence) / 100
   const hasFraction = Math.round(Number(pence)) % 100 !== 0
-
-  try {
-    return new Intl.NumberFormat(safeLocale, {
-      style: "currency",
-      currency: code,
-      minimumFractionDigits: hasFraction ? 2 : 0,
-      maximumFractionDigits: 2,
-    }).format(major)
-  } catch {
-    return `${code} ${major.toLocaleString(safeLocale, { minimumFractionDigits: hasFraction ? 2 : 0 })}`
-  }
+  // Delegates to the shared i18n currency core (A11), preserving the
+  // pence-divisor + min-(0|2)/max-2 rule. Note: callers pass integer pence,
+  // so divisor is fixed at 100 here (use formatCurrency for other divisors).
+  return formatCurrencyAmount(major, currency ?? "GBP", locale, {
+    minimumFractionDigits: hasFraction ? 2 : 0,
+    maximumFractionDigits: 2,
+  })
 }
 
 /**
@@ -52,19 +48,12 @@ export function formatCurrency(
   minorUnitsPerMajor = 100
 ): string {
   if (amountMinorUnits == null || !Number.isFinite(Number(amountMinorUnits))) return "—"
-  const code = (currency ?? "GBP").toUpperCase()
   const major = Number(amountMinorUnits) / minorUnitsPerMajor
   const hasFraction = Math.round(Number(amountMinorUnits)) % minorUnitsPerMajor !== 0
-  try {
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency: code,
-      minimumFractionDigits: hasFraction ? 2 : 0,
-      maximumFractionDigits: 2,
-    }).format(major)
-  } catch {
-    return `${code} ${major.toLocaleString(locale, {
-      minimumFractionDigits: hasFraction ? 2 : 0,
-    })}`
-  }
+  // Delegates to the shared i18n currency core (A11), preserving the configurable
+  // minor-unit divisor + min-(0|2)/max-2 rule.
+  return formatCurrencyAmount(major, currency ?? "GBP", locale, {
+    minimumFractionDigits: hasFraction ? 2 : 0,
+    maximumFractionDigits: 2,
+  })
 }

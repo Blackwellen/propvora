@@ -16,6 +16,8 @@ import {
   ReceiptText,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { usePlanningSetCurrency } from "@/hooks/usePlanningSetCurrency"
+import { formatCurrencyAmount } from "@/lib/i18n/format"
 
 // ── Live schema row (planning_expense_lines is profile-scoped) ─────────────────
 
@@ -37,10 +39,6 @@ const BAR_COLORS = [
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function fmt(n: number) {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)
-}
 
 function monthlyOf(r: ExpenseLineRow): number {
   if (r.monthly_amount != null) return r.monthly_amount
@@ -80,6 +78,8 @@ function KpiCard({ label, value, sub }: { label: string; value: string; sub?: st
 
 export default function ExpensesPage() {
   const params = useParams()
+  const setCcy = usePlanningSetCurrency(params.id as string)
+  const fmt = (n: number) => formatCurrencyAmount(n, setCcy.currency, setCcy.locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
   const router = useRouter()
   const id = params.id as string
 

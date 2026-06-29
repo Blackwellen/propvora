@@ -68,3 +68,6 @@ supabase/.temp/
 /build-output-session*.txt
 /dev-crawl.log
 /dev-server-verify.log
+
+# tesseract.js OCR model files (downloaded at runtime, never committed)
+*.traineddata

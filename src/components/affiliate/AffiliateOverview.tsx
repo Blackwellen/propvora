@@ -21,7 +21,7 @@ interface AffiliateRow {
   workspace_id: string
   enrolled: boolean
   approved: boolean
-  band: number | null
+  band: number | string | null
   referral_code: string | null
   discount_referral_code: string | null
   active_referrals_count: number | null
