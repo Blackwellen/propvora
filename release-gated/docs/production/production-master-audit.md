@@ -188,6 +188,24 @@ enforcement is verified strong; live E2E is the remaining gap.
 | Menu Builder (`/workspace-settings/navigation`) | ✅ renders; Sidebar Module Visibility + Quick Bar sections work |
 | **Quickbar fix verified live** | ✅ all **18** catalogue widgets selectable (incl. the newer ones stale prefs used to hide — Work Board, Gantt, Organisations, Messages, Reports, Legal, Finance); "13 showing". Confirms `normalizeQuickBarPrefs`. |
 
+## 3h. SMTP / email (production path — verified end-to-end)
+
+| Check | Result |
+|---|---|
+| Provider | ✅ Resend (send-only restricted API key — good security) |
+| Sender domain | ✅ `propvora.com` verified in Resend; From `Propvora <noreply@propvora.com>` accepted |
+| Delivery | ✅ test emails sent to support@, info@, and a personal inbox — **receipt confirmed by owner** |
+| Link hygiene | ✅ body links use `https://www.propvora.com/...` (no localhost) + Propvora branding |
+
+## 3i. External portals — live surface
+
+`NEXT_PUBLIC_PORTALS_EXTERNAL_ENABLED=true` and `/api/portal/verify` is live
+(dummy token → 303 → `/portal/expired`, i.e. processed + fail-closed, not disabled).
+So tenant/landlord/supplier external portals ARE live in production. Full live
+isolation E2E (mint a magic-link per persona via PAT, log in, confirm cross-tenant
+data blocked) is the remaining step; code-level boundary enforcement already
+verified strong (§3f).
+
 ## 4. Remaining audit scope (not yet executed)
 
 The directive's full matrix (auth/MFA/session deep-dive, billing/Stripe webhook
