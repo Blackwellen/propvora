@@ -169,6 +169,29 @@ function getKey(m: ResolvedModel): string | undefined {
 }
 
 /**
+ * Reasoning-family models (OpenAI o-series + GPT-5.x, incl. their Azure
+ * deployments) REJECT the legacy `max_tokens` param with a 400 — they require
+ * `max_completion_tokens`. Everything else (NVIDIA-hosted Llama, GPT-4o, Gemini,
+ * OpenRouter) still uses classic `max_tokens`. Detect by wire model id so the
+ * correct param is sent per model in one mixed catalogue.
+ */
+function usesMaxCompletionTokens(modelId: string): boolean {
+  // Matches "gpt-5", "gpt-5.4-mini", "o1", "o3-mini", and provider-prefixed
+  // forms like "azure/gpt-5.4-nano". Not "gpt-4o" / "gpt-4o-mini".
+  return /(^|\/)(gpt-5|o[1-9])([.\-]|$)/i.test(modelId)
+}
+
+/** Return the right token-limit param object for the given model. */
+function tokenLimitParam(
+  modelId: string,
+  maxTokens: number
+): { max_tokens: number } | { max_completion_tokens: number } {
+  return usesMaxCompletionTokens(modelId)
+    ? { max_completion_tokens: maxTokens }
+    : { max_tokens: maxTokens }
+}
+
+/**
  * Build the right OpenAI-compatible client. Azure OpenAI uses a different auth
  * scheme (api-key header), embeds the DEPLOYMENT name in the URL, and needs an
  * api-version — the AzureOpenAI client handles all of that; the `model` field on
@@ -228,7 +251,7 @@ async function callOpenAiCompatible(
   const completion = await client.chat.completions.create({
     model: m.modelId,
     messages: opts.messages,
-    max_tokens: opts.maxTokens ?? 700,
+    ...tokenLimitParam(m.modelId, opts.maxTokens ?? 700),
     temperature: opts.temperature ?? 0.6,
   })
   const text = completion.choices[0]?.message?.content ?? ""
@@ -344,7 +367,7 @@ export async function gatewayStream(
         stream: true,
         stream_options: { include_usage: true },
         messages: opts.messages,
-        max_tokens: opts.maxTokens ?? 700,
+        ...tokenLimitParam(m.modelId, opts.maxTokens ?? 700),
         temperature: opts.temperature ?? 0.6,
       })
 

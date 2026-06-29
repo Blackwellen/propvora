@@ -52,8 +52,11 @@ const PROD = {
   agentic: "gpt-5.4-mini",
   premium: "gpt-5.4-mini",
 }
-// Azure fallbacks if the 5.4 deployments aren't created yet (4o deployments).
-const PROD_FALLBACK = { workhorse: "gpt-4o-mini", agentic: "gpt-4o", premium: "gpt-4o" }
+// Same-provider fallback within Azure. The resource only has the GPT-5.4
+// deployments (nano + mini) — the old 4o deployments don't exist (404) and are
+// disabled in the catalogue — so mini is the workhorse fallback for nano, then
+// the chain drops to TEST (NVIDIA NIM) below.
+const PROD_FALLBACK = { workhorse: "gpt-5.4-mini", agentic: "gpt-5.4-mini", premium: "gpt-5.4-mini" }
 const TEST = {
   workhorse: "meta/llama-3.1-8b-instruct", // NIM, cheap + fast
   agentic: "meta/llama-3.3-70b-instruct", //  NIM, strong (live default now)
