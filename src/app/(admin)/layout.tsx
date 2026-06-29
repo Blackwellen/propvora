@@ -26,6 +26,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (mfa === "challenge") {
     redirect("/verify-2fa?redirectTo=/admin")
   }
+  // MFA is mandatory for the platform console: an admin with no enrolled factor
+  // is sent to set one up before any privileged page renders. After enrolling
+  // they re-enter via the normal challenge → aal2.
+  if (mfa === "enroll") {
+    redirect("/property-manager/account/security?reason=admin-mfa-required")
+  }
 
   return <AdminShell>{children}</AdminShell>
 }
