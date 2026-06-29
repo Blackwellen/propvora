@@ -63,10 +63,18 @@ export const metadata: Metadata = {
     images: ["/propvora-logo-dark.png"],
   },
   icons: {
-    // Transparent brand mark — no background (replaces the old favicon.ico).
-    icon: [{ url: "/propvora-favicon.png", type: "image/png" }],
-    shortcut: [{ url: "/propvora-favicon.png", type: "image/png" }],
-    apple: [{ url: "/propvora-favicon.png", type: "image/png" }],
+    // SQUARE, transparent brand mark. Google Search only indexes a square (1:1)
+    // favicon referenced via rel="icon" on the crawlable home page — the old
+    // /propvora-favicon.png was 373×328 (non-square) so Search Console ignored it.
+    // favicon.ico (16/32/48) covers legacy crawlers; the 48/192 PNGs are square
+    // multiples of 48px as Google recommends.
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-48.png", type: "image/png", sizes: "48x48" },
+      { url: "/favicon-192.png", type: "image/png", sizes: "192x192" },
+    ],
+    shortcut: [{ url: "/favicon.ico" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   appleWebApp: {
     capable: true,
