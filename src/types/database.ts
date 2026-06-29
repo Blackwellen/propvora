@@ -31,7 +31,9 @@ export type OperationProfile =
   | 'co_living'
 export type PropertyStatus = 'active' | 'vacant' | 'under_works' | 'archived' | 'disposed'
 export type UnitType = 'room' | 'flat' | 'studio' | 'suite' | 'office' | 'other'
-export type UnitStatus = 'occupied' | 'vacant' | 'under_works' | 'reserved'
+// Matches the live units.status CHECK exactly. "available" = vacant/lettable,
+// "maintenance" = under works, "offline" = held back / not in service.
+export type UnitStatus = 'available' | 'occupied' | 'maintenance' | 'offline'
 
 export type TenancyStatus = 'pending' | 'active' | 'ended' | 'disputed' | 'surrendered'
 export type TenancyType = 'ast' | 'periodic' | 'contractual' | 'lodger' | 'commercial' | 'hmo_room'
@@ -181,6 +183,8 @@ export interface Property {
   currency: string | null
   latitude: number | null
   longitude: number | null
+  /** When latitude/longitude were last resolved from the address (geocoding). */
+  geocoded_at: string | null
   property_type: PropertyType | null
   operation_profile: OperationProfile | null
   /** Free-text dwelling type stored in `properties.category` (see lib/constants/propertyTypes.ts). */
@@ -201,22 +205,6 @@ export interface Property {
   updated_at: string
 }
 
-export interface PropertyUnit {
-  id: string
-  workspace_id: string
-  property_id: string
-  unit_name: string
-  unit_type: UnitType | null
-  floor: number | null
-  bedrooms: number
-  bathrooms: number
-  floor_area_sqm: number | null
-  target_rent: number | null
-  status: UnitStatus
-  is_demo: boolean
-  created_at: string
-  updated_at: string
-}
 
 export interface Tenancy {
   id: string
@@ -330,6 +318,11 @@ export interface PlanningSet {
   operation_profile: OperationProfile
   status: PlanningSetStatus
   property_id: string | null
+  /** Jurisdiction spine for the set (drives tax engines + display currency). */
+  country_code: string | null
+  region_code: string | null
+  /** Holding structure for tax modelling (personal | ltd | …). */
+  holding_structure: string | null
   address: string | null
   postcode: string | null
   gross_monthly_income: number
@@ -425,6 +418,8 @@ export interface PlanningLandlordOffer {
   planning_set_id: string | null
   landlord_contact_id: string | null
   property_address: string
+  /** ISO-4217 currency for the offer's money (defaults GBP; set from the linked set/property). */
+  currency: string
   proposed_rent: number
   proposed_term_months: number | null
   break_clause_months: number | null
@@ -763,6 +758,7 @@ export interface InsertProperty {
   postcode?: string | null
   latitude?: number | null
   longitude?: number | null
+  geocoded_at?: string | null
   property_type?: PropertyType | null
   operation_profile?: OperationProfile | null
   bedrooms?: number | null
@@ -775,20 +771,6 @@ export interface InsertProperty {
   notes?: string | null
   cover_image_url?: string | null
   created_by?: string | null
-}
-
-export interface InsertPropertyUnit {
-  workspace_id: string
-  property_id: string
-  unit_name: string
-  bedrooms: number
-  bathrooms: number
-  status: UnitStatus
-  is_demo: boolean
-  unit_type?: UnitType | null
-  floor?: number | null
-  floor_area_sqm?: number | null
-  target_rent?: number | null
 }
 
 export interface InsertTenancy {
@@ -896,6 +878,9 @@ export interface InsertPlanningSet {
   risk_score: number
   is_demo: boolean
   property_id?: string | null
+  country_code?: string | null
+  region_code?: string | null
+  holding_structure?: string | null
   address?: string | null
   postcode?: string | null
   notes?: string | null
@@ -1060,7 +1045,6 @@ export type InsertNotification = Omit<Notification, 'id' | 'created_at'>
 export type UpdateProfile = Partial<InsertProfile>
 export type UpdateWorkspace = Partial<InsertWorkspace>
 export type UpdateProperty = Partial<InsertProperty>
-export type UpdatePropertyUnit = Partial<InsertPropertyUnit>
 export type UpdateTenancy = Partial<InsertTenancy>
 export type UpdateContact = Partial<InsertContact>
 export type UpdateTask = Partial<InsertTask>
@@ -1096,11 +1080,6 @@ export interface Database {
         Row: Property
         Insert: InsertProperty
         Update: UpdateProperty
-      }
-      property_units: {
-        Row: PropertyUnit
-        Insert: InsertPropertyUnit
-        Update: UpdatePropertyUnit
       }
       tenancies: {
         Row: Tenancy

@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { getCountryPack } from '@/lib/i18n/country-packs'
 import type { Property, InsertProperty, UpdateProperty } from '@/types/database'
 
 const QUERY_KEY = 'properties'
@@ -103,6 +104,7 @@ function fromDb(r: Record<string, unknown>): Property {
     currency: (g('currency') ?? null) as string | null,
     latitude: g('latitude') ?? null,
     longitude: g('longitude') ?? null,
+    geocoded_at: (g('geocoded_at') ?? null) as string | null,
     property_type: templateToType(template),
     // Prefer the dedicated column; fall back to template-derived for any legacy
     // row written before the column existed.
@@ -140,7 +142,7 @@ function toDb(p: Partial<Property>): Record<string, unknown> {
   for (const k of [
     'workspace_id', 'address_line1', 'address_line2', 'city', 'county', 'postcode', 'country',
     'country_code', 'region_code', 'currency',
-    'latitude', 'longitude', 'bedrooms', 'bathrooms', 'floor_area_sqm',
+    'latitude', 'longitude', 'geocoded_at', 'bedrooms', 'bathrooms', 'floor_area_sqm',
     'purchase_price', 'current_value', 'notes', 'cover_image_url', 'created_by', 'category',
   ] as const) {
     if (k in p) o[k] = (p as Record<string, unknown>)[k]
@@ -207,9 +209,31 @@ export function useCreateProperty() {
   const queryClient = useQueryClient()
   return useMutation<Property, Error, InsertProperty>({
     mutationFn: async (payload) => {
+      // Geocode centrally so EVERY creation path (offer conversion, HMO/listing
+      // wizards, landlord portal, …) gets a map pin — biased to the property's
+      // country so foreign addresses resolve, not just UK. Best-effort: a
+      // geocode failure never blocks the create. Skipped when coords are already
+      // supplied (e.g. the Add-Property wizard geocodes inline).
+      const p = payload as Partial<Property>
+      let withCoords = payload
+      const hasCoords = p.latitude != null && p.longitude != null
+      const addr = [p.address_line1, p.city, p.postcode].filter(Boolean).join(", ")
+      if (!hasCoords && addr) {
+        try {
+          const { geocodeAddress } = await import("@/lib/maps/geocode")
+          const country = (p.country_code ?? "").toString()
+          const q = country && country.toUpperCase() !== "GB"
+            ? `${addr}, ${getCountryPack(country).name}`
+            : addr
+          const geo = await geocodeAddress(q, { limit: 1, country })
+          if (geo.length > 0) {
+            withCoords = { ...payload, latitude: geo[0].lat, longitude: geo[0].lng, geocoded_at: new Date().toISOString() }
+          }
+        } catch { /* non-fatal — property still saves without a pin */ }
+      }
       const { data, error } = await supabase
         .from('properties')
-        .insert(toDb(payload as Partial<Property>))
+        .insert(toDb(withCoords as Partial<Property>))
         .select()
         .single()
       if (error) throw error

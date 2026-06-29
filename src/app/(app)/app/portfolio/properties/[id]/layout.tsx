@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useParams, usePathname, useRouter } from "next/navigation"
 import { useWorkspace } from "@/providers/AuthProvider"
 import { useProperty, useUpdateProperty } from "@/hooks/useProperties"
+import { geocodeAddress } from "@/lib/maps/geocode"
 import { useI18nTabs } from "@/lib/i18n/use-country-tabs"
 import { cn } from "@/lib/utils"
 import MobileTabs from "@/components/mobile/MobileTabs"
@@ -24,6 +25,11 @@ export function usePropertyDetailCtx() {
   if (!c) throw new Error("usePropertyDetailCtx must be used inside PropertyDetailLayout")
   return c
 }
+
+// Inline-editable fields that change a property's geographic location → trigger
+// a re-geocode of the map pin on save. (address_line2 / county don't move the
+// point, so they're excluded to avoid needless lookups.)
+const LOCATION_FIELDS = new Set(["address_line1", "city", "postcode", "country_code"])
 
 // Profile-gated tabs: key → required operation_profile.
 const PROFILE_TAB_GATES: Record<string, string> = {
@@ -66,6 +72,29 @@ export default function PropertyDetailLayout({ children }: { children: React.Rea
   async function save(field: string, value: unknown) {
     if (!workspace?.id) return
     await updateProperty.mutateAsync({ id: propertyId, workspaceId: workspace.id, payload: { [field]: value } })
+
+    // Re-geocode when a location-determining address field is edited inline (the
+    // pen on Address line 1 / City / Postcode / Country) so the property's map
+    // pin follows the new address. Best-effort: the field is already saved above,
+    // so a geocode miss never blocks the edit — the pin just doesn't move.
+    if (LOCATION_FIELDS.has(field) && property) {
+      const merged = { ...property, [field]: value } as Property
+      const query = [merged.address_line1, merged.city, merged.postcode].filter(Boolean).join(", ")
+      if (query.trim()) {
+        try {
+          const hits = await geocodeAddress(query, { limit: 1, country: merged.country_code || undefined })
+          if (hits.length > 0) {
+            await updateProperty.mutateAsync({
+              id: propertyId,
+              workspaceId: workspace.id,
+              payload: { latitude: hits[0].lat, longitude: hits[0].lng, geocoded_at: new Date().toISOString() },
+            })
+          }
+        } catch {
+          /* silent — address already saved; pin update is best-effort */
+        }
+      }
+    }
   }
 
   const ctxValue: PropertyDetailCtx = { propertyId, prop: property ?? null, save }
