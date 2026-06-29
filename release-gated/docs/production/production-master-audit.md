@@ -181,6 +181,13 @@ they can't read other tenants' / the workspace's data) requires **portal-user
 magic-links/logins**, which were not available this session — code-level boundary
 enforcement is verified strong; live E2E is the remaining gap.
 
+## 3g. Settings / quickbar (live)
+
+| Check | Result |
+|---|---|
+| Menu Builder (`/workspace-settings/navigation`) | ✅ renders; Sidebar Module Visibility + Quick Bar sections work |
+| **Quickbar fix verified live** | ✅ all **18** catalogue widgets selectable (incl. the newer ones stale prefs used to hide — Work Board, Gantt, Organisations, Messages, Reports, Legal, Finance); "13 showing". Confirms `normalizeQuickBarPrefs`. |
+
 ## 4. Remaining audit scope (not yet executed)
 
 The directive's full matrix (auth/MFA/session deep-dive, billing/Stripe webhook
