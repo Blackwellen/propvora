@@ -28,9 +28,10 @@ import { useProperties } from "@/hooks/useProperties"
 import {
   usePpmPlans,
   useDeletePpmPlan,
-  useGenerateJobFromPpm,
   type PpmPlan,
 } from "@/hooks/usePpm"
+import { usePpmGenerateJob } from "@/hooks/usePpmGenerateJob"
+import PpmGenerateToast from "@/components/work/PpmGenerateToast"
 
 // ─── Row view model ───────────────────────────────────────────────────────────
 
@@ -130,7 +131,7 @@ export default function PpmSchedulesPage() {
   const { data: livePlans, isLoading } = usePpmPlans(workspaceId)
   const { data: properties = [] } = useProperties(workspaceId)
   const deletePlan = useDeletePpmPlan()
-  const generateJob = useGenerateJobFromPpm()
+  const { generate, feedback, clearFeedback } = usePpmGenerateJob()
 
   const [search, setSearch] = useState("")
   const [propertyFilter, setPropertyFilter] = useState("")
@@ -225,15 +226,13 @@ export default function PpmSchedulesPage() {
   }
 
   async function handleGenerate(row: ScheduleRow) {
-    if (!row.id || !livePlans) return
-    const plan = livePlans.find((p) => p.id === row.id)
-    if (!plan) return
-    const res = await generateJob.mutateAsync({ plan })
-    if (res.ok && res.jobId) router.push(`/property-manager/work/jobs/${res.jobId}`)
+    if (!row.id) return
+    await generate(livePlans?.find((p) => p.id === row.id))
   }
 
   return (
     <div className="space-y-5">
+      <PpmGenerateToast feedback={feedback} onClose={clearFeedback} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

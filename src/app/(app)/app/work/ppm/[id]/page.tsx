@@ -38,11 +38,12 @@ import {
   usePpmPlan,
   useUpdatePpmPlan,
   useDeletePpmPlan,
-  useGenerateJobFromPpm,
   usePpmGeneratedJobs,
   type PpmPlan,
   type UpdatePpmPlan,
 } from "@/hooks/usePpm"
+import { usePpmGenerateJob } from "@/hooks/usePpmGenerateJob"
+import PpmGenerateToast from "@/components/work/PpmGenerateToast"
 import { useWorkspaceId } from "@/hooks/useWorkspace"
 import { useRecordActivity } from "@/features/work/useRecordActivity"
 import { useTabParam } from "@/features/work/useTabParam"
@@ -290,14 +291,13 @@ export default function PpmDetailPage() {
   const { data: planData, isLoading } = usePpmPlan(workspaceId, id)
   const updatePlan = useUpdatePpmPlan()
   const deletePlan = useDeletePpmPlan()
-  const generateJob = useGenerateJobFromPpm()
+  const { generate, isGenerating: generating, feedback, clearFeedback } = usePpmGenerateJob()
   // Real work orders dispatched from this plan (linked via jobs.ppm_plan_id).
   const { data: generatedJobs = [] } = usePpmGeneratedJobs(workspaceId, id, !!planData)
   // Real logged activity for this plan (merged with derived schedule events below).
   const { data: ppmLogs = [] } = useRecordActivity(workspaceId, "ppm_plan", planData ? id : undefined)
   const [activeTab, setActiveTab] = useTabParam(PPM_TABS, "Overview")
   const [copied, setCopied] = useState(false)
-  const [generating, setGenerating] = useState(false)
 
   if (isLoading) return <PpmDetailSkeleton />
 
@@ -329,16 +329,9 @@ export default function PpmDetailPage() {
   }
 
   async function handleGenerateJob() {
-    if (generating) return
-    setGenerating(true)
-    try {
-      const res = await generateJob.mutateAsync({ plan })
-      if (res.ok && res.jobId) {
-        router.push(`/property-manager/work/jobs/${res.jobId}`)
-      }
-    } finally {
-      setGenerating(false)
-    }
+    // The shared hook owns the loading guard, navigation, and success/error
+    // feedback (rendered via PpmGenerateToast) — no more silent failures.
+    await generate(plan)
   }
 
   function handleCopy() {
@@ -351,6 +344,7 @@ export default function PpmDetailPage() {
 
   return (
     <div className="space-y-5">
+      <PpmGenerateToast feedback={feedback} onClose={clearFeedback} />
       {/* Mobile top bar */}
       <MobileTopBar
         title={plan.name}
