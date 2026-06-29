@@ -61,8 +61,8 @@ export default function TenantTenancyPage() {
         if (uIds.length > 0) {
           try {
             const { data } = await supabase
-              .from("property_units")
-              .select("id, label:unit_name")
+              .from("units")
+              .select("id, label")
               .in("id", uIds)
             const m = new Map<string, UnitLite>()
             for (const r of (data ?? []) as unknown as UnitLite[]) m.set(r.id, r)

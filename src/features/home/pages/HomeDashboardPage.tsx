@@ -319,10 +319,12 @@ export function HomeDashboardPage() {
           .select("id, name:nickname, address_line1, city, postcode, status, template, category, target_rent:target_rent_pcm, bedrooms, cover_file_id, cover_image_url, updated_at")
           .eq("workspace_id", wid),
 
-        // 1: units  (live table is property_units)
+        // 1: units  (canonical `units` table — property_units was consolidated away
+        //    and DROPPED in the DB; querying it 404'd → dashboard showed 0 units /
+        //    0% occupancy. units uses rent_amount, aliased back to target_rent.)
         supabase
-          .from("property_units")
-          .select("id, status, property_id, target_rent")
+          .from("units")
+          .select("id, status, property_id, target_rent:rent_amount")
           .eq("workspace_id", wid),
 
         // 2: tenancies  (primary_contact_id → contact_id)

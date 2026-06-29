@@ -80,8 +80,7 @@ function useGallery(workspaceId: string | undefined) {
         .select(`
           id, title, category, public_url, storage_path,
           property_id, unit_id,
-          properties ( nickname, address_line_1 ),
-          property_units ( unit_ref )
+          properties ( nickname, address_line_1 )
         `)
         .eq("workspace_id", workspaceId!)
         .eq("media_type", "image")
@@ -89,7 +88,6 @@ function useGallery(workspaceId: string | undefined) {
       if (error) throw error
       return (data ?? []).map((m: any) => {
         const prop = Array.isArray(m.properties) ? m.properties[0] : m.properties
-        const unit = Array.isArray(m.property_units) ? m.property_units[0] : m.property_units
         return {
           id: m.id,
           src: m.public_url ?? null,
@@ -98,7 +96,9 @@ function useGallery(workspaceId: string | undefined) {
           propertyId: m.property_id,
           propertyName: prop?.nickname ?? prop?.address_line_1 ?? "Unassigned",
           unitId: m.unit_id,
-          unitName: unit?.unit_ref ?? null,
+          // unit label embed removed: property_media has no FK to units; unitId
+          // is retained, name is resolved elsewhere if needed.
+          unitName: null,
           title: m.title ?? "Untitled",
         } satisfies GalleryImage
       })
