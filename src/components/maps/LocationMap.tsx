@@ -1,5 +1,6 @@
 "use client"
 
+import "leaflet/dist/leaflet.css"
 import React, { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { Maximize2, X } from "lucide-react"
@@ -23,6 +24,9 @@ export interface MapMarker {
   lng?: number | null
   /** Fallback: a real address string to geocode via OSM when lat/lng are absent. */
   address?: string | null
+  /** ISO-3166 alpha-2 country to bias geocoding (e.g. "ES"). Omit/null = global.
+   *  Pass the property's country_code so foreign addresses resolve, not just UK. */
+  country?: string | null
   label?: string
   sublabel?: string
   href?: string
@@ -112,18 +116,24 @@ function ssSet(key: string, val: { lat: number; lng: number } | null) {
 
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY
 
-async function geocode(address: string): Promise<{ lat: number; lng: number } | null> {
-  const key = address.trim().toLowerCase()
-  if (!key) return null
+async function geocode(address: string, country?: string | null): Promise<{ lat: number; lng: number } | null> {
+  const cc = (country ?? "").trim().toLowerCase()
+  // Cache per address+country so a UK "High St" and an ES "High St" don't collide.
+  const key = `${address.trim().toLowerCase()}|${cc}`
+  if (!address.trim()) return null
   if (geocodeCache.has(key)) return geocodeCache.get(key)!
   const cached = ssGet(key)
   if (cached !== undefined) { geocodeCache.set(key, cached); return cached }
 
   let result: { lat: number; lng: number } | null = null
+  // Only constrain to a country when one is supplied; otherwise geocode globally
+  // so foreign property addresses resolve (was hardcoded to the UK).
+  const mtCountry = cc ? `&country=${encodeURIComponent(cc)}` : ""
+  const osmCountry = cc ? `&countrycodes=${encodeURIComponent(cc)}` : ""
   // Prefer MapTiler (reliable CDN, same key as the basemap) — falls back to OSM Nominatim.
   try {
     if (MAPTILER_KEY) {
-      const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(address)}.json?key=${MAPTILER_KEY}&country=gb&limit=1`
+      const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(address)}.json?key=${MAPTILER_KEY}${mtCountry}&limit=1`
       const res = await fetch(url)
       if (res.ok) {
         const data = (await res.json()) as { features?: Array<{ center: [number, number] }> }
@@ -135,7 +145,7 @@ async function geocode(address: string): Promise<{ lat: number; lng: number } | 
 
   if (!result) {
     try {
-      const url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=gb&q=" + encodeURIComponent(address)
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1${osmCountry}&q=` + encodeURIComponent(address)
       const res = await fetch(url, { headers: { Accept: "application/json" } })
       if (res.ok) {
         const data = (await res.json()) as Array<{ lat: string; lon: string }>
@@ -182,7 +192,7 @@ export default function LocationMap({
           out.push({ ...m, lat: m.lat, lng: m.lng })
         } else if (m.address && m.address.trim()) {
           didGeocode = true
-          const g = await geocode(m.address)
+          const g = await geocode(m.address, m.country)
           if (g) out.push({ ...m, lat: g.lat, lng: g.lng })
         }
       }
@@ -207,14 +217,8 @@ export default function LocationMap({
       const L = (await import("leaflet")).default
       if (disposed || !mapRef.current || mapInstanceRef.current) return
 
-      // Leaflet stylesheet — inject once (id-guarded).
-      if (!document.getElementById("leaflet-css")) {
-        const link = document.createElement("link")
-        link.id = "leaflet-css"
-        link.rel = "stylesheet"
-        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        document.head.appendChild(link)
-      }
+      // Leaflet CSS is bundled via the top-of-file import (was a runtime <link>
+      // to unpkg that loaded after L.map() ran — blank/unpositioned tiles).
 
       const map = L.map(mapRef.current, { zoomControl: interactive, attributionControl: true, scrollWheelZoom: interactive, dragging: interactive }).setView(
         [53.0, -1.5],

@@ -1,5 +1,6 @@
 ﻿"use client"
 
+import "leaflet/dist/leaflet.css"
 import React, { useEffect, useRef } from "react"
 import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from "@/lib/maps/tiles"
 import type { MapProperty } from "@/app/(app)/app/portfolio/map/page"
@@ -78,14 +79,10 @@ export default function LeafletMap({ properties, selectedId, onSelect }: Leaflet
     const initMap = async () => {
       const L = (await import("leaflet")).default
 
-      // Leaflet CSS — inject once
-      if (!document.getElementById("leaflet-css")) {
-        const link = document.createElement("link")
-        link.id = "leaflet-css"
-        link.rel = "stylesheet"
-        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        document.head.appendChild(link)
-      }
+      // Leaflet CSS is now bundled via the top-of-file `import
+      // "leaflet/dist/leaflet.css"` — the previous runtime <link> to unpkg loaded
+      // AFTER L.map() ran (and depended on an external CDN), which left tiles
+      // unpositioned/blank. Bundling guarantees the styles are present at init.
 
       // Fix default icon paths for bundlers
       // @ts-expect-error _getIconUrl is an untyped Leaflet internal
@@ -115,12 +112,22 @@ export default function LeafletMap({ properties, selectedId, onSelect }: Leaflet
       L.control.zoom({ position: "bottomright" }).addTo(map)
 
       mapInstanceRef.current = map
+
+      // Tiles mis-size (or don't render) when the container's height resolves
+      // AFTER init — common inside flex/tab/sheet layouts. Settle once, then keep
+      // the map sized to its container.
+      setTimeout(() => map.invalidateSize(), 80)
+      if (typeof ResizeObserver !== "undefined" && mapRef.current) {
+        ro = new ResizeObserver(() => map.invalidateSize())
+        ro.observe(mapRef.current)
+      }
     }
 
+    let ro: ResizeObserver | null = null
     initMap()
 
     return () => {
-      // Only destroy on unmount, not on re-render
+      ro?.disconnect()
     }
   }, [])
 

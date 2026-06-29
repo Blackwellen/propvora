@@ -1,5 +1,7 @@
 "use client"
 
+import "leaflet/dist/leaflet.css"
+
 import { useEffect, useRef } from "react"
 import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from "@/lib/maps/tiles"
 import { formatMoney } from "./format"
