@@ -230,7 +230,7 @@ export default function PortfolioPage() {
 
   /* KPIs */
   const totalUnits      = units.length
-  const vacantUnits     = units.filter(u => u.status === "vacant").length
+  const vacantUnits     = units.filter(u => u.status === "available").length
   const occupiedUnits   = units.filter(u => u.status === "occupied").length
   const activeTenancies = tenancies.filter(t => t.status === "active").length
   const totalRentRoll   = tenancies.filter(t => t.status === "active").reduce((s, t) => s + t.rent_amount, 0)
@@ -583,7 +583,10 @@ export default function PortfolioPage() {
                     View all <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                {/* auto-fit + minmax: cards reflow to the available width and never
+                    shrink below 240px, so they don't squish/overlap at the 3–4 col
+                    breakpoint boundaries (fixed sm:2→xl:4 jump did). */}
+                <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
                   {properties.slice(0, 4).map(p => <PropertyCard key={p.id} property={p} />)}
                 </div>
               </div>
