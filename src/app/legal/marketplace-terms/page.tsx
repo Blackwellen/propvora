@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import LegalLayout from "@/components/marketing/LegalLayout"
+import { assertLegalSurface } from "@/lib/legal/gate"
 import { LegalSection, LegalCallout } from "@/components/legal-marketplace/LegalPrimitives"
 import { PolicyIntro, PolicyEntityFooter } from "@/components/legal-marketplace/PolicyMeta"
 import { getPolicy } from "@/lib/legal/policies"
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
     "The terms governing use of the Propvora marketplace: Propvora's role as facilitator, accounts, payments via Stripe, trust and verification, and dispute handling.",
 }
 
-export default function MarketplaceTermsPage() {
+export default async function MarketplaceTermsPage() {
+  await assertLegalSurface("marketplaceEnabled")
   return (
     <LegalLayout title="Marketplace Terms" lastUpdated={policy.effectiveFrom}>
       <PolicyIntro slug="marketplace-terms" />

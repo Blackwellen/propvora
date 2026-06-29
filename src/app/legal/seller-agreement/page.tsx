@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import LegalLayout from "@/components/marketing/LegalLayout"
+import { assertLegalSurface } from "@/lib/legal/gate"
 
 export const metadata: Metadata = {
   title: "Supplier Terms | Propvora",
@@ -20,7 +21,8 @@ export const metadata: Metadata = {
   },
 }
 
-export default function SellerAgreementPage() {
+export default async function SellerAgreementPage() {
+  await assertLegalSurface("marketplaceEnabled")
   return (
     <LegalLayout title="Supplier Terms" lastUpdated="16 June 2026">
       <Section num="1" title="Who These Terms Are For">

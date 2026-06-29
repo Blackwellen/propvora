@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import LegalLayout from "@/components/marketing/LegalLayout"
+import { assertLegalSurface } from "@/lib/legal/gate"
 import { LegalSection, LegalCallout } from "@/components/legal-marketplace/LegalPrimitives"
 import { PolicyIntro, PolicyEntityFooter } from "@/components/legal-marketplace/PolicyMeta"
 import { getPolicy } from "@/lib/legal/policies"
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
     "How cancellations work for stays and services on the Propvora marketplace, the cancellation tiers an operator may set, and your statutory cancellation rights.",
 }
 
-export default function CancellationPolicyPage() {
+export default async function CancellationPolicyPage() {
+  await assertLegalSurface("bookingManagement")
   return (
     <LegalLayout title="Cancellation Policy" lastUpdated={policy.effectiveFrom}>
       <PolicyIntro slug="cancellation-policy" />

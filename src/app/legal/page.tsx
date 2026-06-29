@@ -36,6 +36,22 @@ const GROUPS: Group[] = [
     ],
   },
   {
+    key: "trust",
+    title: "Trust, security & compliance",
+    icon: Shield,
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    docs: [
+      { title: "Security & Trust", href: "/legal/security", desc: "How we protect your data — encryption, isolation, monitoring." },
+      { title: "Sub-processors", href: "/legal/subprocessors", desc: "The third parties that help us deliver the Service, and where they process data." },
+      { title: "Data Retention & Deletion", href: "/legal/data-retention", desc: "How long we keep data, and how it is deleted." },
+      { title: "Service Level Agreement", href: "/legal/sla", desc: "Availability commitment, service credits and support targets." },
+      { title: "Accessibility Statement", href: "/legal/accessibility", desc: "Our WCAG 2.2 AA commitment and how to report barriers." },
+      { title: "Complaints Procedure", href: "/legal/complaints", desc: "How to raise a complaint and how we handle it." },
+      { title: "Modern Slavery Statement", href: "/legal/modern-slavery", desc: "Our voluntary statement on slavery and human trafficking." },
+    ],
+  },
+  {
     key: "data-ai",
     title: "Data & AI",
     icon: Brain,

@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import LegalLayout from "@/components/marketing/LegalLayout"
+import { assertLegalSurface } from "@/lib/legal/gate"
 import { LegalSection, LegalCallout } from "@/components/legal-marketplace/LegalPrimitives"
 import { PolicyIntro, PolicyEntityFooter } from "@/components/legal-marketplace/PolicyMeta"
 import { getPolicy } from "@/lib/legal/policies"
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
     "What you may and may not do on the Propvora marketplace: prohibited listings and conduct, off-platform payment rules, fake reviews, and enforcement.",
 }
 
-export default function MarketplaceAcceptableUsePage() {
+export default async function MarketplaceAcceptableUsePage() {
+  await assertLegalSurface("marketplaceEnabled")
   return (
     <LegalLayout
       title="Marketplace Acceptable Use Policy"

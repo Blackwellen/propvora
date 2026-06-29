@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import LegalLayout from "@/components/marketing/LegalLayout"
+import { assertLegalSurface } from "@/lib/legal/gate"
 import { LegalSection, LegalCallout } from "@/components/legal-marketplace/LegalPrimitives"
 import { PolicyIntro, PolicyEntityFooter } from "@/components/legal-marketplace/PolicyMeta"
 import { getPolicy } from "@/lib/legal/policies"
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
     "How and when refunds are issued for Propvora marketplace transactions, the role of the operator/supplier versus Propvora, and how refunds are processed.",
 }
 
-export default function RefundPolicyPage() {
+export default async function RefundPolicyPage() {
+  await assertLegalSurface("bookingManagement")
   return (
     <LegalLayout title="Refund Policy" lastUpdated={policy.effectiveFrom}>
       <PolicyIntro slug="refund-policy" />

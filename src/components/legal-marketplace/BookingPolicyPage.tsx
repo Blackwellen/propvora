@@ -6,6 +6,7 @@ import {
 } from "@/lib/legal/booking-policies"
 import LegalLayout from "@/components/marketing/LegalLayout"
 import { LegalCallout } from "./LegalPrimitives"
+import { assertLegalSurface } from "@/lib/legal/gate"
 
 /**
  * Single renderer for every booking/host legal page. A page file just does
@@ -64,7 +65,10 @@ const AUDIENCE_LABEL: Record<string, string> = {
   both: "For guests & hosts",
 }
 
-export function BookingPolicyPage({ slug }: { slug: BookingPolicySlug }) {
+export async function BookingPolicyPage({ slug }: { slug: BookingPolicySlug }) {
+  // Direct-URL access 404s when the bookings surface is flagged off (parity with
+  // the /legal hub, which hides these). QA bypass honoured inside the guard.
+  await assertLegalSurface("bookingManagement")
   const policy = getBookingPolicy(slug)
   if (!policy) return null
 

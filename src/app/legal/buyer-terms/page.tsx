@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import LegalLayout from "@/components/marketing/LegalLayout"
+import { assertLegalSurface } from "@/lib/legal/gate"
 import { LegalSection, LegalCallout } from "@/components/legal-marketplace/LegalPrimitives"
 import { PolicyIntro, PolicyEntityFooter } from "@/components/legal-marketplace/PolicyMeta"
 import { getPolicy } from "@/lib/legal/policies"
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
     "Terms for guests and buyers on the Propvora marketplace: who your contract is with, payment, your consumer rights, and how to raise an issue.",
 }
 
-export default function BuyerTermsPage() {
+export default async function BuyerTermsPage() {
+  await assertLegalSurface("bookingManagement")
   return (
     <LegalLayout title="Buyer Terms" lastUpdated={policy.effectiveFrom}>
       <PolicyIntro slug="buyer-terms" />
