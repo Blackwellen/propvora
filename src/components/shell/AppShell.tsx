@@ -6,6 +6,7 @@ import { AnimatePresence } from "framer-motion"
 import SideNavigation from "./SideNavigation"
 import TopNavigation from "./TopNavigation"
 import ShellContent from "./ShellContent"
+import IdleSessionGuard from "./IdleSessionGuard"
 import MobileBottomNav from "@/components/mobile/MobileBottomNav"
 import ChatBubble from "@/components/ai/ChatBubble"
 import ChatPanel from "@/components/ai/ChatPanel"
@@ -70,6 +71,10 @@ export default function AppShell({ children, aiCopilotEnabled = false, isTrial =
     <div className="h-dvh overflow-hidden" style={{ background: "var(--bg-app-shell)" }}>
       {/* Skip to main content — first focusable element (WCAG 2.4.1) */}
       <SkipLink />
+
+      {/* Enterprise idle-session timeout: 1h inactivity in a browser tab signs
+          the user out to /login?reason=timeout. PWA (standalone) is exempt. */}
+      <IdleSessionGuard />
 
       {/* Fixed sidebar — floats over content */}
       <div className="hidden lg:block">
