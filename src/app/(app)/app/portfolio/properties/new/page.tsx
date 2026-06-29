@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/Button"
 import { PLANNING_PROFILES } from "@/lib/planning/profiles"
 import { PROPERTY_TYPE_GROUPS, getPropertyTypeOption, templateForPropertyType } from "@/lib/constants/propertyTypes"
+import { getAllCountryPacks, getCountryPack } from "@/lib/i18n/country-packs"
 import { useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace } from "@/providers/AuthProvider"
@@ -43,7 +44,10 @@ interface PropertyWizardData {
   name: string
   propertyType: string
   status: string
-  // Step 2
+  // Step 2 — jurisdiction spine (record-true) + address
+  countryCode: string
+  regionCode: string
+  currency: string
   addressLine1: string
   addressLine2: string
   city: string
@@ -95,6 +99,9 @@ const defaultData: PropertyWizardData = {
   name: "",
   propertyType: "",
   status: "active",
+  countryCode: "GB",
+  regionCode: "EW",
+  currency: "GBP",
   addressLine1: "",
   addressLine2: "",
   city: "",
@@ -177,6 +184,14 @@ function StepBasics({ data, onChange }: { data: PropertyWizardData; onChange: (d
   )
 }
 
+// Countries offered in the picker, GB first then alphabetical (45 packs).
+const COUNTRY_OPTIONS = (() => {
+  const all = getAllCountryPacks().map((p) => ({ code: p.code, name: p.name }))
+  const gb = all.filter((c) => c.code === "GB")
+  const rest = all.filter((c) => c.code !== "GB").sort((a, b) => a.name.localeCompare(b.name))
+  return [...gb, ...rest]
+})()
+
 function StepAddress({ data, onChange }: { data: PropertyWizardData; onChange: (d: Partial<PropertyWizardData>) => void }) {
   const fields = [
     { key: "addressLine1", label: "Address line 1", placeholder: "12 Brunswick Road", required: true },
@@ -185,8 +200,70 @@ function StepAddress({ data, onChange }: { data: PropertyWizardData; onChange: (
     { key: "county", label: "County", placeholder: "Nottinghamshire" },
     { key: "postcode", label: "Postcode", placeholder: "NG1 4EX", required: true },
   ]
+  const pack = getCountryPack(data.countryCode)
+
+  // Changing country sets the jurisdiction spine and derives the default currency
+  // from that country's pack. GB keeps its region; other countries clear it.
+  function handleCountry(code: string) {
+    const p = getCountryPack(code)
+    onChange({
+      countryCode: code,
+      currency: p.currency || "GBP",
+      regionCode: code === "GB" ? (data.regionCode || "EW") : "",
+    })
+  }
+
   return (
     <div className="flex flex-col gap-4">
+      {/* Jurisdiction spine — sets the property's record-true country/region so
+          its compliance, legal, tax and currency follow the PROPERTY, not the
+          workspace. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            Country <span className="text-red-500">*</span>
+          </label>
+          <select
+            value={data.countryCode}
+            onChange={(e) => handleCountry(e.target.value)}
+            className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] bg-white text-slate-900 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
+          >
+            {COUNTRY_OPTIONS.map((c) => (
+              <option key={c.code} value={c.code}>{c.name}</option>
+            ))}
+          </select>
+          <p className="text-[11px] text-slate-400 mt-1">
+            Sets compliance, legal &amp; tax context. Currency derived: <span className="font-medium text-slate-500">{pack.currency}</span>
+            {pack.reviewStatus !== "reviewed" && " · generic (non-advice) jurisdiction"}.
+          </p>
+        </div>
+        {data.countryCode === "GB" ? (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">UK region</label>
+            <select
+              value={data.regionCode || "EW"}
+              onChange={(e) => onChange({ regionCode: e.target.value })}
+              className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] bg-white text-slate-900 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30 focus:border-[var(--brand)] transition-all"
+            >
+              <option value="EW">England &amp; Wales</option>
+              <option value="SCT">Scotland</option>
+              <option value="NI">Northern Ireland</option>
+            </select>
+            <p className="text-[11px] text-slate-400 mt-1">Scotland &amp; NI have distinct compliance regimes.</p>
+          </div>
+        ) : (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Currency</label>
+            <input
+              type="text"
+              value={data.currency}
+              readOnly
+              className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] bg-slate-50 text-slate-600 text-sm"
+            />
+            <p className="text-[11px] text-slate-400 mt-1">Derived from the country. Money stays multi-currency per record.</p>
+          </div>
+        )}
+      </div>
       {fields.map((field) => (
         <div key={field.key}>
           <label className="block text-sm font-medium text-slate-700 mb-1.5">
@@ -453,6 +530,7 @@ function StepReview({ data }: { data: PropertyWizardData }) {
     { label: "Name", value: data.name || "—" },
     { label: "Type", value: getPropertyTypeOption(data.propertyType)?.label || "—" },
     { label: "Status", value: data.status || "—" },
+    { label: "Jurisdiction", value: `${getCountryPack(data.countryCode).name}${data.countryCode === "GB" ? ` · ${data.regionCode || "EW"}` : ""} (${data.currency})` },
     { label: "Address", value: [data.addressLine1, data.city, data.postcode].filter(Boolean).join(", ") || "—" },
     { label: "Operation Profile", value: selectedProfile?.label || "—" },
     { label: "Bedrooms", value: String(data.bedrooms) },
@@ -554,12 +632,18 @@ export default function NewPropertyPage() {
       // ────────────────────────────────────────────────────────────────────
 
       // Geocode the address so the property map shows a pin immediately.
-      // Fails silently — the property saves even if geocoding is unavailable.
-      const geoQuery = [data.addressLine1, data.city, data.postcode].filter(Boolean).join(", ")
+      // Bias geocoding to the property's COUNTRY so foreign addresses resolve
+      // (a Barcelona/Dubai address would otherwise be filtered to the UK and
+      // never get coordinates). Country name is appended to the query too for
+      // better matching. Fails silently — the property saves regardless.
+      const countryName = getCountryPack(data.countryCode).name
+      const geoQuery = [data.addressLine1, data.city, data.postcode, data.countryCode !== "GB" ? countryName : ""]
+        .filter(Boolean)
+        .join(", ")
       let lat: number | null = null
       let lng: number | null = null
       try {
-        const geo = await geocodeAddress(geoQuery, { limit: 1 })
+        const geo = await geocodeAddress(geoQuery, { limit: 1, country: data.countryCode })
         if (geo.length > 0) { lat = geo[0].lat; lng = geo[0].lng }
       } catch { /* silent */ }
 
@@ -579,6 +663,11 @@ export default function NewPropertyPage() {
           status: data.status,
           created_by: userId,
           landlord_contact_id: data.landlordContactId || null,
+          // Jurisdiction spine — makes the property record-true (I51). Its
+          // compliance/legal/tax/currency now resolve from these, not the workspace.
+          country_code: data.countryCode || "GB",
+          region_code: data.countryCode === "GB" ? (data.regionCode || "EW") : (data.regionCode || null),
+          currency: data.currency || "GBP",
           address_line1: data.addressLine1,
           address_line2: data.addressLine2 || null,
           city: data.city,
@@ -586,6 +675,9 @@ export default function NewPropertyPage() {
           postcode: data.postcode,
           latitude: lat,
           longitude: lng,
+          // Stamp WHEN coords were resolved so ungeocoded rows are identifiable
+          // (only set when geocoding actually succeeded).
+          geocoded_at: lat != null && lng != null ? new Date().toISOString() : null,
           bedrooms: data.bedrooms,
           bathrooms: data.bathrooms,
           floor_area_sqm: data.floorArea || null,
