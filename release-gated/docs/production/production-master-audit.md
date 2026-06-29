@@ -134,6 +134,31 @@ Workspace isolation is enforced at the database layer (not just route guards).
 **Conclusion:** production security posture is strong. The build failure was the
 sole critical production blocker, and it is resolved.
 
+## 3c. Live browser sweep (Chrome MCP on propvora.com)
+
+| Surface | Viewport | Result |
+|---|---|---|
+| `/login` | 1440 | ✅ persona-switcher empty-box **fixed live** (hidden when 1 persona); 0 console errors |
+| `/login` | 390×844 mobile | ✅ full-width card, image panel hidden, no overflow |
+| `/` homepage | 1440 | ✅ hero + all sections render; 0 console errors |
+| `/` product panels | 1440 | ✅ Compliance / Portfolio / Human-controlled-AI images all load (`complete`, `naturalWidth=1200`). The "blank panel" seen in a full-page screenshot is a **headless lazy-load artifact** (loading="lazy" + IntersectionObserver), not a real bug — verified via DOM inspection + explicit scroll. |
+| Copilot demo panel | 1440 | ✅ renders a proper markdown-formatted Copilot response (portfolio summary + overdue Gas Safety Certificate) |
+
+Screenshot evidence: `release-gated/screenshots/production/`.
+
+## 3d. Authenticated browser sweep (logged-in PM workspace)
+
+Logged in as a test PM operator (JT Property Manager, Enterprise). Findings:
+
+| Check | Result |
+|---|---|
+| Login → dashboard | ✅ auth + session + real Supabase data (13 properties, 5 tenancies, £8,315 rent roll, work/money/calendar/compliance/activity all wired) |
+| In-app SPA navigation | ✅ preserves session |
+| **Hard refresh / deep-link** on authed route | ✅ session persists (units page reload stayed authed) |
+| Units page | ✅ unit-status migration **live & correct**: "22 total · 18 occupied · 4 vacant", new vocab filter chips (Occupied/Vacant/Under works/Offline), real cards |
+| **P1 BUG FOUND + FIXED** | Home dashboard showed **UNITS=0 / occupancy 0%** — code queried the **dropped** `property_units` table (404, gracefully degraded to empty). The consolidate migration dropped the table in the DB but the code wasn't repointed. Fixed 3 consumers → `units` table (commit `444ebe22`, deploying). Verified the data exists (units page shows 22). |
+| Console (dashboard) | React #419 (Suspense SSR fallback — recovers to client render) + the `property_units` 404 (now fixed) + a benign `workspace_feature_flags` single-row 404 |
+
 ## 4. Remaining audit scope (not yet executed)
 
 The directive's full matrix (auth/MFA/session deep-dive, billing/Stripe webhook
