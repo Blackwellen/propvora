@@ -4,13 +4,17 @@ import AuthShell from "@/components/shells/AuthShell"
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
+  // Use the SAME canonical (square, transparent) favicon set as the root layout
+  // so auth/onboarding pages don't show the older /icon-192.png mark on a white
+  // tab background. Keep robots noindex — only the favicon set is shared.
   icons: {
     icon: [
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-48.png", type: "image/png", sizes: "48x48" },
+      { url: "/favicon-192.png", type: "image/png", sizes: "192x192" },
     ],
+    shortcut: [{ url: "/favicon.ico" }],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-    shortcut: "/favicon-32.png",
   },
 }
 
