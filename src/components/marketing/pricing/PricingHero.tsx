@@ -22,9 +22,14 @@ export default function PricingHero({ billing, onChange }: Props) {
         <h1 className="text-[34px] sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-4">
           {tr("pricingHeroTitle")}
         </h1>
-        <p className="text-xl text-slate-600 max-w-xl mx-auto mb-10">
-          {tr("pricingHeroSubtitle")}
-        </p>
+        {/* Wrapped in a div because globals.css resets margin:0 on <p> outside a
+            cascade layer, which kills mx-auto on the paragraph itself. mx-auto on
+            a <div> is honoured, so the constrained block centres correctly. */}
+        <div className="max-w-xl mx-auto mb-10">
+          <p className="text-xl text-slate-600">
+            {tr("pricingHeroSubtitle")}
+          </p>
+        </div>
 
         <PricingToggle
           billing={billing}

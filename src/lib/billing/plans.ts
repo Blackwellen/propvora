@@ -176,19 +176,19 @@ const ADDON_DISPLAY: Record<
   // (Intelligence / Action) credit classes for power users. Stripe price IDs are
   // null until the OWNER runs scripts/stripe-setup-catalog.mjs; defined here so
   // they render in the add-on grid the moment the products exist.
-  ai_pro: { name: "AI Pro", description: "Unlock autonomous AI agents, web/market intelligence, document AI and monitors — with a generous monthly credit allowance.", audience: "operator", eligibility: "Starter, Operator, Scale" },
-  intelligence_pack_1k: { name: "Intelligence credit pack", description: "1,000 Intelligence credits for web search, market data, document AI and agent runs.", audience: "operator", eligibility: "AI-enabled tiers" },
-  action_pack_1k: { name: "Action credit pack", description: "1,000 Action credits for AI-drafted writes, emails and automation runs.", audience: "operator", eligibility: "AI-enabled tiers" },
+  ai_pro: { name: "AI Pro", description: "Unlock autonomous AI agents, web/market intelligence, document AI and monitors — with a generous monthly credit allowance.", audience: "operator", eligibility: "Starter, Operator, Scale", releaseStage: "V1.5" },
+  intelligence_pack_1k: { name: "Intelligence credit pack", description: "1,000 Intelligence credits for web search, market data, document AI and agent runs.", audience: "operator", eligibility: "AI-enabled tiers", releaseStage: "V1.5" },
+  action_pack_1k: { name: "Action credit pack", description: "1,000 Action credits for AI-drafted writes, emails and automation runs.", audience: "operator", eligibility: "AI-enabled tiers", releaseStage: "V1.5" },
 
   // ── New operator add-ons (Layer 2) ──────────────────────────────────────
-  open_banking: { name: "Open Banking", description: "Live bank feeds and reconciliation via Open Banking.", audience: "operator", eligibility: "Operator+" },
-  whatsapp_business: { name: "WhatsApp Business", description: "Send and receive messages over WhatsApp Business (usage extra).", audience: "operator", eligibility: "Operator+" },
-  esignature: { name: "eSignature", description: "Send documents for legally-binding e-signature (envelopes extra).", audience: "operator", eligibility: "Operator+" },
-  accounting_sync: { name: "Xero / QuickBooks sync", description: "Two-way accounting sync with Xero or QuickBooks.", audience: "operator", eligibility: "Scale+" },
-  mtd_itsa: { name: "MTD ITSA pack", description: "Making Tax Digital for Income Tax Self Assessment submission pack.", audience: "operator", eligibility: "Operator+" },
+  open_banking: { name: "Open Banking", description: "Live bank feeds and reconciliation via Open Banking.", audience: "operator", eligibility: "Operator+", releaseStage: "V1.5" },
+  whatsapp_business: { name: "WhatsApp Business", description: "Send and receive messages over WhatsApp Business (usage extra).", audience: "operator", eligibility: "Operator+", releaseStage: "V1.5" },
+  esignature: { name: "eSignature", description: "Send documents for legally-binding e-signature (envelopes extra).", audience: "operator", eligibility: "Operator+", releaseStage: "V1.5" },
+  accounting_sync: { name: "Xero / QuickBooks sync", description: "Two-way accounting sync with Xero or QuickBooks.", audience: "operator", eligibility: "Scale+", releaseStage: "V1.5" },
+  mtd_itsa: { name: "MTD ITSA pack", description: "Making Tax Digital for Income Tax Self Assessment submission pack.", audience: "operator", eligibility: "Operator+", releaseStage: "V1.5" },
   booking_pages: { name: "Booking pages", description: "Public direct-booking pages (included on Scale+).", audience: "operator", eligibility: "Operator (included Scale+)", releaseStage: "V1.5", requiredFlag: "directBookingPages" },
   automation_pack: { name: "Automation pack", description: "More recipes, runs and nodes beyond your plan cap.", audience: "operator", eligibility: "Scale+", releaseStage: "V1.5", requiredFlag: "canvasLite" },
-  api_access: { name: "API access", description: "REST API access with full read/write endpoints.", audience: "operator", eligibility: "Pro / Agency+" },
+  api_access: { name: "API access", description: "REST API access with full read/write endpoints.", audience: "operator", eligibility: "Pro / Agency+", releaseStage: "V1.5" },
   country_pack_beta: { name: "Country pack (beta)", description: "Legal/tax/compliance depth for an additional country (beta).", audience: "operator", eligibility: "Scale+", releaseStage: "V2", requiredFlag: "countryPacks" },
 
   // ── Supplier-workspace add-ons (Layer 2) ────────────────────────────────
