@@ -1,6 +1,8 @@
 "use client"
 
 import React from "react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import PersonAvatar from "./PersonAvatar"
 import CopilotComplianceResultCard from "./CopilotComplianceResultCard"
 import CopilotDraftMessageCard from "./CopilotDraftMessageCard"
@@ -31,51 +33,57 @@ interface CopilotMessageBubbleProps {
 }
 
 /**
- * Renders AI response content as clean plain-text blocks.
- * Handles numbered lists (1. 2. 3.), dashed lists (- item), and paragraphs.
- * Does NOT render markdown — the AI is instructed to output plain text only.
+ * Renders AI response content as GitHub-flavoured markdown — bold, italics,
+ * numbered/bulleted lists, headings, tables, links and inline code — styled
+ * compact to match the Copilot panel. Models naturally emit markdown (e.g.
+ * **bold**), so rendering it here turns raw asterisks into proper formatting.
+ *
+ * Security: react-markdown does NOT render raw HTML (no rehype-raw), so model
+ * output can never inject markup; links are forced to open safely.
  */
+const MARKDOWN_COMPONENTS: React.ComponentProps<typeof ReactMarkdown>["components"] = {
+  p: ({ children }) => <p className="leading-relaxed">{children}</p>,
+  strong: ({ children }) => <strong className="font-semibold text-slate-900">{children}</strong>,
+  em: ({ children }) => <em className="italic">{children}</em>,
+  ul: ({ children }) => <ul className="list-disc list-outside pl-4 space-y-1">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal list-outside pl-4 space-y-1">{children}</ol>,
+  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+  h1: ({ children }) => <h3 className="text-[13.5px] font-bold text-slate-900 mt-2 first:mt-0">{children}</h3>,
+  h2: ({ children }) => <h3 className="text-[13px] font-bold text-slate-900 mt-2 first:mt-0">{children}</h3>,
+  h3: ({ children }) => <h4 className="text-[12.5px] font-semibold text-slate-900 mt-1.5 first:mt-0">{children}</h4>,
+  code: ({ children }) => (
+    <code className="rounded bg-slate-100 px-1 py-0.5 text-[11.5px] font-mono text-slate-700">{children}</code>
+  ),
+  a: ({ href, children }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-[var(--brand)] underline underline-offset-2 hover:opacity-80"
+    >
+      {children}
+    </a>
+  ),
+  table: ({ children }) => (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-[11.5px]">{children}</table>
+    </div>
+  ),
+  th: ({ children }) => (
+    <th className="border border-slate-200 bg-slate-50 px-2 py-1 text-left font-semibold">{children}</th>
+  ),
+  td: ({ children }) => <td className="border border-slate-200 px-2 py-1 align-top">{children}</td>,
+  blockquote: ({ children }) => (
+    <blockquote className="border-l-2 border-slate-200 pl-3 text-slate-600 italic">{children}</blockquote>
+  ),
+}
+
 function AiContentRenderer({ content }: { content: string }) {
-  const paragraphs = content.split(/\n\n+/)
-
   return (
-    <div className="space-y-2">
-      {paragraphs.map((para, i) => {
-        const lines = para.split("\n").filter((l) => l.trim() !== "")
-
-        if (lines.length === 0) return null
-
-        const isNumberedList = lines.length > 1 && lines.every((l) => /^\d+\./.test(l.trim()))
-        const isBulletList =
-          lines.length > 1 && lines.every((l) => /^[-—•]/.test(l.trim()))
-
-        if (isNumberedList) {
-          return (
-            <ol key={i} className="list-decimal list-inside space-y-1 text-[12.5px] leading-relaxed">
-              {lines.map((l, j) => (
-                <li key={j}>{l.replace(/^\d+\.\s*/, "")}</li>
-              ))}
-            </ol>
-          )
-        }
-
-        if (isBulletList) {
-          return (
-            <ul key={i} className="list-disc list-inside space-y-1 text-[12.5px] leading-relaxed">
-              {lines.map((l, j) => (
-                <li key={j}>{l.replace(/^[-—•]\s*/, "")}</li>
-              ))}
-            </ul>
-          )
-        }
-
-        // Multi-line block that isn't a list — render as a single paragraph preserving internal newlines
-        return (
-          <p key={i} className="text-[12.5px] leading-relaxed whitespace-pre-wrap">
-            {para}
-          </p>
-        )
-      })}
+    <div className="text-[12.5px] leading-relaxed space-y-2 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={MARKDOWN_COMPONENTS}>
+        {content}
+      </ReactMarkdown>
     </div>
   )
 }
