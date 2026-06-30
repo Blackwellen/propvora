@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import type Stripe from "stripe"
 import { getAddons } from "@/lib/billing/plans"
+import { stripePmcId } from "@/lib/payments/stripe-keys"
 import { recordAudit, AUDIT_ACTIONS } from "@/lib/audit/log"
 import {
   resolveBillingContext,
@@ -89,11 +90,88 @@ export async function POST(request: NextRequest) {
 
   const sub = await getActiveSubscription(admin, workspaceId)
   const stripeRef = await resolveStripeSubscriptionId(admin, workspaceId, sub)
+
+  // No live Stripe subscription yet → we cannot mutate a subscription item.
+  // Rather than dead-end the purchase, start a subscription-mode Checkout for
+  // this add-on's recurring price so the buy actually completes (Stripe creates
+  // the subscription). Removing an add-on with no subscription is a no-op.
   if (!stripeRef) {
-    return NextResponse.json(
-      { error: "An active subscription is required before changing add-ons." },
-      { status: 404 },
-    )
+    if (action === "remove") {
+      return NextResponse.json({ ok: true, addonKey, action, quantity: 0, enabled: false })
+    }
+    try {
+      const stripe = await getStripe(secretKey)
+
+      // Resolve / create + validate the workspace Stripe customer on THIS account
+      // (a stale test customer under a live key — or vice versa — is recreated).
+      const { data: ws } = await admin
+        .from("workspaces")
+        .select("name, stripe_customer_id")
+        .eq("id", workspaceId)
+        .maybeSingle()
+      let customerId = (ws?.stripe_customer_id as string | null) ?? null
+      if (customerId) {
+        try {
+          const existing = await stripe.customers.retrieve(customerId)
+          if ((existing as { deleted?: boolean }).deleted) customerId = null
+        } catch {
+          customerId = null
+        }
+      }
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: actorEmail ?? undefined,
+          name: (ws?.name as string | null) ?? undefined,
+          metadata: { workspace_id: workspaceId, user_id: userId },
+        })
+        customerId = customer.id
+        await admin.from("workspaces").update({ stripe_customer_id: customerId }).eq("id", workspaceId)
+      }
+
+      const appUrl = (
+        process.env.NEXT_PUBLIC_APP_URL ||
+        process.env.NEXT_PUBLIC_SITE_URL ||
+        "https://www.propvora.com"
+      ).replace(/\/$/, "")
+      const base = `${appUrl}/property-manager/workspace-settings/addons`
+      const pmcSubscriptions = stripePmcId("SUBSCRIPTIONS")
+
+      const session = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        customer: customerId,
+        line_items: [{ price: catalogAddon.priceId, quantity }],
+        success_url: `${base}?purchase=success`,
+        cancel_url: `${base}?purchase=cancelled`,
+        subscription_data: { metadata: { workspace_id: workspaceId } },
+        allow_promotion_codes: true,
+        ...(pmcSubscriptions ? { payment_method_configuration: pmcSubscriptions } : {}),
+      })
+
+      await recordAudit(admin, {
+        workspaceId,
+        userId,
+        action: AUDIT_ACTIONS.BILLING_SUBSCRIPTION_UPDATED,
+        resourceType: "subscription_addon",
+        resourceId: addonKey,
+        metadata: { action, quantity, priceId: catalogAddon.priceId, via: "checkout" },
+      })
+
+      return NextResponse.json({
+        ok: true,
+        checkout: true,
+        url: session.url,
+        addonKey,
+        action,
+        quantity,
+        enabled: true,
+      })
+    } catch (err) {
+      console.error("[billing/addons] checkout fallback failed", err)
+      return NextResponse.json(
+        { error: "Could not start the add-on checkout. Please try again." },
+        { status: 502 },
+      )
+    }
   }
 
   // ── Stripe: apply the subscription-item change ───────────────────────────

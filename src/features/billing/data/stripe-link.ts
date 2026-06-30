@@ -173,6 +173,10 @@ interface AddonResponse {
   action?: string
   quantity?: number
   enabled?: boolean
+  /** Set when the workspace has no live subscription yet — the backend returns a
+   *  subscription-mode Stripe Checkout URL to complete the purchase. */
+  checkout?: boolean
+  url?: string
   error?: string
 }
 
@@ -196,5 +200,10 @@ export async function applyAddonChange(input: {
   })
   const json = (await res.json().catch(() => ({}))) as AddonResponse
   if (!res.ok) throw new Error(json.error || "Could not apply the add-on change")
+  // No live subscription yet → the backend returns a Stripe Checkout URL to
+  // complete the purchase. Redirect the browser to Stripe.
+  if (json.url) {
+    window.location.href = json.url
+  }
   return json
 }
