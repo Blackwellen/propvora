@@ -53,7 +53,7 @@ function validatePeoplePhone(v: string): string | null {
 }
 
 /* ================================================================== */
-/* Shared person action menu â€” wired to live update/delete             */
+/* Shared person action menu — wired to live update/delete             */
 /* ================================================================== */
 function PersonActionMenu({ contact, align = "right" }: { contact: Contact; align?: "left" | "right" }) {
   const router = useRouter()
@@ -115,7 +115,7 @@ const FILTER_TABS: { key: ActiveFilter; label: string }[] = [
   { key: "other",        label: "Other" },
 ]
 
-/* People-only types â€” exclude orgs */
+/* People-only types — exclude orgs */
 const PEOPLE_TYPES = new Set([
   "tenant","landlord","applicant","post_tenant","guarantor",
   "other","local_authority","housing_association","broadband","utility_provider",
@@ -139,7 +139,7 @@ function getInitials(name: string): string {
 }
 
 function relativeTime(iso: string | null): string {
-  if (!iso) return "â€”"
+  if (!iso) return "—"
   const diff = Date.now() - new Date(iso).getTime()
   const days = Math.floor(diff / 86400000)
   if (days === 0) return "Today"
@@ -150,7 +150,7 @@ function relativeTime(iso: string | null): string {
 }
 
 function formatDate(iso: string | null): string {
-  if (!iso) return "â€”"
+  if (!iso) return "—"
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
 }
 
@@ -327,7 +327,7 @@ function PersonTableRow({ contact }: { contact: Contact }) {
           onSave={(v) => saveField({ phone: v || null })}
         />
       </td>
-      <td className="px-4 py-3 text-xs text-slate-500">{contact.city ?? "â€”"}</td>
+      <td className="px-4 py-3 text-xs text-slate-500">{contact.city ?? "—"}</td>
       <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{relativeTime(contact.updated_at)}</td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-1.5">
@@ -411,7 +411,7 @@ function Pagination({ total, page, onPage }: { total: number; page: number; onPa
   return (
     <div className="flex items-center justify-between text-xs text-slate-500 mt-4">
       <span>
-        Showing <span className="font-semibold text-slate-700">{Math.min((page - 1) * PAGE_SIZE + 1, total)}â€“{Math.min(page * PAGE_SIZE, total)}</span> of {total}
+        Showing <span className="font-semibold text-slate-700">{Math.min((page - 1) * PAGE_SIZE + 1, total)}–{Math.min(page * PAGE_SIZE, total)}</span> of {total}
       </span>
       <div className="flex items-center gap-1">
         <button
@@ -570,7 +570,7 @@ export default function PeoplePage() {
           count={`${filtered.length} ${filtered.length === 1 ? "person" : "people"}`}
           search={searchQuery}
           onSearchChange={handleSearch}
-          searchPlaceholder="Search peopleâ€¦"
+          searchPlaceholder="Search people…"
           onOpenFilters={() => setMobileFiltersOpen(true)}
           activeFilterCount={activeFilterCount}
         />
@@ -655,7 +655,7 @@ export default function PeoplePage() {
               <input
                 type="text"
                 aria-label="Search people"
-                placeholder="Search peopleâ€¦"
+                placeholder="Search people…"
                 value={searchQuery}
                 onChange={e => handleSearch(e.target.value)}
                 className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
@@ -730,7 +730,7 @@ export default function PeoplePage() {
             <p className="text-xs text-slate-400">
               Showing{" "}
               <span className="font-semibold text-slate-600">
-                {filtered.length === 0 ? "0" : `${Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}â€“${Math.min(page * PAGE_SIZE, filtered.length)}`}
+                {filtered.length === 0 ? "0" : `${Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–${Math.min(page * PAGE_SIZE, filtered.length)}`}
               </span>{" "}
               of <span className="font-semibold text-slate-600">{filtered.length}</span> people
             </p>

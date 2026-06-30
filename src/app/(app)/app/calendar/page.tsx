@@ -391,7 +391,7 @@ export default function CalendarOverviewPage() {
       <div className="md:hidden -mx-4">
         <CalendarTabNav />
       </div>
-      <div className="space-y-5 px-4 md:px-6 py-4 md:py-6">
+      <div className="space-y-5">
         <div className="hidden md:block">
         <SectionHeader
           title="Calendar"

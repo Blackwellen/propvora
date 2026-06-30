@@ -175,9 +175,9 @@ export default function ComplianceOverviewPage() {
 
   return (
     <>
-      {/* Page header + section-level actions toolbar. */}
-      <div className="px-6 pt-4 pb-1 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 shrink-0">Overview</h1>
+      {/* Section-level quick-actions toolbar. The page title lives in the
+          Compliance layout header (matches Legal), so this row carries actions only. */}
+      <div className="px-4 sm:px-6 pt-4 pb-1 flex flex-wrap items-center justify-end gap-2">
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => router.push("/property-manager/compliance/certificates/new")}

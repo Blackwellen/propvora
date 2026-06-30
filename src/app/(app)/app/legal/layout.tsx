@@ -17,15 +17,17 @@ export default async function LegalLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 -mx-6 -mt-6">
-      {/* Canonical section header: title above the persistent tab rail */}
-      <div className="px-6 pt-6 pb-4">
+    <div className="flex flex-col min-h-screen bg-slate-50 -mx-4 -mt-5 sm:-mx-6 sm:-mt-6">
+      {/* Canonical section header: title above the persistent tab rail. The
+          negative margins cancel the shell's content padding exactly at each
+          breakpoint so the section is flush with no mobile overflow. */}
+      <div className="px-4 sm:px-6 pt-6 pb-4">
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 leading-tight">Legal</h1>
         <p className="mt-1 text-sm text-slate-500">Notices, cases, possession and statutory compliance.</p>
       </div>
       <LegalTabNav />
       {/* Persistent, non-dismissible legal disclaimer on every legal page. */}
-      <div className="px-6 pt-4">
+      <div className="px-4 sm:px-6 pt-4">
         <JurisdictionBanner />
         <LegalDisclaimer />
       </div>
@@ -34,7 +36,7 @@ export default async function LegalLayout({ children }: { children: React.ReactN
           shows the correct statutory disclaimer (reviewed England & Wales wording,
           or the research-only "verify locally" wording for every other
           jurisdiction). Mirrors the Compliance section. */}
-      <div className="px-6 pb-6">
+      <div className="px-4 sm:px-6 pb-6">
         <LegalJurisdictionNote />
       </div>
     </div>

@@ -86,11 +86,10 @@ export function MoneyTabNav({ actions, counts }: MoneyTabNavProps) {
 
   return (
     <div className="border-b border-slate-200 bg-white">
-      {/* Mobile / tablet / PWA (< lg): 14 tabs would squash, so collapse to a
-          dropdown select that navigates on change (Tab System Rule, 8+ tabs).
-          Gated at lg to match the app shell's mobile breakpoint (MobileTopBar /
-          MobileBottomNav take over below lg) — avoids a double header. */}
-      <div className="lg:hidden flex items-center gap-2 px-4 py-2.5">
+      {/* Phone / PWA (< md): collapse to a dropdown select that navigates on
+          change (Tab System Rule, 8+ tabs). Tablet and up (>= md) get the
+          horizontal scrolling strip — phones never side-scroll the tab rail. */}
+      <div className="md:hidden flex items-center gap-2 px-4 py-2.5">
         <label className="relative flex-1 min-w-0">
           <span className="sr-only">Money section</span>
           <select
@@ -115,8 +114,8 @@ export function MoneyTabNav({ actions, counts }: MoneyTabNavProps) {
         {actions && <div className="shrink-0">{actions}</div>}
       </div>
 
-      {/* Desktop (>= lg): horizontal scrollable tab bar with a fade-free hidden scrollbar. */}
-      <div className="hidden lg:flex items-center justify-between">
+      {/* Tablet & desktop (>= md): horizontal scrollable tab bar with a fade-free hidden scrollbar. */}
+      <div className="hidden md:flex items-center justify-between">
         <div className="flex items-center gap-0.5 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {tabs.map((tab) => {
             const active = isActive(tab.href)

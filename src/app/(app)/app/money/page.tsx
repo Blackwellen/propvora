@@ -381,7 +381,7 @@ export default function MoneyOverviewPage() {
         ]}
       />
 
-      <DashboardContainer className="px-6 py-6 flex flex-col gap-6">
+      <DashboardContainer className="flex flex-col gap-6">
         <JurisdictionBanner />
         {/* Desktop section header — below lg the shell renders MobileTopBar +
             MobileBottomNav, so gate at lg to avoid a duplicate header. */}
@@ -411,7 +411,7 @@ export default function MoneyOverviewPage() {
 
         {/* Mobile section nav — kept visible below lg (MoneyTabNav shows its
             dropdown variant), matching the shell's mobile breakpoint. */}
-        <div className="lg:hidden -mx-6">
+        <div className="lg:hidden -mx-4 sm:-mx-6">
           <MoneyTabNav />
         </div>
 

@@ -20,8 +20,10 @@ export function PlanningPageShell({
 }: PlanningPageShellProps) {
   return (
     <div className="min-h-full">
-      {/* Canonical order: page header (title + actions) first … */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 px-4 sm:px-6 lg:px-8 pt-6 pb-4 bg-white">
+      {/* Canonical order: page header (title + actions) first. No background or
+          extra horizontal padding — the header sits flush in the shell's content
+          padding, identical to every other section (Money/Work/Calendar). */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-4">
         <div className="flex items-center gap-3 min-w-0">
           {badge && (
             <div
@@ -31,10 +33,10 @@ export function PlanningPageShell({
               {badge.label}
             </div>
           )}
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 leading-tight">{title}</h1>
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 leading-tight truncate">{title}</h1>
             {subtitle && (
-              <p className="text-sm text-slate-500 mt-1">{subtitle}</p>
+              <p className="text-sm text-slate-500 mt-1 text-pretty">{subtitle}</p>
             )}
           </div>
         </div>
@@ -47,7 +49,7 @@ export function PlanningPageShell({
       <PlanningTabNav />
 
       {/* … then page content */}
-      <div className="px-4 sm:px-6 lg:px-8 py-6">{children}</div>
+      <div className="py-6">{children}</div>
     </div>
   )
 }

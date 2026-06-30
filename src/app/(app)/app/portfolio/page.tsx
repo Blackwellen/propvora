@@ -379,24 +379,40 @@ export default function PortfolioPage() {
       </div>
       {/* end desktop header (hidden on phones) */}
 
-      {/* KPI strip */}
-      {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-5">
-          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-5">
-          {portfolioKpis.map(k => <PortfolioKpiCard key={k.label} {...k} />)}
-        </div>
-      )}
-
       {/* Main tab bar.
          Overview is the only inline tab. Properties / Units / Tenancies are LINKS
          to their canonical standalone routes (/portfolio/properties, /units,
          /tenancies) — these are the single source of truth, also reached by every
          detail-page "Back" link and the PortfolioSectionTabs. This removes the
          previous "two forms of the same page" (inline tab vs standalone route). */}
-      <div className="flex items-center gap-0 mb-4 border-b border-slate-200 overflow-x-auto">
+      {/* Phone / PWA (< md): dropdown instead of a side-scrolling strip. */}
+      <div className="md:hidden mb-4">
+        <label className="relative block">
+          <span className="sr-only">Portfolio section</span>
+          <select
+            value={activeTab}
+            onChange={(e) => {
+              const key = e.target.value as MainTab
+              if (key === "overview") setActiveTab("overview")
+              else router.push(`/property-manager/portfolio/${key}`)
+            }}
+            className="w-full appearance-none rounded-xl border border-slate-200 bg-white pl-3 pr-9 py-2.5 text-[13px] font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
+            aria-label="Portfolio section"
+          >
+            {MAIN_TABS.map(tab => (
+              <option key={tab.key} value={tab.key}>
+                {tab.label}{tab.count != null ? ` (${tab.count})` : ""}
+              </option>
+            ))}
+          </select>
+          <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+          </svg>
+        </label>
+      </div>
+
+      {/* Tablet & desktop (>= md): horizontal tab strip. */}
+      <div className="hidden md:flex items-center gap-0 mb-4 border-b border-slate-200 overflow-x-auto">
         {MAIN_TABS.map(tab => {
           const Icon = tab.icon
           const active = activeTab === tab.key
@@ -426,6 +442,17 @@ export default function PortfolioPage() {
           )
         })}
       </div>
+
+      {/* KPI strip — canonical order: header → tabs → KPIs → content */}
+      {loading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-5">
+          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-5">
+          {portfolioKpis.map(k => <PortfolioKpiCard key={k.label} {...k} />)}
+        </div>
+      )}
 
       {/* Tab content */}
       {loading ? (

@@ -138,7 +138,7 @@ export default function PlanningPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/property-manager/planning/wizard"
-            className="flex items-center gap-2 h-9 px-4 rounded-xl bg-[#7C3AED] text-white text-[13px] font-semibold hover:bg-violet-700 transition-colors shadow-sm"
+            className="flex items-center gap-2 h-9 px-4 rounded-xl bg-[var(--brand)] text-white text-[13px] font-semibold hover:bg-[var(--brand-strong)] transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
             New Planning Set
@@ -161,7 +161,7 @@ export default function PlanningPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[15px] font-bold text-slate-900">Operation Profiles</h2>
           <div className="flex items-center gap-3">
-            <Link href="/property-manager/planning/profiles" className="text-[12.5px] font-semibold text-[#7C3AED] hover:text-violet-700 transition-colors">
+            <Link href="/property-manager/planning/profiles" className="text-[12.5px] font-semibold text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
               View all profiles →
             </Link>
             <button onClick={() => scrollProfiles("left")} className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-500 transition-colors">
@@ -218,7 +218,7 @@ export default function PlanningPage() {
                 <FolderOpen className="w-8 h-8 text-slate-300 mx-auto mb-3" />
                 <p className="text-[13px] font-semibold text-slate-600">No planning sets yet</p>
                 <p className="text-[12px] text-slate-400 mt-1">Create your first set to start modelling deals.</p>
-                <Link href="/property-manager/planning/wizard" className="inline-flex items-center gap-1.5 mt-3 h-8 px-4 rounded-xl bg-[#7C3AED] text-white text-[12.5px] font-semibold hover:bg-violet-700 transition-colors">
+                <Link href="/property-manager/planning/wizard" className="inline-flex items-center gap-1.5 mt-3 h-8 px-4 rounded-xl bg-[var(--brand)] text-white text-[12.5px] font-semibold hover:bg-[var(--brand-strong)] transition-colors">
                   <Plus className="w-3.5 h-3.5" /> New Planning Set
                 </Link>
               </div>

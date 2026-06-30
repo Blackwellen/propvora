@@ -36,7 +36,7 @@ export function PlanningTabNav() {
   const { containerRef, itemRef } = useScrollActiveTabIntoView(activeKey)
 
   return (
-    <div className="border-b border-slate-200 bg-white sticky top-0 z-20">
+    <div className="border-b border-slate-200 bg-white">
       {/* Mobile dropdown — shown only below md breakpoint */}
       <div className="md:hidden px-4 py-2.5">
         <select
@@ -67,14 +67,14 @@ export function PlanningTabNav() {
                 "h-12 text-[13px] font-medium",
                 "border-b-2 -mb-px",
                 active
-                  ? "border-[#7C3AED] text-[#7C3AED]"
+                  ? "border-[var(--brand)] text-[var(--brand)]"
                   : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-200"
               )}
             >
               {/* Active background highlight */}
               {active && (
                 <span
-                  className="absolute inset-x-1 inset-y-1.5 rounded-lg bg-[#7C3AED]/[0.07] pointer-events-none"
+                  className="absolute inset-x-1 inset-y-1.5 rounded-lg bg-[var(--brand)]/[0.07] pointer-events-none"
                   aria-hidden="true"
                 />
               )}

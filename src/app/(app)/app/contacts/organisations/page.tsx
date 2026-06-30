@@ -22,7 +22,7 @@ import OrganisationCard from "@/components/contacts/OrganisationCard"
 import type { Contact } from "@/types/database"
 
 /* ================================================================== */
-/* Shared organisation action menu â€” wired to live update/delete       */
+/* Shared organisation action menu — wired to live update/delete       */
 /* ================================================================== */
 function OrgActionMenu({ contact, align = "right" }: { contact: Contact; align?: "left" | "right" }) {
   const router = useRouter()
@@ -132,7 +132,7 @@ function getInitials(name: string): string {
 }
 
 function relativeTime(iso: string | null): string {
-  if (!iso) return "â€”"
+  if (!iso) return "—"
   const diff = Date.now() - new Date(iso).getTime()
   const days = Math.floor(diff / 86400000)
   if (days === 0) return "Today"
@@ -278,7 +278,7 @@ function Pagination({ total, page, onPage }: { total: number; page: number; onPa
   return (
     <div className="flex items-center justify-between text-xs text-slate-500 mt-4">
       <span>
-        Showing <span className="font-semibold text-slate-700">{Math.min((page - 1) * PAGE_SIZE + 1, total)}â€“{Math.min(page * PAGE_SIZE, total)}</span> of {total}
+        Showing <span className="font-semibold text-slate-700">{Math.min((page - 1) * PAGE_SIZE + 1, total)}–{Math.min(page * PAGE_SIZE, total)}</span> of {total}
       </span>
       <div className="flex items-center gap-1">
         <button
@@ -435,7 +435,7 @@ export default function OrganisationsPage() {
           count={`${filtered.length} ${filtered.length === 1 ? "organisation" : "organisations"}`}
           search={searchQuery}
           onSearchChange={handleSearch}
-          searchPlaceholder="Search organisationsâ€¦"
+          searchPlaceholder="Search organisations…"
           onOpenFilters={() => setMobileFiltersOpen(true)}
           activeFilterCount={activeFilterCount}
         />
@@ -521,7 +521,7 @@ export default function OrganisationsPage() {
               <input
                 type="text"
                 aria-label="Search organisations"
-                placeholder="Search organisationsâ€¦"
+                placeholder="Search organisations…"
                 value={searchQuery}
                 onChange={e => handleSearch(e.target.value)}
                 className="w-full h-9 pl-8 pr-8 rounded-lg text-sm bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
@@ -561,7 +561,7 @@ export default function OrganisationsPage() {
                   className="h-9 pl-3 pr-7 rounded-lg border border-slate-200 text-xs text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] cursor-pointer appearance-none"
                 >
                   <option value="recent">Recently updated</option>
-                  <option value="name">Name Aâ€“Z</option>
+                  <option value="name">Name A–Z</option>
                   <option value="type">Type</option>
                 </select>
                 <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
@@ -594,7 +594,7 @@ export default function OrganisationsPage() {
             <p className="text-xs text-slate-400">
               Showing{" "}
               <span className="font-semibold text-slate-600">
-                {filtered.length === 0 ? "0" : `${Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}â€“${Math.min(page * PAGE_SIZE, filtered.length)}`}
+                {filtered.length === 0 ? "0" : `${Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–${Math.min(page * PAGE_SIZE, filtered.length)}`}
               </span>{" "}
               of <span className="font-semibold text-slate-600">{filtered.length}</span> organisations
             </p>

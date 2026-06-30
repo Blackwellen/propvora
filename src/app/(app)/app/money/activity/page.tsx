@@ -269,12 +269,12 @@ export default function ActivityPage() {
         />
         </div>
 
-        {/* Mobile header â€” search */}
+        {/* Mobile header — search */}
         <MobilePageHeader hideTitle
           title="Financial Activity"
           search={searchQuery}
           onSearchChange={setSearchQuery}
-          searchPlaceholder="Search activityâ€¦"
+          searchPlaceholder="Search activity…"
         />
 
         {/* KPI Row */}
@@ -485,8 +485,8 @@ export default function ActivityPage() {
                       )}
                       <ActionMenu
                         items={[
-                          { label: "View Details", icon: Eye, onClick: () => showToast(`${row.eventTitle} â€” ${row.description}`) },
-                          { label: "Copy Description", icon: Copy, onClick: () => { navigator.clipboard?.writeText(`${row.eventTitle} â€” ${row.description}`); showToast("Copied to clipboard") } },
+                          { label: "View Details", icon: Eye, onClick: () => showToast(`${row.eventTitle} — ${row.description}`) },
+                          { label: "Copy Description", icon: Copy, onClick: () => { navigator.clipboard?.writeText(`${row.eventTitle} — ${row.description}`); showToast("Copied to clipboard") } },
                         ]}
                       />
                     </div>

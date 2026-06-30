@@ -145,8 +145,8 @@ export default function MessagesInboxPage() {
         {/* Desktop header — hidden below lg; MobileTopBar (lg:hidden) owns 768–1023 + phones */}
         <div className="hidden lg:flex items-start justify-between gap-4 mb-6 flex-wrap">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Messages</h1>
-            <p className="mt-1 text-sm text-slate-500">Your inbox — all contact conversations in one place</p>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight leading-tight">Messages</h1>
+            <p className="mt-1 text-sm text-slate-500 text-pretty">Your inbox — all contact conversations in one place</p>
           </div>
           <div className="flex items-center gap-2">
             <button

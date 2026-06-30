@@ -1,6 +1,6 @@
 "use client"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import {
   LayoutDashboard,
@@ -34,11 +34,45 @@ interface ComplianceTabNavProps {
 
 export function ComplianceTabNav({ actions, counts }: ComplianceTabNavProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const visibleTabs = COMPLIANCE_TABS
+
+  const isTabActive = (tab: (typeof COMPLIANCE_TABS)[number]) =>
+    tab.key === "overview"
+      ? pathname === "/property-manager/compliance" || pathname === "/property-manager/compliance/overview"
+      : pathname.startsWith(tab.href)
+  const activeHref = visibleTabs.find(isTabActive)?.href ?? visibleTabs[0].href
 
   return (
     <div className="border-b border-slate-200 bg-white">
-      <div className="flex items-center justify-between">
+      {/* Phone / PWA (< md): collapse the 8 tabs to a dropdown that navigates on
+          change (Tab System Rule, 8+ tabs). Tablet and up scroll the strip. */}
+      <div className="md:hidden px-4 py-2.5">
+        <label className="relative block">
+          <span className="sr-only">Compliance section</span>
+          <select
+            value={activeHref}
+            onChange={(e) => router.push(e.target.value)}
+            className="w-full appearance-none rounded-xl border border-slate-200 bg-white pl-3 pr-9 py-2.5 text-[13px] font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-[var(--brand)]"
+            aria-label="Compliance section"
+          >
+            {visibleTabs.map((tab) => {
+              const count = counts?.[tab.key]
+              return (
+                <option key={tab.key} value={tab.href}>
+                  {tab.label}{count != null && count > 0 ? ` (${count > 99 ? "99+" : count})` : ""}
+                </option>
+              )
+            })}
+          </select>
+          <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+          </svg>
+        </label>
+      </div>
+
+      {/* Tablet & desktop (>= md): horizontal scrollable tab strip. */}
+      <div className="hidden md:flex items-center justify-between">
         <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {visibleTabs.map((tab) => {
             const active =

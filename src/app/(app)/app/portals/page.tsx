@@ -54,7 +54,7 @@ export default function PortalsOverviewPage() {
 
   return (
     <DashboardContainer>
-      <div className="px-6 pt-6 pb-10 space-y-6">
+      <div className="space-y-6">
         <SectionHeader
           title="Customer Portals"
           subtitle="Provision secure, scoped portal access for landlords, suppliers and tenants."
