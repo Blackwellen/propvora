@@ -20,6 +20,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { authorizeCron } from "@/lib/cron/auth"
 import { clearMaturedCommissions } from "@/lib/affiliate/commission"
 import { runAffiliateAutoPayouts } from "@/lib/affiliate/auto-payouts"
+import { runAffiliateAutoAccept } from "@/lib/affiliate/auto-accept"
 import { captureException, requestIdFrom } from "@/lib/observability"
 
 export const runtime = "nodejs"
@@ -38,6 +39,14 @@ async function handle(request: Request): Promise<NextResponse> {
 
   const admin = createAdminClient()
   const out: Record<string, unknown> = { ok: true }
+
+  // 0. Auto-accept new affiliate applications + email the login link.
+  try {
+    out.autoAccept = await runAffiliateAutoAccept(admin)
+  } catch (err) {
+    captureException(err, { source: "api/cron/affiliate:autoAccept", requestId })
+    out.autoAcceptError = true
+  }
 
   // 1. Release matured commissions past the 30-day hold (pending → payable).
   try {

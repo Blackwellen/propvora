@@ -23,6 +23,7 @@ import { reconcilePayments } from "@/lib/payments/reconciliation"
 import { dispatchPpmReminderEmails } from "@/lib/ppm/reminder-emails"
 import { clearMaturedCommissions } from "@/lib/affiliate/commission"
 import { runAffiliateAutoPayouts } from "@/lib/affiliate/auto-payouts"
+import { runAffiliateAutoAccept } from "@/lib/affiliate/auto-accept"
 import { captureException, requestIdFrom } from "@/lib/observability"
 
 export const runtime = "nodejs"
@@ -77,6 +78,14 @@ async function handle(request: Request): Promise<NextResponse> {
   } catch (err) {
     captureException(err, { source: "api/cron/daily:ppmReminders", requestId })
     out.ppmRemindersError = true
+  }
+
+  // 4b. Auto-accept new affiliate applications + email the login link.
+  try {
+    out.affiliateAutoAccept = await runAffiliateAutoAccept(admin)
+  } catch (err) {
+    captureException(err, { source: "api/cron/daily:affiliateAutoAccept", requestId })
+    out.affiliateAutoAcceptError = true
   }
 
   // 5. Affiliate hold-release: move commissions past the 30-day cooling-off from

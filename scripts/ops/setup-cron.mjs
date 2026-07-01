@@ -51,7 +51,9 @@ const JOBS = [
   ["propvora-automation-runner", "*/10 * * * *", "/api/cron/automation-runner"],
   ["propvora-expire-holds", "17 * * * *", "/api/cron/expire-holds"],
   ["propvora-reconcile", "0 */6 * * *", "/api/cron/reconcile"],
-  ["propvora-affiliate", "20 */6 * * *", "/api/cron/affiliate"],
+  // Every 15 min so new applicants are auto-accepted + emailed promptly. All
+  // steps (auto-accept, clear, payouts) are idempotent and no-op when idle.
+  ["propvora-affiliate", "*/15 * * * *", "/api/cron/affiliate"],
 ]
 
 function scheduleSql(name, sched, path) {
