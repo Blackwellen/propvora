@@ -37,7 +37,7 @@ export const LEGAL_DOCUMENTS: Record<LegalDocumentType, LegalDocument> = {
     type: "terms_of_service",
     title: "Terms of Service",
     href: "/legal/terms",
-    version: "2025-06-02",
+    version: "2026-07-01",
   },
   privacy_policy: {
     type: "privacy_policy",
@@ -67,7 +67,7 @@ export const LEGAL_DOCUMENTS: Record<LegalDocumentType, LegalDocument> = {
     type: "affiliate_terms",
     title: "Affiliate Terms",
     href: "/legal/affiliate-terms",
-    version: "2025-06-02",
+    version: "2026-07-01",
   },
 }
 

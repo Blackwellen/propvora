@@ -39,8 +39,9 @@ const SECTIONS: { h: string; body: string[] }[] = [
   {
     h: "5. Cooling-off, payouts and reversals",
     body: [
-      "New commission is held as pending for at least 30 days. It becomes payable only after the customer's payment is confirmed and the refund/chargeback window has passed. The minimum payout threshold is £50.",
-      "Commission reverses on refund, chargeback, cancellation, failed payment, fraud, duplicate referral or invalid attribution. Pending commission cannot be withdrawn.",
+      "New commission is held as pending for at least 30 days. No funds are released during this window. It becomes payable only after the customer's payment has cleared, the refund/chargeback window has passed, and the referred subscription is retained (not refunded, charged back or cancelled). The minimum payout threshold is £50.",
+      "Payouts are made automatically via Stripe Connect to the Stripe account you connect in your dashboard — you must connect a payouts-enabled Stripe account before commission can be paid. Once your cleared balance reaches £50 it is paid out automatically.",
+      "Commission reverses on refund (including within the customer's 30-day money-back window), chargeback, dispute, cancellation, failed payment, fraud, duplicate referral or invalid attribution. Pending commission cannot be withdrawn.",
     ],
   },
   {
@@ -59,7 +60,7 @@ const SECTIONS: { h: string; body: string[] }[] = [
   {
     h: "8. Taxes, data and changes",
     body: [
-      "You are responsible for your own taxes. We process personal data in line with our Privacy Policy. We may change the Programme or these terms; material changes will be communicated. Payout execution may be operated manually during early release.",
+      "You are responsible for your own taxes. We process personal data in line with our Privacy Policy. We may change the Programme or these terms; material changes will be communicated. Payouts are executed automatically via Stripe Connect once commission has cleared the hold window.",
     ],
   },
 ]
@@ -72,7 +73,7 @@ export default function AffiliateTermsPage() {
         <div className="max-w-2xl mx-auto">
           <h1 className="text-3xl font-bold text-[#0D1B2A]">Affiliate Terms</h1>
           <p className="mt-2 text-sm text-slate-500">
-            Last updated 12 June 2026 · Operated by Blackwellen Ltd (trading as Propvora).
+            Last updated 1 July 2026 · Operated by Blackwellen Ltd (trading as Propvora).
           </p>
           <div className="mt-8 space-y-7">
             {SECTIONS.map((s) => (

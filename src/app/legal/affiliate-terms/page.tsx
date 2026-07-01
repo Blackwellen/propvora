@@ -8,22 +8,22 @@ export const metadata: Metadata = {
 
 export default function AffiliateTermsPage() {
   return (
-    <LegalLayout title="Affiliate Terms & Conditions" lastUpdated="16 June 2026">
+    <LegalLayout title="Affiliate Terms & Conditions" lastUpdated="1 July 2026">
       <Section num="1" title="Programme Overview">
         <p>
           The Propvora Affiliate Programme (&ldquo;Programme&rdquo;) allows approved participants (&ldquo;Affiliates&rdquo;) to earn commission by referring new paying customers to Propvora. These Affiliate Terms (&ldquo;Terms&rdquo;) govern participation in the Programme and form a legally binding agreement between you (the Affiliate) and Blackwellen Ltd (trading as Propvora).
         </p>
         <p>
-          Participation in the Programme is available to Propvora Business plan subscribers. By applying to and participating in the Programme, you agree to these Terms in full.
+          Anyone may apply to the Programme — you do not need to be a Propvora customer. Existing Propvora customers can also enrol directly from their workspace settings. Participation requires our approval, and by applying to and participating in the Programme, you agree to these Terms in full.
         </p>
       </Section>
 
       <Section num="2" title="Eligibility and Application">
         <p>To participate in the Programme, you must:</p>
         <ul>
-          <li>Hold an active Propvora Business plan subscription</li>
+          <li>Apply and be approved by Propvora (we may approve, reject, waitlist or request more information at our discretion)</li>
           <li>Be at least 18 years old and legally capable of entering a contract</li>
-          <li>Have a valid bank account or PayPal account for payouts</li>
+          <li>Connect a Stripe account to receive payouts (payouts are paid via Stripe Connect — see section 5)</li>
           <li>Comply with all applicable laws regarding promotional activities in your jurisdiction</li>
           <li>Not be an employee, director, or contractor of Blackwellen Ltd (trading as Propvora)</li>
         </ul>
@@ -57,30 +57,34 @@ export default function AffiliateTermsPage() {
 
       <Section num="4" title="Tracking and Attribution">
         <p>
-          Each Affiliate is assigned a unique referral link via the Affiliate Dashboard in their Propvora workspace. Referrals are tracked using first-touch attribution with a 30-day cookie window. This means:
+          Each Affiliate is assigned a unique referral link and code via the Affiliate Dashboard. Referrals are tracked using last-click attribution with a 60-day cookie window. This means:
         </p>
         <ul>
-          <li>A referral is attributed to you when a visitor clicks your unique link and signs up within 30 days</li>
-          <li>If a visitor clicks multiple affiliate links, the first-touch link is credited</li>
-          <li>The 30-day cookie window resets each time the visitor clicks your link</li>
-          <li>Self-referrals (referring your own account) are not permitted and will be disqualified</li>
+          <li>A referral is attributed to you when a visitor clicks your unique link and signs up to a paying subscription within 60 days</li>
+          <li>If a visitor clicks multiple affiliate links, the most recent (last-click) link is credited</li>
+          <li>The 60-day cookie window resets each time the visitor clicks your link</li>
+          <li>Self-referrals (referring your own account) and referrals of existing customers are not permitted and will be disqualified</li>
         </ul>
         <p>
           Propvora&rsquo;s tracking records are final in all attribution disputes.
         </p>
       </Section>
 
-      <Section num="5" title="Payouts">
+      <Section num="5" title="Cooling-off, Payouts and Reversals">
         <p>
-          Commission is paid monthly, subject to the following conditions:
+          Commission is earned only on valid, approved, paying customers and is subject to a cooling-off / chargeback hold before it can be released:
         </p>
         <ul>
-          <li><strong>Minimum payout threshold:</strong> £50. If your earned commission is below £50 in a month, it rolls over to the next month</li>
-          <li><strong>Payment method:</strong> Bank transfer or PayPal, as selected in your Affiliate Dashboard</li>
-          <li><strong>Payment date:</strong> Within 14 business days of the end of each calendar month, subject to clearance of referred customer payments</li>
-          <li><strong>Chargeback/refund deductions:</strong> If a referred customer receives a refund, the corresponding commission will be deducted from your next payout</li>
-          <li><strong>Currency:</strong> All payouts are made in GBP</li>
+          <li><strong>Hold window:</strong> New commission is held as <em>pending</em> for at least 30 days. No funds are released during this window. Commission becomes <em>payable</em> only after the referred customer&rsquo;s payment has cleared, the refund/chargeback window has passed, and the referred subscription is retained — i.e. it has not been refunded, charged back or cancelled.</li>
+          <li><strong>Payment method:</strong> Payouts are made automatically via Stripe Connect to the Stripe account you connect in your Affiliate Dashboard. You must connect a Stripe account that is enabled to receive payouts before any commission can be paid.</li>
+          <li><strong>Minimum payout threshold:</strong> £50. If your cleared balance is below £50 it rolls over until the threshold is met.</li>
+          <li><strong>Schedule:</strong> Once commission has cleared the hold window and your cleared balance is at or above the threshold, it is paid automatically to your connected Stripe account.</li>
+          <li><strong>Reversals:</strong> Commission reverses and is withheld on refund (including within the customer&rsquo;s 30-day money-back window), chargeback, dispute, cancellation, failed payment, fraud, duplicate referral or invalid attribution. Pending commission cannot be withdrawn.</li>
+          <li><strong>Currency:</strong> All payouts are made in GBP.</li>
         </ul>
+        <Callout type="info">
+          Because a referred subscription can be refunded or charged back after it is first paid, commission is only released once that subscription has been retained past its refund/chargeback window. If the subscription is refunded or cancelled during the hold, the related commission is reversed.
+        </Callout>
       </Section>
 
       <Section num="6" title="Permitted Promotion Methods">
@@ -153,9 +157,21 @@ function Section({ num, title, children }: { num: string; title: string; childre
         <span className="text-blue-600 text-base font-bold">{num}.</span>
         {title}
       </h2>
-      <div className="space-y-4 text-slate-700 leading-relaxed text-sm [&_a]:text-blue-600 [&_a:hover]:text-blue-700 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_strong]:font-semibold [&_strong]:text-slate-900 [&_h3]:font-semibold [&_h3]:text-slate-900 [&_h3]:mt-4 [&_h3]:mb-2">
+      <div className="space-y-4 text-slate-700 leading-relaxed text-sm [&_a]:text-blue-600 [&_a:hover]:text-blue-700 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_strong]:font-semibold [&_strong]:text-slate-900 [&_h3]:font-semibold [&_h3]:text-slate-900 [&_h3]:mt-4 [&_h3]:mb-2 [&_em]:italic">
         {children}
       </div>
+    </div>
+  )
+}
+
+function Callout({ type, children }: { type: "warning" | "info"; children: React.ReactNode }) {
+  const styles = {
+    warning: "bg-amber-50 border-amber-300 text-amber-900",
+    info: "bg-blue-50 border-blue-300 text-blue-900",
+  }
+  return (
+    <div className={`p-4 rounded-xl border-l-4 ${styles[type]} text-sm leading-relaxed my-4`}>
+      {children}
     </div>
   )
 }

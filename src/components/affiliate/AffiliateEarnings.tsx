@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { Banknote, AlertCircle, TrendingUp, Loader2 } from "lucide-react"
+import { Banknote, AlertCircle, TrendingUp } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Skeleton } from "@/components/ui/Skeleton"
@@ -11,8 +11,8 @@ import { ResponsiveTable, type MobileCardMapping } from "@/components/mobile"
 import { useAffiliate } from "@/components/affiliate/useAffiliate"
 import { formatPence, levelByBand, MIN_PAYOUT_PENCE } from "@/lib/affiliate/levels"
 import { isAffiliatePayoutsEnabled } from "@/lib/affiliate/payout-flag"
-import { requestAffiliatePayout } from "@/lib/affiliate/payouts"
 import { getMonthlyEarnings, type MonthlyEarningsRow } from "@/lib/affiliate/dashboard-data"
+import ConnectStatusBanner, { type ConnectBannerState } from "@/components/payments/ConnectStatusBanner"
 
 interface PayoutRow {
   id: string
@@ -48,37 +48,37 @@ function formatMonth(m: string): string {
 }
 
 export function AffiliateEarnings({ basePath }: { basePath: string }) {
-  const { loading: affLoading, affiliate, workspaceId, reload } = useAffiliate()
+  const { loading: affLoading, affiliate, workspaceId } = useAffiliate()
   const [payouts, setPayouts] = useState<PayoutRow[]>([])
   const [monthly, setMonthly] = useState<MonthlyEarningsRow[]>([])
   const [loading, setLoading] = useState(true)
-  const [requesting, setRequesting] = useState(false)
-  const [requestMsg, setRequestMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [connect, setConnect] = useState<ConnectBannerState>({ connected: false, status: "none", payoutsEnabled: false })
   const payoutsEnabled = isAffiliatePayoutsEnabled()
 
   async function loadData() {
     if (!workspaceId) return
     const supabase = createClient()
-    const [payoutsResult, monthlyResult] = await Promise.all([
+    const [payoutsResult, monthlyResult, connectResult] = await Promise.all([
       supabase
         .from("affiliate_payouts")
         .select("id, period, amount_pence, method:payout_method, status, paid_at, created_at")
         .eq("affiliate_workspace_id", workspaceId)
         .order("created_at", { ascending: false }),
       getMonthlyEarnings(workspaceId),
+      supabase
+        .from("stripe_connect_accounts")
+        .select("status, payouts_enabled")
+        .eq("workspace_id", workspaceId)
+        .maybeSingle(),
     ])
     if (payoutsResult.data) setPayouts(payoutsResult.data as PayoutRow[])
     setMonthly(monthlyResult)
-  }
-
-  async function handleRequest() {
-    if (!workspaceId) return
-    setRequesting(true)
-    setRequestMsg(null)
-    const res = await requestAffiliatePayout(workspaceId)
-    setRequesting(false)
-    setRequestMsg({ ok: res.ok, text: res.ok ? "Payout requested. We'll review it shortly." : res.error ?? "Could not request payout." })
-    if (res.ok) { await loadData(); await reload() }
+    const c = connectResult.data as { status?: string; payouts_enabled?: boolean } | null
+    setConnect({
+      connected: !!c,
+      status: (c?.status as string) ?? "none",
+      payoutsEnabled: c?.payouts_enabled === true,
+    })
   }
 
   useEffect(() => {
@@ -245,39 +245,36 @@ export function AffiliateEarnings({ basePath }: { basePath: string }) {
             </div>
           </div>
           {(() => {
-            const inFlight = payouts.find((p) => ["requested", "approved", "processing"].includes(p.status))
-            if (inFlight) {
-              return (
-                <div className="flex items-start gap-2 rounded-xl bg-sky-50 border border-sky-100 p-3 text-xs text-sky-700">
-                  <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                  You have a payout request {inFlight.status === "approved" ? "approved and awaiting payment" : "under review"} for {formatPence(inFlight.amount_pence ?? 0)}.
-                </div>
-              )
-            }
             if (!payoutsEnabled) {
               return (
                 <div className="flex items-start gap-2 rounded-xl bg-violet-50 border border-violet-100 p-3 text-xs text-violet-700">
                   <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                  Payouts coming soon — your cleared balance keeps accruing and you&apos;ll be able to request from here once the programme opens. You are responsible for your own taxes.
+                  Payouts coming soon — your cleared balance keeps accruing and you&apos;ll be paid automatically once the programme opens. You are responsible for your own taxes.
                 </div>
               )
             }
+            // Payouts are automated via Stripe Connect. First the affiliate must
+            // connect a payouts-enabled Stripe account; then cleared balances are
+            // paid automatically on the payout run — no manual request needed.
+            if (!connect.payoutsEnabled) {
+              return (
+                <div className="space-y-2">
+                  <ConnectStatusBanner state={connect} purpose="affiliate" />
+                  <p className="text-xs text-slate-400">
+                    Once connected, cleared commission of {formatPence(MIN_PAYOUT_PENCE)} or more is paid to you automatically. You are responsible for your own taxes.
+                  </p>
+                </div>
+              )
+            }
+            const inFlight = payouts.find((p) => ["requested", "approved", "processing"].includes(p.status))
             return (
-              <div className="space-y-2">
-                <button
-                  onClick={handleRequest}
-                  disabled={!canPayout || requesting}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {requesting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {requesting ? "Requesting…" : `Request payout of ${formatPence(cleared)}`}
-                </button>
-                {!canPayout && (
-                  <p className="text-xs text-slate-400">Reach {formatPence(MIN_PAYOUT_PENCE)} cleared to request a payout.</p>
-                )}
-                {requestMsg && (
-                  <p className={`text-xs ${requestMsg.ok ? "text-emerald-600" : "text-red-500"}`}>{requestMsg.text}</p>
-                )}
+              <div className="flex items-start gap-2 rounded-xl bg-emerald-50 border border-emerald-100 p-3 text-xs text-emerald-700">
+                <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                {inFlight
+                  ? <>A payout of {formatPence(inFlight.amount_pence ?? 0)} is {inFlight.status === "paid" ? "paid" : "on its way"} to your connected Stripe account.</>
+                  : canPayout
+                  ? <>Payouts are automatic — your cleared balance of {formatPence(cleared)} will be paid to your connected Stripe account on the next payout run. You are responsible for your own taxes.</>
+                  : <>Payouts are automatic once your cleared balance reaches {formatPence(MIN_PAYOUT_PENCE)}. It&apos;s then paid to your connected Stripe account. You are responsible for your own taxes.</>}
               </div>
             )
           })()}

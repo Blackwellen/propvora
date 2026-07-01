@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <LegalLayout title="Terms of Service" lastUpdated="16 June 2026">
+    <LegalLayout title="Terms of Service" lastUpdated="1 July 2026">
       <Section num="1" title="Introduction and Acceptance">
         <p>
           These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of the Propvora platform, software, and services (collectively, the &ldquo;Service&rdquo;) provided by Blackwellen Ltd, trading as Propvora (&ldquo;Propvora&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;), a company registered in England and Wales under company number 16482166, with its registered office at 61 Bridge Street, Kington, HR5 3DJ.
@@ -82,11 +82,17 @@ export default function TermsPage() {
           All payments are processed securely by Stripe. Propvora does not store your payment card details. Subscriptions renew automatically at the end of each billing period (monthly or annual) unless cancelled before the renewal date.
         </p>
         <p>
-          You may cancel your subscription at any time from your account settings. Cancellation takes effect at the end of the current billing period. No refunds are provided for partial periods, except within the 7-day satisfaction guarantee for new paid subscriptions.
+          <strong>Cancelling.</strong> You may cancel your subscription at any time from your account settings. Cancellation stops the next automatic renewal — your plan then stays fully active until the end of the period you have already paid for, and is not cut off early. To avoid being charged for the next cycle, you must cancel <strong>before</strong> your renewal date.
+        </p>
+        <p>
+          <strong>Refunds.</strong> New paid subscriptions include a 30-day money-back guarantee: if you request a refund within 30 days of your first payment for that subscription, we will refund that first payment in full. After the first 30 days, subscription fees are non-refundable — including for unused time when you cancel part-way through a billing cycle — because the Service has been made available to you throughout the period. Pro-rata or partial-period refunds are not provided outside the 30-day window. This is why we ask you to cancel before your renewal date if you do not want the next cycle.
         </p>
         <p>
           We reserve the right to modify subscription pricing with 30 days&rsquo; notice. Continued use of the Service after a price change constitutes acceptance of the new pricing.
         </p>
+        <Callout type="info">
+          <strong>In short:</strong> cancel any time and keep access until the end of the period you paid for; cancel before your renewal date to stop the next charge; new subscriptions are covered by a 30-day money-back guarantee, after which fees are non-refundable. Nothing in this section removes any statutory cancellation rights you may have as a consumer.
+        </Callout>
       </Section>
 
       <Section num="6" title="Free Trial">

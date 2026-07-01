@@ -332,13 +332,17 @@ export async function payAffiliatePayoutViaStripe(payoutId: string): Promise<Pay
   try {
     const Stripe = (await import("stripe")).default
     const stripe = new Stripe(secretKey, { apiVersion: "2026-05-27.dahlia" as const })
-    const transfer = await stripe.transfers.create({
-      amount,
-      currency: "gbp",
-      destination,
-      description: `Propvora affiliate payout ${payoutId.slice(0, 8)}`,
-      metadata: { affiliate_payout_id: payoutId, affiliate_workspace_id: wsId },
-    })
+    const transfer = await stripe.transfers.create(
+      {
+        amount,
+        currency: "gbp",
+        destination,
+        description: `Propvora affiliate payout ${payoutId.slice(0, 8)}`,
+        metadata: { affiliate_payout_id: payoutId, affiliate_workspace_id: wsId },
+      },
+      // Deterministic key → a retry/double-click never creates a second transfer.
+      { idempotencyKey: `affpayout_${payoutId}` },
+    )
     transferId = transfer.id
   } catch (e) {
     const msg = (e as { message?: string })?.message ?? ""

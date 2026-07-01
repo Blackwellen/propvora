@@ -13,6 +13,7 @@ const footerLinks = {
     { label: "Features", href: "/features" },
     { label: "Pricing", href: "/pricing" },
     { label: "Partner Programme", href: "/affiliate-programme" },
+    { label: "Affiliate Login", href: "/affiliate-login" },
     { label: "Help Centre", href: "/help" },
   ] as { label: string; href: string; mk?: boolean }[],
   company: [

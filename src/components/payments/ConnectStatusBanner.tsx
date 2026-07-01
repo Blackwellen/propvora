@@ -12,12 +12,28 @@ export interface ConnectBannerState {
 
 /* Connect-account status banner. Links to (or starts) the existing Connect
    onboarding when payouts aren't yet set up. Honest about state — never claims
-   payouts are live unless the account reports payouts_enabled. */
-export default function ConnectStatusBanner({ state }: { state: ConnectBannerState }) {
+   payouts are live unless the account reports payouts_enabled. The `purpose`
+   prop tunes the copy for the two payout contexts (marketplace escrow vs
+   affiliate commission) without duplicating the component. */
+export default function ConnectStatusBanner({
+  state,
+  purpose = "escrow",
+}: {
+  state: ConnectBannerState
+  purpose?: "escrow" | "affiliate"
+}) {
   const [starting, setStarting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const active = state.payoutsEnabled && state.status === "active"
+  const activeCopy =
+    purpose === "affiliate"
+      ? "Your connected Stripe account is set up to receive affiliate payouts."
+      : "Your connected Stripe account is set up to receive released escrow funds."
+  const setupCopy =
+    purpose === "affiliate"
+      ? "Connect your Stripe account so your affiliate commission is paid directly to you when it clears."
+      : "Connect your own Stripe account so released escrow funds settle directly to you."
 
   async function startOnboarding() {
     setStarting(true)
@@ -49,7 +65,7 @@ export default function ConnectStatusBanner({ state }: { state: ConnectBannerSta
         <div className="flex-1 min-w-0">
           <p className="text-[13px] font-semibold text-emerald-800">Payouts are active</p>
           <p className="text-[12px] text-emerald-700">
-            Your connected Stripe account is set up to receive released escrow funds.
+            {activeCopy}
           </p>
         </div>
         <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0 hidden sm:block" />
@@ -92,7 +108,7 @@ export default function ConnectStatusBanner({ state }: { state: ConnectBannerSta
             ? "Stripe needs more details before payouts can be released to you."
             : pending
             ? "Your Stripe onboarding is in progress — complete it to start receiving payouts."
-            : "Connect your own Stripe account so released escrow funds settle directly to you."}
+            : setupCopy}
         </p>
         {error && <p className="text-[12px] text-red-600 mt-1">{error}</p>}
       </div>

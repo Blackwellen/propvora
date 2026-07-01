@@ -21,6 +21,8 @@ import { escalateOverdueApprovals } from "@/lib/automation/approvals"
 import { expireStaleHolds } from "@/lib/booking/reservations"
 import { reconcilePayments } from "@/lib/payments/reconciliation"
 import { dispatchPpmReminderEmails } from "@/lib/ppm/reminder-emails"
+import { clearMaturedCommissions } from "@/lib/affiliate/commission"
+import { runAffiliateAutoPayouts } from "@/lib/affiliate/auto-payouts"
 import { captureException, requestIdFrom } from "@/lib/observability"
 
 export const runtime = "nodejs"
@@ -75,6 +77,25 @@ async function handle(request: Request): Promise<NextResponse> {
   } catch (err) {
     captureException(err, { source: "api/cron/daily:ppmReminders", requestId })
     out.ppmRemindersError = true
+  }
+
+  // 5. Affiliate hold-release: move commissions past the 30-day cooling-off from
+  //    pending → payable (pending_pence → cleared_pence). Moves no money.
+  try {
+    out.affiliateCleared = await clearMaturedCommissions(admin)
+  } catch (err) {
+    captureException(err, { source: "api/cron/daily:affiliateClear", requestId })
+    out.affiliateClearError = true
+  }
+
+  // 6. Automated affiliate payouts — real Stripe Connect transfers for cleared
+  //    balances. Idempotent; gated by NEXT_PUBLIC_AFFILIATE_PAYOUTS_ENABLED and
+  //    only pays payouts-enabled connected accounts past the £50 minimum.
+  try {
+    out.affiliatePayouts = await runAffiliateAutoPayouts(admin)
+  } catch (err) {
+    captureException(err, { source: "api/cron/daily:affiliatePayouts", requestId })
+    out.affiliatePayoutsError = true
   }
 
   return NextResponse.json(out)

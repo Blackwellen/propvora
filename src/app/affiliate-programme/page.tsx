@@ -44,7 +44,7 @@ const AUDIENCE = [
 const PERKS = [
   { icon: Percent, title: "10% recurring", sub: "On eligible subscription revenue, for 6 months per referral." },
   { icon: Clock, title: "60-day cookie", sub: "Last-click attribution within a 60-day window." },
-  { icon: Wallet, title: "£50 payout threshold", sub: "Withdraw once cleared commission reaches £50." },
+  { icon: Wallet, title: "£50 payout threshold", sub: "Paid automatically via Stripe once cleared commission reaches £50." },
   { icon: Users, title: "Real dashboard", sub: "Live links, referrals, earnings and payout status." },
 ]
 
