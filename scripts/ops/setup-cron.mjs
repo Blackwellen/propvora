@@ -20,7 +20,10 @@ const env = { ...parseEnv(".env"), ...parseEnv(".env.local") }
 const PAT = env.SUPABASE_PERSONAL_ACCESS_KEY
 const CRON_SECRET = env.CRON_SECRET
 const PROJECT_REF = "oovgfknmzjcgbilwumch"
-const BASE = "https://propvora.com"
+// Canonical host is www — the apex 308-redirects to it, and pg_net does NOT
+// follow redirects, so cron jobs must target www directly or they'd never reach
+// the handler.
+const BASE = "https://www.propvora.com"
 const verifyOnly = process.argv.includes("--verify-only")
 
 if (!PAT) { console.error("Missing SUPABASE_PERSONAL_ACCESS_KEY"); process.exit(1) }
